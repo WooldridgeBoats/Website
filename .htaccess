@@ -1,18 +1,21 @@
 RewriteEngine On
 
-# Redirect index.html requests to the trailing slash /
+# Redirect index.html requests to the trailing slash / (folder pages only —
+# e.g. contact/index.html -> contact/). This relies only on Apache's native
+# DirectoryIndex to serve the folder afterward, so it's safe even though
+# testing showed this specific redirect doesn't fire on this host; nothing
+# depends on it firing.
 RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /.*index\.html\ HTTP/
 RewriteRule ^(.*)index\.html$ $1 [R=301,L]
 
-# Redirect any other explicit "page.html" request to the extension-less URL
-RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /.*\.html\ HTTP/
-RewriteCond %{THE_REQUEST} !index\.html
-RewriteRule ^(.*)\.html$ $1 [R=301,L]
-
-# Internally serve page.html when /page is requested, without changing the URL.
-# Uses mod_negotiation's MultiViews instead of a hand-rolled RewriteRule:
-# a custom "$1.html" rewrite with [L] restarts the whole ruleset against its
-# own output in per-directory context, and on this host that was looping
-# until the internal-redirect limit tripped (500). MultiViews has no such
-# loop risk — it's a one-line, purpose-built mechanism for exactly this.
-Options +MultiViews
+# NOTE: an earlier version of this file also tried to hide the .html
+# extension on flat pages (tools/*.html, lp/*.html) via a redirect rule plus
+# either a custom RewriteRule or Options +MultiViews to serve them. Neither
+# worked on this host — investigation showed .htaccess rewrite conditions
+# and Options aren't being honored here, and any request that falls through
+# to an actual 404 on this host returns a broken 500 instead (a separate,
+# pre-existing server/hosting misconfiguration, unrelated to this file).
+# All internal links have been reverted to their real .html filenames for
+# those pages, so nothing on the site currently depends on that behavior.
+# Revisit only after confirming with the host that AllowOverride grants
+# FileInfo/Options for this vhost.

@@ -22,24 +22,19 @@ sub handle {
     print $c "HTTP/1.0 404 Not Found\r\nContent-Type: text/plain\r\n\r\nnot found: $path";
     close $c; return;
   }
-  # mirror the .htaccess redirects against the RAW requested path, before any
-  # "/" -> "index.html" completion below (otherwise our own completion looks
-  # like an explicit ".html" request and gets redirected right back)
+  # mirror the .htaccess "index.html" -> trailing-slash redirect against the
+  # RAW requested path, before any "/" -> "index.html" completion below
+  # (otherwise our own completion looks like an explicit request and gets
+  # redirected right back). Flat pages (tools/*.html, lp/*.html) are served
+  # by their real filename only — no extension-hiding here, matching
+  # .htaccess after that mechanism was reverted (didn't work on the host).
   if ($path =~ m{^(.*/)index\.html$}) {
-    print $c "HTTP/1.0 301 Moved Permanently\r\nLocation: $1\r\nContent-Length: 0\r\n\r\n";
-    close $c; return;
-  }
-  if ($path =~ m{^(.*)\.html$}) {
     print $c "HTTP/1.0 301 Moved Permanently\r\nLocation: $1\r\nContent-Length: 0\r\n\r\n";
     close $c; return;
   }
   my $lookup = $path;
   $lookup .= 'index.html' if $lookup =~ m{/$};
   my $file = "$root$lookup";
-  # mirror the .htaccess "page" -> "page.html" internal rewrite (clean URL serving)
-  if (!-f $file and !-d $file and -f "$file.html") {
-    $file .= '.html';
-  }
   unless (-f $file) {
     print $c "HTTP/1.0 404 Not Found\r\nContent-Type: text/plain\r\n\r\nnot found: $path";
     close $c; return;
