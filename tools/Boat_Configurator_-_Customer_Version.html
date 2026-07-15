@@ -447,6 +447,15 @@
   }
   #trailerStep .mcard.open{border-color:var(--ink);}
   #trailerStep .mcard.inbuild{border-color:var(--kelp); box-shadow:0 0 0 1px var(--kelp);}
+  /* house.css (loaded for the shared header/footer) styles a global .mcard as the homepage
+     photo card: aspect-ratio:16/10 inflated these trailer rows into tall gray boxes, and its
+     ::after gradient overlay both painted the gray slab AND swallowed clicks on the row button
+     (dead trailer selector). Neutralize those leaks here - the tool's sheet wins on specificity
+     and load order. Do not remove. */
+  #trailerStep .mcard{aspect-ratio:auto; box-shadow:0 1px 0 rgba(33,43,49,.04); cursor:default;}
+  #trailerStep .mcard::after{content:none;}
+  #trailerStep .mcard img{width:auto; height:auto; object-fit:contain; transition:none;}
+  #trailerStep .mcard:hover img{transform:none;}
   #trailerStep .mrow{
     display:grid; grid-template-columns:minmax(150px,1.1fr) 1.2fr auto auto; gap:14px; align-items:center; width:100%;
     background:none; border:none; padding:15px 18px; cursor:pointer; font-family:inherit; text-align:left; color:var(--ink);
