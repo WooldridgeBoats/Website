@@ -9,12 +9,10 @@ RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /.*\.html\ HTTP/
 RewriteCond %{THE_REQUEST} !index\.html
 RewriteRule ^(.*)\.html$ $1 [R=301,L]
 
-# Internally serve page.html when /page is requested, without changing the URL
-# (the REQUEST_URI guard is required, not cosmetic: it stops this rule from
-# re-firing against its own output on the internal restart that [L] triggers
-# in per-directory context — without it, some hosts loop appending ".html"
-# until the internal-redirect limit trips and the request 500s)
-RewriteCond %{REQUEST_URI} !\.html$
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME}.html -f
-RewriteRule ^(.+)$ $1.html [L]
+# Internally serve page.html when /page is requested, without changing the URL.
+# Uses mod_negotiation's MultiViews instead of a hand-rolled RewriteRule:
+# a custom "$1.html" rewrite with [L] restarts the whole ruleset against its
+# own output in per-directory context, and on this host that was looping
+# until the internal-redirect limit tripped (500). MultiViews has no such
+# loop risk — it's a one-line, purpose-built mechanism for exactly this.
+Options +MultiViews
