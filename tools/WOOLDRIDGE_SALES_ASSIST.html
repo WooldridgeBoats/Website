@@ -561,7 +561,7 @@ const localUrl = p => settings.local ? settings.local.replace(/\/+$/,'') + '/' +
 function buildLink(id, base){
   const f = FACTS[id];
   const packed = {v:1, d:f.drive, m:id, s:null, l:null, a:0, e:null, o:{}, r:{}, cu:[], n:'', t:null};
-  return base + 'tools/Boat_Configurator_-_Customer_Version.html#b=' + btoa(JSON.stringify(packed));
+  return base + 'tools/Boat_Configurator_-_Customer_Version#b=' + btoa(JSON.stringify(packed));
 }
 
 /* =====================================================================
@@ -631,21 +631,21 @@ function buildFlags(a, winId){
   const flags = [];
   const m = a.must || [], u = a.use || [];
   if (u.includes('freight') || m.includes('bowramp'))
-    flags.push({t:'Landing Craft territory', d:'Freight / bow-ramp needs point at the custom-quoted Landing Crafts. Loop in Grant for a workboat quote before anchoring the customer on a recreational hull.', link:'models/landing-craft/index.html'});
+    flags.push({t:'Landing Craft territory', d:'Freight / bow-ramp needs point at the custom-quoted Landing Crafts. Loop in Grant for a workboat quote before anchoring the customer on a recreational hull.', link:'models/landing-craft/'});
   if (u.includes('guide'))
-    flags.push({t:'Commercial / guide build', d:'Guide and charter rigs often go through the Custom & Agency Builds program — layout, capacity, and commercial requirements are factory conversations.', link:'custom-agency-builds/index.html'});
+    flags.push({t:'Commercial / guide build', d:'Guide and charter rigs often go through the Custom & Agency Builds program — layout, capacity, and commercial requirements are factory conversations.', link:'custom-agency-builds/'});
   if (u.includes('offshore') || (a.water === 'salt' && (a.load === 'heavy' || a.budget === 'b4')))
-    flags.push({t:'Serious offshore — custom hulls exist', d:'Beyond the SSO, the Deepwater Series and Pybus Offshore are custom-quoted expedition hulls. If the mission is genuinely blue-water, get Grant on the phone.', link:'models/deepwater/index.html'});
+    flags.push({t:'Serious offshore — custom hulls exist', d:'Beyond the SSO, the Deepwater Series and Pybus Offshore are custom-quoted expedition hulls. If the mission is genuinely blue-water, get Grant on the phone.', link:'models/deepwater/'});
   if (m.includes('custom'))
-    flags.push({t:'Custom layout / dimensions', d:'Custom dimensions are real here (the Canyon even lists them on request) — but they’re quoted by the factory, not the price sheet. Send specs to Grant.', link:'models/canyon/index.html'});
+    flags.push({t:'Custom layout / dimensions', d:'Custom dimensions are real here (the Canyon even lists them on request) — but they’re quoted by the factory, not the price sheet. Send specs to Grant.', link:'models/canyon/'});
   if (m.includes('cabin') && winId === 'sso')
-    flags.push({t:'SSO Pilothouse variant', d:'They want an enclosed helm on the offshore hull — show the Super Sport Offshore Pilothouse before they look elsewhere.', link:'models/supersportoffshorepilothouse/index.html'});
+    flags.push({t:'SSO Pilothouse variant', d:'They want an enclosed helm on the offshore hull — show the Super Sport Offshore Pilothouse before they look elsewhere.', link:'models/supersportoffshorepilothouse/'});
   if (FACTS[winId] && FACTS[winId].pp)
     flags.push({t:'Offshore power pricing', d:'Offshore hull prices are published, but power packages are priced with the factory team — don’t quote engine numbers on this one.'});
   if (a.timeline === 'asap' || a.timeline === 'months')
-    flags.push({t:'Confirm build slots & stock', d:'Tight timeline. Verify current factory lead time and check new-inventory / dealer stock before promising a date.', link:'new-inventory/index.html'});
+    flags.push({t:'Confirm build slots & stock', d:'Tight timeline. Verify current factory lead time and check new-inventory / dealer stock before promising a date.', link:'new-inventory/'});
   if (a.budget === 'b1')
-    flags.push({t:'Budget path — LT, pre-owned, or DIY kit', d:'Under $50K: Alaskan LT starts at ' + fmt(FACTS.lt.from) + ' with power. Also worth mentioning: pre-owned listings and the River Rat DIY kit.', link:'models/riverrat-diy-kit/index.html'});
+    flags.push({t:'Budget path — LT, pre-owned, or DIY kit', d:'Under $50K: Alaskan LT starts at ' + fmt(FACTS.lt.from) + ' with power. Also worth mentioning: pre-owned listings and the River Rat DIY kit.', link:'models/riverrat-diy-kit/'});
   if (m.includes('hdpe'))
     flags.push({t:'HDPE technical questions', d:'Rogue HDPE construction, trim blades, and repairability questions go to the factory — it’s a different animal from aluminum and worth a expert walkthrough.'});
   const reg = $('#region').value;
@@ -707,7 +707,7 @@ function emailDraft(a, w, whys){
   if (settings.site){
     lines.push('');
     lines.push('Take a look:');
-    lines.push('  • ' + f.nm + ' page: ' + siteUrl('models/' + f.slug + '/index.html'));
+    lines.push('  • ' + f.nm + ' page: ' + siteUrl('models/' + f.slug + '/'));
     lines.push('  • 2026 price sheet (PDF): ' + siteUrl('pricesheets/' + f.sheet));
     lines.push('  • Build & price yours: ' + buildLink(w.id, settings.site.replace(/\/+$/,'') + '/'));
     lines.push('  • Our boats on the water: ' + YT);
@@ -855,12 +855,12 @@ function render(){
 
   /* --- send them --- */
   h += '<div class="card"><h3>Send The Customer</h3><div class="linkgrid">';
-  h += '<a class="lnk" href="' + esc(local('models/' + f.slug + '/index.html')) + '" target="_blank" rel="noopener"><span class="k">Model Page</span><span class="t">' + f.nm + ' — full specs &amp; gallery</span></a>';
+  h += '<a class="lnk" href="' + esc(local('models/' + f.slug + '/')) + '" target="_blank" rel="noopener"><span class="k">Model Page</span><span class="t">' + f.nm + ' — full specs &amp; gallery</span></a>';
   h += '<a class="lnk" href="' + esc(local('pricesheets/' + f.sheet)) + '" target="_blank" rel="noopener"><span class="k">PDF</span><span class="t">2026 Price Sheet</span></a>';
   h += '<a class="lnk" href="' + esc(buildLink(w.id, (settings.local||'.') + '/')) + '" target="_blank" rel="noopener"><span class="k">Configurator</span><span class="t">Build &amp; Price — prefilled ' + f.nm + '</span></a>';
   h += '<a class="lnk" href="' + YT + '" target="_blank" rel="noopener"><span class="k">YouTube</span><span class="t">Wooldridge channel — boats on the water</span></a>';
-  h += '<a class="lnk" href="' + esc(local('photos/index.html')) + '" target="_blank" rel="noopener"><span class="k">Photos</span><span class="t">Delivery &amp; field photo galleries</span></a>';
-  h += '<a class="lnk" href="' + esc(local('tools/WHICH_WOOLDRIDGE_QUIZ_2.html')) + '" target="_blank" rel="noopener"><span class="k">Quiz</span><span class="t">Which Wooldridge — let them self-confirm</span></a>';
+  h += '<a class="lnk" href="' + esc(local('photos/')) + '" target="_blank" rel="noopener"><span class="k">Photos</span><span class="t">Delivery &amp; field photo galleries</span></a>';
+  h += '<a class="lnk" href="' + esc(local('tools/WHICH_WOOLDRIDGE_QUIZ_2')) + '" target="_blank" rel="noopener"><span class="k">Quiz</span><span class="t">Which Wooldridge — let them self-confirm</span></a>';
   h += '</div><div class="fineprint">Preview buttons open your local site copy; the email uses the public URL from Settings.</div></div>';
 
   /* --- dealer --- */

@@ -10,6 +10,17 @@ my %MIME = (html=>'text/html; charset=utf-8', css=>'text/css', js=>'application/
             svg=>'image/svg+xml', json=>'application/json', ico=>'image/x-icon',
             woff=>'font/woff', woff2=>'font/woff2', pdf=>'application/pdf');
 
+# mirrors <!--#include virtual="/path" --> the way Apache mod_include would,
+# so header.html / footer.html render in local preview too
+sub ssi_includes {
+  my ($body) = @_;
+  $body =~ s{<!--\#include\s+virtual="([^"]+)"\s*-->}{
+    my $inc = "$root$1";
+    (-f $inc) ? do { open my $f, '<:raw', $inc; local $/; <$f> } : "<!-- missing include: $1 -->";
+  }ge;
+  return $body;
+}
+
 sub handle {
   my ($c) = @_;
   binmode $c;
@@ -18,9 +29,29 @@ sub handle {
   my ($path) = $req =~ m{^GET\s+([^\s\?#]+)};
   unless ($path) { close $c; return }
   $path =~ s/%([0-9A-Fa-f]{2})/chr hex $1/ge;
-  $path .= 'index.html' if $path =~ m{/$};
-  my $file = "$root$path";
-  if ($path =~ /\.\./ or !-f $file) {
+  if ($path =~ /\.\./) {
+    print $c "HTTP/1.0 404 Not Found\r\nContent-Type: text/plain\r\n\r\nnot found: $path";
+    close $c; return;
+  }
+  # mirror the .htaccess redirects against the RAW requested path, before any
+  # "/" -> "index.html" completion below (otherwise our own completion looks
+  # like an explicit ".html" request and gets redirected right back)
+  if ($path =~ m{^(.*/)index\.html$}) {
+    print $c "HTTP/1.0 301 Moved Permanently\r\nLocation: $1\r\nContent-Length: 0\r\n\r\n";
+    close $c; return;
+  }
+  if ($path =~ m{^(.*)\.html$}) {
+    print $c "HTTP/1.0 301 Moved Permanently\r\nLocation: $1\r\nContent-Length: 0\r\n\r\n";
+    close $c; return;
+  }
+  my $lookup = $path;
+  $lookup .= 'index.html' if $lookup =~ m{/$};
+  my $file = "$root$lookup";
+  # mirror the .htaccess "page" -> "page.html" internal rewrite (clean URL serving)
+  if (!-f $file and !-d $file and -f "$file.html") {
+    $file .= '.html';
+  }
+  unless (-f $file) {
     print $c "HTTP/1.0 404 Not Found\r\nContent-Type: text/plain\r\n\r\nnot found: $path";
     close $c; return;
   }
@@ -28,6 +59,7 @@ sub handle {
   my $mime = $MIME{lc($ext // '')} || 'application/octet-stream';
   open my $f, '<:raw', $file or do { print $c "HTTP/1.0 500 Err\r\n\r\n"; close $c; return };
   my $body = do { local $/; <$f> }; close $f;
+  $body = ssi_includes($body) if lc($ext // '') eq 'html';
   print $c "HTTP/1.0 200 OK\r\nContent-Type: $mime\r\nContent-Length: " .
            length($body) . "\r\nCache-Control: no-store\r\n\r\n" . $body;
   close $c;

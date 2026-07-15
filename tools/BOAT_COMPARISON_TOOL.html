@@ -190,7 +190,7 @@
     <div class="txt"><b>Still on the fence?</b> Send your comparison straight to the shop and a real person will talk you through it &mdash; pricing, build slots, and honest advice, no obligation.</div>
     <div style="display:flex; flex-wrap:wrap; gap:10px;">
       <button type="button" class="btn" id="btnAskDanny">Email us about these boats</button>
-      <a class="btn ghost2" id="btnOpenConfig" href="Boat_Configurator_-_Customer_Version.html" target="_blank" rel="noopener">Build &amp; price your boat &rarr;</a>
+      <a class="btn ghost2" id="btnOpenConfig" href="Boat_Configurator_-_Customer_Version" target="_blank" rel="noopener">Build &amp; price your boat &rarr;</a>
     </div>
   </div>
 </div>
@@ -224,31 +224,31 @@
 <script>
 'use strict';
 /* Point this at the deployed customer configurator so "Build this boat" deep-links with the model pre-selected. */
-const CONFIG_URL = 'Boat_Configurator_-_Customer_Version.html';
+const CONFIG_URL = 'Boat_Configurator_-_Customer_Version';
 
 /* Core model facts — same shape and figures as the Which Wooldridge quiz (models.json is the source of truth). */
 const FACTS = {"lt":{"nm":"Alaskan LT","tag":"Light utility jet sled — 16/18/20 ft","drive":"ob","lengths":[16,18,20],"styles":["tiller","occ"],"from":31889,"maxLen":20,"pp":false},"ak":{"nm":"Alaskan","tag":"The classic Wooldridge sled — 18/20 ft","drive":"ob","lengths":[18,20],"styles":["occ","ws"],"from":56658,"maxLen":20,"pp":false},"xlt":{"nm":"Alaskan XLT","tag":"Extra-wide tiller & console — 18/20 ft","drive":"ob","lengths":[18,20],"styles":["tiller","occ"],"from":43439,"maxLen":20,"pp":false},"xl":{"nm":"Alaskan XL","tag":"Big-water 20 ft heavy hauler","drive":"ob","lengths":[20],"styles":["occ","ws"],"from":68019,"maxLen":20,"pp":false},"rogue":{"nm":"Rogue HDPE","tag":"Fully welded HDPE hull — 16/18/20 ft","drive":"ob","lengths":[16,18,20],"styles":["tiller","occ"],"from":49889,"maxLen":20,"pp":false},"skagit":{"nm":"Skagit","tag":"Deep-sided offshore sled — 18/20 ft","drive":"ob","lengths":[18,20],"styles":["occ","ws"],"from":70019,"maxLen":20,"pp":false},"sport":{"nm":"Sport","tag":"Pointed-bow crossover — 18/20 ft","drive":"ob","lengths":[18,20],"styles":["occ","ws"],"from":71519,"maxLen":20,"pp":false},"ssd":{"nm":"Super Sport Drifter","tag":"Pointed-bow jet drifter — 21/23/25 ft","drive":"ob","lengths":[21,23,25],"styles":["occ","ws"],"from":78519,"maxLen":25,"pp":false},"xlib":{"nm":"Alaskan XL Inboard","tag":"Inboard jet heavy hauler — 20/21 ft","drive":"ib","lengths":[20,21],"styles":["ws"],"from":112999,"maxLen":21,"pp":false},"scout":{"nm":"Scout","tag":"Inboard jet workhorse — 19/21/23 ft","drive":"ib","lengths":[19,21,23],"styles":["ws"],"from":119999,"maxLen":23,"pp":false},"scoutwb":{"nm":"Scout Widebody","tag":"Full-cabin inboard — 21/23/25 ft","drive":"ib","lengths":[21,23,25],"styles":["ws"],"from":165999,"maxLen":25,"pp":false},"skagitib":{"nm":"Skagit Inboard","tag":"Inboard jet sled — 18/20 ft","drive":"ib","lengths":[18,20],"styles":["ws"],"from":114999,"maxLen":20,"pp":false},"sportster":{"nm":"Sportster","tag":"Outboard jet sportster — 21/23/25 ft","drive":"ob","lengths":[21,23,25],"styles":["occ","ws"],"from":90534,"maxLen":25,"pp":false},"sportib":{"nm":"Sport Inboard","tag":"Inboard jet crossover — 18/20 ft","drive":"ib","lengths":[18,20],"styles":["ws"],"from":116999,"maxLen":20,"pp":false},"ssdib":{"nm":"Super Sport Drifter Inboard","tag":"Inboard jet drifter — 20/23/25 ft","drive":"ib","lengths":[20,23,25],"styles":["ws"],"from":123499,"maxLen":25,"pp":false},"skagitx":{"nm":"Skagit-X","tag":"Low-side aft-helm inboard — 21 ft","drive":"ib","lengths":[21],"styles":["ws"],"from":124999,"maxLen":21,"pp":false},"so":{"nm":"Sport Offshore","tag":"Offshore-bracket crossover — 18/20 ft","drive":"offshore","lengths":[18,20],"styles":["occ","ws"],"from":56499,"maxLen":20,"pp":true},"sso":{"nm":"Super Sport Offshore","tag":"Big-water offshore — 20/21/23/26 ft","drive":"offshore","lengths":[20,21,23,26],"styles":["occ","ws"],"from":62999,"maxLen":26,"pp":true}};
 
 /* Photos + model-page links (paths relative to /tools/) */
 const MEDIA = {
-  lt:       {ph:'../assets/photos/alaskan-lt/thumbs/2026-18-ws-3.jpg',                       url:'../models/alaskan-lt/index.html'},
-  ak:       {ph:'../assets/photos/alaskan/thumbs/4459-product-18-ws-ak-1.jpg',               url:'../models/alaskan/index.html'},
-  xlt:      {ph:'../assets/photos/alaskan-xlt/thumbs/5053-product-1.jpg',                    url:'../models/xlt/index.html'},
-  xl:       {ph:'../assets/photos/alaskanxl/thumbs/5226-product-1.jpg',                      url:'../models/alaskanxl/index.html'},
-  rogue:    {ph:'../assets/photos/rogue/thumbs/5162-water-1.jpg',                            url:'../models/rogue/index.html'},
-  skagit:   {ph:'../assets/photos/skagit/thumbs/4647-product-1.jpg',                         url:'../models/xp/index.html'},
-  sport:    {ph:'../assets/photos/sport/thumbs/4589-product-3.jpg',                          url:'../models/sport/index.html'},
-  ssd:      {ph:'../assets/photos/supersportdrifter/thumbs/5175-product-1.jpg',              url:'../models/supersportdrifter/index.html'},
-  sportster:{ph:'../assets/photos/sportster/thumbs/sportster-water-1.jpg',                   url:'../models/sportster/index.html'},
-  xlib:     {ph:'../assets/photos/alaskan-xl-inboard/thumbs/2026-20-first-responder-30.jpg', url:'../models/alaskan-xl-inboard/index.html'},
-  scout:    {ph:'../assets/photos/scout/thumbs/5113-product-1.jpg',                          url:'../models/scout/index.html'},
-  scoutwb:  {ph:'../assets/photos/scout-widebody/thumbs/5119-scout-widebody-product-27.jpg', url:'../models/scout-widebody/index.html'},
-  skagitib: {ph:'../assets/photos/skagit-inboard/thumbs/5094-product-12.jpg',                url:'../models/skagit-inboard/index.html'},
-  sportib:  {ph:'../assets/photos/sportinboard/thumbs/sportib-water-1.jpg',                  url:'../models/sportinboard/index.html'},
-  ssdib:    {ph:'../assets/photos/supersportdrifterinboard/thumbs/4403-photo-1.jpg',         url:'../models/supersportdrifterinboard/index.html'},
-  skagitx:  {ph:'../assets/photos/skagit-x/thumbs/5092-21-skagit-x-blue-01.jpg',             url:'../models/skagit-x/index.html'},
-  so:       {ph:'../assets/photos/sportoffshore/thumbs/5021-product-2.jpg',                  url:'../models/sportoffshore/index.html'},
-  sso:      {ph:'../assets/photos/super-sport-offshore/thumbs/4660-product-7.jpg',           url:'../models/super-sport-offshore/index.html'}
+  lt:       {ph:'../assets/photos/alaskan-lt/thumbs/2026-18-ws-3.jpg',                       url:'../models/alaskan-lt/'},
+  ak:       {ph:'../assets/photos/alaskan/thumbs/4459-product-18-ws-ak-1.jpg',               url:'../models/alaskan/'},
+  xlt:      {ph:'../assets/photos/alaskan-xlt/thumbs/5053-product-1.jpg',                    url:'../models/xlt/'},
+  xl:       {ph:'../assets/photos/alaskanxl/thumbs/5226-product-1.jpg',                      url:'../models/alaskanxl/'},
+  rogue:    {ph:'../assets/photos/rogue/thumbs/5162-water-1.jpg',                            url:'../models/rogue/'},
+  skagit:   {ph:'../assets/photos/skagit/thumbs/4647-product-1.jpg',                         url:'../models/xp/'},
+  sport:    {ph:'../assets/photos/sport/thumbs/4589-product-3.jpg',                          url:'../models/sport/'},
+  ssd:      {ph:'../assets/photos/supersportdrifter/thumbs/5175-product-1.jpg',              url:'../models/supersportdrifter/'},
+  sportster:{ph:'../assets/photos/sportster/thumbs/sportster-water-1.jpg',                   url:'../models/sportster/'},
+  xlib:     {ph:'../assets/photos/alaskan-xl-inboard/thumbs/2026-20-first-responder-30.jpg', url:'../models/alaskan-xl-inboard/'},
+  scout:    {ph:'../assets/photos/scout/thumbs/5113-product-1.jpg',                          url:'../models/scout/'},
+  scoutwb:  {ph:'../assets/photos/scout-widebody/thumbs/5119-scout-widebody-product-27.jpg', url:'../models/scout-widebody/'},
+  skagitib: {ph:'../assets/photos/skagit-inboard/thumbs/5094-product-12.jpg',                url:'../models/skagit-inboard/'},
+  sportib:  {ph:'../assets/photos/sportinboard/thumbs/sportib-water-1.jpg',                  url:'../models/sportinboard/'},
+  ssdib:    {ph:'../assets/photos/supersportdrifterinboard/thumbs/4403-photo-1.jpg',         url:'../models/supersportdrifterinboard/'},
+  skagitx:  {ph:'../assets/photos/skagit-x/thumbs/5092-21-skagit-x-blue-01.jpg',             url:'../models/skagit-x/'},
+  so:       {ph:'../assets/photos/sportoffshore/thumbs/5021-product-2.jpg',                  url:'../models/sportoffshore/'},
+  sso:      {ph:'../assets/photos/super-sport-offshore/thumbs/4660-product-7.jpg',           url:'../models/super-sport-offshore/'}
 };
 
 /* One-line picker blurbs — same voice as the fleet carousel on the homepage. */
