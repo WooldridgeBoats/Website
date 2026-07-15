@@ -10,17 +10,6 @@ my %MIME = (html=>'text/html; charset=utf-8', css=>'text/css', js=>'application/
             svg=>'image/svg+xml', json=>'application/json', ico=>'image/x-icon',
             woff=>'font/woff', woff2=>'font/woff2', pdf=>'application/pdf');
 
-# mirrors <!--#include virtual="/path" --> the way Apache mod_include would,
-# so header.html / footer.html render in local preview too
-sub ssi_includes {
-  my ($body) = @_;
-  $body =~ s{<!--\#include\s+virtual="([^"]+)"\s*-->}{
-    my $inc = "$root$1";
-    (-f $inc) ? do { open my $f, '<:raw', $inc; local $/; <$f> } : "<!-- missing include: $1 -->";
-  }ge;
-  return $body;
-}
-
 sub handle {
   my ($c) = @_;
   binmode $c;
@@ -59,7 +48,6 @@ sub handle {
   my $mime = $MIME{lc($ext // '')} || 'application/octet-stream';
   open my $f, '<:raw', $file or do { print $c "HTTP/1.0 500 Err\r\n\r\n"; close $c; return };
   my $body = do { local $/; <$f> }; close $f;
-  $body = ssi_includes($body) if lc($ext // '') eq 'html';
   print $c "HTTP/1.0 200 OK\r\nContent-Type: $mime\r\nContent-Length: " .
            length($body) . "\r\nCache-Control: no-store\r\n\r\n" . $body;
   close $c;
