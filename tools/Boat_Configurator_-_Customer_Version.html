@@ -243,7 +243,10 @@
   .qty .n{font-family:var(--mono); font-size:12px; font-weight:700; min-width:22px; text-align:center;}
 
   /* ── build sheet rail ── */
-  .rail{position:sticky; top:20px;}
+  /* display:block + overflow:visible are set EXPLICITLY: the site-wide house.css (loaded
+     for the shared header/footer) defines a global .rail as a horizontal flex scroller,
+     which otherwise collapses this build-sheet panel to a sliver. Do not remove. */
+  .rail{position:sticky; top:20px; display:block; overflow:visible;}
   .sheet{
     background:var(--card); border:1px solid var(--ink); border-radius:2px;
     box-shadow:0 4px 0 rgba(47,84,150,.35); overflow:hidden;
