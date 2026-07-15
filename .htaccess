@@ -3,3 +3,14 @@ RewriteEngine On
 # Redirect index.html requests to the trailing slash /
 RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /.*index\.html\ HTTP/
 RewriteRule ^(.*)index\.html$ $1 [R=301,L]
+
+# Redirect any other explicit "page.html" request to the extension-less URL
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /.*\.html\ HTTP/
+RewriteCond %{THE_REQUEST} !index\.html
+RewriteRule ^(.*)\.html$ $1 [R=301,L]
+
+# Internally serve page.html when /page is requested, without changing the URL
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^(.+)$ $1.html [L]
