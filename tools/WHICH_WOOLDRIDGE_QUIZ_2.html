@@ -460,7 +460,9 @@ document.getElementById('btnAskDanny').addEventListener('click', () => {
   const sum = answerSummary();
   if (sum.length) body += '\nMy answers:\n' + sum.join('\n') + '\n';
   body += '\nPlease send me pricing and availability.\n\nName:\nPhone:\nBest time to reach me:\n';
-  location.href = 'mailto:danny@wooldridgeboats.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  body += '\n--- WB-INQUIRY v1 (for our records - please leave this section intact) ---\nSource: Which Wooldridge Quiz\nType: QUIZ RESULT\n';
+  if (LAST) body += 'Model: ' + FACTS[LAST.win].nm + '\nRunnerUp: ' + FACTS[LAST.run].nm + '\n';
+  location.href = 'mailto:danny@wooldridgeboats.com?cc=data%40wooldridgeboats.com&subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
 });
 
 render();

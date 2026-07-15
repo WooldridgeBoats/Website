@@ -1170,7 +1170,7 @@
       <div class="sub" id="rDepSub">of your total build</div>
     </div>
     <p>A <span id="rDepPct2">deposit</span> reserves your place in the Wooldridge build schedule &mdash; 10% on builds under $100,000, 15% on builds of $100,000 and up. Contact Carrie to submit your deposit and lock in your slot.</p>
-    <a class="rbtn" id="rMail" href="mailto:Carrie@wooldridgeboats.com">Email Carrie@wooldridgeboats.com</a>
+    <a class="rbtn" id="rMail" href="mailto:Carrie@wooldridgeboats.com?cc=data@wooldridgeboats.com">Email Carrie@wooldridgeboats.com</a>
     <a class="rbtn ghost" href="tel:+12067228998">Call (206) 722-8998</a>
   </div>
 </div>
@@ -1336,7 +1336,7 @@ function renderModelCards(){
     panel.innerHTML = `<div class="inquirepanel">
       <div class="ih">${cat.nm} builds are configured with us directly</div>
       <p>${cat.blurb}</p>
-      <a class="rbtn" href="mailto:Grant@wooldridgeboats.com?cc=${encodeURIComponent('danny@wooldridgeboats.com,stephen@wooldridgeboats.com')}&amp;subject=${encodeURIComponent(cat.nm + ' build inquiry')}">Email Grant@wooldridgeboats.com</a>
+      <a class="rbtn" href="mailto:Grant@wooldridgeboats.com?cc=${encodeURIComponent('danny@wooldridgeboats.com; stephen@wooldridgeboats.com; data@wooldridgeboats.com')}&amp;subject=${encodeURIComponent(cat.nm + ' build inquiry')}">Email Grant@wooldridgeboats.com</a>
       <a class="rbtn ghost" href="tel:+12067228998">Call (206) 722-8998</a>
     </div>`;
     $('#modelNotes').innerHTML = '';
@@ -2007,7 +2007,7 @@ $('#btnPrint').addEventListener('click', () => {
 
 /* ════════ EMAIL + PDF BUILD SHEET ════════ */
 const DEALER_EMAIL = 'danny@wooldridgeboats.com';
-const CC_EMAIL = 'stephen@wooldridgeboats.com';   /* cc'd on every outbound email trigger */
+const CC_EMAIL = 'stephen@wooldridgeboats.com; data@wooldridgeboats.com';   /* cc'd on every outbound email trigger */
 
 function sheetSummary(){
   /* shared text model for the email body and the PDF */
@@ -2022,6 +2022,27 @@ function sheetSummary(){
   const meta = [c.email.trim(), c.phone.trim(), c.zip.trim() ? 'ZIP ' + c.zip.trim() : ''].filter(Boolean).join(' · ');
   const date = new Date().toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'});
   return {rows, inqs, boatTotal, trailerTotal:tr ? tr.retail : 0, hasTrailer:!!tr, total, name, meta, date};
+}
+
+function wbInquiryBlock(type){
+  /* machine-readable footer parsed by the internal Build Hub inquiries tab */
+  const s2 = sheetSummary();
+  const c2 = state.customer;
+  const drv = ({ob:'OUTBOARD', ib:'INBOARD', offshore:'OFFSHORE', agency:'AGENCY'})[state.drive] || '';
+  const cm = curModel(), cs = curStyle();
+  const L = ['--- WB-INQUIRY v1 (for our records - please leave this section intact) ---',
+    'Source: Boat Configurator', 'Type: ' + type];
+  if (cm) L.push('Model: ' + cm.nm);
+  if (drv) L.push('Drive: ' + drv);
+  if (state.len) L.push('Length: ' + state.len);
+  if (cs) L.push('Config: ' + cs.nm);
+  if (state.engine && state.engine !== 'hull') L.push('Motor: ' + state.engine);
+  if (s2.total) L.push('Total: ' + fmt(s2.total));
+  if (s2.name) L.push('Name: ' + s2.name);
+  if (c2.email.trim()) L.push('Email: ' + c2.email.trim());
+  if (c2.phone.trim()) L.push('Phone: ' + c2.phone.trim());
+  if (c2.zip.trim()) L.push('Zip: ' + c2.zip.trim());
+  return L.join('\n') + '\n';
 }
 
 function emailBodyText(){
@@ -2060,6 +2081,7 @@ function emailBodyText(){
   t += 'A ' + depositInfo(s.total).pct + ' deposit (' + fmt(depositInfo(s.total).amt) + ') holds your build slot.' + NL;
   t += 'Contact Carrie@wooldridgeboats.com or (206) 722-8998.' + NL + NL;
   t += 'A PDF copy of this build sheet was downloaded alongside this email \u2014 please attach it.' + NL + NL;
+  t += wbInquiryBlock('BUILD CONFIGURATION') + NL;
   t += 'Wooldridge Boats \u00b7 Seattle, Washington \u00b7 wooldridgeboats.com';
   return t;
 }
@@ -2218,7 +2240,7 @@ function emailBuildSheet(){
   /* 2. open a pre-addressed email to the customer + dealership */
   const subject = 'Wooldridge Boats Build Sheet \u2014 ' + name;
   const mailto = 'mailto:' + encodeURIComponent(c.email.trim())
-    + '?cc=' + encodeURIComponent(DEALER_EMAIL + ',' + CC_EMAIL)
+    + '?cc=' + encodeURIComponent(DEALER_EMAIL + '; ' + CC_EMAIL)
     + '&subject=' + encodeURIComponent(subject)
     + '&body=' + encodeURIComponent(emailBodyText());
   toast('Build sheet PDF downloaded \u2014 attach it to the email that opens.');
@@ -2246,7 +2268,7 @@ function openReserve(){
   const NL = String.fromCharCode(10);
   const body = 'Hi Carrie,' + NL + NL + 'I would like to reserve a build slot.' + NL + NL
     + 'Build: ' + first + NL + 'Total build: ' + fmt(s.total) + NL + di.pct + ' deposit: ' + fmt(dep)
-    + (s.name ? NL + NL + 'Name: ' + s.name : '') + (s.meta ? NL + 'Contact: ' + s.meta : '') + NL;
+    + (s.name ? NL + NL + 'Name: ' + s.name : '') + (s.meta ? NL + 'Contact: ' + s.meta : '') + NL + NL + wbInquiryBlock('RESERVATION');
   $('#rMail').href = 'mailto:' + RESERVE_EMAIL
     + '?cc=' + encodeURIComponent(CC_EMAIL)
     + '&subject=' + encodeURIComponent('Build slot reservation — ' + (s.name || first))

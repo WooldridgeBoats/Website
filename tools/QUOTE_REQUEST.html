@@ -303,7 +303,7 @@ footer{padding:10px 20px 24px;}
    CONFIG — integration settings (edit these)
    ───────────────────────────────────────────── */
 const DEALER_EMAIL = 'danny@wooldridgeboats.com';   /* lead recipient */
-const CC_EMAIL = 'stephen@wooldridgeboats.com';     /* cc'd on every lead */
+const CC_EMAIL = 'stephen@wooldridgeboats.com; data@wooldridgeboats.com';     /* cc'd on every lead */
 const FORM_ENDPOINT = '';   /* optional: POST URL (Formspree/Netlify/own API).
                                When set, submits FormData incl. photos instead
                                of opening a mailto draft. */
@@ -549,6 +549,17 @@ function buildSummary(a){
     L.push('== CUSTOMER NOTES (verbatim) ==');
     L.push($('#fNotes').value.trim());
   }
+  L.push('');
+  L.push('--- WB-INQUIRY v1 (for our records - please leave this section intact) ---');
+  L.push('Source: Quote Request Form');
+  L.push('Type: QUOTE REQUEST');
+  L.push('Model: ' + fw.nm);
+  L.push('RunnerUp: ' + fr.nm);
+  if (name) L.push('Name: ' + name);
+  if (email) L.push('Email: ' + email);
+  if (phone) L.push('Phone: ' + phone);
+  if (loc) L.push('Location: ' + loc);
+  L.push('Priority: ' + a.prioLabel);
   return L.join('\n');
 }
 

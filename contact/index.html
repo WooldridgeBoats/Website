@@ -123,7 +123,7 @@
         <a class="plate" href="../tools/QUOTE_REQUEST.html"><span class="k">No Obligation</span>Request a Quote</a>
       </div>
       <!-- FORM HANDLER PENDING — the form below posts nowhere yet. Wire action= to your handler (WP endpoint, Formspree, etc.). Until then the Send button opens a pre-filled email. -->
-      <form class="form" action="#" method="post" onsubmit="event.preventDefault(); location.href='mailto:info@wooldridgeboats.com?subject=Boat%20Inquiry&body='+encodeURIComponent('Name: '+this.nm.value+'\nPhone: '+this.ph.value+'\nDepartment: '+this.dept.value+'\n\n'+this.msg.value);">
+      <form class="form" action="#" method="post" onsubmit="event.preventDefault(); location.href='mailto:info@wooldridgeboats.com?cc=data@wooldridgeboats.com&subject=Boat%20Inquiry&body='+encodeURIComponent('Name: '+this.nm.value+'\nPhone: '+this.ph.value+'\nDepartment: '+this.dept.value+'\n\n'+this.msg.value);">
         <label for="f-nm">Name</label><input id="f-nm" name="nm" required autocomplete="name">
         <label for="f-em">Email</label><input id="f-em" name="em" type="email" required autocomplete="email">
         <label for="f-ph">Phone (optional)</label><input id="f-ph" name="ph" autocomplete="tel">
@@ -135,7 +135,7 @@
     </div>
     <div>
       <div class="infocard"><h3>Factory / Showroom</h3><div class="mono">1303 S 96TH ST<br>SEATTLE, WA 98108-5011<br><br>
-        <a href="tel:+12067228998">(206) 722-8998</a><br><a href="mailto:info@wooldridgeboats.com">INFO@WOOLDRIDGEBOATS.COM</a><br><br>MONDAY – THURSDAY, 6:00AM – 4:30PM</div></div>
+        <a href="tel:+12067228998">(206) 722-8998</a><br><a href="mailto:info@wooldridgeboats.com?cc=data@wooldridgeboats.com">INFO@WOOLDRIDGEBOATS.COM</a><br><br>MONDAY – THURSDAY, 6:00AM – 4:30PM</div></div>
       <div class="infocard"><h3>Visit</h3><div class="mono">FACTORY TOURS BY APPOINTMENT.<br>CALL AHEAD — WE'LL SHOW YOU AROUND.</div></div>
       <div class="infocard"><h3>Follow</h3><div class="mono">
         <a href="https://www.instagram.com/wooldridgeboats/">INSTAGRAM ↗</a><br><a href="https://www.facebook.com/WooldridgeBoats/">FACEBOOK ↗</a><br><a href="https://www.youtube.com/channel/UC-hVTJ7HySkqCjUENQY5CCQ">YOUTUBE ↗</a></div></div>
@@ -148,7 +148,7 @@
   <div class="wrap">
     <div class="flogo"><img src="/assets/brand/logo-wing-dark.png" alt="Wooldridge Boats 1915"></div>
     <div class="fcontact">
-      <a href="tel:+12067228998">206.722.8998</a><span class="sep">|</span><a href="mailto:info@wooldridgeboats.com">info@wooldridgeboats.com</a>
+      <a href="tel:+12067228998">206.722.8998</a><span class="sep">|</span><a href="mailto:info@wooldridgeboats.com?cc=data@wooldridgeboats.com">info@wooldridgeboats.com</a>
     </div>
     <div class="faddr">Factory | Showroom<br>1303 S 96th St.<br>Seattle, WA 98108-5011</div>
     <div class="fhours">Monday &ndash; Thursday 6:00AM &ndash; 4:30PM</div>

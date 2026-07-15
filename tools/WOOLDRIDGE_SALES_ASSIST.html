@@ -377,7 +377,7 @@ ul.pts li::before{content:'\25C6'; position:absolute; left:0; top:4px; color:var
 const YT = 'https://www.youtube.com/channel/UC-hVTJ7HySkqCjUENQY5CCQ';
 const FACTORY_PHONE = '(206) 722-8998';
 const GRANT = 'Grant@wooldridgeboats.com';
-const CC = 'danny@wooldridgeboats.com,stephen@wooldridgeboats.com';
+const CC = 'danny@wooldridgeboats.com; stephen@wooldridgeboats.com; data@wooldridgeboats.com';
 
 /* ---- fleet facts (from configurator / quiz — 2026 pricing) ---- */
 const FACTS = {
@@ -905,7 +905,7 @@ function render(){
     const nl = txt.indexOf('\n');
     const subj = txt.slice(0, nl).replace(/^Subject:\s*/,'');
     const body = txt.slice(nl+1).replace(/^\s+/,'');
-    mt.href = 'mailto:?subject=' + encodeURIComponent(subj) + '&body=' + encodeURIComponent(body);
+    mt.href = 'mailto:?cc=data%40wooldridgeboats.com&subject=' + encodeURIComponent(subj) + '&body=' + encodeURIComponent(body);
   });
   const pr = $('#btnPrint');
   if (pr) pr.addEventListener('click', () => window.print());
