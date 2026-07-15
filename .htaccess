@@ -1,0 +1,5 @@
+RewriteEngine On
+
+# Redirect index.html requests to the trailing slash /
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /.*index\.html\ HTTP/
+RewriteRule ^(.*)index\.html$ /$1 [R=301,L]
