@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AD CAMPAIGN — Landing Page Hub (Internal)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{ --ink:#23282d; --steel:#71787e; --line:#dcdfe2; --paper:#F2F2F2; --buoy:#1b75bb; --buoy-dark:#135a92;
+  --serif:Georgia, Palatino, "Palatino Linotype", "Times New Roman", Times, serif;
+  --shadow:0 1px 2px rgba(20,30,40,.06), 0 6px 22px rgba(20,30,40,.08); }
+*{box-sizing:border-box; margin:0; padding:0;}
+body{font-family:'Inter',system-ui,sans-serif; font-weight:300; background:var(--paper); color:#3c4247; font-size:15px; line-height:1.6; padding-bottom:60px;}
+.wrap{max-width:1080px; margin:0 auto; padding:0 20px;}
+.mast{background:#fff; border-top:3px solid var(--buoy); border-bottom:1px solid var(--line); padding:32px 0 28px;}
+.mast .k{font-size:10.5px; font-weight:500; letter-spacing:.22em; color:var(--steel); text-transform:uppercase;}
+.mast h1{font-family:var(--serif); color:var(--buoy); font-size:clamp(24px,4vw,36px); font-weight:700; letter-spacing:.005em; margin:8px 0 6px;}
+.mast p{color:#3c4247; max-width:780px; font-size:14px; font-weight:300;}
+.warn{background:#fff; border:1px solid var(--line); border-left:3px solid #b07d1a; border-radius:8px; padding:12px 16px; margin:22px 0; font-size:13px; color:#6b4e1c; box-shadow:var(--shadow);}
+h2{font-size:12.5px; font-weight:500; letter-spacing:.2em; text-transform:uppercase; margin:30px 0 12px; color:var(--ink);}
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:14px;}
+.card{background:#fff; border:1px solid var(--line); border-radius:10px; padding:18px; text-decoration:none; color:var(--ink); display:block; box-shadow:var(--shadow); transition:transform .15s ease, box-shadow .15s ease;}
+.card:hover{border-color:var(--buoy); transform:translateY(-2px);}
+.card .r{font-size:9.5px; font-weight:500; letter-spacing:.18em; text-transform:uppercase; color:var(--buoy);}
+.card b{display:block; font-family:var(--serif); font-weight:700; color:var(--buoy-dark); font-size:17px; margin:4px 0 4px;}
+.card p{font-size:12.5px; color:var(--steel); font-weight:300;}
+.card .f{margin-top:10px; font-size:11px; color:var(--steel); border-top:1px dashed var(--line); padding-top:8px;}
+table{width:100%; border-collapse:collapse; background:#fff; border:1px solid var(--line); border-radius:10px; overflow:hidden; font-size:13px; box-shadow:var(--shadow);}
+th{background:var(--ink); color:#fff; text-align:left; padding:9px 13px; font-size:10px; font-weight:500; letter-spacing:.16em; text-transform:uppercase;}
+td{padding:9px 13px; border-top:1px solid var(--line); vertical-align:top; font-weight:300;}
+.fineprint{font-size:11px; color:var(--steel); margin-top:24px;}
+</style>
+</head>
+<body>
+<div class="mast"><div class="wrap">
+  <div class="k">Internal · Campaign Asset Hub · July 2026</div>
+  <h1>Targeted Ad Campaign — Landing Pages</h1>
+  <p>Eight buyer-type landing pages built from the July 2026 campaign proposal ("Go Farther. Go Skinny. Go Wooldridge."). Each page drives to the quiz (cold traffic) or configurator (high intent) with UTM tracking per the measurement plan. Regions, priorities, and first-wave ZIPs follow the proposal; Michigan is an expansion market added by request.</p>
+</div></div>
+<div class="wrap">
+  <div class="warn"><b>Internal page — do not publish.</b> This hub is for reviewing the set and for handing to the web team. The eight pages below are the customer-facing assets.</div>
+
+  <h2>Landing Pages</h2>
+  <div class="grid">
+    <a class="card" href="alaska-lodge-guide.html"><span class="r">Alaska · 30% budget · highest priority</span><b>Alaska Fishing Lodge / Guide</b><p>"The boat your season runs on." Guide rigs, camp freighters, AK dealer network. Configurator-primary.</p><span class="f">wb-alaska-lodge-guide · AK first-wave ZIPs</span></a>
+    <a class="card" href="pnw-river-hunter.html"><span class="r">WA/OR · 25% budget · high priority</span><b>Pacific Northwest River Hunter</b><p>"Get in where the roads quit." Duck/deer/upriver camps, open decks, low-glare finishes. Quiz-primary.</p><span class="f">wb-pnw-river-hunter · WA + OR first-wave ZIPs</span></a>
+    <a class="card" href="michigan-rivers.html"><span class="r">Michigan · expansion test cell</span><b>Michigan Fisheries / Rivers</b><p>"West-coast jet sleds. Midwest chrome." Great Lakes tributaries, factory-direct delivery. Quiz-primary.</p><span class="f">wb-michigan-rivers · targets TBD (not in first-wave proposal)</span></a>
+    <a class="card" href="government-agency.html"><span class="r">National · procurement-driven</span><b>Government / Agency Work Boat</b><p>"Built for the mission." Patrol, SAR, research, survey; real recent agency builds. Contact-primary.</p><span class="f">wb-government-agency · not a ZIP campaign</span></a>
+    <a class="card" href="shallow-river.html"><span class="r">Idaho/Inland NW · 15% budget</span><b>Shallow River Jet Boat Buyer</b><p>"Go farther. Go skinny." Snake/Clearwater/Salmon, UHMW armor, Rogue HDPE. Configurator-primary.</p><span class="f">wb-shallow-river · ID + MT/WY selective ZIPs</span></a>
+    <a class="card" href="offshore-aluminum.html"><span class="r">Coastal WA/OR/BC · within regional buckets</span><b>Offshore Aluminum Fishing Buyer</b><p>"Aluminum that isn't afraid of salt." SSO/SO/Pilothouse, salt setup, coastal dealers. Quiz-primary.</p><span class="f">wb-offshore-aluminum · coastal ZIP cells + BC cities</span></a>
+    <a class="card" href="family-adventure.html"><span class="r">All regions · strongest for retargeting (15%)</span><b>Family Fishing + Adventure Buyer</b><p>"One boat the whole crew fights over." Fish-ski-beach, jet safety, family heirloom angle. Quiz-primary.</p><span class="f">wb-family-adventure · regional lists + retargeting pool</span></a>
+    <a class="card" href="cargo-remote-property.html"><span class="r">AK + Canada · within regional buckets</span><b>Cargo / Hauling / Remote Property</b><p>"When the river is the driveway." XL/XL Inboard/Landing Craft, payload and range. Configurator-primary.</p><span class="f">wb-cargo-remote-property · AK ZIPs + Canada cities</span></a>
+  </div>
+
+  <h2>Budget Split (from the proposal)</h2>
+  <table>
+    <tr><th>Campaign bucket</th><th>Share</th><th>Primary pages</th></tr>
+    <tr><td>Alaska</td><td>30%</td><td>Alaska Lodge/Guide · Cargo/Remote Property</td></tr>
+    <tr><td>Washington / Oregon</td><td>25%</td><td>PNW River Hunter · Offshore Aluminum · Family</td></tr>
+    <tr><td>Idaho / Inland Northwest</td><td>15%</td><td>Shallow River · Family</td></tr>
+    <tr><td>Canada (BC / AB / Yukon)</td><td>15%</td><td>Cargo/Remote Property · Offshore Aluminum</td></tr>
+    <tr><td>Retargeting</td><td>15%</td><td>Family/Adventure · "Finish your build sheet" creative → configurator</td></tr>
+    <tr><td>Michigan (added)</td><td>test cell</td><td>Michigan Rivers — fund from experiment budget, review at 30–45 days</td></tr>
+  </table>
+
+  <p class="fineprint">UTM scheme on every CTA: utm_source=paidads · utm_medium=cpc · utm_campaign=wb-&lt;page-id&gt; · utm_content=&lt;button&gt;. Set SITE_ROOT in each page (one constant) before publishing. Full integration notes in README.txt. Prices from the 2026 build data — subject to change.</p>
+</div>
+</body>
+</html>

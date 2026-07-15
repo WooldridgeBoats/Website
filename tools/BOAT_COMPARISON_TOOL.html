@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;500;600;700;800&display=swap" rel="stylesheet">
+<title>Compare Wooldridge Models — Side by Side</title>
+<style>
+  :root{
+    --paper:#F2F2F2;       /* page/grid ground — eggshell cream, matches Build & Price configurator */
+    --card:#ffffff;
+    --linen:#e6e8ea;
+    --rule:#c9cdd1;
+    --ink:#141b20;
+    --slate:#6f6a5e;
+    --buoy:#2f5496;
+    --buoy-bright:#4472c4;
+    --buoy-deep:#22406f;
+    --kelp:#3a6ea5;
+    --mono:'Courier New', ui-monospace, 'SF Mono', monospace;
+    --sans:"Inter", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  *{margin:0; padding:0; box-sizing:border-box;}
+  html{background:var(--paper);}
+  body{
+    font-family:var(--sans); color:var(--ink); background:var(--paper);
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+    display:flex; flex-direction:column;
+  }
+  button{font-family:inherit; cursor:pointer;}
+  button:focus-visible, a:focus-visible{outline:2px solid var(--buoy); outline-offset:2px;}
+
+  /* ── mast ── */
+  .mast{max-width:1060px; width:100%; margin:0 auto; padding:34px 20px 0;}
+  .mast .addr{font-family:var(--mono); font-size:11.5px; letter-spacing:.08em; color:var(--slate);}
+  .mast .brand{font-size:clamp(30px,5vw,44px); font-weight:700; letter-spacing:-.01em; line-height:1.05; margin-top:6px;}
+  .mast .tag{font-style:italic; font-size:13.5px; color:var(--slate); margin-top:7px;}
+  .mastrule{max-width:1060px; width:calc(100% - 40px); margin:20px auto 0; border-top:2px solid var(--ink); position:relative;}
+  .mastrule::after{content:''; position:absolute; left:0; right:0; top:2px; border-top:1px solid var(--rule);}
+
+  /* ── stage ── */
+  .stage{max-width:1060px; width:100%; margin:0 auto; padding:26px 20px 40px; flex:1;}
+  .eyebrow{font-family:var(--mono); font-size:12px; font-weight:700; letter-spacing:.14em; color:var(--buoy); text-transform:uppercase;}
+  .qtitle{font-size:clamp(20px,3.4vw,27px); font-weight:700; letter-spacing:.01em; line-height:1.25; margin-top:8px;}
+  .qhint{font-size:13px; color:var(--slate); font-style:italic; margin-top:6px;}
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important;} }
+
+  /* ── quick matchups ── */
+  .presets{margin-top:18px; display:flex; flex-wrap:wrap; gap:8px;}
+  .chip{
+    background:var(--card); border:1px solid var(--rule); padding:8px 13px;
+    font-family:var(--mono); font-size:11.5px; font-weight:700; letter-spacing:.06em; color:var(--ink);
+    transition:border-color .12s ease;
+  }
+  .chip:hover{border-color:var(--buoy); color:var(--buoy-deep);}
+  .chip .vs{color:var(--buoy);}
+
+  /* ── selection bar ── */
+  .selbar{
+    position:sticky; top:0; z-index:40; background:var(--paper);
+    border:1px solid var(--rule); border-left:3px solid var(--buoy);
+    margin-top:22px; padding:12px 16px; display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px;
+    box-shadow:0 4px 10px rgba(20,27,32,.05);
+  }
+  .selbar .lab{font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:.14em; color:var(--slate); text-transform:uppercase;}
+  .slot{
+    font-family:var(--mono); font-size:12px; font-weight:700; letter-spacing:.04em;
+    border:1px dashed var(--rule); color:var(--slate); padding:6px 10px; background:var(--card);
+  }
+  .slot.filled{border:1px solid var(--buoy); color:var(--ink); background:#fff;}
+  .slot.filled .x{color:var(--buoy); margin-left:8px; font-weight:700;}
+  .slot.filled:hover{border-color:var(--buoy-deep);}
+  .selbar .btn{margin-left:auto;}
+
+  /* ── model picker ── */
+  .grouph{font-family:var(--mono); font-size:11.5px; font-weight:700; letter-spacing:.16em; color:var(--kelp); text-transform:uppercase; margin:26px 0 0; padding-bottom:6px; border-bottom:1px solid var(--rule);}
+  .picks{margin-top:12px; display:grid; gap:10px; grid-template-columns:repeat(auto-fill,minmax(230px,1fr));}
+  .pick{
+    text-align:left; background:var(--card); border:1px solid var(--rule); padding:13px 15px;
+    display:block; width:100%; position:relative; transition:border-color .12s ease, background .12s ease;
+  }
+  .pick:hover{border-color:var(--buoy);}
+  .pick.on{border-color:var(--buoy); background:#fff; box-shadow:inset 3px 0 0 var(--buoy);}
+  .pick .kicker{font-family:var(--mono); font-size:9.5px; font-weight:700; letter-spacing:.14em; color:var(--kelp); text-transform:uppercase; display:block;}
+  .pick .cname{display:block; font-size:15.5px; font-weight:700; margin-top:3px;}
+  .pick .cdesc{display:block; font-size:12.5px; color:var(--slate); margin-top:4px; line-height:1.45;}
+  .pick .cfrom{display:block; font-family:var(--mono); font-size:11px; color:var(--ink); margin-top:6px; letter-spacing:.04em;}
+  .pick .tick{
+    position:absolute; top:10px; right:10px; width:20px; height:20px; border:1px solid var(--rule);
+    background:#fff; font-size:12px; font-weight:700; color:#fff; line-height:18px; text-align:center;
+    font-family:var(--mono);
+  }
+  .pick.on .tick{background:var(--buoy); border-color:var(--buoy-deep);}
+
+  .btn{
+    background:var(--buoy); color:#fff; border:1px solid var(--buoy-deep);
+    font-weight:700; font-size:14.5px; padding:12px 22px; letter-spacing:.02em;
+  }
+  .btn:hover{background:var(--buoy-deep);}
+  .btn[disabled]{opacity:.45; cursor:not-allowed;}
+  .btn.ghost2{background:var(--card); color:var(--buoy-deep); border:1px solid var(--buoy); text-decoration:none; display:inline-block;}
+  .btn.ghost2:hover{background:#fff;}
+  .ghostlink{background:none; border:none; color:var(--slate); font-size:13.5px; text-decoration:underline; padding:6px 2px;}
+  .ghostlink:hover{color:var(--ink);}
+
+  /* ── comparison sheet ── */
+  .cmpwrap{margin-top:20px; overflow-x:auto; border:2px solid var(--ink); background:var(--card); position:relative;}
+  .cmpwrap::before{content:''; position:absolute; left:0; right:0; top:0; height:4px; background:var(--buoy); z-index:2;}
+  .cmp{display:grid; min-width:0;}
+  .cmp.n2{grid-template-columns:150px repeat(2, minmax(240px,1fr));}
+  .cmp.n3{grid-template-columns:150px repeat(3, minmax(220px,1fr));}
+  @media (max-width:820px){
+    .cmp.n2{grid-template-columns:118px repeat(2, minmax(210px,1fr)); }
+    .cmp.n3{grid-template-columns:118px repeat(3, minmax(210px,1fr)); }
+  }
+  .cmp .rk{
+    font-family:var(--mono); font-size:9.5px; font-weight:700; letter-spacing:.13em; color:var(--kelp);
+    text-transform:uppercase; padding:14px 10px 14px 14px; border-top:1px solid var(--rule);
+    background:rgba(234,230,216,.32); line-height:1.5; position:sticky; left:0; z-index:1;
+  }
+  .cmp .cell{padding:13px 16px; border-top:1px solid var(--rule); border-left:1px solid var(--rule); font-size:13.5px; line-height:1.55;}
+  .cmp .cell .meter{font-size:11px; letter-spacing:2px; color:var(--buoy); display:block; margin-bottom:5px;}
+  .cmp .cell .meter i{font-style:normal; color:var(--linen);}
+  .cmp .head{border-top:none; padding:0 0 14px;}
+  .cmp .rk.head{background:rgba(234,230,216,.32);}
+  .cmp .head img{width:100%; aspect-ratio:16/10; object-fit:cover; display:block; border-bottom:1px solid var(--rule);}
+  .cmp .head .hin{padding:12px 16px 0;}
+  .cmp .head .kicker{font-family:var(--mono); font-size:9.5px; font-weight:700; letter-spacing:.14em; color:var(--kelp); text-transform:uppercase;}
+  .cmp .head h3{font-size:19px; font-weight:700; margin-top:2px; line-height:1.2;}
+  .cmp .head .htag{font-size:12px; font-style:italic; color:var(--slate); margin-top:3px; line-height:1.45;}
+  .cmp .head .hfrom{font-family:var(--mono); font-size:11.5px; margin-top:8px; letter-spacing:.03em;}
+  .cmp .head .hlinks{margin-top:9px; display:flex; flex-wrap:wrap; gap:4px 14px; font-size:12.5px;}
+  .cmp .head .hlinks a{color:var(--buoy); font-weight:700; text-decoration:none;}
+  .cmp .head .hlinks a:hover{text-decoration:underline;}
+
+  /* ── plain-english verdicts ── */
+  .secband{margin-top:34px;}
+  .diffblock{border:1px solid var(--rule); background:var(--card); margin-top:14px; padding:18px 20px;}
+  .diffblock .dt{font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:.16em; color:var(--kelp); text-transform:uppercase;}
+  .diffblock .w{display:flex; gap:10px; font-size:14px; line-height:1.55; margin-top:10px;}
+  .diffblock .w::before{content:'\25C6'; color:var(--buoy); font-size:9px; line-height:2.3; flex:none;}
+  .verdicts{margin-top:14px; display:grid; gap:12px;}
+  .verdicts.n2{grid-template-columns:1fr 1fr;}
+  .verdicts.n3{grid-template-columns:1fr 1fr 1fr;}
+  @media (max-width:820px){ .verdicts.n2,.verdicts.n3{grid-template-columns:1fr;} }
+  .verdict{border:2px solid var(--ink); background:var(--card); position:relative;}
+  .verdict::after{content:''; position:absolute; left:-2px; right:-2px; top:-2px; height:4px; background:var(--buoy);}
+  .verdict .inner{padding:18px 18px 16px;}
+  .verdict .vk{font-family:var(--mono); font-size:10px; font-weight:700; letter-spacing:.16em; color:var(--buoy); text-transform:uppercase;}
+  .verdict .vn{font-size:19px; font-weight:700; margin-top:3px;}
+  .verdict .w{display:flex; gap:10px; font-size:13.5px; line-height:1.5; margin-top:9px;}
+  .verdict .w::before{content:'\25C6'; color:var(--buoy); font-size:9px; line-height:2.2; flex:none;}
+  .verdict .vbuild{display:inline-block; margin-top:13px; font-size:13px; font-weight:700; color:var(--buoy); text-decoration:none;}
+  .verdict .vbuild:hover{text-decoration:underline;}
+  .smallnote{font-size:12.5px; color:var(--slate); margin-top:16px; line-height:1.55;}
+  .navrow{margin-top:22px; display:flex; flex-wrap:wrap; align-items:center; gap:14px;}
+
+  /* ── ask bar ── */
+  .askbar{border-top:1px solid var(--rule); background:var(--card); margin-top:34px;}
+  .askbar .in{max-width:1060px; margin:0 auto; padding:22px 20px; display:flex; flex-wrap:wrap; align-items:center; gap:16px; justify-content:space-between;}
+  .askbar .txt{font-size:14px; color:var(--slate); line-height:1.5; max-width:520px;}
+  .askbar .txt b{color:var(--ink);}
+
+  /* ── lofting footer ── */
+  footer{margin-top:auto; padding:10px 20px 24px;}
+  .linesfoot{max-width:1180px; margin:0 auto; display:block; width:100%; opacity:.66;}
+  .lf-st line{stroke:var(--rule); stroke-width:1; stroke-dasharray:3 4;}
+  .lf-dat{stroke:var(--ink); stroke-width:1;}
+  .lf-tr{stroke:var(--ink); stroke-width:1.8;}
+  .lf-hull path{stroke:var(--ink); stroke-width:1.1; stroke-linecap:round; fill:none;}
+  .lf-lab text{font-family:var(--mono); font-size:9.5px; fill:var(--ink); letter-spacing:1px;}
+  .lf-cap{font-family:var(--mono); font-size:13px; font-weight:700; fill:var(--ink); letter-spacing:2.5px;}
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="addr">WOOLDRIDGE BOATS &middot; SEATTLE, WASHINGTON &middot; SINCE 1915</div>
+  <div class="brand">Boat vs. boat, straight up.</div>
+  <div class="tag">Pick two or three models from the 2026 lineup and get an honest, plain-English side-by-side &mdash; the same comparison we&rsquo;d talk you through on the shop floor.</div>
+</header>
+<div class="mastrule"></div>
+
+<main class="stage" id="stage" aria-live="polite"></main>
+
+<div class="askbar">
+  <div class="in">
+    <div class="txt"><b>Still on the fence?</b> Send your comparison straight to the shop and a real person will talk you through it &mdash; pricing, build slots, and honest advice, no obligation.</div>
+    <div style="display:flex; flex-wrap:wrap; gap:10px;">
+      <button type="button" class="btn" id="btnAskDanny">Email us about these boats</button>
+      <a class="btn ghost2" id="btnOpenConfig" href="Boat_Configurator_-_Customer_Version.html" target="_blank" rel="noopener">Build &amp; price your boat &rarr;</a>
+    </div>
+  </div>
+</div>
+
+<footer class="linesfoot" aria-hidden="true">
+  <svg width="100%" viewBox="0 0 1128 112" fill="none" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
+    <g class="lf-st">
+      <line x1="160" y1="6" x2="160" y2="82"/><line x1="320" y1="6" x2="320" y2="82"/>
+      <line x1="480" y1="6" x2="480" y2="82"/><line x1="640" y1="6" x2="640" y2="82"/>
+      <line x1="800" y1="6" x2="800" y2="82"/><line x1="960" y1="6" x2="960" y2="82"/>
+    </g>
+    <line class="lf-dat" x1="12" y1="68" x2="1116" y2="68"/>
+    <line class="lf-tr" x1="24" y1="14" x2="24" y2="68"/>
+    <g class="lf-hull">
+      <path d="M24 46 C 156 44, 287 47, 340 52 L 380 68"/>
+      <path d="M24 41 C 189 39, 354 43, 424 50 L 470 68"/>
+      <path d="M24 37 C 222 33, 421 38, 508 47 L 560 68"/>
+      <path d="M24 32 C 256 28, 487 34, 592 45 L 650 68"/>
+      <path d="M24 27 C 289 22, 554 29, 676 42 L 740 68"/>
+      <path d="M24 22 C 322 17, 620 25, 760 40 L 830 68"/>
+      <path d="M24 18 C 356 12, 687 21, 844 37 L 920 68"/>
+      <path d="M24 13 C 389 6, 754 16, 928 35 L 1010 68"/>
+    </g>
+    <g class="lf-lab">
+      <text x="370" y="81">16'</text><text x="460" y="81">18'</text><text x="550" y="81">19'</text><text x="640" y="81">20'</text><text x="730" y="81">21'</text><text x="820" y="81">23'</text><text x="910" y="81">25'</text><text x="1000" y="81">26'</text>
+    </g>
+    <text class="lf-cap" x="1116" y="106" text-anchor="end">18 MODELS&#160;&#160;&#183;&#160;&#160;43 HULLS&#160;&#160;&#183;&#160;&#160;PICK TWO&#160;&#160;&#183;&#160;&#160;ONE SHOP</text>
+  </svg>
+</footer>
+
+<script>
+'use strict';
+/* Point this at the deployed customer configurator so "Build this boat" deep-links with the model pre-selected. */
+const CONFIG_URL = 'Boat_Configurator_-_Customer_Version.html';
+
+/* Core model facts — same shape and figures as the Which Wooldridge quiz (models.json is the source of truth). */
+const FACTS = {"lt":{"nm":"Alaskan LT","tag":"Light utility jet sled — 16/18/20 ft","drive":"ob","lengths":[16,18,20],"styles":["tiller","occ"],"from":31889,"maxLen":20,"pp":false},"ak":{"nm":"Alaskan","tag":"The classic Wooldridge sled — 18/20 ft","drive":"ob","lengths":[18,20],"styles":["occ","ws"],"from":56658,"maxLen":20,"pp":false},"xlt":{"nm":"Alaskan XLT","tag":"Extra-wide tiller & console — 18/20 ft","drive":"ob","lengths":[18,20],"styles":["tiller","occ"],"from":43439,"maxLen":20,"pp":false},"xl":{"nm":"Alaskan XL","tag":"Big-water 20 ft heavy hauler","drive":"ob","lengths":[20],"styles":["occ","ws"],"from":68019,"maxLen":20,"pp":false},"rogue":{"nm":"Rogue HDPE","tag":"Fully welded HDPE hull — 16/18/20 ft","drive":"ob","lengths":[16,18,20],"styles":["tiller","occ"],"from":49889,"maxLen":20,"pp":false},"skagit":{"nm":"Skagit","tag":"Deep-sided offshore sled — 18/20 ft","drive":"ob","lengths":[18,20],"styles":["occ","ws"],"from":70019,"maxLen":20,"pp":false},"sport":{"nm":"Sport","tag":"Pointed-bow crossover — 18/20 ft","drive":"ob","lengths":[18,20],"styles":["occ","ws"],"from":71519,"maxLen":20,"pp":false},"ssd":{"nm":"Super Sport Drifter","tag":"Pointed-bow jet drifter — 21/23/25 ft","drive":"ob","lengths":[21,23,25],"styles":["occ","ws"],"from":78519,"maxLen":25,"pp":false},"xlib":{"nm":"Alaskan XL Inboard","tag":"Inboard jet heavy hauler — 20/21 ft","drive":"ib","lengths":[20,21],"styles":["ws"],"from":112999,"maxLen":21,"pp":false},"scout":{"nm":"Scout","tag":"Inboard jet workhorse — 19/21/23 ft","drive":"ib","lengths":[19,21,23],"styles":["ws"],"from":119999,"maxLen":23,"pp":false},"scoutwb":{"nm":"Scout Widebody","tag":"Full-cabin inboard — 21/23/25 ft","drive":"ib","lengths":[21,23,25],"styles":["ws"],"from":165999,"maxLen":25,"pp":false},"skagitib":{"nm":"Skagit Inboard","tag":"Inboard jet sled — 18/20 ft","drive":"ib","lengths":[18,20],"styles":["ws"],"from":114999,"maxLen":20,"pp":false},"sportster":{"nm":"Sportster","tag":"Outboard jet sportster — 21/23/25 ft","drive":"ob","lengths":[21,23,25],"styles":["occ","ws"],"from":90534,"maxLen":25,"pp":false},"sportib":{"nm":"Sport Inboard","tag":"Inboard jet crossover — 18/20 ft","drive":"ib","lengths":[18,20],"styles":["ws"],"from":116999,"maxLen":20,"pp":false},"ssdib":{"nm":"Super Sport Drifter Inboard","tag":"Inboard jet drifter — 20/23/25 ft","drive":"ib","lengths":[20,23,25],"styles":["ws"],"from":123499,"maxLen":25,"pp":false},"skagitx":{"nm":"Skagit-X","tag":"Low-side aft-helm inboard — 21 ft","drive":"ib","lengths":[21],"styles":["ws"],"from":124999,"maxLen":21,"pp":false},"so":{"nm":"Sport Offshore","tag":"Offshore-bracket crossover — 18/20 ft","drive":"offshore","lengths":[18,20],"styles":["occ","ws"],"from":56499,"maxLen":20,"pp":true},"sso":{"nm":"Super Sport Offshore","tag":"Big-water offshore — 20/21/23/26 ft","drive":"offshore","lengths":[20,21,23,26],"styles":["occ","ws"],"from":62999,"maxLen":26,"pp":true}};
+
+/* Photos + model-page links (paths relative to /tools/) */
+const MEDIA = {
+  lt:       {ph:'../assets/photos/alaskan-lt/thumbs/2026-18-ws-3.jpg',                       url:'../models/alaskan-lt/index.html'},
+  ak:       {ph:'../assets/photos/alaskan/thumbs/4459-product-18-ws-ak-1.jpg',               url:'../models/alaskan/index.html'},
+  xlt:      {ph:'../assets/photos/alaskan-xlt/thumbs/5053-product-1.jpg',                    url:'../models/xlt/index.html'},
+  xl:       {ph:'../assets/photos/alaskanxl/thumbs/5226-product-1.jpg',                      url:'../models/alaskanxl/index.html'},
+  rogue:    {ph:'../assets/photos/rogue/thumbs/5162-water-1.jpg',                            url:'../models/rogue/index.html'},
+  skagit:   {ph:'../assets/photos/skagit/thumbs/4647-product-1.jpg',                         url:'../models/xp/index.html'},
+  sport:    {ph:'../assets/photos/sport/thumbs/4589-product-3.jpg',                          url:'../models/sport/index.html'},
+  ssd:      {ph:'../assets/photos/supersportdrifter/thumbs/5175-product-1.jpg',              url:'../models/supersportdrifter/index.html'},
+  sportster:{ph:'../assets/photos/sportster/thumbs/sportster-water-1.jpg',                   url:'../models/sportster/index.html'},
+  xlib:     {ph:'../assets/photos/alaskan-xl-inboard/thumbs/2026-20-first-responder-30.jpg', url:'../models/alaskan-xl-inboard/index.html'},
+  scout:    {ph:'../assets/photos/scout/thumbs/5113-product-1.jpg',                          url:'../models/scout/index.html'},
+  scoutwb:  {ph:'../assets/photos/scout-widebody/thumbs/5119-scout-widebody-product-27.jpg', url:'../models/scout-widebody/index.html'},
+  skagitib: {ph:'../assets/photos/skagit-inboard/thumbs/5094-product-12.jpg',                url:'../models/skagit-inboard/index.html'},
+  sportib:  {ph:'../assets/photos/sportinboard/thumbs/sportib-water-1.jpg',                  url:'../models/sportinboard/index.html'},
+  ssdib:    {ph:'../assets/photos/supersportdrifterinboard/thumbs/4403-photo-1.jpg',         url:'../models/supersportdrifterinboard/index.html'},
+  skagitx:  {ph:'../assets/photos/skagit-x/thumbs/5092-21-skagit-x-blue-01.jpg',             url:'../models/skagit-x/index.html'},
+  so:       {ph:'../assets/photos/sportoffshore/thumbs/5021-product-2.jpg',                  url:'../models/sportoffshore/index.html'},
+  sso:      {ph:'../assets/photos/super-sport-offshore/thumbs/4660-product-7.jpg',           url:'../models/super-sport-offshore/index.html'}
+};
+
+/* One-line picker blurbs — same voice as the fleet carousel on the homepage. */
+const SHORT = {
+  lt:'Light utility jet sled. The easiest way into a real Wooldridge.',
+  xlt:'Extra-wide tiller and console sled for load and stability.',
+  ak:'The classic Wooldridge sled — the boat that built the name.',
+  xl:'Big-water 20-foot heavy hauler.',
+  rogue:'Fully welded HDPE hull — slides over what aluminum bounces off.',
+  skagit:'Deep-sided sled for bigger water and rougher days.',
+  sport:'Pointed-bow crossover — river manners, open-water reach.',
+  ssd:'Pointed-bow jet drifter with room for the whole crew.',
+  sportster:'Outboard jet sportster — fast, refined, and capable.',
+  xlib:'The XL heavy hauler with inboard jet power.',
+  scout:'Inboard jet workhorse — the guide-boat standard.',
+  scoutwb:'Full-cabin inboard for all-season, all-weather running.',
+  skagitib:'Deep-sided sled, inboard jet drive.',
+  sportib:'The pointed-bow crossover with inboard jet power.',
+  ssdib:'Big drifter platform, inboard jet drive.',
+  skagitx:'Low-side, aft-helm inboard built for working water.',
+  so:'Offshore-bracket crossover — river to salt in one hull.',
+  sso:'Big-water offshore boat, up to 26 feet of it.'
+};
+
+/* ══ Plain-English comparison copy + 0–5 ratings ══════════════════════════
+   Ratings drive the meters and the "how they differ" engine:
+   shallow = skinny-water ability · big = rough/open-water ability
+   load = payload · comfort = weather protection & finish            */
+const CMP = {
+lt:{
+  r:{shallow:5, big:1, load:2, comfort:1},
+  best:'The easiest way into a real Wooldridge — a light, simple jet sled for skinny water, small crews, and honest work.',
+  notFor:'Big open water, wind chop, or four-plus people aboard. It’s a river tool, not a rough-water boat.',
+  buyer:'First-time jet boat owner, hunter, or solo/two-person angler who wants Wooldridge bones without the flagship price.',
+  water:'Skinny, technical rivers and calm sloughs — gravel bars, braided channels, backwaters.',
+  load:'Light to moderate: two people, decoys, dogs, and a weekend of gear.',
+  shallow:'Excellent — the full Wooldridge jet tunnel in the lightest hull we build. It floats and runs where almost nothing else will.',
+  fhw:'A superb hunting and small-river fishing rig; light utility work is right in its lane.',
+  comfort:'Minimal by design — open tiller or console layouts. No windshield, no cabin.',
+  power:'Yamaha or Mercury outboard jet in modest horsepower, tiller or open console. Light enough for a midsize truck and a standard garage.',
+  choose:['You want the least expensive true Wooldridge on the water','Most days are skinny rivers, duck blinds, or solo runs','A midsize truck and a standard garage have to live with it']
+},
+xlt:{
+  r:{shallow:5, big:1, load:4, comfort:1},
+  best:'Maximum open deck and payload in a simple tiller or console workboat — the wide-body version of the light sled.',
+  notFor:'Rough open water, or anyone who wants weather protection — there’s no windshield or cabin on this one.',
+  buyer:'Hunters and working owners who measure a boat in square feet of deck and pounds of payload.',
+  water:'Skinny rivers, sloughs, and backwaters — the same territory as the LT, with more boat under the load.',
+  load:'Heavy for its class — the extra beam is there to carry gear, dogs, fuel, and quarters.',
+  shallow:'Excellent — wide, flat, and light, it spreads its weight and stays on top of thin water.',
+  fhw:'Arguably the best pure hunting platform in the lineup, and a serious small-water work skiff.',
+  comfort:'Open-boat simple: tiller or console and room to move. Comfort comes from space, not enclosure.',
+  power:'Yamaha or Mercury outboard jet, tiller or remote console. Still tows behind a midsize truck.',
+  choose:['Deck space and payload matter more than trim','It’s a hunting and working boat first — a cruiser never','You want XL-style capacity at an entry-level price']
+},
+ak:{
+  r:{shallow:5, big:2, load:3, comfort:2},
+  best:'The classic Wooldridge river sled, redesigned in 2023 — agile, sure-footed, and superb in salmon-and-steelhead country.',
+  notFor:'Regular big-water crossings or crews of four-plus. That’s XL, Skagit, or Drifter territory.',
+  buyer:'The river angler who wants the boat that built the name — nimble, shallow, proven for generations.',
+  water:'Rivers first: technical, shallow, and mid-size water, with enough hull for the occasional lake day.',
+  load:'Comfortable with two or three people and full fishing gear. It stays agile rather than chasing maximum payload.',
+  shallow:'Superb — this is the hull that made “go skinny” a Wooldridge promise.',
+  fhw:'A river-fishing benchmark, a fine hunting rig in console trim, and handy for camp runs.',
+  comfort:'Open console or full walk-through windshield — weather off your face, no cabin.',
+  power:'Yamaha or Mercury outboard jet on the transom — easy to power, easy to service, easy to repower.',
+  choose:['River salmon and steelhead are the mission','You want the classic — agile, shallow, proven','Two or three aboard is your normal crew']
+},
+xl:{
+  r:{shallow:4, big:3, load:5, comfort:2},
+  best:'The biggest brother in the Alaskan line — a 76-inch bottom built to haul serious loads up shallow rivers.',
+  notFor:'Tight, technical creeks where a lighter sled shines, or towing with a midsize truck.',
+  buyer:'The upriver hauler: cabin owners, big-gear anglers, and families who load the boat like a pickup.',
+  water:'Big rivers and reservoirs, with real shallow-water ability even when it’s loaded and working.',
+  load:'Outstanding — payload is the whole point of the XL. It carries what the smaller sleds can’t.',
+  shallow:'Very good even loaded — the wide bottom keeps it planing shallow with weight aboard.',
+  fhw:'A do-everything workhorse: river fishing, hunting camps, freight runs to the cabin.',
+  comfort:'Open console or full walk-through windshield — a big open cockpit rather than enclosure.',
+  power:'Yamaha or Mercury outboard jet, sized for load. Plan on a full-size truck to tow it.',
+  choose:['You routinely haul people, gear, and fuel in one trip','You want Alaskan DNA with maximum capacity','A full-size truck is already in the driveway']
+},
+rogue:{
+  r:{shallow:5, big:1, load:2, comfort:1},
+  best:'The technical shallow-water specialist — a fully welded HDPE hull that slides over rock that stops aluminum.',
+  notFor:'Open water, chop, or heavy loads. It’s a scalpel, not a freighter.',
+  buyer:'The hardcore skinny-water angler or hunter who runs water everyone else walks.',
+  water:'The thinnest, rockiest, most technical rivers we build for — period.',
+  load:'Light — this hull trades payload for slide and draft.',
+  shallow:'The best in the fleet. HDPE glides over gravel and boulders, with trim blades to tune the ride.',
+  fhw:'Built for technical river fishing and remote hunting access — not a work barge.',
+  comfort:'Bare-bones open boat, tiller or console. The comfort is getting there and back.',
+  power:'Yamaha or Mercury outboard jet — a light package that’s midsize-truck friendly.',
+  choose:['Your rivers are more rock than water','You’d rather touch bottom in HDPE than aluminum','Light, simple, and slippery beats big and cushy']
+},
+skagit:{
+  r:{shallow:4, big:4, load:5, comfort:2},
+  best:'The deep-sided sled — squared bow, high sides, rigid as a tank — that hauls big loads and still runs shallow.',
+  notFor:'Anyone who wants a light, tossable river boat, or a pointed-bow entry for steep chop.',
+  buyer:'Serious load-haulers and big-river anglers — the same hull agencies order for hard duty.',
+  water:'Bigger rivers and genuinely rough days. The deep sides earn their keep when the wind comes up.',
+  load:'Exceptional — among the best load-to-draft ratios in the fleet.',
+  shallow:'The shallowest-running outboard jet of its size, even with a serious load aboard.',
+  fhw:'River fishing and work duty in one hull — a confident, dry, all-weather tool.',
+  comfort:'Open console or full walk-through windshield with a deep, secure cockpit.',
+  power:'Yamaha or Mercury outboard jet. Full-size truck territory.',
+  choose:['You haul heavy and still need to run thin','Deep sides and a dry, secure ride matter','You want the workboat the agencies pick']
+},
+sport:{
+  r:{shallow:4, big:3, load:3, comfort:3},
+  best:'The pointed-bow crossover — a V entry that breaks up chop, with a jet tunnel that still gets you into the skinny stuff.',
+  notFor:'The absolute thinnest water (a flat-bottom sled runs skinnier) or serious offshore days.',
+  buyer:'The one-boat angler who splits time between the river and larger open water.',
+  water:'Rivers plus big lakes and the wide mainstem — the widest water range in the outboard line.',
+  load:'Solid for a crew of two or three with full fishing gear.',
+  shallow:'Very good — you give up a little to the flat-bottom sleds and gain a much better ride in chop.',
+  fhw:'A fishing boat first: plugs on the river in the morning, trolling open water after lunch.',
+  comfort:'Open console or full walk-through windshield — a drier, softer ride than any flat-bow sled.',
+  power:'Yamaha or Mercury outboard jet on the transom.',
+  choose:['One boat has to do river AND big water','Ride quality in chop matters to you','You’ll trade an inch of draft for a dry crew']
+},
+ssd:{
+  r:{shallow:3, big:4, load:4, comfort:3},
+  best:'The big pointed-bow drifter — 21 to 25 feet of open-water room with jet-boat draft.',
+  notFor:'Tight technical rivers, or midsize-truck towing. This is a big boat.',
+  buyer:'Guides and family crews who fish four-plus people and refuse to give up shallow water entirely.',
+  water:'Big rivers, the mainstem, and large open water — comfortable where smaller sleds get wet.',
+  load:'Big — crew, coolers, downriggers, and camp gear all at once.',
+  shallow:'Good for its size — far shallower than any prop boat this big, though not creek-skinny.',
+  fhw:'A serious fishing platform above all: room to run six rods and swing a net.',
+  comfort:'Open console or full walk-through windshield with real room to move.',
+  power:'Yamaha or Mercury outboard jet, sized for the hull. Heavy-duty tow rig recommended at 23–25 ft.',
+  choose:['Four or more aboard is normal','You fish big water but still cross gravel bars','Room to work fish beats minimum draft']
+},
+sportster:{
+  r:{shallow:3, big:4, load:3, comfort:4},
+  best:'The refined big-water outboard — 21 to 25 feet of speed, comfort, and finish without giving up jet draft.',
+  notFor:'Bare-bones budgets or the skinniest creeks. This is the polished end of the outboard line.',
+  buyer:'The family-and-fishing owner who wants one comfortable boat for crew days and big water.',
+  water:'Large rivers, big lakes, and protected salt days — happiest with room to stretch its legs.',
+  load:'Comfortable with a full crew and gear — built for people first, freight second.',
+  shallow:'Good — real jet-tunnel ability, used more for access than for living in inches.',
+  fhw:'Fishes seriously and cruises comfortably — the most family-friendly boat in the outboard line.',
+  comfort:'Full walk-through windshield with weather protection and finish a step above the workboats.',
+  power:'Yamaha or Mercury outboard jet. Heavy-duty tow rig for the bigger lengths.',
+  choose:['Comfort and finish matter as much as fish','The family is aboard as often as the crew','You want big-water speed with jet draft']
+},
+xlib:{
+  r:{shallow:4, big:3, load:5, comfort:3},
+  best:'The XL heavy hauler with V8 inboard torque — weight amidships, huge payload, clean gunnels for fishing.',
+  notFor:'Buyers who want simple outboard service or a light tow package.',
+  buyer:'Working owners — and agencies — who load heavy and run shallow rivers year-round.',
+  water:'Big rivers with real shallow stretches. A freight-and-fish machine.',
+  load:'Enormous — the lineup’s best pure payload story, with the engine’s weight centered in the hull.',
+  shallow:'Very good loaded or empty — centered engine weight keeps the hull trimmed and planing thin.',
+  fhw:'Freight runs, hunting camps, and river fishing with the whole works aboard. Clean gunnels help when a fish runs.',
+  comfort:'Full walk-through windshield with a big working cockpit.',
+  power:'Chevy V8 inboard with Hamilton jet — big torque, weight amidships.',
+  choose:['Maximum payload with centered weight is the goal','You want clean gunnels and V8 torque','A serious tow rig is already handled']
+},
+scout:{
+  r:{shallow:5, big:3, load:4, comfort:3},
+  best:'A shallow-water go-kart with big-whitewater DNA — V8 inboard, Hamilton jet, and surgical control in technical water.',
+  notFor:'Long rough-water crossings in open chop, or buyers who want outboard simplicity.',
+  buyer:'The guide-boat standard: serious river anglers and pros who run technical water every day.',
+  water:'Technical rivers, rapids, and skinny gravel — the water the Wooldridge name was made on.',
+  load:'Strong — it hauls a full guide-day load without losing its footwork.',
+  shallow:'Elite — precise thrust control from the Hamilton jet makes inches feel routine.',
+  fhw:'The professional river-fishing tool, with plenty of hunting and work chops.',
+  comfort:'Full walk-through windshield and a working cockpit — heater-and-canvas practical rather than plush.',
+  power:'Chevy V8 inboard with Hamilton jet drive.',
+  choose:['Technical water is your daily commute','You want the boat the guides run','Control and draft outrank cabin comfort']
+},
+scoutwb:{
+  r:{shallow:3, big:4, load:5, comfort:5},
+  best:'The all-weather, all-season expedition rig — full cabin, widebody beam, 75-gallon fuel.',
+  notFor:'The skinniest technical water (it’s the biggest Scout), or anyone shopping on price.',
+  buyer:'Families, lodge owners, and expedition types who run all year, rain or shine.',
+  water:'Big rivers and long distances in any weather — with enough shallow ability to keep true Wooldridge access.',
+  load:'Expedition-grade — fuel, crew, camp, and dogs for a week.',
+  shallow:'Good — remarkable, honestly, for something this comfortable.',
+  fhw:'Fishes hard and travels far. The cabin turns bad weather into a non-event.',
+  comfort:'The best in the fleet — enclosed heated cabin, real seating, true all-season capability.',
+  power:'Chevy V8 inboard with Hamilton jet.',
+  choose:['You boat twelve months a year','The family says yes to a cabin and a heater','Long-range trips are the plan, not the dream']
+},
+skagitib:{
+  r:{shallow:4, big:3, load:5, comfort:3},
+  best:'The Skagit workhorse with V8 inboard power — the same platform fish-and-wildlife agencies order for hard duty.',
+  notFor:'Light-and-simple buyers — this is a heavy-duty tool with a heavy-duty price.',
+  buyer:'Working owners who want agency-grade structure with inboard torque.',
+  water:'Big rivers and rough working days. Deep sides keep it dry and secure.',
+  load:'Exceptional — a true load-hauler with the engine amidships.',
+  shallow:'Very good with a load aboard — that’s the whole design brief.',
+  fhw:'Duty-cycle work and serious river fishing — built to be used hard, daily.',
+  comfort:'Full walk-through windshield working helm — deep and secure rather than plush.',
+  power:'Chevy V8 inboard with Hamilton jet.',
+  choose:['You want the agency-spec workhorse','Heavy loads in shallow water, all year','Structure and duty cycle beat frills']
+},
+sportib:{
+  r:{shallow:4, big:3, load:4, comfort:3},
+  best:'The Sport’s crossover hull with V8 inboard power — shallow rivers, heavy loads on big water, and it pulls skiers too.',
+  notFor:'Minimum-budget shoppers or the very thinnest creeks.',
+  buyer:'The family that fishes: one inboard for river duty, big-water days, and watersports.',
+  water:'Rivers and large open water both — the crossover brief with inboard muscle.',
+  load:'Strong — the V8 package carries a family’s worth of everything.',
+  shallow:'Very good — the pointed bow gives a touch away to the flat sleds; centered weight gives it back.',
+  fhw:'Fishes seriously — and it’s the rare jet boat that also earns its keep towing wakeboards.',
+  comfort:'Full walk-through windshield and a family-friendly cockpit.',
+  power:'Chevy V8 inboard with Hamilton jet.',
+  choose:['Fishing AND watersports share the calendar','You want inboard torque in a crossover hull','One boat must please the whole family']
+},
+ssdib:{
+  r:{shallow:3, big:4, load:5, comfort:4},
+  best:'The flagship drifter — big water, big crews, and watersports on one V8 inboard hull.',
+  notFor:'Tight rivers, tight budgets, or tight garages.',
+  buyer:'The big-crew owner who wants the most capable pointed-bow jet in the lineup.',
+  water:'Big rivers and large open water — it takes rough days in stride.',
+  load:'Big — six people and everything they own.',
+  shallow:'Good for its size — access to shallow water, not inch-counting.',
+  fhw:'A premier big-water fishing platform with comfort to match.',
+  comfort:'Full walk-through windshield with room and finish — canvas options stretch the season.',
+  power:'Chevy V8 inboard with Hamilton jet.',
+  choose:['The crew is big and the water is bigger','You want the flagship drifter, full stop','Watersports and fishing share one hull']
+},
+skagitx:{
+  r:{shallow:3, big:5, load:5, comfort:3},
+  best:'The newest evolution of the Skagit — low sides, aft helm, and maximum structure for the hardest working water.',
+  notFor:'Cabin-comfort seekers or light recreational duty. This is a purpose tool.',
+  buyer:'Pros and hard-use owners who work big, rough water for a living.',
+  water:'Big, rough working water — built to take it daily.',
+  load:'Exceptional — structure and payload to match the mission.',
+  shallow:'Good — working-shallow rather than creek-skinny.',
+  fhw:'A working platform first. The aft helm keeps the deck clear for gear and duty.',
+  comfort:'Working helm and open deck — function over enclosure.',
+  power:'Chevy V8 inboard with Hamilton jet.',
+  choose:['The boat is a tool and works like one','An aft helm and open deck fit the job','Maximum structure is non-negotiable']
+},
+so:{
+  r:{shallow:2, big:4, load:3, comfort:3},
+  best:'The Sport hull engineered for the salt — outboard prop power on a full-width bracket, coastal confidence, river manners.',
+  notFor:'Skinny jet water. With prop power this is an open-water boat, not a gravel-bar boat.',
+  buyer:'The Puget Sound and coastal angler who wants Wooldridge build quality in a salt-first hull.',
+  water:'Saltwater, coastal bays, tide rips, and big open water.',
+  load:'Solid for a fishing crew with downriggers, pots, and a day’s gear.',
+  shallow:'Limited — prop draft. This hull trades the jet tunnel for offshore ability.',
+  fhw:'A dedicated salt-fishing machine: downriggers, crab pots, bottomfish trips.',
+  comfort:'Open console or full walk-through windshield — drier and softer than its size suggests.',
+  power:'Outboard prop power on a full-width bracket, kicker-ready. Power packages priced with our team.',
+  choose:['Salt is the mission, rivers the exception','You want a bracket-hung prop, not a jet','18–20 feet is the right size for your water']
+},
+sso:{
+  r:{shallow:1, big:5, load:4, comfort:4},
+  best:'The offshore angler flagship — 20 to 26 feet for the Sound, the coast, and beyond.',
+  notFor:'Rivers and shallow water entirely. This is a blue-water boat.',
+  buyer:'The serious offshore angler running the coast, the straits, and multi-day trips.',
+  water:'Big salt: open coast, offshore banks, serious crossings.',
+  load:'Big — fuel, fish boxes, gear, and a full crew for long days.',
+  shallow:'Not the point — offshore freeboard and prop power instead.',
+  fhw:'Downriggers, tuna trips, halibut drifts — the most capable salt-fishing platform we build.',
+  comfort:'Full walk-through windshield standard; Angler and Pilothouse variants push comfort further.',
+  power:'Outboard prop power — single or twin — on a bracket. Packages priced with our team.',
+  choose:['Offshore is the plan, not the exception','You may want 23–26 feet of salt boat','A Pilothouse or Angler variant tempts you']
+}
+};
+</script>
+<script>
+'use strict';
+const DRIVE_LABEL = {ob:'Outboard Jet', ib:'Inboard V8 Jet', offshore:'Offshore · Prop'};
+const GROUPS = [
+  {k:'Outboard Jet', ids:['lt','xlt','ak','xl','rogue','skagit','sport','ssd','sportster']},
+  {k:'Inboard V8 Jet', ids:['xlib','scout','scoutwb','skagitib','sportib','ssdib','skagitx']},
+  {k:'Offshore', ids:['so','sso']}
+];
+const PRESETS = [
+  {t:'Alaskan <span class="vs">vs</span> Alaskan XL', ids:['ak','xl']},
+  {t:'Alaskan LT <span class="vs">vs</span> Alaskan XLT', ids:['lt','xlt']},
+  {t:'Scout <span class="vs">vs</span> Scout Widebody', ids:['scout','scoutwb']},
+  {t:'Sport <span class="vs">vs</span> Super Sport Drifter', ids:['sport','ssd']},
+  {t:'Outboard <span class="vs">vs</span> Inboard: the Sport', ids:['sport','sportib']},
+  {t:'Skagit <span class="vs">vs</span> Sport', ids:['skagit','sport']},
+  {t:'Jet <span class="vs">vs</span> Prop: Sport <span class="vs">vs</span> Sport Offshore', ids:['sport','so']},
+  {t:'The 21–25 ft crew boats', ids:['ssd','sportster','ssdib']}
+];
+const ROWS = [
+  {k:'Best for',                    f:'best'},
+  {k:'Not ideal for',               f:'notFor'},
+  {k:'Typical buyer',               f:'buyer'},
+  {k:'Water type',                  f:'water'},
+  {k:'Load carrying',               f:'load',    m:'load'},
+  {k:'Shallow-water performance',   f:'shallow', m:'shallow'},
+  {k:'Fishing · hunting · work', f:'fhw'},
+  {k:'Cabin & comfort potential',   f:'comfort', m:'comfort'},
+  {k:'Power options',               f:'power'},
+  {k:'Sizes & starting price',      f:null}
+];
+
+const fmt = n => '$' + n.toLocaleString('en-US');
+const stage = document.getElementById('stage');
+let sel = [];          /* selected model ids, in pick order */
+let view = 'pick';     /* 'pick' | 'cmp' */
+
+function buildLink(id){
+  const f = FACTS[id];
+  const packed = {v:1, d:f.drive, m:id, s:null, l:null, a:0, e:null, o:{}, r:{}, cu:[], n:'', t:null};
+  return CONFIG_URL + '#b=' + btoa(JSON.stringify(packed));
+}
+function meter(n){
+  return '<span class="meter" aria-label="' + n + ' out of 5">' +
+    '◆'.repeat(n) + '<i>' + '◆'.repeat(5-n) + '</i></span>';
+}
+function priceLine(f){
+  return f.pp ? 'Hull from ' + fmt(f.from) + ' · power priced with our team'
+              : 'Boat + power from ' + fmt(f.from);
+}
+
+/* ── the "how they differ" engine ── */
+function pairNotes(a, b){
+  const A = FACTS[a], B = FACTS[b], ra = CMP[a].r, rb = CMP[b].r;
+  const notes = [];
+  /* drive fork */
+  if (A.drive !== B.drive){
+    const combo = [A.drive, B.drive].sort().join('+');
+    if (combo === 'ib+ob'){
+      const ob = A.drive === 'ob' ? A : B, ib = A.drive === 'ib' ? A : B;
+      notes.push('The biggest fork here is the drive. The ' + ob.nm + ' hangs a Yamaha or Mercury jet on the transom — a lighter, simpler package that’s easy to service and easy to repower. The ' + ib.nm + ' carries a Chevy V8 with a Hamilton jet amidships — more torque, weight centered in the hull for heavy loads and precise handling, and clean gunnels to fight fish around.');
+    } else if (combo.includes('offshore')){
+      const off = A.drive === 'offshore' ? A : B, jet = A.drive === 'offshore' ? B : A;
+      notes.push('These two answer different questions. The ' + off.nm + ' is an offshore hull — prop power on a bracket, built for salt and big open water, with real draft under it. The ' + jet.nm + ' is a jet boat first: it gives up open-ocean reach to run water a prop boat can’t touch.');
+    }
+  }
+  /* size */
+  if (Math.abs(A.maxLen - B.maxLen) >= 3){
+    const big = A.maxLen > B.maxLen ? A : B, sm = A.maxLen > B.maxLen ? B : A;
+    notes.push('The ' + big.nm + ' stretches to ' + big.maxLen + ' feet against the ' + sm.nm + '’s ' + sm.maxLen + ' — more room for crew and gear, and more truck and storage to live with.');
+  }
+  /* ratings */
+  const dims = [
+    {d:'shallow', txt:(w,l)=>'If inches of water matter, the ' + w + ' is the skinnier boat — the ' + l + ' gives some draft away in exchange for what it does elsewhere.'},
+    {d:'big',     txt:(w,l)=>'When the wind comes up, the ' + w + ' is the one you want — it handles rough, open water the ' + l + ' would rather avoid.'},
+    {d:'load',    txt:(w,l)=>'For pure payload, the ' + w + ' out-hauls the ' + l + ' — it’s the pick if the boat works like a pickup truck.'},
+    {d:'comfort', txt:(w,l)=>'For weather protection and creature comfort, the ' + w + ' clearly leads — the ' + l + ' keeps things simpler and more open.'}
+  ];
+  for (const {d, txt} of dims){
+    if (Math.abs(ra[d] - rb[d]) >= 2){
+      const w = ra[d] > rb[d] ? A.nm : B.nm, l = ra[d] > rb[d] ? B.nm : A.nm;
+      notes.push(txt(w, l));
+    }
+  }
+  /* price — always */
+  if (A.pp || B.pp){
+    notes.push('On price: ' + A.nm + ' ' + (A.pp ? 'hull ' : '') + 'from ' + fmt(A.from) + ' vs ' + B.nm + ' ' + (B.pp ? 'hull ' : '') + 'from ' + fmt(B.from) + '. Offshore hulls are priced before power — have our team price the package for a true comparison.');
+  } else {
+    const diff = Math.abs(A.from - B.from);
+    const hi = A.from > B.from ? A : B, lo = A.from > B.from ? B : A;
+    notes.push(diff < 3000
+      ? 'On price they’re nearly even — ' + lo.nm + ' from ' + fmt(lo.from) + ', ' + hi.nm + ' from ' + fmt(hi.from) + ' — so let the water decide, not the wallet.'
+      : 'On price, the ' + lo.nm + ' starts about ' + fmt(diff) + ' lower (' + fmt(lo.from) + ' vs ' + fmt(hi.from) + ', boat + power, before trailer and options).');
+  }
+  if (notes.length <= 2){
+    notes.push('Beyond that, these two are close siblings — the decision usually comes down to budget, the lengths offered, and which layout fits your crew.');
+  }
+  return notes;
+}
+
+/* ── picker view ── */
+function renderPick(){
+  view = 'pick';
+  let html = '<div class="eyebrow">Side by Side</div>' +
+    '<div class="qtitle">Which boats are you deciding between?</div>' +
+    '<div class="qhint">Pick two or three. Or start from a matchup we hear every week:</div>' +
+    '<div class="presets">' + PRESETS.map((p,i)=>'<button type="button" class="chip" data-pre="' + i + '">' + p.t + '</button>').join('') + '</div>' +
+    selBar();
+  for (const g of GROUPS){
+    html += '<div class="grouph">' + g.k + '</div><div class="picks">';
+    for (const id of g.ids){
+      const f = FACTS[id], on = sel.includes(id);
+      html += '<button type="button" class="pick ' + (on?'on':'') + '" data-id="' + id + '" aria-pressed="' + on + '">' +
+        '<span class="tick">' + (on ? (sel.indexOf(id)+1) : '') + '</span>' +
+        '<span class="kicker">' + DRIVE_LABEL[f.drive] + ' · ' + f.lengths.join('/') + ' FT</span>' +
+        '<span class="cname">' + f.nm + '</span>' +
+        '<span class="cdesc">' + SHORT[id] + '</span>' +
+        '<span class="cfrom">' + (f.pp ? 'HULL FROM ' + fmt(f.from) : 'FROM ' + fmt(f.from)) + '</span></button>';
+    }
+    html += '</div>';
+  }
+  html += '<p class="smallnote">Wondering about windshield vs. center console, or tiller steering? Most models offer more than one helm layout — the comparison calls out what each hull can be built with.</p>';
+  stage.innerHTML = html;
+  wirePick();
+}
+function selBar(){
+  let slots = '';
+  for (let i = 0; i < 3; i++){
+    if (sel[i]) slots += '<button type="button" class="slot filled" data-rm="' + sel[i] + '" title="Remove">' + FACTS[sel[i]].nm + '<span class="x">×</span></button>';
+    else slots += '<span class="slot">' + (i === 0 ? 'Pick a model' : i === 1 ? 'Pick a second' : 'Third (optional)') + '</span>';
+  }
+  return '<div class="selbar"><span class="lab">Comparing</span>' + slots +
+    '<button type="button" class="btn" id="btnGo" ' + (sel.length >= 2 ? '' : 'disabled') + '>Compare ' + (sel.length > 2 ? 'all three' : 'side by side') + ' →</button></div>';
+}
+function wirePick(){
+  stage.querySelectorAll('.pick').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      if (sel.includes(id)) sel = sel.filter(x => x !== id);
+      else { sel.push(id); if (sel.length > 3) sel.shift(); }
+      renderPick();
+    });
+  });
+  stage.querySelectorAll('[data-rm]').forEach(btn => {
+    btn.addEventListener('click', () => { sel = sel.filter(x => x !== btn.dataset.rm); renderPick(); });
+  });
+  stage.querySelectorAll('[data-pre]').forEach(btn => {
+    btn.addEventListener('click', () => { sel = PRESETS[+btn.dataset.pre].ids.slice(); renderCmp(); });
+  });
+  const go = document.getElementById('btnGo');
+  if (go) go.addEventListener('click', () => { if (sel.length >= 2) renderCmp(); });
+}
+
+/* ── comparison view ── */
+function renderCmp(){
+  view = 'cmp';
+  const n = sel.length;
+  history.replaceState(null, '', '#c=' + sel.join(','));
+  let html = '<div class="eyebrow">Side by Side</div>' +
+    '<div class="qtitle">' + sel.map(id => FACTS[id].nm).join('  vs  ') + '</div>' +
+    '<div class="qhint">Straight answers, no spec-sheet fog. Every figure is 2026 base pricing before trailer, freight, and options.</div>';
+
+  /* the sheet */
+  html += '<div class="cmpwrap"><div class="cmp n' + n + '">';
+  html += '<div class="rk head"></div>';
+  for (const id of sel){
+    const f = FACTS[id], m = MEDIA[id];
+    html += '<div class="cell head">' +
+      '<img src="' + m.ph + '" alt="' + f.nm + '" loading="lazy">' +
+      '<div class="hin"><span class="kicker">' + DRIVE_LABEL[f.drive] + '</span>' +
+      '<h3>' + f.nm + '</h3>' +
+      '<div class="htag">' + SHORT[id] + '</div>' +
+      '<div class="hfrom">' + priceLine(f).toUpperCase() + '</div>' +
+      '<div class="hlinks"><a href="' + buildLink(id) + '" target="_blank" rel="noopener">Build this boat →</a>' +
+      '<a href="' + MEDIA[id].url + '" target="_blank" rel="noopener">Model details</a></div></div></div>';
+  }
+  for (const row of ROWS){
+    html += '<div class="rk">' + row.k + '</div>';
+    for (const id of sel){
+      const f = FACTS[id], c = CMP[id];
+      let cell = '';
+      if (row.f === null){
+        cell = f.lengths.map(L => L + '′').join(' / ') + ' — ' + priceLine(f) + '.';
+      } else {
+        if (row.m) cell += meter(c.r[row.m]);
+        cell += c[row.f];
+      }
+      html += '<div class="cell">' + cell + '</div>';
+    }
+  }
+  html += '</div></div>';
+
+  /* how they differ */
+  html += '<div class="secband"><div class="eyebrow">Why you’d pick one over the other</div>';
+  const pairs = [];
+  for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) pairs.push([sel[i], sel[j]]);
+  for (const [a, b] of pairs){
+    html += '<div class="diffblock"><div class="dt">' + FACTS[a].nm + ' vs ' + FACTS[b].nm + '</div>' +
+      pairNotes(a, b).map(t => '<div class="w">' + t + '</div>').join('') + '</div>';
+  }
+  html += '</div>';
+
+  /* verdicts */
+  html += '<div class="secband"><div class="eyebrow">The bottom line</div><div class="verdicts n' + n + '">';
+  for (const id of sel){
+    const f = FACTS[id], c = CMP[id];
+    html += '<div class="verdict"><div class="inner">' +
+      '<div class="vk">Choose the</div><div class="vn">' + f.nm + '</div>' +
+      c.choose.map(t => '<div class="w">' + t + '</div>').join('') +
+      '<a class="vbuild" href="' + buildLink(id) + '" target="_blank" rel="noopener">Start your ' + f.nm + ' build →</a>' +
+      '</div></div>';
+  }
+  html += '</div></div>';
+
+  html += '<div class="navrow">' +
+    '<button type="button" class="btn" id="btnBack">← Change boats</button>' +
+    '<button type="button" class="ghostlink" id="btnShare">Copy a link to this comparison</button>' +
+    '</div>' +
+    '<p class="smallnote">Every Wooldridge is built to order in Seattle and carries a Limited Lifetime Hull Warranty for the original owner. Still torn? Call the shop at (206) 722-8998 — we’ll give you the same straight answer in person.</p>';
+
+  stage.innerHTML = html;
+  document.getElementById('btnBack').addEventListener('click', () => {
+    history.replaceState(null, '', location.pathname + location.search);
+    renderPick(); window.scrollTo({top:0});
+  });
+  const share = document.getElementById('btnShare');
+  share.addEventListener('click', () => {
+    const link = location.href;
+    const done = () => { share.textContent = 'Link copied — send it to your fishing partner'; };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).then(done, () => { share.textContent = link; });
+    else share.textContent = link;
+  });
+  window.scrollTo({top:0});
+}
+
+/* ── email CTA ── */
+document.getElementById('btnAskDanny').addEventListener('click', () => {
+  const names = sel.map(id => FACTS[id].nm);
+  const subject = names.length >= 2
+    ? names.join(' vs ') + ' — help me decide'
+    : 'Boat comparison inquiry';
+  let body = 'Hi Danny,\n\nI’ve been comparing models on the Wooldridge site and I’d like a straight recommendation.\n';
+  if (names.length >= 2){
+    body += '\nI’m deciding between: ' + names.join(' / ') + '\n';
+    body += '\nMostly I’ll use the boat for:\nThe water I run is:\nUsual crew size:\n';
+  }
+  body += '\nPlease send pricing and availability.\n\nName:\nPhone:\nBest time to reach me:\n';
+  location.href = 'mailto:danny@wooldridgeboats.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+});
+
+/* ── deep link: #c=ak,xl ── */
+(function(){
+  const m = location.hash.match(/#c=([a-z,]+)/i);
+  if (m){
+    const ids = m[1].split(',').filter(id => FACTS[id]).slice(0, 3);
+    if (ids.length >= 2){ sel = ids; renderCmp(); return; }
+  }
+  renderPick();
+})();
+</script>
+<style id="wb-rockwell-fonts">@font-face{font-family:'Rockwell';src:url(data:font/otf;base64,T1RUTwALAIAAAwAwQ0ZGIJLl4FgAABqAAAA7IEdQT1MYai+XAAAVVAAABSpPUy8yiE7C8AAAASAAAABgY21hcDnSRl4AAAhoAAADqmhlYWQErWdvAAAAvAAAADZoaGVhBtMEDgAAAPQAAAAkaG10eNlpHi0AAAwUAAADaGtlcm5aNljkAAAPnAAABbhtYXhwANpQAAAAARgAAAAGbmFtZSrpENUAAAGAAAAG5nBvc3T/uAAyAAAPfAAAACAAAQAAAAEAQoQKtmRfDzz1AAMD6AAAAADQ17/+AAAAANDYY7r/xf8hBCEDdAAAAAMAAgAAAAAAAAABAAACp/8sAEMEO//F/8wEIQABAAAAAAAAAAAAAAAAAAAA2gAAUAAA2gAAAAMCKwGQAAUAAAKKAlgAAABLAooCWAAAAV4AMgEbAAACAAUDBAAAAgADAAAADwAAAAAAAAAAAAAAAHB5cnMAQAAgISICp/8sAEMDdADfIAAAEQAAAAAB2AKnACAAIAACAAAAEQDSAAEAAAAAAAAApgAAAAEAAAAAAAEACACmAAEAAAAAAAMAfACuAAEAAAAAAAQACACmAAEAAAAAAAUABwEqAAEAAAAAAAYACACmAAEAAAAAAAcAUQExAAEAAAAAAAgAgAGCAAMAAQQJAAABTAICAAMAAQQJAAEAEANOAAMAAQQJAAIADgNeAAMAAQQJAAMA+ANsAAMAAQQJAAQAEANOAAMAAQQJAAUADgRkAAMAAQQJAAYAEANOAAMAAQQJAAcAogRyAAMAAQQJAAgBAAUUQ29weXJpZ2h0IChDKSAxOTk2IFRoZSBNb25vdHlwZSBDb3Jwb3JhdGlvbi4gUm9ja3dlbGwNKFIpIFRyYWRlbWFyayBvZiBUaGUgTW9ub3R5cGUgQ29ycG9yYXRpb24gcmVnaXN0ZXJlZCBpbiB0aGUgVVMgUGF0ICYgVE0gT2ZmLiBhbmQgZWxzZXdoZXJlLiBBbGwgcmlnaHRzIHJlc2VydmVkLlJvY2t3ZWxsQylUaGVNb25vdHlwZUNvcnBvcmF0aW9uLlJvY2t3ZWxsKFIpVHJhZGVtYXJrb2ZUaGVNb25vdHlwZUNvcnBvcmF0aW9ucmVnaXN0ZXJlZGludGhlVVNQYXQmVE1PZmYuYW5kZWxzZXdoZXJlOiBSb2Nrd2VsbDogMjAxNTAwMS4wMDFQbGVhc2UgcmVmZXIgdG8gdGhlIENvcHlyaWdodCBzZWN0aW9uIGZvciB0aGUgZm9udCB0cmFkZW1hcmsgYXR0cmlidXRpb24gbm90aWNlcy5DKSBUaGUgTW9ub3R5cGUgQ29ycG9yYXRpb24uIFJvY2t3ZWxsDShSKSBUcmFkZW1hcmsgb2YgVGhlIE1vbm90eXBlIENvcnBvcmF0aW9uIHJlZ2lzdGVyZWQgaW4gdGhlIFVTIFBhdCAmIFRNIE9mZi4gYW5kIGVsc2V3aGVyZQBDAG8AcAB5AHIAaQBnAGgAdAAgACgAQwApACAAMQA5ADkANgAgAFQAaABlACAATQBvAG4AbwB0AHkAcABlACAAQwBvAHIAcABvAHIAYQB0AGkAbwBuAC4AIABSAG8AYwBrAHcAZQBsAGwADQAoAFIAKQAgAFQAcgBhAGQAZQBtAGEAcgBrACAAbwBmACAAVABoAGUAIABNAG8AbgBvAHQAeQBwAGUAIABDAG8AcgBwAG8AcgBhAHQAaQBvAG4AIAByAGUAZwBpAHMAdABlAHIAZQBkACAAaQBuACAAdABoAGUAIABVAFMAIABQAGEAdAAgACYAIABUAE0AIABPAGYAZgAuACAAYQBuAGQAIABlAGwAcwBlAHcAaABlAHIAZQAuACAAQQBsAGwAIAByAGkAZwBoAHQAcwAgAHIAZQBzAGUAcgB2AGUAZAAuAFIAbwBjAGsAdwBlAGwAbABSAGUAZwB1AGwAYQByAEMAKQBUAGgAZQBNAG8AbgBvAHQAeQBwAGUAQwBvAHIAcABvAHIAYQB0AGkAbwBuAC4AUgBvAGMAawB3AGUAbABsACgAUgApAFQAcgBhAGQAZQBtAGEAcgBrAG8AZgBUAGgAZQBNAG8AbgBvAHQAeQBwAGUAQwBvAHIAcABvAHIAYQB0AGkAbwBuAHIAZQBnAGkAcwB0AGUAcgBlAGQAaQBuAHQAaABlAFUAUwBQAGEAdAAmAFQATQBPAGYAZgAuAGEAbgBkAGUAbABzAGUAdwBoAGUAcgBlADoAIABSAG8AYwBrAHcAZQBsAGwAOgAgADIAMAAxADUAMAAwADEALgAwADAAMQBQAGwAZQBhAHMAZQAgAHIAZQBmAGUAcgAgAHQAbwAgAHQAaABlACAAQwBvAHAAeQByAGkAZwBoAHQAIABzAGUAYwB0AGkAbwBuACAAZgBvAHIAIAB0AGgAZQAgAGYAbwBuAHQAIAB0AHIAYQBkAGUAbQBhAHIAawAgAGEAdAB0AHIAaQBiAHUAdABpAG8AbgAgAG4AbwB0AGkAYwBlAHMALgBDACkAIABUAGgAZQAgAE0AbwBuAG8AdAB5AHAAZQAgAEMAbwByAHAAbwByAGEAdABpAG8AbgAuACAAUgBvAGMAawB3AGUAbABsAA0AKABSACkAIABUAHIAYQBkAGUAbQBhAHIAawAgAG8AZgAgAFQAaABlACAATQBvAG4AbwB0AHkAcABlACAAQwBvAHIAcABvAHIAYQB0AGkAbwBuACAAcgBlAGcAaQBzAHQAZQByAGUAZAAgAGkAbgAgAHQAaABlACAAVQBTACAAUABhAHQAIAAmACAAVABNACAATwBmAGYALgAgAGEAbgBkACAAZQBsAHMAZQB3AGgAZQByAGUAAAAAAAMAAAADAAABIgABAAAAAAAcAAMAAQAAASIAAAEGAAAAAAAAAAAAAACzAAAAswAAAAAAAAAAAAAAAAAAAAAAALNqoolemUGpl5hFnVZ4mrLHkLm2b22xsGWHVa+BaXSgRtcICQsMERIUFRscHR4fISkqKywuLzQ1Njc5TUlOQ79zOkhQWGBscHd5fn+Ag4aKlZ+qrLW6wMHCw8ZLSkxEAAQGCg0gJTI7QDw+R0JRYWRiY3p9e3yIi4+MjZS7vry9WVtTtK5PlnKrV7g9XAABJwCeAADFhQAAAAAAkZIAP5Oha4IAbgAAdXZmzAUHKCKOaGekpaanXQDEOAAAycsAAFqbqKOcAw4CDxAWFxgaIyQAJjAxM19Ut4QAAABSAAAAAAQCiAAAAEIAQAAFAAIASQBOAE8AUwBVAFkAdQB5AH4AzwDcAO8A/AD/AR8BMQFTAWEBeAGPAZICWQLGAtwgFCAaIB4gIiAmIDAgOiEi//8AAAAgAEoATwBQAFQAVgBaAHYAegCgANEA3wDxAP8BHgEwAVIBXgF4AY8BkgJZAsYC3CATIBggHCAgICYgMCA5ISL//wAA/9H/0v/Z/9r/3gAAAEoAAAAAAAAAAAAA/8UAAAAAAAAAAP7A/0n+3P6A/Y792wAA4I4AAAAA4EDgbAAA35YAAQBCAAAAAAAAAAAAAACKAAAAvgDGASQBOgFaAAABbgFwAXIBdAAAAAAAAAAAAAAAAAFuAAABbgFyAAAAAAFyAAAAAACzAGoAogCJAF4AmQBBAKkAlwCYAEUAnQBWAHgAmgCyAMcAkAC5ALYAbwBtALEAsABlAIcAVQCvAIEAaQB0AKAARgDXAAgACQALAAwAEQASABQAFQA5AE0ASQBOAEMAvwBzADoASABQAFgAYABsAHAAdwB5AH4AfwCAAIMAhgCKAJUAnwCqAKwAtQC6AMYASwBKAEwARADMAGsAUwC0AM0AxQDOAK4AXABXAJEAdQCCAM8AqwCEAFsAngDQANEAPQCFAJYAmwBSANIAkgB2ANMA1ADVAKEABQACAAMABwAEAAYAAQAKABAADQAOAA8AGgAWABcAGAAgACYAIwAkACgAJQDWACcAMwAwADEAMgByAEAAOwA8AEcAPgBCAD8AUQBkAGEAYgBjAH0AegB7AHwAiACPAIsAjACUAI0AXQCTAL4AuwC8AL0AEwBxABkAXwAiAI4ALQCtAMgAygBoAGcApAClAKMAWQBaAE8AyQDLAAAA+gAAA6r/xQK6//gCuv/4Arr/+AK6//gCuv/4Arr/+AJHABYC+AArAvgAKwLZAA0CcQAbAnEAGwJxABsCcQAbAnEAGwIoABIDIgAwAyIAMALEABsBOQAfATkAHwE5//sBOf/5ATkAHwE5/+sBOf/dAnEAEgIJAA4DawAYAs8ABQLPAAUDIgAyA/0AJwMiADIDIgAyAyIAMgMiADIDIgAyAyIAMgI9ABQDIgAyAlwADQITACACEwAgAj0ADAKlAA0CpQANAqUADQKlAA0CpQANAsT//gPoAAACkAAKAob/9gKG//YCMwAZAhMALwITAC8CEwAvAU0ATAITAC8DdQArAhMALwKlACACEwAvAdUAGgJHABgCCQAhA/IAOQITAC8ChgAaAbYABQIPAOEBTQAcAU0AFgF3AGkBdwAdAWIANgIJACQCCQAkAU0AUgIJACkBTQASASQAVgEkAFYC5AACAnEALAIJABcCCQAnAYwAHQFNABgCnABDAh4AHwEkACACPQAkAj0AJAI9ACQCPQAkAj0AJAIeACED6ABrA+j/+gH0//oCmwBCASQAVgEkAFYBJAAcAh4AJAIoABcCHgAdAnEAIwJxACMChgAbAU0ANgKbAEIB3wAQAd8ACwI9ABQBYgAfASQAIAEkACABJP/+ASQABAEkAAwBJP/uAj0AGQEkABQCmwBCApsAQgNhABsBTQAYAigAQgI9ABsCHgAuAj0AGwKcACsCPQAnAj0AJwI9ACcCPQAnA7QAJQI9ACcCHgCQAVgAFwF3ABoCPQAnAj0AJwJxAAcCHgAAAXcAUQF3ABwDyQBQASQAVgEkAFYEOwAbApsAQgKbAEICZwAlAdUAHgHVACYBlgBBAgkATwIJAFACCQBPASQAVgEkAFYBJABWALEAKAGhABYC5AACAcoAKQHKACkB3wAYASQAVgIeADsCHgAxAbYABQD6AAACHgAhAS4AHgIeACEBTQAFA+gAcAIeACgCMwAaAjMAGgIzABoCMwAaAjMAGgH0//oCHv/+AwP//wIoABICMwAIAjMACAKG//QBwAAQAh4AJAITACABJAAbAcoAKQEkABYA+gAAApsAWgIPAOEBYgAfAU0AGAFNABQBTQBMA8kATAPJAEQDyQA9ApwAVwK6//gDIgAyAj0AJwADAAAAAAAA/7UAMgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAABbQAAQDxAwAABwKmAAgAL//sAAgAVv/sAAgAmv/sAAkAVv/YAAkAmv/YAAkA2P/nAAsANP+6AAsANf+6AAsAN/+6AAsAVv/EAAsAmv/EAAsA2P/2ABEAOv+wABEAVv90ABEAYP+wABEAiv+wABEAmv90ABEA2P+mABIAVv/EABIAmv/EABsAOv/dABsAVv/iABsAYP/YABsAiv/YABsAmv/iABsAuv/xABsA2P/2ABwAIf/YABwAYP/nABwAiv/sABwAuv/sABwAw/+wAB0ANP+cAB0ANf+1AB0AN/+1AB0Apf+1AB0Ap/+1AB0Aw//sAB8AVv/YAB8Amv/YAB8A2P/xACEANP+6ACEANf+6ACEANv+1ACEAN/+1ACEAVv+wACEAmv+wACEA2P/EACkAOv/sACkAVv90ACkAYP/iACkAiv/iACkAmv90ACkA2P+1ACoAL//iACoAVv+mACoAmv+mACsAIf/sACsANP/sACsANf/sACsAN//sACwAVv/nACwAmv/nAC4AIf/xAC4AOv/iAC4AVv+wAC4AYP/OAC4AdwAPAC4AeP+DAC4Aiv/EAC4Amv+wAC4A2P/nAC8AVv+1AC8Amv+1AC8A2P/nADQAEv/OADQAIf/OADQAOv+SADQAVf/dADQAVv9MADQAYP+SADQAeP+IADQAiv+SADQAmv9MADQAr//dADQAuv/OADQA2P/EADUAIf/OADUAOv+mADUAVf/dADUAVv9gADUAYP+mADUAeP+rADUAiv+mADUAmv9gADUAr//dADUAuv/JADUAw//OADUA2P/YADcAIf+1ADcAOv+DADcAVf/dADcAVv+IADcAYP+NADcAeP+DADcAiv+IADcAmv+IADcAr//dADcAuv+wADcA2P/OADoAwP/sADoAwf/sADoAw//sAEgASP/sAEgAVv/EAEgAgP/sAEgAmv/EAEgAuv/2AEgAwP/YAEgAw//YAFUAs/+wAFYApf+IAFYAp/+IAFYAs/+wAFgAwP/2AFgAwf/2AFgAw//nAGAASP/xAGAAVv/sAGAAmv/sAGAAwP/dAGAAwf/sAGAAwv/2AGAAw//YAGwAOgAZAGwAVgAoAGwAXwAKAGwAYAAZAGwAbAAKAGwAeQAKAGwAgAAKAGwAigAUAGwAmgAoAGwApQAoAGwApwAoAHAAOv/xAHAAVv/YAHAAYP/sAHAAcP/2AHAAiv/sAHAAmv/YAHAAw//iAHcAw//iAHkAwP/sAH8AYP/iAH8Aiv/iAH8Aw//sAIAAwf/xAIAAw//sAIMAw//sAIYAuv/2AIYAwP/nAIYAw//iAIoAVv/OAIoAmv/OAIoAwP/YAIoAwf/TAIoAwv/YAIoAw//OAJUAVv/YAJUAmv/YAJUAw//iAJoApf+IAJoAp/+IAJoAs/+wAKUAs/+wAKYApv/OAKcAWP+DAKcAp//OAKcAqv/YAKcArP+SAKcAs/+wAKcAtf/YAKcAwP/sAKoAOv/nAKoAUP/YAKoAVv/EAKoAWP/YAKoAYP/OAKoAcP/iAKoAeQAUAKoAf//sAKoAgP/sAKoAhgAeAKoAiv/YAKoAlQAPAKoAmv/EAKoAn//iAKoAqgAPAKoAtQAPAKoAugAPAKoAwAAPAKoAwwAPAK8As/+wALMALv/YALMANP+wALMANf+wALMAN/+cALMApP+wALMApv+wAMAAOv/xAMAAVv+cAMAAYP/nAMAAiv/dAMAAmv+cAMEAOv/xAMEAVv+wAMEAYP/nAMEAd//sAMEAiv/dAMEAmv+wAMIAYP/YAMMAOv/sAMMAVv+cAMMAYP/OAMMAiv/OAMMAmv+cAMYAYP/2AMYAiv/xANgACf/sANgAEv/i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) format('opentype');font-weight:400;font-display:swap;}
+@font-face{font-family:'Rockwell';src:url(data:font/otf;base64,T1RUTwALAIAAAwAwQ0ZGIHl4I9gAABr0AAA/R0dQT1MSUTEgAAAV9AAABQBPUy8yalumEgAAASAAAABgY21hcHsaB3sAAAi0AAADsmhlYWQFD8TaAAAAvAAAADZoaGVhBzQEQQAAAPQAAAAkaG10ePxeIAYAAAxoAAADbGtlcm5eZ1vVAAAP9AAABgBtYXhwANtQAAAAARgAAAAGbmFtZdAiVtgAAAGAAAAHM3Bvc3T/uAAyAAAP1AAAACAAAQAAAAEAQuIni/xfDzz1AAMD6AAAAADQ2ByJAAAAANDYZGD/1f8gBHIDrwABAAMAAgAAAAAAAAABAAACp/8rAEMEj//V/6sEcgABAAAAAAAAAAAAAAAAAAAA2wAAUAAA2wAAAAMCUgK8AAUAAAKKAlgAAABLAooCWAAAAV4AMgEbAAACAAgFBQAAAgADAAAADwAAAAAAAAAAAAAAAFBZUlMAIAAgISICp/8rAEMDrwDgIAAAEQAAAAAB2QKnACAAIAAAAAAAEgDeAAEAAAAAAAAApgAAAAEAAAAAAAEACACmAAEAAAAAAAIABACuAAEAAAAAAAMAgQCyAAEAAAAAAAQADQEzAAEAAAAAAAUABwFAAAEAAAAAAAYADQFHAAEAAAAAAAcAUQFUAAEAAAAAAAgAgAGlAAMAAQQJAAABTAIlAAMAAQQJAAEAEANxAAMAAQQJAAIACAOBAAMAAQQJAAMBAgOJAAMAAQQJAAQAGgSLAAMAAQQJAAUADgSlAAMAAQQJAAYAGgSLAAMAAQQJAAcAogSzAAMAAQQJAAgBAAVVQ29weXJpZ2h0IChDKSAxOTk2IFRoZSBNb25vdHlwZSBDb3Jwb3JhdGlvbi4gUm9ja3dlbGwNKFIpIFRyYWRlbWFyayBvZiBUaGUgTW9ub3R5cGUgQ29ycG9yYXRpb24gcmVnaXN0ZXJlZCBpbiB0aGUgVVMgUGF0ICYgVE0gT2ZmLiBhbmQgZWxzZXdoZXJlLiBBbGwgcmlnaHRzIHJlc2VydmVkLlJvY2t3ZWxsQm9sZEMpVGhlTW9ub3R5cGVDb3Jwb3JhdGlvbi5Sb2Nrd2VsbChSKVRyYWRlbWFya29mVGhlTW9ub3R5cGVDb3Jwb3JhdGlvbnJlZ2lzdGVyZWRpbnRoZVVTUGF0JlRNT2ZmLmFuZGVsc2V3aGVyZTogUm9ja3dlbGwgQm9sZDogMjAxNVJvY2t3ZWxsIEJvbGQwMDEuMDAxUm9ja3dlbGwtQm9sZFBsZWFzZSByZWZlciB0byB0aGUgQ29weXJpZ2h0IHNlY3Rpb24gZm9yIHRoZSBmb250IHRyYWRlbWFyayBhdHRyaWJ1dGlvbiBub3RpY2VzLkMpIFRoZSBNb25vdHlwZSBDb3Jwb3JhdGlvbi4gUm9ja3dlbGwNKFIpIFRyYWRlbWFyayBvZiBUaGUgTW9ub3R5cGUgQ29ycG9yYXRpb24gcmVnaXN0ZXJlZCBpbiB0aGUgVVMgUGF0ICYgVE0gT2ZmLiBhbmQgZWxzZXdoZXJlAEMAbwBwAHkAcgBpAGcAaAB0ACAAKABDACkAIAAxADkAOQA2ACAAVABoAGUAIABNAG8AbgBvAHQAeQBwAGUAIABDAG8AcgBwAG8AcgBhAHQAaQBvAG4ALgAgAFIAbwBjAGsAdwBlAGwAbAANACgAUgApACAAVAByAGEAZABlAG0AYQByAGsAIABvAGYAIABUAGgAZQAgAE0AbwBuAG8AdAB5AHAAZQAgAEMAbwByAHAAbwByAGEAdABpAG8AbgAgAHIAZQBnAGkAcwB0AGUAcgBlAGQAIABpAG4AIAB0AGgAZQAgAFUAUwAgAFAAYQB0ACAAJgAgAFQATQAgAE8AZgBmAC4AIABhAG4AZAAgAGUAbABzAGUAdwBoAGUAcgBlAC4AIABBAGwAbAAgAHIAaQBnAGgAdABzACAAcgBlAHMAZQByAHYAZQBkAC4AUgBvAGMAawB3AGUAbABsAEIAbwBsAGQAQwApAFQAaABlAE0AbwBuAG8AdAB5AHAAZQBDAG8AcgBwAG8AcgBhAHQAaQBvAG4ALgBSAG8AYwBrAHcAZQBsAGwAKABSACkAVAByAGEAZABlAG0AYQByAGsAbwBmAFQAaABlAE0AbwBuAG8AdAB5AHAAZQBDAG8AcgBwAG8AcgBhAHQAaQBvAG4AcgBlAGcAaQBzAHQAZQByAGUAZABpAG4AdABoAGUAVQBTAFAAYQB0ACYAVABNAE8AZgBmAC4AYQBuAGQAZQBsAHMAZQB3AGgAZQByAGUAOgAgAFIAbwBjAGsAdwBlAGwAbAAgAEIAbwBsAGQAOgAgADIAMAAxADUAUgBvAGMAawB3AGUAbABsAC0AQgBvAGwAZAAwADAA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AC7/5wArAC//7AArADT/2AArADX/2AArADf/2AAsAFb/5wAsAJr/5wAuACH/5wAuADr/2AAuAFb/sAAuAGD/sAAuAHj/nAAuAIr/sAAuAJr/sAAuAMEAFAAuANf/4gAuANj/4gAvAFb/sAAvAJr/sAAvANf/5wAvANj/5wA0ABL/xAA0ACH/tQA0ADr/nAA0AFX/zgA0AFb/gwA0AGD/nAA0AHj/nAA0AHn/8QA0AIr/nAA0AJr/gwA0AK//zgA0ALr/0wA0ANf/0wA0ANj/0wA1ACH/tQA1ADr/nAA1AFX/xAA1AFb/agA1AGD/nAA1AHcAGQA1AHj/nAA1AHn/8QA1AIr/nAA1AJr/agA1AK//xAA1ALr/2AA1AMP/zgA1ANf/4gA1ANj/4gA3ACH/tQA3ADr/nAA3AFX/tQA3AFb/sAA3AGD/gwA3AHj/gwA3AHn/8QA3AIr/gwA3AJr/sAA3AK//tQA3ALr/sAA3ANf/4gA3ANj/4gA6AJX/7AA6AMD/7AA6AMH/5wA6AMP/2ABIAEj/7ABIAFb/2ABIAID/5wBIAJr/2ABIAMP/7ABQAFb/7ABQAH//8QBQAID/8QBQAJr/7ABVALP/tQBWAKX/dABWAKf/dABYAFj/7ABYAMD/8QBYAMH/8QBYAMP/7ABgAFb/7ABgAJX/7ABgAJr/7ABgAMH/8QBgAMP/7ABsAKUAPABsAKcAPABwAFb/xABwAGD/7ABwAHD/8QBwAIr/7ABwAJr/xAB3AMP/2AB/AGD/4gB/AIr/2ACAAMH/8QCAAMP/8QCDAMP/3QCGAMD/8QCGAMP/3QCKAFb/2ACKAJr/2ACKAMD/8QCKAMH/8QCKAML/5wCKAMP/5wCVAFb/2ACVAJr/2ACVAMP/7ACaAKX/dACaAKf/dACaALP/tQClALP/tQCmAKb/lwCnAFj/nACnAID/5wCnAKf/lwCnAKr/tQCnAKz/sACnALP/tQCnALX/4gCqAFb/2ACqAHkAGQCqAIMAMgCqAIYAMgCqAJUAMgCqAJr/2ACqAKoAHgCqALUALQCqALoANwCqAMAASwCqAMMAPACsAFb/4gCsAJr/4gCvALP/tQCzAC7/tQCzADT/nACzADX/nACzADf/gwCzAKT/tQCzAKb/tQDAADr/8QDAAFb/nADAAGD/5wDAAIr/7ADAAJr/nADBADr/8QDB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) format('opentype');font-weight:700;font-display:swap;}</style>
+<style id="wb-industrial-skin">
+/* ============================================================
+   WOOLDRIDGE INDUSTRIAL SKIN (added 2026-07)
+   Shared design language with the WEBSITE: Rockwell display
+   type, 4x4 graph-paper ground, drawing-sheet frame with zone
+   labels, and a gridded title block. ref: ANSI drafting sheets.
+   ============================================================ */
+body{
+  background-color:var(--paper);
+  background-image:
+    linear-gradient(rgba(47,84,150,.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(47,84,150,.14) 1px, transparent 1px),
+    linear-gradient(rgba(47,84,150,.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(47,84,150,.055) 1px, transparent 1px);
+  background-size:108px 108px,108px 108px,27px 27px,27px 27px;
+  padding-top:24px;
+}
+.selbar{top:24px;}
+.wb-sheetframe{position:fixed; inset:7px; border:1.6px solid var(--ink); pointer-events:none; z-index:60;}
+.wb-sheetframe::before{content:""; position:absolute; inset:4px; border:1px solid var(--ink); opacity:.45;}
+.wb-zonelab{
+  position:fixed; z-index:61; pointer-events:none;
+  font-family:'Courier New',ui-monospace,monospace; font-size:10px; font-weight:700; letter-spacing:.08em;
+  color:var(--ink); opacity:.75; background:var(--paper); padding:0 5px; line-height:1.4;
+}
+.wb-zl-top{position:absolute; top:11px; transform:translateX(-50%);}
+.wb-zl-bottom{bottom:12px; transform:translateX(-50%);}
+.wb-zl-left{left:13px; transform:translateY(-50%);}
+.wb-zl-right{right:13px; transform:translateY(-50%);}
+.wb-tbwrap{max-width:1060px; margin:34px auto 0; padding:0 26px 26px;}
+.wb-titleblock{
+  display:grid; grid-template-columns:1.5fr 1fr 1fr .55fr 1.25fr .6fr;
+  border:1.6px solid var(--ink); background:var(--card);
+  font-family:'Courier New',ui-monospace,monospace; box-shadow:3px 3px 0 rgba(47,84,150,.35);
+}
+.wb-tb-cell{border-left:1px solid var(--ink); padding:6px 10px 7px; min-width:0;}
+.wb-tb-row2{border-top:1px solid var(--ink);}
+.wb-tb-title{grid-column:span 2;}
+.wb-tb-notes{
+  grid-row:1/3; border-left:none; padding:8px 10px;
+  font-size:8.5px; line-height:1.7; letter-spacing:.1em; text-transform:uppercase; color:var(--slate);
+}
+.wb-tb-notes b{color:var(--ink);}
+.wb-tb-k{display:block; font-size:8.5px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:#3a6ea5;}
+.wb-tb-v{display:block; font-size:12px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--ink); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.wb-tb-v.big{font-size:16px;}
+@media (max-width:860px){
+  .wb-titleblock{grid-template-columns:repeat(2,1fr);}
+  .wb-tb-notes{display:none;}
+  .wb-tb-cell{border-top:1px solid var(--ink); border-left:1px solid var(--ink);}
+  .wb-tb-cell:nth-child(even){border-left:none;}
+  .wb-tb-cell:nth-child(2), .wb-tb-cell:nth-child(3){border-top:none;}
+}
+@media (max-width:720px){ .wb-sheetframe, .wb-zonelab{display:none;} body{padding-top:0;} .selbar{top:0;} }
+@media print{ .wb-sheetframe, .wb-zonelab, .wb-tbwrap{display:none !important;} body{background-image:none !important; padding-top:0 !important;} }
+.mast .brand, .qtitle, .verdict .vn{font-family:Georgia,Palatino,'Palatino Linotype','Times New Roman',Times,serif;}</style>
+<script id="wb-industrial-skin-js">
+(function () {
+  "use strict";
+  var CFG = { dwg: "WB-2026-CMP-1", title: "BOAT VS BOAT", notes: "ALL HULLS 5052 & 5086 MARINE-GRADE ALUMINUM, WELDED BY HAND IN SEATTLE, WA.<br>EVERY BOAT SEA-TRIALED BEFORE DELIVERY.<br>DO NOT SCALE DRAWING." };
+  function init() {
+    if (document.querySelector(".wb-sheetframe")) return;
+    var f = document.createElement("div");
+    f.className = "wb-sheetframe"; f.setAttribute("aria-hidden", "true");
+    document.body.appendChild(f);
+    function zone(cls, prop, val, txt) {
+      var s = document.createElement("span");
+      s.className = "wb-zonelab " + cls; s.style[prop] = val;
+      s.textContent = txt; s.setAttribute("aria-hidden", "true");
+      document.body.appendChild(s);
+    }
+    var nums = ["4", "3", "2", "1"];
+    for (var i = 0; i < 4; i++) {
+      var x = (12.5 + i * 25) + "%";
+      zone("wb-zl-top", "left", x, nums[i]);
+      zone("wb-zl-bottom", "left", x, nums[i]);
+    }
+    zone("wb-zl-left", "top", "25%", "B"); zone("wb-zl-right", "top", "25%", "B");
+    zone("wb-zl-left", "top", "75%", "A"); zone("wb-zl-right", "top", "75%", "A");
+    function cell(k, v, cls) {
+      return '<div class="wb-tb-cell ' + (cls || "") + '"><span class="wb-tb-k">' + k +
+             '</span><span class="wb-tb-v' + (k === "SIZE" ? " big" : "") + '">' + v + "</span></div>";
+    }
+    var w = document.createElement("div");
+    w.className = "wb-tbwrap"; w.setAttribute("aria-hidden", "true");
+    w.innerHTML = '<div class="wb-titleblock">' +
+      '<div class="wb-tb-cell wb-tb-notes"><b>UNLESS OTHERWISE SPECIFIED:</b><br>' + CFG.notes + "</div>" +
+      cell("DRAWN", "WOOLDRIDGE FAMILY") + cell("CHECKED", "SEA-TRIALED") + cell("SIZE", "B") +
+      cell("DWG. NO.", CFG.dwg) + cell("REV", "2026") +
+      cell("TITLE", CFG.title, "wb-tb-row2 wb-tb-title") + cell("SCALE", "1:1", "wb-tb-row2") +
+      cell("WEIGHT", "SEE SPECS", "wb-tb-row2") + cell("SHEET", "1 OF 1", "wb-tb-row2") +
+      "</div>";
+    document.body.appendChild(w);
+  }
+  if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", init); }
+  else { init(); }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+WOOLDRIDGE  -  PHOTO PATHWAYS
+Drag-and-drop staging for every model's website photos.
+=======================================================================
+
+WHAT THIS IS
+The models are split into four groups at the top level:
+
+   1 - OUTBOARDS
+   2 - INBOARDS
+   3 - OFFSHORE
+   4 - OTHER BUILDS      (Landing Craft and Agency builds)
+
+Open a group and you'll find its models, each in its own numbered
+folder. Whatever photo you drop into a slot is the photo the website
+will use for that job. You are in full control - nothing is picked for
+you.
+
+
+HOW EACH MODEL FOLDER IS LAID OUT
+-----------------------------------------------------------------------
+Open any model, for example:
+
+   1 - OUTBOARDS  ->  01 - ALASKAN LT - 16, 18, 20 FT
+
+Inside you'll find:
+
+   00 - MODEL CARD AND HERO
+        CARD THUMBNAIL (CHOOSE 1)
+             The single photo used on the "Our Boats" grid card for this
+             model. Your cleanest, best side-on profile. ONE photo.
+        MODEL HERO (CHOOSE 1)
+             The big banner photo across the top of the model's page.
+             Wide / landscape shots look best here. ONE photo.
+
+   16 FT   /   18 FT   /   20 FT      (one folder per length offered)
+        1 - HERO (CHOOSE 1)
+             Lead photo for THIS length's section of the gallery. ONE.
+        2 - FEATURED (CHOOSE 3-8)
+             Your hand-picked highlights for this length. These are shown
+             first and large. A handful (about 3 to 8) is perfect.
+        3 - FLUFF - EVERYTHING ELSE
+             Every other good photo of this length. Drop as many as you
+             like - this is the deep gallery.
+
+
+WHAT TO DROP IN
+-----------------------------------------------------------------------
+ -  JPGs straight off the shoot are ideal. Landscape orientation reads
+    best on the site.
+ -  Heroes: the wider the better (think banner). Cards: clean side
+    profile on a simple background.
+ -  Big files are fine. Everything is automatically resized for the web
+    when it goes live - drop full-quality originals.
+ -  Filenames do NOT matter. Name them anything; the website ignores the
+    names and uses the FOLDER to decide each photo's job.
+ -  You do not have to fill every slot. Empty folders are simply skipped.
+ -  Put a length's best 1-2 shots in "FEATURED" and the rest in "FLUFF";
+    don't overthink it - anything in "FLUFF" still shows in the gallery.
+
+
+WHEN YOU'RE DONE  (or done with a model)
+-----------------------------------------------------------------------
+Just tell Stephen. Repointing the website at this folder is automatic on
+our end - each photo lands in exactly the role and length you dropped it
+into. You can hand it over model-by-model; it doesn't have to be all at
+once.
+
+
+FOR REFERENCE
+-----------------------------------------------------------------------
+The photos the site uses TODAY live in:   assets/photos/<model>/
+Feel free to browse those to see what's currently in use.
+
+The file "_photo-pathways.json" in this folder is for the website build -
+please leave it alone.
+
+Questions -> Stephen.

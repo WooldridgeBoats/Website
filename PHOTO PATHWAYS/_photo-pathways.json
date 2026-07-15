@@ -1,0 +1,542 @@
+{
+   "generated" : "2026-07-08",
+   "models" : [
+      {
+         "cat" : "Outboard Jet",
+         "categoryFolder" : "1 - OUTBOARDS",
+         "folder" : "01 - ALASKAN LT - 16, 18, 20 FT",
+         "lengthFolders" : {
+            "16" : "16 FT",
+            "18" : "18 FT",
+            "20" : "20 FT"
+         },
+         "lengths" : [
+            16,
+            18,
+            20
+         ],
+         "modelWide" : {
+            "card" : "CARD THUMBNAIL (CHOOSE 1)",
+            "folder" : "00 - MODEL CARD AND HERO",
+            "hero" : "MODEL HERO (CHOOSE 1)"
+         },
+         "name" : "Alaskan LT",
+         "path" : "1 - OUTBOARDS/01 - ALASKAN LT - 16, 18, 20 FT",
+         "roles" : {
+            "featured" : "2 - FEATURED (CHOOSE 3-8)",
+            "fluff" : "3 - FLUFF - EVERYTHING ELSE",
+            "hero" : "1 - HERO (CHOOSE 1)"
+         },
+         "slug" : "alaskan-lt"
+      },
+      {
+         "cat" : "Outboard Jet",
+         "categoryFolder" : "1 - OUTBOARDS",
+         "folder" : "02 - ALASKAN - 18, 20 FT",
+         "lengthFolders" : {
+            "18" : "18 FT",
+            "20" : "20 FT"
+         },
+         "lengths" : [
+            18,
+            20
+         ],
+         "modelWide" : {
+            "card" : "CARD THUMBNAIL (CHOOSE 1)",
+            "folder" : "00 - MODEL CARD AND HERO",
+            "hero" : "MODEL HERO (CHOOSE 1)"
+         },
+         "name" : "Alaskan",
+         "path" : "1 - OUTBOARDS/02 - ALASKAN - 18, 20 FT",
+         "roles" : {
+            "featured" : "2 - FEATURED (CHOOSE 3-8)",
+            "fluff" : "3 - FLUFF - EVERYTHING ELSE",
+            "hero" : "1 - HERO (CHOOSE 1)"
+         },
+         "slug" : "alaskan"
+      },
+      {
+         "cat" : "Outboard Jet",
+         "categoryFolder" : "1 - OUTBOARDS",
+         "folder" : "03 - ALASKAN XLT - 18, 20 FT",
+         "lengthFolders" : {
+            "18" : "18 FT",
+            "20" : "20 FT"
+         },
+         "lengths" : [
+            18,
+            20
+         ],
+         "modelWide" : {
+            "card" : "CARD THUMBNAIL (CHOOSE 1)",
+            "folder" : "00 - MODEL CARD AND HERO",
+            "hero" : "MODEL HERO (CHOOSE 1)"
+         },
+         "name" : "Alaskan XLT",
+         "path" : "1 - OUTBOARDS/03 - ALASKAN XLT - 18, 20 FT",
+         "roles" : {
+            "featured" : "2 - FEATURED (CHOOSE 3-8)",
+            "fluff" : "3 - FLUFF - EVERYTHING ELSE",
+            "hero" : "1 - HERO (CHOOSE 1)"
+         },
+         "slug" : "alaskan-xlt"
+      },
+      {
+         "cat" : "Outboard Jet",
+         "categoryFolder" : "1 - OUTBOARDS",
+         "folder" : "04 - ALASKAN XL - 20 FT",
+         "lengthFolders" : {
+            "20" : "20 FT"
+         },
+         "lengths" : [
+            20
+         ],
+         "modelWide" : {
+            "card" : "CARD THUMBNAIL (CHOOSE 1)",
+            "folder" : "00 - MODEL CARD AND HERO",
+            "hero" : "MODEL HERO (CHOOSE 1)"
+         },
+         "name" : "Alaskan XL",
+         "path" : "1 - OUTBOARDS/04 - ALASKAN XL - 20 FT",
+         "roles" : {
+            "featured" : "2 - FEATURED (CHOOSE 3-8)",
+            "fluff" : "3 - FLUFF - EVERYTHING ELSE",
+            "hero" : "1 - HERO (CHOOSE 1)"
+         },
+         "slug" : "alaskanxl"
+      },
+      {
+         "cat" : "Outboard Jet",
+         "categoryFolder" : "1 - OUTBOARDS",
+         "folder" : "05 - ROGUE HDPE - 16, 18, 20 FT",
+         "lengthFolders" : {
+            "16" : "16 FT",
+            "18" : "18 FT",
+            "20" : "20 FT"
+         },
+         "lengths" : [
+            16,
+            18,
+            20
+         ],
+         "modelWide" : {
+            "card" : "CARD THUMBNAIL (CHOOSE 1)",
+            "folder" : "00 - MODEL CARD AND HERO",
+            "hero" : "MODEL HERO (CHOOSE 1)"
+         },
+         "name" : "Rogue HDPE",
+         "path" : "1 - OUTBOARDS/05 - ROGUE HDPE - 16, 18, 20 FT",
+         "roles" : {
+            "featured" : "2 - FEATURED (CHOOSE 3-8)",
+            "fluff" : "3 - FLUFF - EVERYTHING ELSE",
+            "hero" : "1 - HERO (CHOOSE 1)"
+         },
+         "slug" : "rogue"
+      },
+      {
+         "cat" : "Outboard Jet",
+         "categoryFolder" : "1 - OUTBOARDS",
+         "folder" : "06 - SKAGIT - 18, 20 FT",
+         "lengthFolders" : {
+            "18" : "18 FT",
+            "20" : "20 FT"
+         },
+         "lengths" : [
+            18,
+            20
+         ],
+         "modelWide" : {
+            "card" : "CARD THUMBNAIL (CHOOSE 1)",
+            "folder" : "00 - MODEL CARD AND HERO",
+            "hero" : "MODEL HERO (CHOOSE 1)"
+         },
+         "name" : "Skagit",
+         "path" : "1 - OUTBOARDS/06 - SKAGIT - 18, 20 FT",
+         "roles" : {
+            "featured" : "2 - FEATURED (CHOOSE 3-8)",
+            "fluff" : "3 - FLUFF - EVERYTHING ELSE",
+            "hero" : "1 - HERO (CHOOSE 1)"
+         },
+         "slug" : "skagit"
+      },
+      {
+         "cat" : "Outboard Jet",
+         "categoryFolder" : "1 - OUTBOARDS",
+         "folder" : "07 - SPORT - 18, 20 FT",
+         "lengthFolders" : {
+            "18" : "18 FT",
+            "20" : "20 FT"
+         },
+         "lengths" : [
+            18,
+            20
+         ],
+         "modelWide" : {
+            "card" : "CARD THUMBNAIL (CHOOSE 1)",
+            "folder" : "00 - MODEL CARD AND HERO",
+            "hero" : "MODEL HERO (CHOOSE 1)"
+         },
+         "name" : "Sport",
+         "path" : "1 - OUTBOARDS/07 - SPORT - 18, 20 FT",
+         "roles" : {
+            "featured" : "2 - FEATURED (CHOOSE 3-8)",
+            "fluff" : "3 - FLUFF - EVERYTHING ELSE",
+            "hero" : "1 - HERO (CHOOSE 1)"
+         },
+         "slug" : "sport"
+      },
+      {
+         "cat" : "Outboard Jet",
+         "categoryFolder" : "1 - OUTBOARDS",
+         "folder" : "08 - SUPER SPORT DRIFTER - 21, 23, 25 FT",
+         "lengthFolders" : {
+            "21" : "21 FT",
+            "23" : "23 FT",
+            "25" : "25 FT"
+         },
+         "lengths" : [
+            21,
+            23,
+            25
+         ],
+         "modelWide" : {
+            "card" : "CARD THUMBNAIL (CHOOSE 1)",
+            "folder" : "00 - MODEL CARD AND HERO",
+            "hero" : "MODEL HERO (CHOOSE 1)"
+         },
+         "name" : "Super Sport Drifter",
+         "path" : "1 - OUTBOARDS/08 - SUPER SPORT DRIFTER - 21, 23, 25 FT",
+         "roles" : {
+            "featured" : "2 - FEATURED (CHOOSE 3-8)",
+            "fluff" : "3 - FLUFF - EVERYTHING ELSE",
+            "hero" : "1 - HERO (CHOOSE 1)"
+         },
+         "slug" : "supersportdrifter"
+      },
+      {
+         "cat" : "Outboard Jet",
+         "categoryFolder" : "1 - OUTBOARDS",
+         "folder" : "09 - SPORTSTER - 21, 23, 25 FT",
+         "lengthFolders" : {
+            "21" : "21 FT",
+            "23" : "23 FT",
+            "25" : "25 FT"
+         },
+         "lengths" : [
+            21,
+            23,
+            25
+         ],
+         "modelWide" : {
+            "card" : "CARD THUMBNAIL (CHOOSE 1)",
+            "folder" : "00 - MODEL CARD AND HERO",
+            "hero" : "MODEL HERO (CHOOSE 1)"
+         },
+         "name" : "Sportster",
+         "path" : "1 - OUTBOARDS/09 - SPORTSTER - 21, 23, 25 FT",
+         "roles" : {
+            "featured" : "2 - FEATURED (CHOOSE 3-8)",
+            "fluff" : "3 - FLUFF - EVERYTHING ELSE",
+            "hero" : "1 - HERO (CHOOSE 1)"
+         },
+         "slug" : "sportster"
+      },
+      {
+         "cat" : "Inboard Jet",
+         "categoryFolder" : "2 - INBOARDS",
+         "folder" : "01 - ALASKAN XL INBOARD - 20, 21 FT",
+         "lengthFolders" : {
+            "20" : "20 FT",
+            "21" : "21 FT"
+         },
+         "lengths" : [
+            20,
+            21
+         ],
+         "modelWide" : {
+            "card" : "CARD THUMBNAIL (CHOOSE 1)",
+            "folder" : "00 - MODEL CARD AND HERO",
+            "hero" : "MODEL HERO (CHOOSE 1)"
+         },
+         "name" : "Alaskan XL Inboard",
+         "path" : "2 - INBOARDS/01 - ALASKAN XL INBOARD - 20, 21 FT",
+         "roles" : {
+            "featured" : "2 - FEATURED (CHOOSE 3-8)",
+            "fluff" : "3 - FLUFF - EVERYTHING ELSE",
+            "hero" : "1 - HERO (CHOOSE 1)"
+         },
+         "slug" : "alaskan-xl-inboard"
+      },
+      {
+         "cat" : "Inboard Jet",
+         "categoryFolder" : "2 - INBOARDS",
+         "folder" : "02 - SCOUT - 19, 21, 23 FT",
+         "lengthFolders" : {
+            "19" : "19 FT",
+            "21" : "21 FT",
+            "23" : "23 FT"
+         },
+         "lengths" : [
+            19,
+            21,
+            23
+         ],
+         "modelWide" : {
+            "card" : "CARD THUMBNAIL (CHOOSE 1)",
+            "folder" : "00 - MODEL CARD AND HERO",
+            "hero" : "MODEL HERO (CHOOSE 1)"
+         },
+         "name" : "Scout",
+         "path" : "2 - INBOARDS/02 - SCOUT - 19, 21, 23 FT",
+         "roles" : {
+            "featured" : "2 - FEATURED (CHOOSE 3-8)",
+            "fluff" : "3 - FLUFF - EVERYTHING ELSE",
+            "hero" : "1 - HERO (CHOOSE 1)"
+         },
+         "slug" : "scout"
+      },
+      {
+         "cat" : "Inboard Jet",
+         "categoryFolder" : "2 - INBOARDS",
+         "folder" : "03 - SCOUT WIDEBODY - 21, 23, 25 FT",
+         "lengthFolders" : {
+            "21" : "21 FT",
+            "23" : "23 FT",
+            "25" : "25 FT"
+         },
+         "lengths" : [
+            21,
+            23,
+            25
+         ],
+         "modelWide" : {
+            "card" : "CARD THUMBNAIL (CHOOSE 1)",
+            "folder" : "00 - MODEL CARD AND HERO",
+            "hero" : "MODEL HERO (CHOOSE 1)"
+         },
+         "name" : "Scout Widebody",
+         "path" : "2 - INBOARDS/03 - SCOUT WIDEBODY - 21, 23, 25 FT",
+         "roles" : {
+            "featured" : "2 - FEATURED (CHOOSE 3-8)",
+            "fluff" : "3 - FLUFF - EVERYTHING ELSE",
+            "hero" : "1 - HERO (CHOOSE 1)"
+         },
+         "slug" : "scout-widebody"
+      },
+      {
+         "cat" : "Inboard Jet",
+         "categoryFolder" : "2 - INBOARDS",
+         "folder" : "04 - SKAGIT INBOARD - 18, 20 FT",
+         "lengthFolders" : {
+            "18" : "18 FT",
+            "20" : "20 FT"
+         },
+         "lengths" : [
+            18,
+            20
+         ],
+         "modelWide" : {
+            "card" : "CARD THUMBNAIL (CHOOSE 1)",
+            "folder" : "00 - MODEL CARD AND HERO",
+            "hero" : "MODEL HERO (CHOOSE 1)"
+         },
+         "name" : "Skagit Inboard",
+         "path" : "2 - INBOARDS/04 - SKAGIT INBOARD - 18, 20 FT",
+         "roles" : {
+            "featured" : "2 - FEATURED (CHOOSE 3-8)",
+            "fluff" : "3 - FLUFF - EVERYTHING ELSE",
+            "hero" : "1 - HERO (CHOOSE 1)"
+         },
+         "slug" : "skagit-inboard"
+      },
+      {
+         "cat" : "Inboard Jet",
+         "categoryFolder" : "2 - INBOARDS",
+         "folder" : "05 - SPORT INBOARD - 18, 20 FT",
+         "lengthFolders" : {
+            "18" : "18 FT",
+            "20" : "20 FT"
+         },
+         "lengths" : [
+            18,
+            20
+         ],
+         "modelWide" : {
+            "card" : "CARD THUMBNAIL (CHOOSE 1)",
+            "folder" : "00 - MODEL CARD AND HERO",
+            "hero" : "MODEL HERO (CHOOSE 1)"
+         },
+         "name" : "Sport Inboard",
+         "path" : "2 - INBOARDS/05 - SPORT INBOARD - 18, 20 FT",
+         "roles" : {
+            "featured" : "2 - FEATURED (CHOOSE 3-8)",
+            "fluff" : "3 - FLUFF - EVERYTHING ELSE",
+            "hero" : "1 - HERO (CHOOSE 1)"
+         },
+         "slug" : "sportinboard"
+      },
+      {
+         "cat" : "Inboard Jet",
+         "categoryFolder" : "2 - INBOARDS",
+         "folder" : "06 - SUPER SPORT DRIFTER INBOARD - 20, 23, 25 FT",
+         "lengthFolders" : {
+            "20" : "20 FT",
+            "23" : "23 FT",
+            "25" : "25 FT"
+         },
+         "lengths" : [
+            20,
+            23,
+            25
+         ],
+         "modelWide" : {
+            "card" : "CARD THUMBNAIL (CHOOSE 1)",
+            "folder" : "00 - MODEL CARD AND HERO",
+            "hero" : "MODEL HERO (CHOOSE 1)"
+         },
+         "name" : "Super Sport Drifter Inboard",
+         "path" : "2 - INBOARDS/06 - SUPER SPORT DRIFTER INBOARD - 20, 23, 25 FT",
+         "roles" : {
+            "featured" : "2 - FEATURED (CHOOSE 3-8)",
+            "fluff" : "3 - FLUFF - EVERYTHING ELSE",
+            "hero" : "1 - HERO (CHOOSE 1)"
+         },
+         "slug" : "supersportdrifterinboard"
+      },
+      {
+         "cat" : "Inboard Jet",
+         "categoryFolder" : "2 - INBOARDS",
+         "folder" : "07 - SKAGIT-X - 21 FT",
+         "lengthFolders" : {
+            "21" : "21 FT"
+         },
+         "lengths" : [
+            21
+         ],
+         "modelWide" : {
+            "card" : "CARD THUMBNAIL (CHOOSE 1)",
+            "folder" : "00 - MODEL CARD AND HERO",
+            "hero" : "MODEL HERO (CHOOSE 1)"
+         },
+         "name" : "Skagit-X",
+         "path" : "2 - INBOARDS/07 - SKAGIT-X - 21 FT",
+         "roles" : {
+            "featured" : "2 - FEATURED (CHOOSE 3-8)",
+            "fluff" : "3 - FLUFF - EVERYTHING ELSE",
+            "hero" : "1 - HERO (CHOOSE 1)"
+         },
+         "slug" : "skagit-x"
+      },
+      {
+         "cat" : "Offshore",
+         "categoryFolder" : "3 - OFFSHORE",
+         "folder" : "01 - SPORT OFFSHORE - 18, 20 FT",
+         "lengthFolders" : {
+            "18" : "18 FT",
+            "20" : "20 FT"
+         },
+         "lengths" : [
+            18,
+            20
+         ],
+         "modelWide" : {
+            "card" : "CARD THUMBNAIL (CHOOSE 1)",
+            "folder" : "00 - MODEL CARD AND HERO",
+            "hero" : "MODEL HERO (CHOOSE 1)"
+         },
+         "name" : "Sport Offshore",
+         "path" : "3 - OFFSHORE/01 - SPORT OFFSHORE - 18, 20 FT",
+         "roles" : {
+            "featured" : "2 - FEATURED (CHOOSE 3-8)",
+            "fluff" : "3 - FLUFF - EVERYTHING ELSE",
+            "hero" : "1 - HERO (CHOOSE 1)"
+         },
+         "slug" : "sportoffshore"
+      },
+      {
+         "cat" : "Offshore",
+         "categoryFolder" : "3 - OFFSHORE",
+         "folder" : "02 - SUPER SPORT OFFSHORE - 20, 21, 23, 26 FT",
+         "lengthFolders" : {
+            "20" : "20 FT",
+            "21" : "21 FT",
+            "23" : "23 FT",
+            "26" : "26 FT"
+         },
+         "lengths" : [
+            20,
+            21,
+            23,
+            26
+         ],
+         "modelWide" : {
+            "card" : "CARD THUMBNAIL (CHOOSE 1)",
+            "folder" : "00 - MODEL CARD AND HERO",
+            "hero" : "MODEL HERO (CHOOSE 1)"
+         },
+         "name" : "Super Sport Offshore",
+         "path" : "3 - OFFSHORE/02 - SUPER SPORT OFFSHORE - 20, 21, 23, 26 FT",
+         "roles" : {
+            "featured" : "2 - FEATURED (CHOOSE 3-8)",
+            "fluff" : "3 - FLUFF - EVERYTHING ELSE",
+            "hero" : "1 - HERO (CHOOSE 1)"
+         },
+         "slug" : "super-sport-offshore"
+      },
+      {
+         "cat" : "Specialty Workboat",
+         "categoryFolder" : "4 - OTHER BUILDS",
+         "folder" : "01 - LANDING CRAFT - SIZES VARY",
+         "lengthFolders" : {
+            "general" : "GENERAL - ALL SIZES"
+         },
+         "lengths" : [],
+         "modelWide" : {
+            "card" : "CARD THUMBNAIL (CHOOSE 1)",
+            "folder" : "00 - MODEL CARD AND HERO",
+            "hero" : "MODEL HERO (CHOOSE 1)"
+         },
+         "name" : "Landing Craft",
+         "path" : "4 - OTHER BUILDS/01 - LANDING CRAFT - SIZES VARY",
+         "roles" : {
+            "featured" : "2 - FEATURED (CHOOSE 3-8)",
+            "fluff" : "3 - FLUFF - EVERYTHING ELSE",
+            "hero" : "1 - HERO (CHOOSE 1)"
+         },
+         "slug" : "landing-craft"
+      },
+      {
+         "cat" : "Agency Build",
+         "categoryFolder" : "4 - OTHER BUILDS",
+         "folder" : "02 - LC 29 - 29 FT",
+         "lengthFolders" : {
+            "29" : "29 FT"
+         },
+         "lengths" : [
+            29
+         ],
+         "modelWide" : {
+            "card" : "CARD THUMBNAIL (CHOOSE 1)",
+            "folder" : "00 - MODEL CARD AND HERO",
+            "hero" : "MODEL HERO (CHOOSE 1)"
+         },
+         "name" : "LC 29",
+         "path" : "4 - OTHER BUILDS/02 - LC 29 - 29 FT",
+         "roles" : {
+            "featured" : "2 - FEATURED (CHOOSE 3-8)",
+            "fluff" : "3 - FLUFF - EVERYTHING ELSE",
+            "hero" : "1 - HERO (CHOOSE 1)"
+         },
+         "slug" : "agency-lc29"
+      }
+   ],
+   "purpose" : "Drag-and-drop photo staging. Populate, then repoint the website at it.",
+   "roleLabels" : {
+      "card" : "Fleet-grid card image for the model (choose 1)",
+      "featured" : "Hand-picked highlights, shown first/large",
+      "fluff" : "Everything else worth showing",
+      "hero" : "Lead image for this length section (choose 1)",
+      "modelHero" : "Banner at top of the model page (choose 1)"
+   },
+   "siteRoot" : "ALMOST DONE"
+}

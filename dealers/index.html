@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dealers — Wooldridge Boats</title>
+<meta name="description" content="Wooldridge Boats dealer network.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../house.css">
+</head>
+<body>
+<div class="topstrip">
+  <div class="wrap">
+    <div>FACTORY &amp; SHOWROOM — 1303 S 96TH ST, SEATTLE, WA 98108 &nbsp;·&nbsp; <a href="tel:+12067228998">(206) 722-8998</a> &nbsp;·&nbsp; MON–THU 6:00AM–4:30PM</div>
+    <div class="soc"><a href="https://www.instagram.com/wooldridgeboats/">Instagram</a><a href="https://www.facebook.com/WooldridgeBoats/">Facebook</a><a href="https://www.youtube.com/channel/UC-hVTJ7HySkqCjUENQY5CCQ">YouTube</a></div>
+  </div>
+</div>
+<nav class="nav" aria-label="Primary">
+  <div class="wrap">
+    <a class="brand" href="../index.html" aria-label="Wooldridge Boats &#8212; Home">
+      <img src="../assets/brand/logo-wing-dark.png" alt="Wooldridge Boats 1915">
+    </a>
+    <a href="../index.html#fleet">Our Boats</a>
+    <a href="../pre-owned/index.html">Pre-Owned</a>
+    <a href="../custom-agency-builds/index.html">Custom Builds</a>
+    <a href="../our-history/index.html">About | History</a>
+    <a href="../dealers/index.html">Dealers</a>
+    <a href="../store/index.html">Store</a>
+    <a href="../contact/index.html">Contact</a>
+    <a class="nav-cta" href="../tools/Boat_Configurator_-_Customer_Version.html">Build &amp; Price</a>
+    <span class="navsoc">
+      <a href="https://www.instagram.com/wooldridgeboats/" aria-label="Instagram"><img src="../assets/brand/ic-instagram.png" alt="Instagram"></a>
+      <a href="https://www.facebook.com/WooldridgeBoats/" aria-label="Facebook"><img src="../assets/brand/ic-facebook.png" alt="Facebook"></a>
+      <a href="https://www.youtube.com/channel/UC-hVTJ7HySkqCjUENQY5CCQ" aria-label="YouTube"><img src="../assets/brand/ic-youtube.png" alt="YouTube"></a>
+    </span>
+  </div>
+</nav>
+<main>
+<header class="pagemast"><div class="wrap">
+  <div class="co">Wooldridge Boats &nbsp;·&nbsp; Seattle, Washington</div>
+  <div class="crumb"><a href="../index.html">HOME</a> / DEALERS</div>
+  <h1>Find a Wooldridge dealer.</h1><div class="kick">THE FACTORY, THE WEST, ALASKA & BEYOND</div><div class="tag">For detailed product information, our limited lifetime hull warranty, boat options, a free color brochure, or to schedule a factory tour — contact us or any dealer below.</div>
+  <div class="dbl mastrule"></div>
+</div></header>
+<section class="pagebody"><div class="wrap">
+
+<!-- ══ dealer finder ══ -->
+<style>
+.findcard{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--rad);
+  box-shadow:var(--shadow); padding:30px 32px 28px; margin-bottom:54px;
+  position:relative; overflow:hidden;
+}
+.findcard::before{content:''; position:absolute; left:0; top:0; right:0; height:3px; background:var(--blue);}
+.findcard h2{font-size:clamp(20px,2.6vw,28px); letter-spacing:.01em; margin-bottom:6px; text-align:left;}
+.findcard .fsub{font-weight:200; font-size:14.5px; color:var(--body); max-width:640px; margin-bottom:18px;}
+.findrow{display:flex; flex-wrap:wrap; gap:10px; align-items:stretch;}
+.findrow input{
+  flex:1 1 260px; min-width:200px; border:1px solid var(--line); border-radius:8px;
+  padding:12px 16px; font-family:var(--sans); font-weight:300; font-size:15.5px; color:var(--ink); background:#fff;
+}
+.findrow input:focus{outline:2px solid rgba(27,117,187,.35); border-color:var(--blue);}
+.findrow .plate{white-space:nowrap; border:0; cursor:pointer;}
+.findnote{font-weight:200; font-size:12.5px; color:var(--muted); margin-top:10px; min-height:18px;}
+.findout{margin-top:22px; display:none;}
+.findout .fk{
+  font-weight:500; font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--blue); margin-bottom:14px;
+}
+.dealer .dist{
+  float:right; font-weight:500; font-size:10.5px; letter-spacing:.1em;
+  color:var(--blue); background:rgba(27,117,187,.08); border-radius:12px; padding:3px 10px;
+  margin-left:10px;
+}
+@media (max-width:560px){ .findcard{padding:22px 20px;} }
+</style>
+<div class="findcard" id="dealerFinder">
+  <h2>Find your nearest dealer.</h2>
+  <p class="fsub">Tell us where you are &mdash; a city and state, a province, or a ZIP / postal code &mdash; and we&rsquo;ll point you to the closest Wooldridge dealers. Or skip typing and use your device&rsquo;s location.</p>
+  <div class="findrow">
+    <input id="dfIn" type="text" placeholder="e.g. &ldquo;Spokane, WA&rdquo; &middot; &ldquo;Kenai, AK&rdquo; &middot; 83702 &middot; T6E" aria-label="Your city, state, or ZIP code">
+    <button class="plate" id="dfGo">Find My Dealer</button>
+    <button class="plate ghost" id="dfGeo">Use My Location</button>
+  </div>
+  <div class="findnote" id="dfNote"></div>
+  <div class="findout" id="dfOut">
+    <div class="fk" id="dfHead">Closest dealers to you</div>
+    <div class="dealgrid" id="dfGrid"></div>
+  </div>
+</div>
+
+<div class="dealregion"><h2>Washington</h2><div class="dealgrid"><div class="dealer"><div class="city">Seattle</div><b>Wooldridge Boats — Factory / Showroom</b><div class="addr">1303 S 96th St
+Seattle, WA 98108</div>
+            <div class="row"><a href="tel:+1">(206) 722-8998</a></div></div><div class="dealer"><div class="city">Bellingham</div><b>West Coast Marine Services</b><div class="addr">1200 "C" St
+Bellingham, WA 98225</div>
+            <div class="row"><a href="tel:+1">(888) 676-8020</a><a href="https://www.wcmarine.us" target="_blank" rel="noopener">WEBSITE ↗</a></div></div></div></div><div class="dealregion"><h2>Alaska</h2><div class="dealgrid"><div class="dealer"><div class="city">Anchorage</div><b>Alaska Mining & Diving Supply, Inc.</b><div class="addr">3222 Commercial Drive
+Anchorage, AK 99501</div>
+            <div class="row"><a href="tel:+1">(907) 277-1741</a><a href="https://www.akmining.com" target="_blank" rel="noopener">WEBSITE ↗</a></div></div><div class="dealer"><div class="city">Bethel</div><b>Bethel Prop Shop</b><div class="addr">300 Hangar Lake Rd
+Bethel, AK 99559</div>
+            <div class="row"><a href="tel:+1">(907) 543-2635</a><a href="https://www.propshopak.com" target="_blank" rel="noopener">WEBSITE ↗</a></div></div><div class="dealer"><div class="city">Fairbanks</div><b>Boat Shop</b><div class="addr">1050 Chena Pump Road
+Fairbanks, AK 99709</div>
+            <div class="row"><a href="tel:+1">(907) 452-4032</a><a href="https://www.boatshopak.com" target="_blank" rel="noopener">WEBSITE ↗</a></div></div><div class="dealer"><div class="city">Juneau / Douglas</div><b>Rocky's Marine</b><div class="addr">808 Front Street
+Douglas, AK 99824</div>
+            <div class="row"><a href="tel:+1">(907) 772-3949</a><a href="https://www.rockysmarine.com" target="_blank" rel="noopener">WEBSITE ↗</a></div></div><div class="dealer"><div class="city">Petersburg</div><b>Rocky's Marine</b><div class="addr">245 Mitkof Highway, P.O. Box 690
+Petersburg, AK 99833</div>
+            <div class="row"><a href="tel:+1">(907) 772-3949</a><a href="https://www.rockysmarine.com" target="_blank" rel="noopener">WEBSITE ↗</a></div></div></div></div><div class="dealregion"><h2>Arizona</h2><div class="dealgrid"><div class="dealer"><div class="city">Glendale</div><b>Sunland Sales and Service</b><div class="addr">4700 West Glendale Ave
+Glendale, AZ 85301</div>
+            <div class="row"><a href="tel:+1">(602) 430-3957</a></div></div></div></div><div class="dealregion"><h2>Idaho</h2><div class="dealgrid"><div class="dealer"><div class="city">Idaho Falls</div><b>Precision Boats</b><div class="addr">2199 N Woodruff Ave
+Idaho Falls, ID 83401</div>
+            <div class="row"><a href="tel:+1">(208) 529-0520</a><a href="https://www.precision-performance.com" target="_blank" rel="noopener">WEBSITE ↗</a></div></div></div></div><div class="dealregion"><h2>Montana</h2><div class="dealgrid"><div class="dealer"><div class="city">Miles City</div><b>Riverside Marine and Cycle</b><div class="addr">2323 S. Haynes Ave
+Miles City, MT 59301</div>
+            <div class="row"><a href="tel:+1">(406) 232-3300</a><a href="https://www.rmcmilescity.com" target="_blank" rel="noopener">WEBSITE ↗</a></div></div><div class="dealer"><div class="city">Bozeman</div><b>Xcelerate Outdoor Sports</b><div class="addr">16 E Cameron Bridge Rd
+Bozeman, MT 59718</div>
+            <div class="row"><a href="tel:+1">(406) 388-1680</a><a href="https://xcelerateoutdoorsports.com" target="_blank" rel="noopener">WEBSITE ↗</a></div></div></div></div><div class="dealregion"><h2>New York</h2><div class="dealgrid"><div class="dealer"><div class="city">Brant Lake</div><b>Brant Lake Marina</b><div class="addr">33 Palisades Road
+Brant Lake, NY 12815</div>
+            <div class="row"><a href="tel:+1">(518) 494-2677</a><a href="https://www.brantlakemarina.com" target="_blank" rel="noopener">WEBSITE ↗</a></div></div></div></div><div class="dealregion"><h2>Oregon</h2><div class="dealgrid"><div class="dealer"><div class="city">Coos Bay</div><b>Coos Bay Marine</b><div class="addr">1201 Ocean Blvd NW
+Coos Bay, OR 97420</div>
+            <div class="row"><a href="tel:+1">(541) 888-2535</a><a href="https://www.coosbaymarine.com" target="_blank" rel="noopener">WEBSITE ↗</a></div></div></div></div><div class="dealregion"><h2>South Carolina</h2><div class="dealgrid"><div class="dealer"><div class="city">Andrews</div><b>IFP Marine</b><div class="addr">828 S Morgan Ave
+Andrews, SC 29510</div>
+            <div class="row"><a href="tel:+1">(843) 359-6527</a></div></div></div></div><div class="dealregion"><h2>Canada — Alberta</h2><div class="dealgrid"><div class="dealer"><div class="city">Nisku</div><b>Wholesale Trailers & Marine of Alberta</b><div class="addr">1915 Sparrow Dr
+Nisku, AB T9E 8A7</div>
+            <div class="row"><a href="tel:+1">(855) 685-8700</a><a href="https://www.wholesaletrailers.com" target="_blank" rel="noopener">WEBSITE ↗</a></div></div></div></div><div class="dealregion"><h2>Canada — Saskatchewan</h2><div class="dealgrid"><div class="dealer"><div class="city">Prince Albert</div><b>Rally Motorsports</b><div class="addr">10 38th St E
+Prince Albert, SK S6W 1A6</div>
+            <div class="row"><a href="tel:+1">(866) 559-9905</a><a href="https://www.rallymotorsports.ca" target="_blank" rel="noopener">WEBSITE ↗</a></div></div></div></div><div class="dealregion"><h2>International — Kazakhstan</h2><div class="dealgrid"><div class="dealer"><b>GP Company</b>
+            <div class="row"><a href="tel:+1">(203) 449-0518</a></div></div></div></div>
+  <div class="emptystate" style="margin-top:40px;"><div class="t">Interested in becoming a dealer?</div>
+  <p>We're selective, and we're always listening. Reach out to the factory to start the conversation.</p>
+  <div class="modelctas" style="justify-content:center;"><a class="plate" href="../contact/index.html">Contact the Factory</a></div></div>
+</div></section>
+</main>
+<footer>
+  <div class="wrap">
+    <div class="flogo"><img src="../assets/brand/logo-wing-dark.png" alt="Wooldridge Boats 1915"></div>
+    <div class="fcontact">
+      <a href="tel:+12067228998">206.722.8998</a><span class="sep">|</span><a href="mailto:info@wooldridgeboats.com">info@wooldridgeboats.com</a>
+    </div>
+    <div class="faddr">Factory | Showroom<br>1303 S 96th St.<br>Seattle, WA 98108-5011</div>
+    <div class="fhours">Monday &ndash; Thursday 6:00AM &ndash; 4:30PM</div>
+    <div class="fsoc">
+      <a href="https://www.instagram.com/wooldridgeboats/" aria-label="Instagram"><img src="../assets/brand/ic-instagram.png" alt="Instagram"></a>
+      <a href="https://www.facebook.com/WooldridgeBoats/" aria-label="Facebook"><img src="../assets/brand/ic-facebook.png" alt="Facebook"></a>
+      <a href="https://www.youtube.com/channel/UC-hVTJ7HySkqCjUENQY5CCQ" aria-label="YouTube"><img src="../assets/brand/ic-youtube.png" alt="YouTube"></a>
+    </div>
+    <div class="frow">
+      <a href="../index.html#fleet">Our Boats</a>
+      <a href="../pre-owned/index.html">Pre-Owned</a>
+      <a href="../new-inventory/index.html">New Inventory</a>
+      <a href="../dealers/index.html">Dealers</a>
+      <a href="../our-history/index.html">About | History</a>
+      <a href="../faq/index.html">FAQ</a>
+      <a href="../store/index.html">Store</a>
+      <a href="../contact/index.html">Contact</a>
+    </div>
+    <div class="frow frow2">
+      <a href="../tools/Boat_Configurator_-_Customer_Version.html">Build &amp; Price</a>
+      <a href="../tools/WHICH_WOOLDRIDGE_QUIZ_2.html">Which Wooldridge Quiz</a>
+      <a href="../tools/QUOTE_REQUEST.html">Request a Quote</a>
+      <a href="../photos/index.html">Photos</a>
+      <a href="../dealer-resources/index.html">Dealer Resources</a>
+      <a href="../careers/index.html">Careers</a>
+      <a href="../privacy-policy/index.html">Privacy Policy</a>
+      <a href="../return-policy/index.html">Returns</a>
+    </div>
+  </div>
+  <div class="legal">
+    <div class="wrap">
+      <span class="fineprint">&copy; 2026 WOOLDRIDGE BOATS. ALL RIGHTS RESERVED.</span>
+      <span class="fineprint">ALL HULLS 5052 &amp; 5086 MARINE-GRADE ALUMINUM, WELDED BY HAND IN SEATTLE, WA.</span>
+      <span class="fineprint">PRICES SUBJECT TO CHANGE &#8212; CONTACT WOOLDRIDGE BOATS DIRECTLY FOR AN OFFICIAL QUOTE.</span>
+      <span class="fineprint">FAMILY BUILT IN SEATTLE SINCE 1915.</span>
+    </div>
+  </div>
+</footer>
+<script>
+/* ══ dealer finder — resolves a typed location (or the browser's geolocation)
+     to coordinates, then ranks the dealer network by straight-line distance ══ */
+(function(){
+'use strict';
+var DEALERS = [
+  {nm:'Wooldridge Boats — Factory / Showroom', city:'Seattle, WA', lat:47.529, lon:-122.316, tel:'(206) 722-8998'},
+  {nm:'West Coast Marine Services', city:'Bellingham, WA', lat:48.750, lon:-122.478, tel:'(888) 676-8020', web:'https://www.wcmarine.us'},
+  {nm:'Alaska Mining & Diving Supply, Inc.', city:'Anchorage, AK', lat:61.194, lon:-149.868, tel:'(907) 277-1741', web:'https://www.akmining.com'},
+  {nm:'Bethel Prop Shop', city:'Bethel, AK', lat:60.792, lon:-161.756, tel:'(907) 543-2635', web:'https://www.propshopak.com'},
+  {nm:'Boat Shop', city:'Fairbanks, AK', lat:64.838, lon:-147.716, tel:'(907) 452-4032', web:'https://www.boatshopak.com'},
+  {nm:'Rocky’s Marine', city:'Juneau / Douglas, AK', lat:58.276, lon:-134.396, tel:'(907) 772-3949', web:'https://www.rockysmarine.com'},
+  {nm:'Rocky’s Marine', city:'Petersburg, AK', lat:56.812, lon:-132.955, tel:'(907) 772-3949', web:'https://www.rockysmarine.com'},
+  {nm:'Sunland Sales and Service', city:'Glendale, AZ', lat:33.539, lon:-112.186, tel:'(602) 430-3957'},
+  {nm:'Precision Boats', city:'Idaho Falls, ID', lat:43.492, lon:-112.040, tel:'(208) 529-0520', web:'https://www.precision-performance.com'},
+  {nm:'Riverside Marine and Cycle', city:'Miles City, MT', lat:46.408, lon:-105.841, tel:'(406) 232-3300', web:'https://www.rmcmilescity.com'},
+  {nm:'Xcelerate Outdoor Sports', city:'Bozeman, MT', lat:45.680, lon:-111.039, tel:'(406) 388-1680', web:'https://xcelerateoutdoorsports.com'},
+  {nm:'Brant Lake Marina', city:'Brant Lake, NY', lat:43.700, lon:-73.709, tel:'(518) 494-2677', web:'https://www.brantlakemarina.com'},
+  {nm:'Coos Bay Marine', city:'Coos Bay, OR', lat:43.367, lon:-124.218, tel:'(541) 888-2535', web:'https://www.coosbaymarine.com'},
+  {nm:'IFP Marine', city:'Andrews, SC', lat:33.451, lon:-79.561, tel:'(843) 359-6527'},
+  {nm:'Wholesale Trailers & Marine of Alberta', city:'Nisku, AB', lat:53.347, lon:-113.553, tel:'(855) 685-8700', web:'https://www.wholesaletrailers.com'},
+  {nm:'Rally Motorsports', city:'Prince Albert, SK', lat:53.203, lon:-105.753, tel:'(866) 559-9905', web:'https://www.rallymotorsports.ca'}
+];
+/* well-known city coordinates — dealer towns plus the places customers actually type */
+var CITY = {
+  'seattle':[47.61,-122.33],'tacoma':[47.25,-122.44],'bellingham':[48.75,-122.48],'everett':[47.98,-122.20],
+  'spokane':[47.66,-117.43],'yakima':[46.60,-120.51],'wenatchee':[47.42,-120.31],'vancouver wa':[45.63,-122.66],
+  'olympia':[47.04,-122.90],'tri-cities':[46.23,-119.22],'kennewick':[46.21,-119.14],'longview':[46.14,-122.94],
+  'portland':[45.52,-122.68],'eugene':[44.05,-123.09],'salem':[44.94,-123.04],'medford':[42.33,-122.88],
+  'bend':[44.06,-121.32],'coos bay':[43.37,-124.22],'astoria':[46.19,-123.83],'grants pass':[42.44,-123.33],
+  'boise':[43.62,-116.21],'idaho falls':[43.49,-112.04],'lewiston':[46.42,-117.02],'twin falls':[42.56,-114.46],
+  'coeur d’alene':[47.68,-116.78],'coeur dalene':[47.68,-116.78],'pocatello':[42.87,-112.44],'salmon':[45.18,-113.90],
+  'anchorage':[61.19,-149.87],'wasilla':[61.58,-149.44],'palmer':[61.60,-149.11],'fairbanks':[64.84,-147.72],
+  'kenai':[60.55,-151.26],'soldotna':[60.49,-151.06],'homer':[59.64,-151.55],'bethel':[60.79,-161.76],
+  'juneau':[58.30,-134.42],'sitka':[57.05,-135.33],'ketchikan':[55.34,-131.65],'petersburg':[56.81,-132.96],
+  'kodiak':[57.79,-152.41],'valdez':[61.13,-146.35],'dillingham':[59.04,-158.46],'king salmon':[58.69,-156.66],
+  'missoula':[46.87,-113.99],'bozeman':[45.68,-111.04],'billings':[45.78,-108.50],'great falls':[47.51,-111.30],
+  'helena':[46.59,-112.04],'kalispell':[48.20,-114.31],'miles city':[46.41,-105.84],
+  'phoenix':[33.45,-112.07],'glendale az':[33.54,-112.19],'tucson':[32.22,-110.97],'lake havasu':[34.48,-114.32],
+  'las vegas':[36.17,-115.14],'reno':[39.53,-119.81],'salt lake city':[40.76,-111.89],'denver':[39.74,-104.99],
+  'sacramento':[38.58,-121.49],'redding':[40.59,-122.39],'san francisco':[37.77,-122.42],'los angeles':[34.05,-118.24],
+  'minneapolis':[44.98,-93.27],'chicago':[41.88,-87.63],'detroit':[42.33,-83.05],'grand rapids':[42.96,-85.66],
+  'traverse city':[44.76,-85.62],'green bay':[44.51,-88.01],'albany':[42.65,-73.75],'brant lake':[43.70,-73.71],
+  'lake george':[43.43,-73.71],'new york':[40.71,-74.01],'boston':[42.36,-71.06],'charlotte':[35.23,-80.84],
+  'charleston':[32.78,-79.93],'myrtle beach':[33.69,-78.89],'columbia sc':[34.00,-81.03],'andrews':[33.45,-79.56],
+  'atlanta':[33.75,-84.39],'houston':[29.76,-95.37],'dallas':[32.78,-96.80],
+  'vancouver bc':[49.28,-123.12],'victoria':[48.43,-123.37],'kamloops':[50.67,-120.33],'prince george':[53.92,-122.75],
+  'kelowna':[49.89,-119.50],'calgary':[51.05,-114.07],'edmonton':[53.55,-113.49],'nisku':[53.35,-113.55],
+  'red deer':[52.27,-113.81],'fort mcmurray':[56.73,-111.38],'saskatoon':[52.13,-106.67],'regina':[50.45,-104.62],
+  'prince albert':[53.20,-105.75],'winnipeg':[49.90,-97.14],'whitehorse':[60.72,-135.06],'yellowknife':[62.45,-114.37],
+  'toronto':[43.65,-79.38]
+};
+/* state / province centroids (close enough to rank dealers) */
+var REGION = {
+  'wa':[47.4,-120.5],'or':[43.9,-120.6],'id':[44.4,-114.6],'mt':[47.0,-109.6],'wy':[43.0,-107.6],
+  'ak':[62.5,-150.0],'az':[34.3,-111.7],'nv':[39.3,-116.6],'ut':[39.3,-111.7],'co':[39.0,-105.5],
+  'ca':[37.2,-119.3],'nm':[34.4,-106.1],'nd':[47.4,-100.5],'sd':[44.4,-100.2],'ne':[41.5,-99.8],
+  'ks':[38.5,-98.4],'ok':[35.6,-97.5],'tx':[31.5,-99.3],'mn':[46.3,-94.3],'ia':[42.0,-93.5],
+  'mo':[38.4,-92.5],'ar':[34.9,-92.4],'la':[31.0,-92.0],'wi':[44.6,-89.9],'il':[40.0,-89.2],
+  'ms':[32.7,-89.7],'mi':[44.3,-85.4],'in':[39.9,-86.3],'ky':[37.5,-85.3],'tn':[35.9,-86.4],
+  'al':[32.8,-86.8],'oh':[40.3,-82.8],'ga':[32.6,-83.4],'fl':[28.6,-82.4],'sc':[33.9,-80.9],
+  'nc':[35.5,-79.4],'va':[37.5,-78.9],'wv':[38.6,-80.6],'pa':[40.9,-77.8],'ny':[42.9,-75.6],
+  'md':[39.0,-76.8],'de':[39.0,-75.5],'nj':[40.2,-74.7],'ct':[41.6,-72.7],'ri':[41.7,-71.6],
+  'ma':[42.3,-71.8],'vt':[44.1,-72.7],'nh':[43.7,-71.6],'me':[45.4,-69.2],'hi':[20.8,-156.3],'dc':[38.9,-77.0],
+  'bc':[53.7,-125.6],'ab':[53.9,-114.5],'sk':[52.9,-106.3],'mb':[53.8,-98.7],'on':[46.5,-82.0],
+  'qc':[47.0,-72.0],'yt':[63.6,-135.8],'nt':[64.5,-119.5],'ns':[45.0,-63.0],'nb':[46.5,-66.4],
+  'nl':[48.5,-56.0],'pe':[46.4,-63.3]
+};
+var REGION_NAME = {
+  'washington':'wa','oregon':'or','idaho':'id','montana':'mt','wyoming':'wy','alaska':'ak','arizona':'az',
+  'nevada':'nv','utah':'ut','colorado':'co','california':'ca','new mexico':'nm','north dakota':'nd',
+  'south dakota':'sd','nebraska':'ne','kansas':'ks','oklahoma':'ok','texas':'tx','minnesota':'mn','iowa':'ia',
+  'missouri':'mo','arkansas':'ar','louisiana':'la','wisconsin':'wi','illinois':'il','mississippi':'ms',
+  'michigan':'mi','indiana':'in','kentucky':'ky','tennessee':'tn','alabama':'al','ohio':'oh','georgia':'ga',
+  'florida':'fl','south carolina':'sc','north carolina':'nc','virginia':'va','west virginia':'wv',
+  'pennsylvania':'pa','new york':'ny','maryland':'md','delaware':'de','new jersey':'nj','connecticut':'ct',
+  'rhode island':'ri','massachusetts':'ma','vermont':'vt','new hampshire':'nh','maine':'me','hawaii':'hi',
+  'british columbia':'bc','alberta':'ab','saskatchewan':'sk','manitoba':'mb','ontario':'on','quebec':'qc',
+  'yukon':'yt','northwest territories':'nt','nova scotia':'ns','new brunswick':'nb','newfoundland':'nl',
+  'prince edward island':'pe'
+};
+/* US ZIP ranges → state (coarse, state-level is all the ranking needs) */
+var ZIP = [
+  [99500,99999,'ak'],[98000,99499,'wa'],[97000,97999,'or'],[83200,83899,'id'],[59000,59999,'mt'],
+  [82000,83199,'wy'],[85000,86599,'az'],[87000,88499,'nm'],[88900,89899,'nv'],[84000,84799,'ut'],
+  [80000,81699,'co'],[90000,96199,'ca'],[96700,96899,'hi'],[57000,57799,'sd'],[58000,58899,'nd'],
+  [68000,69399,'ne'],[66000,67999,'ks'],[73000,74999,'ok'],[75000,79999,'tx'],[88500,88599,'tx'],
+  [55000,56799,'mn'],[50000,52899,'ia'],[63000,65899,'mo'],[71600,72999,'ar'],[70000,71599,'la'],
+  [53000,54999,'wi'],[60000,62999,'il'],[38600,39799,'ms'],[48000,49999,'mi'],[46000,47999,'in'],
+  [40000,42799,'ky'],[37000,38599,'tn'],[35000,36999,'al'],[43000,45999,'oh'],[30000,31999,'ga'],
+  [39800,39899,'ga'],[32000,34999,'fl'],[29000,29999,'sc'],[27000,28999,'nc'],[22000,24699,'va'],
+  [24700,26899,'wv'],[15000,19699,'pa'],[10000,14999,'ny'],[20600,21999,'md'],[19700,19999,'de'],
+  [7000,8999,'nj'],[6000,6999,'ct'],[2800,2999,'ri'],[1000,2799,'ma'],[5000,5999,'vt'],
+  [3000,3899,'nh'],[3900,4999,'me'],[20000,20599,'dc']
+];
+var POSTAL = {v:'bc',t:'ab',s:'sk',r:'mb',k:'on',l:'on',m:'on',n:'on',p:'on',g:'qc',h:'qc',j:'qc',y:'yt',x:'nt',a:'nl',b:'ns',c:'pe',e:'nb'};
+
+function resolve(raw){
+  var q = raw.toLowerCase().replace(/[^a-z0-9’' ]+/g,' ').replace(/\s+/g,' ').trim();
+  if (!q) return null;
+  /* US ZIP */
+  var zm = q.match(/\b(\d{5})\b/);
+  if (zm){
+    var z = parseInt(zm[1],10);
+    for (var i=0;i<ZIP.length;i++) if (z>=ZIP[i][0] && z<=ZIP[i][1]) return {ll:REGION[ZIP[i][2]], label:'ZIP '+zm[1]};
+  }
+  /* Canadian postal code (first letter is the province) */
+  var pm = q.match(/\b([a-z])\d[a-z]/);
+  if (pm && POSTAL[pm[1]]) return {ll:REGION[POSTAL[pm[1]]], label:'postal code'};
+  /* known city (check two-word combos too) — most specific first */
+  var hit = null, hitKey = '';
+  for (var c in CITY) if (q.indexOf(c) !== -1 && c.length > hitKey.length){ hit = CITY[c]; hitKey = c; }
+  if (hit) return {ll:hit, label:hitKey.replace(/\b\w/g, function(ch){return ch.toUpperCase();})};
+  /* full state / province name */
+  for (var n in REGION_NAME) if (q.indexOf(n) !== -1) return {ll:REGION[REGION_NAME[n]], label:n.replace(/\b\w/g, function(ch){return ch.toUpperCase();})};
+  /* two-letter code as its own word */
+  var toks = q.split(' ');
+  for (var t=0;t<toks.length;t++) if (REGION[toks[t]]) return {ll:REGION[toks[t]], label:toks[t].toUpperCase()};
+  return null;
+}
+function dist(a,b,c,d){
+  var R=3959, dLa=(c-a)*Math.PI/180, dLo=(d-b)*Math.PI/180;
+  var h=Math.sin(dLa/2)*Math.sin(dLa/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLo/2)*Math.sin(dLo/2);
+  return R*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h));
+}
+var out=document.getElementById('dfOut'), grid=document.getElementById('dfGrid'),
+    note=document.getElementById('dfNote'), head=document.getElementById('dfHead'), inp=document.getElementById('dfIn');
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+function show(ll, label){
+  var ranked = DEALERS.map(function(d){ return {d:d, mi:dist(ll[0],ll[1],d.lat,d.lon)}; })
+    .sort(function(a,b){ return a.mi-b.mi; }).slice(0,3);
+  grid.innerHTML = ranked.map(function(r){
+    var d=r.d, mi=Math.round(r.mi);
+    return '<div class="dealer"><div class="city">'+esc(d.city)+'<span class="dist">~'+mi.toLocaleString()+' MI</span></div>'+
+      '<b>'+esc(d.nm)+'</b>'+
+      '<div class="row"><a href="tel:+1'+d.tel.replace(/\D/g,'')+'">'+d.tel+'</a>'+
+      (d.web ? '<a href="'+d.web+'" target="_blank" rel="noopener">WEBSITE ↗</a>' : '')+'</div></div>';
+  }).join('');
+  head.textContent = 'Closest dealers to ' + label;
+  out.style.display = 'block';
+  note.textContent = ranked[0].mi > 700
+    ? 'A long way from the network? No problem — we sell factory-direct and ship boats all over North America. Call the factory: (206) 722-8998.'
+    : 'Distances are straight-line estimates. When in doubt, call ahead — or call the factory: (206) 722-8998.';
+  out.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+function go(){
+  var r = resolve(inp.value);
+  if (r){ show(r.ll, r.label); }
+  else {
+    out.style.display='none';
+    note.textContent = 'Couldn’t place that — try a city and state (“Lewiston, ID”), a state name, or a 5-digit ZIP. Or just call the factory: (206) 722-8998.';
+  }
+}
+document.getElementById('dfGo').addEventListener('click', go);
+inp.addEventListener('keydown', function(e){ if (e.key==='Enter'){ e.preventDefault(); go(); } });
+document.getElementById('dfGeo').addEventListener('click', function(){
+  if (!navigator.geolocation){ note.textContent='Your browser doesn’t share location — type a city or ZIP instead.'; return; }
+  note.textContent = 'Locating…';
+  navigator.geolocation.getCurrentPosition(
+    function(pos){ show([pos.coords.latitude, pos.coords.longitude], 'your location'); },
+    function(){ note.textContent='Location was blocked — no problem, just type a city or ZIP above.'; },
+    {timeout:8000, maximumAge:600000}
+  );
+});
+})();
+</script>
+<script src="../assets/shop.js"></script>
+</body>
+</html>

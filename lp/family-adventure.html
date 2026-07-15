@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wooldridge Boats — Campaign Landing Page</title>
+<!--
+  ============================================================================
+  WOOLDRIDGE AD CAMPAIGN — LANDING PAGE (self-contained, zero dependencies)
+  ----------------------------------------------------------------------------
+  One template, eight pages. This file renders ONE buyer-type page, selected
+  by the PAGE_ID constant just below the data block. All eight pages' content
+  lives in the PAGES object, so edits happen in one place; regenerate the
+  other files by copying this file and changing PAGE_ID.
+
+  TO INTEGRATE INTO THE WEBSITE (for the other chat):
+    1. Set SITE_ROOT to the site's base URL (or '' + relative paths if these
+       pages live inside the site, e.g. at /lp/).
+    2. Every CTA already carries UTM parameters:
+         utm_source=paidads & utm_medium=cpc & utm_campaign=wb-<PAGE_ID>
+         & utm_content=<which button>
+       This matches the measurement plan in the July 2026 campaign proposal
+       (track quiz starts, configurator starts, per-region performance).
+    3. Ad-targeting metadata for each page (region, priority, budget share,
+       first-wave ZIPs, sample ad message from the proposal) is in each
+       page's `meta` field and in the README.
+
+  All model prices/facts are from the 2026 build data. Prices subject to
+  change — confirm with the factory.
+  ============================================================================
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   V3 HOMEPAGE DESIGN LANGUAGE (house.css tokens), interpreted per buyer:
+   each page sets --accent + a hero photo/overlay via the THEME block below.
+   ========================================================================== */
+:root{
+  --bg:#F2F2F2; --card:#ffffff;
+  --blue:#1b75bb; --blue-dark:#135a92;
+  --ink:#23282d; --body:#3c4247; --muted:#71787e;
+  --line:#dcdfe2; --rule:#c9cdd1;
+  --shadow:0 1px 2px rgba(20,30,40,.06), 0 6px 22px rgba(20,30,40,.08);
+  --shadow-lg:0 2px 6px rgba(20,30,40,.08), 0 16px 44px rgba(20,30,40,.14);
+  --serif:Georgia, Palatino, "Palatino Linotype", "Times New Roman", Times, serif;
+  --sans:"Inter", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --rad:10px;
+  --accent:var(--blue);           /* persona accent — set per page */
+  --accent-ink:#fff;              /* text on accent */
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{font-family:var(--sans); font-weight:200; background:var(--bg); color:var(--body); font-size:16px; line-height:1.65; -webkit-font-smoothing:antialiased;}
+img{max-width:100%; display:block;}
+a{color:var(--blue); text-decoration:none;}
+a:hover{color:var(--blue-dark);}
+b,strong{font-weight:500;}
+.wrap{max-width:1120px; margin:0 auto; padding:0 24px;}
+h1,h2{font-family:var(--serif); color:var(--blue); font-weight:700; line-height:1.15;}
+
+/* compass-star section divider — the site's ornament */
+.rule{
+  position:relative; border:0; height:16px; width:min(560px,80%); margin:18px auto 0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 1 L13.7 10.3 L23 12 L13.7 13.7 L12 23 L10.3 13.7 L1 12 L10.3 10.3 Z' fill='%231b75bb'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:center; background-size:15px 15px;
+}
+.rule::before,.rule::after{content:""; position:absolute; top:50%; height:1px; width:calc(50% - 20px);}
+.rule::before{left:0; background:linear-gradient(to right, transparent, var(--rule) 85%);}
+.rule::after{right:0; background:linear-gradient(to left, transparent, var(--rule) 85%);}
+.rule.light{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 1 L13.7 10.3 L23 12 L13.7 13.7 L12 23 L10.3 13.7 L1 12 L10.3 10.3 Z' fill='%23ffffff'/%3E%3C/svg%3E"); opacity:.85;}
+.rule.light::before{background:linear-gradient(to right, transparent, rgba(255,255,255,.5) 85%);}
+.rule.light::after{background:linear-gradient(to left, transparent, rgba(255,255,255,.5) 85%);}
+
+/* brand bar — wing logo + phone, keylined like the site nav */
+.topstrip{background:var(--card); border-top:3px solid var(--blue); border-bottom:1px solid var(--line); padding:10px 0;}
+.topstrip .wrap{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;}
+.topstrip img{height:40px; width:auto;}
+.topstrip .tright{font-weight:500; font-size:11.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); text-align:right;}
+.topstrip .tright a{color:var(--ink); font-weight:500;}
+.topstrip .tright a:hover{color:var(--blue);}
+
+/* hero — persona photo with mood overlay, Georgia headline */
+.hero{color:#fff; padding:96px 0 76px; position:relative; overflow:hidden; background-color:var(--ink); background-size:cover; background-position:center;}
+.hero::after{content:'1915'; position:absolute; right:-8px; bottom:-58px; font-family:var(--serif); font-size:250px; font-weight:700; color:rgba(255,255,255,.05); letter-spacing:-.04em; pointer-events:none;}
+.hero .eyebrow{display:inline-block; background:var(--accent); color:var(--accent-ink); font-weight:500; font-size:11px; letter-spacing:.22em; text-transform:uppercase; padding:7px 14px; border-radius:4px; box-shadow:var(--shadow);}
+.hero h1{font-family:var(--serif); color:#fff; font-size:clamp(36px,6vw,60px); letter-spacing:.005em; line-height:1.06; margin:18px 0 16px; max-width:840px; text-shadow:0 2px 22px rgba(10,20,30,.45);}
+.hero .sub{font-size:clamp(16px,2.2vw,19px); line-height:1.62; color:#eef3f7; max-width:720px; font-weight:200; text-shadow:0 1px 14px rgba(10,20,30,.5);}
+.ctarow{display:flex; flex-wrap:wrap; gap:12px; margin-top:30px;}
+.btn{display:inline-block; background:var(--blue); color:#fff; text-decoration:none; font-family:var(--serif); font-weight:700; font-size:17px; padding:13px 30px; border-radius:8px; box-shadow:var(--shadow);}
+.btn:hover{background:var(--blue-dark); color:#fff;}
+.hero .btn{box-shadow:0 4px 24px rgba(8,16,24,.4);}
+.btn.ghost{background:rgba(255,255,255,.1); color:#fff; border:1px solid rgba(255,255,255,.7); backdrop-filter:blur(2px);}
+.btn.ghost:hover{background:#fff; color:var(--blue);}
+.heronote{margin-top:20px; font-weight:200; font-size:12.5px; color:rgba(255,255,255,.78); letter-spacing:.08em; text-transform:uppercase;}
+
+/* sections — centered heads, site-style */
+section{padding:58px 0;}
+.eyebrow2{font-weight:500; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; text-align:center;}
+h2{font-size:clamp(26px,3.4vw,40px); letter-spacing:.01em; margin-bottom:8px; text-align:center;}
+.lede{color:var(--body); max-width:760px; margin:14px auto 30px; font-weight:200; font-size:16px; text-align:center;}
+
+/* your water */
+.water{background:var(--card); border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
+.watergrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:16px; margin-top:30px;}
+.wateritem{border-left:3px solid var(--accent); background:var(--bg); padding:16px 18px; border-radius:0 var(--rad) var(--rad) 0;}
+.wateritem b{display:block; font-weight:500; font-size:15px; color:var(--ink); margin-bottom:4px;}
+.wateritem span{font-size:13.5px; font-weight:200; color:var(--body); line-height:1.55; display:block;}
+
+/* advantages — matted cards with hover accent bar, like the fleet cards */
+.advgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:18px; margin-top:30px;}
+.adv{background:var(--card); border:1px solid var(--line); border-radius:var(--rad); padding:22px; box-shadow:var(--shadow); position:relative; overflow:hidden; transition:transform .18s ease, box-shadow .18s ease;}
+.adv::after{content:''; position:absolute; left:0; top:0; right:0; height:3px; background:var(--accent); opacity:0; transition:opacity .18s ease;}
+.adv:hover{transform:translateY(-3px); box-shadow:var(--shadow-lg);}
+.adv:hover::after{opacity:1;}
+.adv .n{font-family:var(--serif); font-size:13px; font-weight:700; color:var(--accent); letter-spacing:.14em;}
+.adv b{display:block; font-weight:500; font-size:16.5px; color:var(--ink); margin:8px 0 6px;}
+.adv p{font-size:13.5px; font-weight:200; color:var(--body); line-height:1.6;}
+
+/* models — light band, serif names, site card language */
+.models{background:var(--card); border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
+.models .lede{color:var(--body);}
+.modelgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:18px; margin-top:30px;}
+.model{background:var(--bg); border:1px solid var(--line); border-radius:var(--rad); padding:24px; display:flex; flex-direction:column; box-shadow:var(--shadow); position:relative; overflow:hidden;}
+.model::before{content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent);}
+.model .mn{font-family:var(--serif); font-size:22px; font-weight:700; color:var(--blue); letter-spacing:.005em;}
+.model .mt{font-size:11px; font-weight:500; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; margin:4px 0 12px;}
+.model .mw{font-size:13.5px; font-weight:200; color:var(--body); line-height:1.6; flex:1;}
+.model .mp{margin-top:14px; padding-top:12px; border-top:1px solid var(--line); font-size:13px; font-weight:200; color:var(--muted);}
+.model .mp b{color:var(--ink); font-weight:500; font-size:17px;}
+.model .mlinks{display:flex; gap:16px; margin-top:12px; flex-wrap:wrap;}
+.model .mlinks a{font-size:11.5px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; text-decoration:none; color:var(--blue);}
+.model .mlinks a:hover{color:var(--blue-dark); text-decoration:underline;}
+
+/* proof */
+.proofrow{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; margin:30px 0 26px;}
+.proof{text-align:center; background:var(--card); border:1px solid var(--line); border-radius:var(--rad); padding:20px 12px; box-shadow:var(--shadow);}
+.proof b{display:block; font-family:var(--serif); font-size:clamp(22px,3vw,28px); font-weight:700; color:var(--blue); letter-spacing:.005em;}
+.proof span{font-size:10.5px; font-weight:500; letter-spacing:.14em; text-transform:uppercase; color:var(--muted);}
+.storyline{border-left:3px solid var(--accent); background:var(--card); padding:18px 22px; border-radius:0 var(--rad) var(--rad) 0; font-size:15px; font-weight:200; line-height:1.7; color:var(--body); max-width:820px; margin:0 auto; box-shadow:var(--shadow); font-style:italic;}
+
+/* configs */
+.cfggrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:18px; margin-top:30px;}
+.cfg{background:var(--card); border:1px solid var(--line); border-radius:var(--rad); padding:22px; box-shadow:var(--shadow);}
+.cfg .cn{font-family:var(--serif); font-size:18px; font-weight:700; color:var(--blue);}
+.cfg .cnote{font-size:12.5px; font-weight:200; color:var(--muted); margin:4px 0 12px; font-style:italic;}
+.cfg ul{list-style:none;}
+.cfg li{font-size:13.5px; font-weight:200; color:var(--body); padding:7px 0 7px 20px; position:relative; border-bottom:1px dashed var(--line);}
+.cfg li:last-child{border-bottom:none;}
+.cfg li::before{content:'\2726'; position:absolute; left:0; top:8px; color:var(--accent); font-size:10px;}
+
+/* dealers */
+.dealerline{background:var(--card); border:1px solid var(--line); border-radius:var(--rad); padding:20px 24px; font-size:14px; font-weight:200; line-height:1.75; box-shadow:var(--shadow);}
+.dealerline b{display:block; font-weight:500; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--accent); margin-bottom:6px;}
+
+/* final cta — dark band tinted by the persona accent */
+.final{background:linear-gradient(168deg, var(--ink) 0%, #182530 55%, var(--ink) 100%); color:#fff; text-align:center; padding:66px 0; position:relative; overflow:hidden;}
+.final::after{content:''; position:absolute; inset:0; background:linear-gradient(20deg, var(--accent) 0%, transparent 45%); opacity:.22; pointer-events:none;}
+.final .wrap{position:relative; z-index:1;}
+.final h2{color:#fff; max-width:720px; margin:18px auto 10px;}
+.final .lede{margin:0 auto 28px; color:rgba(255,255,255,.82);}
+.final .ctarow{justify-content:center;}
+.final .phone{margin-top:24px; font-size:14px; font-weight:200; color:rgba(255,255,255,.7);}
+.final .phone a{color:#fff; font-family:var(--serif); font-weight:700; text-decoration:none; font-size:19px; letter-spacing:.03em;}
+
+/* footer — light, centered, like the site legal strip */
+footer{background:var(--card); border-top:1px solid var(--line); color:var(--muted); padding:26px 0; font-size:11px; font-weight:200; letter-spacing:.08em; line-height:2; text-align:center; text-transform:uppercase;}
+footer b{color:var(--ink); font-weight:500; letter-spacing:.14em;}
+footer a{color:var(--muted);}
+footer a:hover{color:var(--blue);}
+@media(max-width:640px){ .ctarow .btn{flex:1 1 100%; text-align:center;} .hero{padding:72px 0 56px;} }
+</style>
+</head>
+<body id="page"></body>
+<script>
+'use strict';
+/* ─────────────────────────────────────────────────────────────
+   INTEGRATION SETTINGS — the other chat edits these two lines.
+   SITE_ROOT: base URL of the site build these pages join.
+   PAGE_ID:   which buyer-type page this file renders.
+   ───────────────────────────────────────────────────────────── */
+const SITE_ROOT = '..';   /* pages live inside the site at /lp/ — set a full URL if hosted elsewhere */
+const PAGE_ID = 'family-adventure';
+
+const PHONE = '(206) 722-8998';
+const TAGLINE = 'Go Farther. Go Skinny. Go Wooldridge.';
+
+/* ─────────────────────────────────────────────────────────────
+   PERSONA THEMES — the homepage design language, interpreted
+   for each buyer: accent color, real hero photo from the site
+   library, and a mood-tuned overlay. ASSET paths ride SITE_ROOT.
+   ───────────────────────────────────────────────────────────── */
+const THEME = {
+  'alaska-lodge-guide':   {accent:'#2e5339', hero:'assets/photos/alaskanxl/thumbs/5226-product-1.jpg', pos:'center 55%',
+    ov:'linear-gradient(168deg, rgba(12,22,17,.86) 0%, rgba(14,26,20,.5) 48%, rgba(10,18,14,.84) 100%)'},
+  'pnw-river-hunter':     {accent:'#5a6339', hero:'assets/photos/alaskan-lt/thumbs/2026-20-cc-1.jpg', pos:'center 42%',
+    ov:'linear-gradient(168deg, rgba(28,30,18,.82) 0%, rgba(52,50,30,.42) 50%, rgba(22,24,14,.85) 100%)'},
+  'michigan-rivers':      {accent:'#17698a', hero:'assets/photos/alaskan/thumbs/4382-product-18-ws-ak-1.jpg', pos:'center 50%',
+    ov:'linear-gradient(168deg, rgba(10,26,34,.84) 0%, rgba(14,38,50,.45) 50%, rgba(8,22,30,.84) 100%)'},
+  'government-agency':    {accent:'#24425e', hero:'assets/photos/alaskan-xl-inboard/thumbs/2026-20-first-responder-30.jpg', pos:'center 45%',
+    ov:'linear-gradient(168deg, rgba(13,22,32,.9) 0%, rgba(18,30,44,.55) 50%, rgba(10,17,25,.9) 100%)'},
+  'shallow-river':        {accent:'#a2661c', hero:'assets/photos/rogue/thumbs/5162-water-1.jpg', pos:'center 55%',
+    ov:'linear-gradient(168deg, rgba(30,22,10,.8) 0%, rgba(44,32,14,.4) 50%, rgba(24,18,8,.84) 100%)'},
+  'offshore-aluminum':    {accent:'#123f63', hero:'assets/photos/super-sport-offshore/thumbs/4660-product-7.jpg', pos:'center 60%',
+    ov:'linear-gradient(168deg, rgba(6,18,30,.86) 0%, rgba(9,26,42,.5) 50%, rgba(5,14,24,.88) 100%)'},
+  'family-adventure':     {accent:'#2f8fd0', hero:'assets/photos/supersportdrifter/thumbs/5175-product-21.jpg', pos:'center 45%',
+    ov:'linear-gradient(168deg, rgba(14,30,44,.7) 0%, rgba(24,52,74,.32) 52%, rgba(12,26,38,.74) 100%)'},
+  'cargo-remote-property':{accent:'#54595f', hero:'assets/photos/landing-craft/thumbs/5081-product-1.jpg', pos:'center 50%',
+    ov:'linear-gradient(168deg, rgba(18,20,22,.86) 0%, rgba(30,33,36,.5) 50%, rgba(14,16,18,.86) 100%)'}
+};
+
+/* model facts — 2026 build data (drive is needed for configurator prefill links) */
+const FACTS = {
+  lt:{nm:'Alaskan LT', drive:'ob', slug:'alaskan-lt'}, xlt:{nm:'Alaskan XLT', drive:'ob', slug:'xlt'},
+  ak:{nm:'Alaskan', drive:'ob', slug:'alaskan'}, xl:{nm:'Alaskan XL', drive:'ob', slug:'alaskanxl'},
+  rogue:{nm:'Rogue HDPE', drive:'ob', slug:'rogue'}, skagit:{nm:'Skagit', drive:'ob', slug:'xp'},
+  sport:{nm:'Sport', drive:'ob', slug:'sport'}, ssd:{nm:'Super Sport Drifter', drive:'ob', slug:'supersportdrifter'},
+  sportster:{nm:'Sportster', drive:'ob', slug:'sportster'}, xlib:{nm:'Alaskan XL Inboard', drive:'ib', slug:'alaskan-xl-inboard'},
+  scout:{nm:'Scout', drive:'ib', slug:'scout'}, scoutwb:{nm:'Scout Widebody', drive:'ib', slug:'scout-widebody'},
+  skagitib:{nm:'Skagit Inboard', drive:'ib', slug:'skagit-inboard'}, sportib:{nm:'Sport Inboard', drive:'ib', slug:'sportinboard'},
+  ssdib:{nm:'Super Sport Drifter Inboard', drive:'ib', slug:'supersportdrifterinboard'}, skagitx:{nm:'Skagit-X', drive:'ib', slug:'skagit-x'},
+  so:{nm:'Sport Offshore', drive:'offshore', slug:'sportoffshore'}, sso:{nm:'Super Sport Offshore', drive:'offshore', slug:'super-sport-offshore'}
+};
+
+/* ─────────────────────────────────────────────────────────────
+   ALL EIGHT PAGES — content + campaign metadata
+   ───────────────────────────────────────────────────────────── */
+const PAGES = {
+
+/* ============ 1. ALASKA FISHING LODGE / GUIDE ============ */
+'alaska-lodge-guide': {
+  title:'Guide & Lodge Boats Built for Alaska — Wooldridge Boats',
+  eyebrow:'Alaska · Lodges, Guides & Fish Camps',
+  h1:'The boat your season runs on.',
+  sub:'Clients, gear, fuel, and fish — up rivers that don’t forgive equipment mistakes. Wooldridge has been building for Alaska work longer than most lodges have had names: hand-welded in Seattle, family built since 1915.',
+  primary:'config', primaryLabel:'Build & Price the Guide Rig', secondaryLabel:'Not sure which hull? Take the quiz',
+  water:{t:'Your season, not a brochure season', items:[
+    ['Braided glacial channels','Inches of water between you and the good gravel — the jet tunnel is why the brand exists.'],
+    ['Every-day working loads','Clients, coolers, fuel, and camp freight, seven days a week, all season long.'],
+    ['The boat is infrastructure','When the lodge is fly-in or river-access only, the hull is a supply line, not a toy.'],
+    ['Southeast salt','Juneau to Ketchikan — crossings, tides, and anodes done right from the factory.']]},
+  adv:[
+    ['01','The exclusive Wooldridge jet tunnel','Gets you farther upriver with less chance of sliding into an obstacle or striking the intake — with a full load of clients aboard.'],
+    ['02','Structure where the season lands','Center hull reinforced to .250″ thick by 15″ wide through the planing surface, with quarter-inch full-bottom and UHMW armor upgrades for daily gravel.'],
+    ['03','Built to your operation','Guide and commercial rigs are spec’d with the factory — layouts, rod capacity, fuel, and electrical sized to how your operation actually runs.'],
+    ['04','A warranty that outlasts leases','Limited Lifetime Hull Warranty to the original owner, and resale value Alaska already knows.']],
+  models:[
+    {id:'xl', tag:'Big-water 20 ft heavy hauler', why:'The 76-inch bottom workhorse — the day-in, day-out client hauler that carries expedition loads and still runs the tunnel shallow.', from:'From $68,019 with power'},
+    {id:'xlib', tag:'Inboard jet heavy hauler — 20/21 ft', why:'The XL hull with a Chevy V8 amidships — torque and balance for the heaviest working loads, clean transom for fishing room.', from:'From $112,999'},
+    {id:'skagit', tag:'Deep-sided sled — 18/20 ft', why:'Serious freeboard for big river mouths and Southeast salt runs without giving up the tunnel.', from:'From $70,019 with power'}],
+  modelNote:'Running bigger water or bigger loads? The Alaska-proven Pybus Offshore and custom Landing Crafts are quoted directly with the factory.',
+  proof:[['1915','Family built in Seattle'],['4','Generations of Wooldridges'],['Lifetime','Hull warranty, original owner'],['5','Alaska dealers, Anchorage to Ketchikan']],
+  story:'Glen Wooldridge made his name running rivers nobody had run — the Rogue, then Alaska’s Yukon and the untouched rivers of British Columbia. The boats that carried that legacy north are the same hulls hauling clients up your river today.',
+  configs:[
+    {nm:'The Guide Rig', note:'How Alaska operations typically spec it', items:['¼″ full-bottom upgrade','28″ UHMW center plate + wrap-around intake guard','Washdown pump — 5.2 GPM','Second side trays + extra rod grippers','Canvas top on welded rigid frame']},
+    {nm:'The Camp Freighter', note:'Supply-line duty for lodges and fly-out camps', items:['40–75 gallon fuel capacity','Fabrication & storage package — lockers and tie-downs','Heavy-duty floor','Kicker with stainless tie-bar — the get-home motor','AGM battery system']}],
+  dealers:{t:'Alaska dealer network', d:'Alaska Mining & Diving Supply — Anchorage · (907) 277-1741 &nbsp;|&nbsp; Bethel Prop Shop — Bethel · (907) 543-2635 &nbsp;|&nbsp; Boat Shop — Fairbanks · (907) 452-4032 &nbsp;|&nbsp; Rocky’s Marine — Juneau/Douglas & Petersburg · (907) 772-3949 &nbsp;|&nbsp; Or factory direct: (206) 722-8998'},
+  finalH:'Spec the boat your operation deserves.',
+  finalSub:'Build it online in ten minutes, or get the factory on the phone — four generations of Wooldridges have talked guides into the right boat, not the biggest one.',
+  meta:{region:'Alaska', priority:'Highest (30% of test budget)', sampleAd:'Built for Alaska rivers, loads, hunting, and fish camp. Find your Wooldridge.',
+    zips:'99501,99502,99503,99504,99507,99515,99516,99517,99577,99654,99645,99652,99669,99611,99672,99572,99603,99701,99705,99801,99835,99901,99921,99925,99615'}
+},
+
+/* ============ 2. PACIFIC NORTHWEST RIVER HUNTER ============ */
+'pnw-river-hunter': {
+  title:'River Hunting Boats for Washington & Oregon — Wooldridge Boats',
+  eyebrow:'Washington & Oregon · Duck, Deer & Upriver Camps',
+  h1:'Get in where the roads quit.',
+  sub:'Decoys, dogs, and dark-thirty launches on the Columbia system — an open aluminum deck that slides over the gravel other boats winter on. Built twenty minutes from your water, in Seattle, since 1915.',
+  primary:'quiz', primaryLabel:'Find your hunting rig — take the quiz', secondaryLabel:'Build & price it yourself',
+  water:{t:'Where you actually hunt', items:[
+    ['Columbia sloughs & backwaters','Skinny, stumpy, tide-affected water where the tunnel earns its keep every morning.'],
+    ['Cowlitz, Skagit & the tribs','Upriver deer and elk camps past the last launch anyone else uses.'],
+    ['Dogs and decoys ride flat','Open tiller and console decks — nothing between the blind bag and the bow.'],
+    ['Dark-thirty, every weekend','LED lighting, tough floors, and a hull you never have to baby.']]},
+  adv:[
+    ['01','The exclusive Wooldridge jet tunnel','Farther up the slough with less chance of sliding into an obstacle or striking the intake — loaded, in the dark.'],
+    ['02','Open-deck layouts','Tiller and center-console rigs keep the whole deck for dogs, decoys, and dragging a buck over the rail.'],
+    ['03','Low-glare, no-babying finish','Powder coating kills the bare-aluminum flash at first light, and the diamond-plate floors hose out.'],
+    ['04','Not a flat-bottom pounder','Minimum 9 degrees of deadrise in every hull — square-bow room without the square-bow ride.']],
+  models:[
+    {id:'xlt', tag:'Extra-wide tiller & console — 18/20 ft', why:'The open workboat of the hunting fleet — maximum deck and payload in a rig a Tacoma tows and a garage stores.', from:'From $43,439 with power'},
+    {id:'ak', tag:'The classic Wooldridge sled — 18/20 ft', why:'The default river boat for generations of Northwest hunters and steelheaders — agile, sure-footed, superb in shallow water.', from:'From $56,658 with power'},
+    {id:'lt', tag:'Light utility jet sled — 16/18/20 ft', why:'The lightest way into a real Wooldridge — same tunnel, same warranty, easiest tow in the fleet.', from:'From $31,889 with power'}],
+  modelNote:'Every model above also fishes all spring and summer — one boat, both seasons.',
+  proof:[['1915','Family built in Seattle'],['9°','Minimum deadrise — no flat bottoms'],['Lifetime','Hull warranty, original owner'],['.250″','Reinforced planing center, standard']],
+  story:'This is our home water. The factory and showroom sit at 1303 S 96th St in Seattle — come walk the floor, see hulls being welded by hand, and talk to the people who will actually build your boat.',
+  configs:[
+    {nm:'The Duck Rig', note:'How Northwest waterfowlers spec it', items:['Powder coating — low-glare, easy-clean finish','Heavy-duty floor — dog-proof, hose-out','LED light strips for pre-dawn rigging','Welded gun & gear storage boxes','Stability grab handle for tiller rigs']},
+    {nm:'The Camp Rig', note:'Deer and elk season, upriver', items:['Canvas top for weather cover','Kicker bracket — the get-home backup','24-gallon topside auxiliary fuel','Bow fish box / lockable storage compartment','Anchor system']}],
+  dealers:{t:'See the boats', d:'Factory & Showroom — 1303 S 96th St, Seattle, WA · (206) 722-8998 · Mon–Thu 6:00AM–4:30PM &nbsp;|&nbsp; West Coast Marine Services — Bellingham, WA · (888) 676-8020 &nbsp;|&nbsp; Coos Bay Marine — Coos Bay, OR · (541) 888-2535'},
+  finalH:'Two minutes now beats a wrong boat for ten years.',
+  finalSub:'The quiz asks how you actually hunt and fish, then recommends the hull four generations of Wooldridges would put you in.',
+  meta:{region:'Washington / Oregon', priority:'High (25% of test budget)', sampleAd:'From Puget Sound to the Rogue and Columbia — find the Wooldridge for your water.',
+    zips:'WA: 98108,98004,98052,98201,98203,98270,98271,98290,98225,98226,98221,98273,98233,98501,98660,98661,98682,98632,98801,99352,99353,99354,99301,99206 · OR: 97526,97527,97537,97501,97504,97470,97471,97601,97701,97702,97103,97146,97365,97420'}
+},
+
+/* ============ 3. MICHIGAN FISHERIES / RIVERS ============ */
+'michigan-rivers': {
+  title:'Jet Sleds for Michigan Rivers & Great Lakes Tributaries — Wooldridge Boats',
+  eyebrow:'Michigan · Great Lakes Tributaries',
+  h1:'West-coast jet sleds. Midwest chrome.',
+  sub:'Steelhead and kings run your rivers too — the Muskegon, Manistee, Pere Marquette, Au Sable, St. Joe. The welded-aluminum sleds that own the Columbia work exactly the same way on Great Lakes gravel.',
+  primary:'quiz', primaryLabel:'Which Wooldridge fits your river? Take the quiz', secondaryLabel:'Build & price yours',
+  water:{t:'Your water, our hulls', items:[
+    ['Fall gravel, skinny flows','Low autumn water above the last launch — jet-tunnel country, even if nobody calls it that yet.'],
+    ['Big-lake river mouths','Wind chop where the Manistee or the Joe meets the lake — a pointed-bow crossover problem.'],
+    ['Water you drift now','Everywhere a drift boat goes, a jet sled goes — and it comes back upstream on its own.'],
+    ['Four-season fisheries','Steelhead through winter, kings in the fall, walleye in between. Canvas and a windshield turn seasons on.']]},
+  adv:[
+    ['01','The exclusive Wooldridge jet tunnel','Farther up the gravel with less chance of sliding into an obstacle or striking the intake — purpose-built for rivers like yours.'],
+    ['02','Hand-welded 5052/5086 aluminum','Every hull welded by hand in Seattle and backed by a Limited Lifetime Hull Warranty to the original owner.'],
+    ['03','The two-piece windshield','Bigger glass, better visibility in freezing spray, and a walk-through door sized for real gear — built for cold-season fisheries.'],
+    ['04','Factory direct, delivered','Built to order in Seattle and delivered across the country — spec it by phone and video with the family that builds it.']],
+  models:[
+    {id:'ak', tag:'The classic Wooldridge sled — 18/20 ft', why:'The river boat: agile, sure-footed, superb in shallow water. The default answer for tributary steelhead and salmon.', from:'From $56,658 with power'},
+    {id:'sport', tag:'Pointed-bow crossover — 18/20 ft', why:'A V entry breaks up river-mouth chop on the big lake; the tunnel still gets you into the skinny fall water.', from:'From $71,519 with power'},
+    {id:'ssd', tag:'Pointed-bow jet drifter — 21/23/25 ft', why:'Open-water capability at 21–25 feet with jet-boat draft — the big-crew, big-water tributary rig.', from:'From $78,519 with power'}],
+  modelNote:'Not sure between sled and pointed bow? That is exactly the fork the quiz sorts out.',
+  proof:[['1915','Family built in Seattle'],['110+','Years building river boats'],['Lifetime','Hull warranty, original owner'],['50','Gallon under-floor tank on 20′ models']],
+  story:'Wooldridge sleds were born on steelhead water — Glen Wooldridge ran the Rogue River before anyone believed it could be done, then took the same boats north to the Yukon. Your rivers are the next chapter of the same story.',
+  configs:[
+    {nm:'The Tributary Rig', note:'Fall and winter river work', items:['Canvas top + side curtains on stainless bows','Second windshield wiper','Rod grippers + top tray extensions','River anchor system','Bow fish box / lockable storage']},
+    {nm:'The River-Mouth Rig', note:'Where the river meets the big lake', items:['Kicker motor, installed — trolling + backup','Downrigger rigging','Garmin chartplotter / sonar package','AGM battery system','Washdown pump']}],
+  dealers:{t:'Buying from Michigan', d:'Wooldridge sells factory-direct nationwide — spec and price by phone with Seattle, and we’ll walk you through freight and delivery. (206) 722-8998 · info@wooldridgeboats.com'},
+  finalH:'Be the first jet sled on your stretch.',
+  finalSub:'Take the two-minute quiz or build yours online — either way you’ll end up talking to the family that welds it.',
+  meta:{region:'Michigan (EXPANSION MARKET — not in first-wave proposal)', priority:'Test cell — fund from retargeting/experiment budget, review at 30–45 days per the proposal’s method', sampleAd:'Steelhead run your rivers too. The west-coast jet sled, built for Great Lakes tributaries.',
+    zips:'TBD — suggest Grand Rapids / Muskegon / Traverse City / Ludington / Manistee DMAs to start'}
+},
+
+/* ============ 4. GOVERNMENT / AGENCY WORK BOAT ============ */
+'government-agency': {
+  title:'Government & Agency Work Boats — Wooldridge Boats, Seattle',
+  eyebrow:'Government · Commercial · Agency',
+  h1:'Built for the mission.',
+  sub:'Patrol, rescue, research, survey, utility — Wooldridge has built vessels for government agencies and commercial operators for decades. Mission-specific layouts, heavy electrical packages, and hulls that hold up to daily professional use in unforgiving water.',
+  primary:'contact', primaryLabel:'Start an agency spec', secondaryLabel:'Explore hulls in the configurator',
+  water:{t:'Mission profiles we build for', items:[
+    ['Patrol & enforcement','Fish & wildlife, marine patrol, and enforcement hulls that run shallow and land anywhere.'],
+    ['Fire / Search & Rescue','Center-console SAR rigs with the electrical capacity, lighting, and deck room the job demands.'],
+    ['Research & survey','Instrument-heavy layouts, survey requirements, and stable working platforms.'],
+    ['Utility & logistics','Bow-ramp landing craft moving crews, cargo, and equipment where there is no dock.']]},
+  adv:[
+    ['01','Decades of agency work','Recent builds include a 20′ Skagit for a Department of Fish and Wildlife, a Skagit center console for Fire/Search & Rescue, and a Super Sport Offshore landing craft.'],
+    ['02','Quoted to specification','Mission packages, survey requirements, and contract terms are handled directly by our sales team — every agency build starts with a conversation about the mission.'],
+    ['03','One accountable factory','Hand-welded 5052/5086 hulls, USCG standards, engineering and fabrication under one roof in Seattle — and a 29-foot landing craft on the floor right now (hull #5333).'],
+    ['04','Hulls that survive fleet duty','The jet tunnel protects the drive in debris and shallows; reinforced bottoms and full support structure survive daily professional use.']],
+  models:[
+    {id:'skagit', tag:'The agency workhorse — 18/20 ft, OB or inboard', why:'The platform behind our recent Fish & Wildlife and Fire/SAR builds — deep sides, serious freeboard, working payload.', from:'From $70,019 · agency spec quoted'},
+    {nm:'Landing Crafts', slug:'landing-craft', tag:'Bow-ramp workboats — custom quoted', why:'Cargo, crew, and equipment where there is no dock. Hull #5333, a 29-footer, is in fabrication in Seattle now.', from:'Custom quoted to mission'},
+    {nm:'Canyon & Deepwater platforms', slug:'canyon', tag:'Heavy inboard & offshore hulls — custom quoted', why:'Whitewater-bred inboards to 27 feet and heavy offshore platforms for the roughest operating areas.', from:'Custom quoted to mission'}],
+  modelNote:'Every agency build starts with the mission, not the brochure — contact the factory to begin a spec.',
+  proof:[['1915','Family built in Seattle'],['USCG','Standards, every hull'],['5052/5086','Marine-grade, hand-welded'],['#5333','29′ landing craft on the floor now']],
+  story:'Agency work is where our engineering shows. The same family has run this factory for four generations — when a hull carries your crew on duty, that accountability matters more than a spec sheet.',
+  configs:[
+    {nm:'Recent agency builds', note:'Representative projects', items:['20′ Skagit — Department of Fish and Wildlife','Skagit Center Console — Fire / Search & Rescue','20′ Skagit Inboard — Fish and Wildlife Agency','Super Sport Offshore Landing Craft','20′ Skagit yacht tender']},
+    {nm:'Typical mission packages', note:'Spec’d to requirement with the factory', items:['Heavy electrical & battery systems','Mission lighting and comms-ready helm','Washdown, deck drainage & self-bailing decks','UHMW bottom armor for debris and gravel','Trailering & transport packages']}],
+  dealers:{t:'Procurement & fleet contacts', d:'Wooldridge Boats — 1303 S 96th St, Seattle, WA 98108 · (206) 722-8998 · info@wooldridgeboats.com · Contract terms, survey requirements, and mission packages handled directly by the factory sales team.'},
+  finalH:'Start the conversation about the mission.',
+  finalSub:'Send your operating area, crew size, and mission requirements — the factory team will come back with a spec, not a sales pitch.',
+  meta:{region:'National — procurement-driven', priority:'Not a consumer ZIP campaign: route via direct outreach, GSA-adjacent channels, agency trade press, and LinkedIn', sampleAd:'Patrol, rescue, research, survey — mission-built welded aluminum, from the factory that has served agencies for decades.',
+    zips:'N/A — targeted at agencies, not geographies'}
+},
+
+/* ============ 5. SHALLOW RIVER JET BOAT BUYER ============ */
+'shallow-river': {
+  title:'Shallow River Jet Boats — Go Farther, Go Skinny — Wooldridge Boats',
+  eyebrow:'Idaho & the Inland Northwest · Skinny Water',
+  h1:'Go farther. Go skinny.',
+  sub:'Snake, Clearwater, Salmon — steelhead, canyon water, and backcountry loads past the gravel that stops everyone else. This is the water Wooldridge hulls are designed around, and the reason the company exists.',
+  primary:'config', primaryLabel:'Build the boat before you buy', secondaryLabel:'Or take the two-minute quiz',
+  water:{t:'The water that sorts out boats', items:[
+    ['Inches-deep braids','Gravel bars and split channels where draft is measured in fingers, not feet.'],
+    ['Canyon water','Real current, real rocks, real consequences — hulls with whitewater DNA.'],
+    ['Backcountry loads','Camp, fuel, and elk quarters a long way from the nearest road.'],
+    ['Steelhead season','Cold mornings, low flows, and everyone crowded below the riffle you can get above.']]},
+  adv:[
+    ['01','The exclusive Wooldridge jet tunnel','The tunnel gets you farther upriver with less chance of sliding into an obstacle or striking the intake. It is the whole point.'],
+    ['02','Armor for daily gravel','.250″ reinforced planing center standard; quarter-inch full-bottom and 28″ UHMW center-plate upgrades for boats that touch bottom on purpose.'],
+    ['03','The HDPE option nobody else has','The Rogue’s fully welded HDPE hull slides over what grabs aluminum — the technical shallow-water specialist, with trim blades to tune the ride.'],
+    ['04','Tiller to windshield','Every helm style in the shallow fleet — pick sightlines and casting room, or glass and weather protection.']],
+  models:[
+    {id:'ak', tag:'The classic Wooldridge sled — 18/20 ft', why:'Redesigned in 2023 and refined since — agile, sure-footed, and superb in shallow water. The benchmark river sled.', from:'From $56,658 with power'},
+    {id:'rogue', tag:'Fully welded HDPE hull — 16/18/20 ft', why:'The slick bottom slides over what stops aluminum. If your river is a rock garden, this is the specialist.', from:'From $49,889 with power'},
+    {id:'scout', tag:'Inboard jet workhorse — 19/21/23 ft', why:'A shallow-water go-kart with big-whitewater DNA — Chevy V8, Hamilton jet, precise control in technical water.', from:'From $119,999'}],
+  modelNote:'Every hull above carries the same tunnel and the same Limited Lifetime Hull Warranty.',
+  proof:[['1915','Family built in Seattle'],['9°','Minimum deadrise — never flat'],['.250″','Reinforced planing center'],['Lifetime','Hull warranty, original owner']],
+  story:'Glen Wooldridge ran the Rogue River when people said it couldn’t be run, then Idaho’s most formidable waterways. “First-evers” are the family legacy — the boat in the configurator is the descendant of every one of them.',
+  configs:[
+    {nm:'The Skinny-Water Rig', note:'For rivers measured in inches', items:['28″ UHMW center plate + intake guard','Jet tunnel splash guard','Tiller or open console helm','Stable Pods — stand-up stability at rest','Stainless 4-blade impeller exchange']},
+    {nm:'The Canyon Rig', note:'Whitewater and long backcountry days', items:['¼″ full-bottom upgrade','Suspension seats — Bentley or Airwave base','Extra fuel — up to 75 gallons on 21′+','Heavy-duty floor','Garmin chartplotter / sonar']}],
+  dealers:{t:'Inland Northwest dealer', d:'Precision Boats — Idaho Falls, ID · (208) 529-0520 &nbsp;|&nbsp; Or factory direct from Seattle: (206) 722-8998'},
+  finalH:'Build the boat before you buy.',
+  finalSub:'Hull, power, helm, armor, options — the configurator prices your exact rig in about ten minutes, and you can send the build sheet straight to the shop.',
+  meta:{region:'Idaho / Inland Northwest', priority:'High (15% of test budget)', sampleAd:'Skinny rivers, steelhead, canyon water, and backcountry loads — build the boat before you buy.',
+    zips:'ID: 83501,83544,83549,83467,83530,83709,83713,83716,83642,83686,83401,83814,83815,83864 · MT/WY selective: 59801,59802,59715,59718,59102,59106,59401,59901,59937,82414,83001'}
+},
+
+/* ============ 6. OFFSHORE ALUMINUM FISHING BUYER ============ */
+'offshore-aluminum': {
+  title:'Offshore Aluminum Fishing Boats — Puget Sound & the Coast — Wooldridge Boats',
+  eyebrow:'Puget Sound · The Coast · SE Alaska & BC',
+  h1:'Aluminum that isn’t afraid of salt.',
+  sub:'Tide rips, bar crossings, downrigger salmon and bottomfish — offshore-bracket hulls engineered for coastal duty from the keel up, hand-welded in Seattle since 1915.',
+  primary:'quiz', primaryLabel:'Find your offshore hull — take the quiz', secondaryLabel:'Explore builds in the configurator',
+  water:{t:'The water you answer to', items:[
+    ['Sound tide rips','Freeboard and structure for the days the forecast gets wrong.'],
+    ['Coastal bar crossings','Westport, the Columbia mouth, Coos Bay — hulls built for genuinely open water.'],
+    ['Downrigger salmon & crab','Rigged for pot-pullers, riggers, and the kicker that trolls all day.'],
+    ['SE Alaska & BC coast','The same hulls working from Ketchikan to Campbell River.']]},
+  adv:[
+    ['01','Engineered for the salt','The Sport Offshore and Super Sport Offshore are offshore-bracket designs — coastal duty is the mission, not an afterthought.'],
+    ['02','Salt setup done right','Zinc anodes for boats living in salt, aluminum anodes for boats running both — spec’d correctly at the factory, not fixed later.'],
+    ['03','One hull, three personalities','The SSO comes as open, Angler fish-first layout, or fully enclosed Pilothouse for all-season running — up to 26 feet.'],
+    ['04','Welded aluminum, lifetime warranty','5052/5086 marine-grade hulls, hand-welded in Seattle, Limited Lifetime Hull Warranty to the original owner.']],
+  models:[
+    {id:'sso', tag:'Big-water offshore — 20/21/23/26 ft', why:'The Sound-and-coast flagship — the hull for serious crossings, with Angler and Pilothouse layouts on the same platform.', from:'Hull from $62,999 · power priced with the factory'},
+    {id:'so', tag:'Offshore-bracket crossover — 18/20 ft', why:'Coastal confidence that hasn’t forgotten the river — tide rips and open water without giving up the shallow game entirely.', from:'Hull from $56,499 · power priced with the factory'},
+    {nm:'SSO Pilothouse', slug:'supersportoffshorepilothouse', tag:'Fully enclosed helm — SSO hull', why:'All-season, all-weather — the enclosed-helm answer for twelve-month coastal fisheries.', from:'Priced with the factory team'}],
+  modelNote:'Offshore hull prices are published; power packages are priced with the factory team so the rigging is right.',
+  proof:[['1915','Family built in Seattle'],['26′','Largest SSO hull'],['5052/5086','Marine-grade aluminum'],['Lifetime','Hull warranty, original owner']],
+  story:'Aluminum belongs in salt when it’s built for salt — the right alloys, the right anodes, the right structure. We’ve been proving that from Puget Sound to Southeast Alaska for decades.',
+  configs:[
+    {nm:'The Salt Rig', note:'How coastal salmon boats get spec’d', items:['Downrigger & pot-puller rigging','Kicker, installed + Garmin Reactor 40 autopilot','Dual AGM battery system','Washdown pump + seacock','Self-draining deck']},
+    {nm:'The All-Season Rig', note:'Twelve-month coastal fishing', items:['Pilothouse or canvas enclosure','Heater/defroster (inboard models)','Suspension seats for the long crossings','Garmin electronics suite','Polycarbonate window upgrade']}],
+  dealers:{t:'Coastal dealers', d:'West Coast Marine Services — Bellingham, WA · (888) 676-8020 &nbsp;|&nbsp; Coos Bay Marine — Coos Bay, OR · (541) 888-2535 &nbsp;|&nbsp; Rocky’s Marine — Juneau & Petersburg, AK · (907) 772-3949 &nbsp;|&nbsp; Factory: (206) 722-8998'},
+  finalH:'Find the hull for your worst day out there.',
+  finalSub:'The quiz asks about your water honestly — tide rips, bar crossings, crew — and recommends the offshore hull built for it.',
+  meta:{region:'Puget Sound / coastal WA-OR / BC coastal (medium-high)', priority:'Fund within WA/OR (25%) and Canada (15%) buckets', sampleAd:'Tide rips, bar crossings, downrigger salmon — aluminum engineered for the salt. Find your Wooldridge.',
+    zips:'Coastal cells from first-wave list — WA: 98225,98226,98221,98273,98233,98108,98501,98632 · OR: 97103,97146,97365,97420 · BC: Vancouver, Campbell River, Port Alberni, Nanaimo (city/radius/FSA)'}
+},
+
+/* ============ 7. FAMILY FISHING + ADVENTURE BUYER ============ */
+'family-adventure': {
+  title:'Family Fishing & Adventure Boats — Wooldridge Boats',
+  eyebrow:'Family Days · Fishing · Watersports',
+  h1:'One boat the whole crew fights over.',
+  sub:'Fish the morning, tow tubes all afternoon, beach it on a sandbar for lunch — room, stability, and jet-boat draft that opens up water prop boats can’t touch.',
+  primary:'quiz', primaryLabel:'Find your family’s boat — take the quiz', secondaryLabel:'Build & price one online',
+  water:{t:'How your summer actually looks', items:[
+    ['Lake days & reservoir weekends','Coolers, kids, dogs, grandparents — deck space and stand-up stability for all of it.'],
+    ['River runs to the sandbar','The jet tunnel turns the river into a highway — beach it anywhere, load over the bow.'],
+    ['Morning fish, afternoon ski','Rods before lunch, tubes after — the inboards pull skiers and wakeboards for real.'],
+    ['No prop below the swim step','A jet drive has no exposed propeller — worth knowing when the crew is in the water.']]},
+  adv:[
+    ['01','Room the whole crew feels','Stand-up gunnels with toe kick, wide bottoms, and Stable Pods that make an 18-footer stand like a 20 at rest.'],
+    ['02','The walk-through windshield','Two big panes and a real door — hand a cooler, a dog, or grandma through the bow at the beach.'],
+    ['03','Watersports without the deep-water rule','Sport Inboard and Drifter Inboard hulls pull skiers and wakeboards — and still float in inches.'],
+    ['04','A boat that outlasts childhoods','Hand-welded aluminum, Limited Lifetime Hull Warranty — the boat the grandkids will still be using.']],
+  models:[
+    {id:'sportster', tag:'Big-water comfort — 21/23/25 ft', why:'The crew boat of the outboard line — family-scale seating and room without giving up jet draft.', from:'From $90,534 with power'},
+    {id:'sport', tag:'Pointed-bow crossover — 18/20 ft', why:'The do-everything family hull: chop-friendly V entry for the lake, tunnel draft for the river sandbar.', from:'From $71,519 with power'},
+    {id:'sportib', tag:'Inboard jet crossover — 18/20 ft', why:'The Sport hull with a V8 amidships — shallow rivers, heavy coolers, and it pulls skiers and wakeboards.', from:'From $116,999'}],
+  modelNote:'Bigger crew, colder mornings? Ask about the Super Sport Drifter and the full-cabin Scout Widebody.',
+  proof:[['1915','Family built in Seattle'],['4','Generations — a family company'],['Lifetime','Hull warranty, original owner'],['0','Exposed props on a jet drive']],
+  story:'Wooldridge has been a family company for four generations — boats built by a family, for families, since 1915. Nobody buys one twice by accident: they buy the second one for the kids.',
+  configs:[
+    {nm:'The Weekend Rig', note:'Lake days, sandbars, golden hour', items:['Canvas top — shade and shelter','Seating upgrade for the full crew','Wet Sounds sound bar','Full-width swim step + folding ladder','Recessed cup holders (yes, really)']},
+    {nm:'The Adventure Rig', note:'Fish-and-explore weekends', items:['Kicker motor for trolling','Bow fish box / lockable storage','Garmin chartplotter / sonar','Suspension seats for choppy afternoons','LED lighting for the ride home']}],
+  dealers:{t:'See one in person', d:'Factory & Showroom — 1303 S 96th St, Seattle, WA · (206) 722-8998 &nbsp;|&nbsp; Dealers in WA, OR, ID, MT, AK, NY, SC and western Canada — full list on the site.'},
+  finalH:'The right boat ends the argument.',
+  finalSub:'Two minutes of honest questions — water, crew, budget — and the quiz recommends the hull your family will actually use.',
+  meta:{region:'All first-wave regions — broad-audience creative', priority:'Run inside each regional bucket; strongest fit for retargeting pool (15%)', sampleAd:'Fish the morning, ski the afternoon, beach it for lunch. Find your family’s Wooldridge.',
+    zips:'Use each region’s first-wave list; strongest as retargeting creative for site/quiz/video engagers'}
+},
+
+/* ============ 8. CARGO / HAULING / REMOTE PROPERTY ============ */
+'cargo-remote-property': {
+  title:'Cargo, Hauling & Remote Property Boats — Wooldridge Boats',
+  eyebrow:'Freight · Cabin Access · Remote Property',
+  h1:'When the river is the driveway.',
+  sub:'Lumber, fuel drums, dogs, quarters, and the whole family’s gear — working hulls built as infrastructure for road-less properties, from Puget Sound islands to the Yukon.',
+  primary:'config', primaryLabel:'Price the working boat', secondaryLabel:'Not sure which hull? Take the quiz',
+  water:{t:'The job description', items:[
+    ['Cabin & lodge supply runs','Everything the property needs arrives by water — payload is the spec that matters.'],
+    ['Island & foreshore properties','Beach it, bow-load it, and get off before the tide argues.'],
+    ['Hunting camps & freight','Quarters, camps, and gear a long way past the last road.'],
+    ['Landing-craft water','When the cargo rolls or the crew is big, a bow ramp changes everything.']]},
+  adv:[
+    ['01','Payload engineering','The Alaskan XL’s 76-inch bottom, full support structure, and reinforced .250″ planing center are built for load hauling first.'],
+    ['02','Inboard torque, centered','V8 amidships means composure with a full deck that transom-hung power can’t match — and clean gunnels for cargo.'],
+    ['03','Bow-ramp landing crafts','Custom-quoted workboats for cargo, crew, and equipment — a 29-footer (hull #5333) is on the Seattle floor right now.'],
+    ['04','Range and redundancy','Fuel to 75 gallons, secondary kicker feed-off standard, and a kicker bracket for the motor that always starts.']],
+  models:[
+    {id:'xl', tag:'Big-water 20 ft heavy hauler', why:'The biggest brother in the Alaskan line — a 76″ bottom built for load hauling that still runs the tunnel shallow.', from:'From $68,019 with power'},
+    {id:'xlib', tag:'Inboard jet heavy hauler — 20/21 ft', why:'The XL hull with Chevy V8 torque amidships — the heaviest working loads with the weight where it belongs.', from:'From $112,999'},
+    {nm:'Landing Crafts', slug:'landing-craft', tag:'Bow-ramp workboats — custom quoted', why:'Cargo, crew, and remote access with a ramp instead of a rail. Quoted directly with the factory to your mission.', from:'Custom quoted'}],
+  modelNote:'Hauling people as often as freight? The Skagit Inboard and Scout Widebody carry crews the same way.',
+  proof:[['1915','Family built in Seattle'],['76″','Alaskan XL bottom width'],['75','Gallon max fuel option'],['Lifetime','Hull warranty, original owner']],
+  story:'For a lot of our customers the boat isn’t recreation — it’s the driveway, the freight line, and the school run. That’s the duty cycle these hulls are engineered around, and it’s why the warranty is for life.',
+  configs:[
+    {nm:'The Freighter', note:'Pure payload duty', items:['¼″ full-bottom upgrade','Heavy-duty floor','Fabrication & storage — lockers and tie-downs','40–75 gallon fuel capacity','28″ UHMW center plate for daily beaching']},
+    {nm:'The Family Supply Rig', note:'Property runs with the crew aboard', items:['Canvas top on rigid frame','Full-width swim step + folding ladder','Washdown pump — hose the deck out','Kicker with stainless tie-bar','LED lighting for early runs']}],
+  dealers:{t:'Where these boats work', d:'Alaska dealers in Anchorage, Bethel, Fairbanks, Juneau & Petersburg &nbsp;|&nbsp; Western Canada: Wholesale Trailers & Marine — Nisku, AB · (855) 685-8700; Rally Motorsports — Prince Albert, SK · (866) 559-9905 &nbsp;|&nbsp; Factory: (206) 722-8998'},
+  finalH:'Spec it like the tool it is.',
+  finalSub:'Build the working boat online — hull, power, armor, fuel, storage — and send the sheet to the shop for a real freight-duty conversation.',
+  meta:{region:'Alaska + BC/Alberta/Yukon + MT selective', priority:'Fund within Alaska (30%) and Canada (15%) buckets', sampleAd:'When the river is the driveway. Working hulls for cabins, camps, and remote property.',
+    zips:'AK first-wave list + Canada city/radius/FSA: Vancouver, Chilliwack, Abbotsford, Kamloops, Prince George, Terrace, Kitimat, Smithers, Campbell River, Port Alberni, Nanaimo, Edmonton, Calgary, Grande Prairie, Fort McMurray, Whitehorse'}
+}
+};
+
+/* ─────────────────────────────────────────────────────────────
+   RENDER
+   ───────────────────────────────────────────────────────────── */
+const P = PAGES[PAGE_ID];
+document.title = P.title;
+
+/* apply the persona theme */
+const T = THEME[PAGE_ID] || {accent:'#1b75bb', hero:'', pos:'center', ov:'linear-gradient(168deg, rgba(15,25,35,.85), rgba(15,25,35,.6))'};
+document.documentElement.style.setProperty('--accent', T.accent);
+document.body.classList.add('p-' + PAGE_ID);
+const ASSET = p => (SITE_ROOT || '..') + '/' + p;
+const heroStyle = T.hero
+  ? ' style="background-image:' + T.ov + ',url(&quot;' + ASSET(T.hero) + '&quot;); background-position:' + T.pos + ';"'
+  : '';
+
+const utm = (url, content) => {
+  const sep = url.includes('?') ? '&' : '?';
+  const [base, hash] = url.split('#');
+  const tagged = base + sep + 'utm_source=paidads&utm_medium=cpc&utm_campaign=wb-' + PAGE_ID + '&utm_content=' + content;
+  return hash ? tagged + '#' + hash : tagged;
+};
+const QUIZ = SITE_ROOT + '/tools/WHICH_WOOLDRIDGE_QUIZ_2.html';
+const CONFIG = SITE_ROOT + '/tools/Boat_Configurator_-_Customer_Version.html';
+const CONTACT = SITE_ROOT + '/custom-agency-builds/index.html';
+const modelUrl = slug => SITE_ROOT + '/models/' + slug + '/index.html';
+const buildUrl = id => {
+  const f = FACTS[id];
+  const packed = {v:1, d:f.drive, m:id, s:null, l:null, a:0, e:null, o:{}, r:{}, cu:[], n:'', t:null};
+  return CONFIG + '#b=' + btoa(JSON.stringify(packed));
+};
+
+const ctaHref = kind => kind === 'quiz' ? utm(QUIZ,'hero-quiz') : kind === 'contact' ? utm(CONTACT,'hero-contact') : utm(CONFIG,'hero-config');
+const secondaryKind = P.primary === 'quiz' ? 'config' : 'quiz';
+
+let h = '';
+h += '<div class="topstrip"><div class="wrap">' +
+  '<img src="' + ASSET('assets/brand/logo-wing-dark.png') + '" alt="Wooldridge Boats 1915">' +
+  '<div class="tright">Seattle, Washington · Family built since 1915 &nbsp;·&nbsp; <a href="tel:+12067228998">' + PHONE + '</a></div>' +
+'</div></div>';
+
+h += '<div class="hero"' + heroStyle + '><div class="wrap">' +
+  '<div class="eyebrow">' + P.eyebrow + '</div>' +
+  '<h1>' + P.h1 + '</h1>' +
+  '<p class="sub">' + P.sub + '</p>' +
+  '<div class="ctarow">' +
+    '<a class="btn" href="' + ctaHref(P.primary) + '">' + P.primaryLabel + '</a>' +
+    '<a class="btn ghost" href="' + ctaHref(secondaryKind) + '">' + P.secondaryLabel + '</a>' +
+  '</div>' +
+  '<div class="heronote">' + TAGLINE + ' &nbsp;·&nbsp; Hand-welded 5052/5086 aluminum · Limited Lifetime Hull Warranty</div>' +
+'</div></div>';
+
+h += '<section class="water"><div class="wrap">' +
+  '<div class="eyebrow2">Your Water</div><h2>' + P.water.t + '</h2><div class="rule"></div>' +
+  '<div class="watergrid">' + P.water.items.map(([b,s]) => '<div class="wateritem"><b>' + b + '</b><span>' + s + '</span></div>').join('') + '</div>' +
+'</div></section>';
+
+h += '<section><div class="wrap">' +
+  '<div class="eyebrow2">Why Wooldridge</div><h2>Advantages that matter on your water</h2><div class="rule"></div>' +
+  '<div class="advgrid">' + P.adv.map(([n,b,d]) => '<div class="adv"><div class="n">' + n + '</div><b>' + b + '</b><p>' + d + '</p></div>').join('') + '</div>' +
+'</div></section>';
+
+h += '<section class="models"><div class="wrap">' +
+  '<div class="eyebrow2">The Short List</div><h2>Start with these hulls</h2><div class="rule"></div>' +
+  '<p class="lede">' + P.modelNote + '</p>' +
+  '<div class="modelgrid">' + P.models.map(m => {
+    const nm = m.id ? FACTS[m.id].nm : m.nm;
+    const slug = m.id ? FACTS[m.id].slug : m.slug;
+    let links = '<a href="' + utm(modelUrl(slug), 'model-' + slug) + '">Model page →</a>';
+    if (m.id) links += '<a href="' + utm(buildUrl(m.id), 'build-' + m.id) + '">Build this boat →</a>';
+    return '<div class="model"><div class="mn">' + nm + '</div><div class="mt">' + m.tag + '</div>' +
+      '<div class="mw">' + m.why + '</div><div class="mp"><b>' + m.from + '</b></div>' +
+      '<div class="mlinks">' + links + '</div></div>';
+  }).join('') + '</div>' +
+'</div></section>';
+
+h += '<section><div class="wrap">' +
+  '<div class="eyebrow2">Proof</div><h2>A century of receipts</h2><div class="rule"></div>' +
+  '<div class="proofrow">' + P.proof.map(([n,l]) => '<div class="proof"><b>' + n + '</b><span>' + l + '</span></div>').join('') + '</div>' +
+  '<div class="storyline">' + P.story + '</div>' +
+'</div></section>';
+
+h += '<section style="padding-top:0;"><div class="wrap">' +
+  '<div class="eyebrow2">Common Configurations</div><h2>How buyers like you spec it</h2><div class="rule"></div>' +
+  '<p class="lede">Every line item below is a real 2026 build-sheet option — price the exact bundle in the configurator.</p>' +
+  '<div class="cfggrid">' + P.configs.map(c => '<div class="cfg"><div class="cn">' + c.nm + '</div><div class="cnote">' + c.note + '</div><ul>' + c.items.map(i => '<li>' + i + '</li>').join('') + '</ul></div>').join('') + '</div>' +
+'</div></section>';
+
+if (P.dealers){
+  h += '<section style="padding-top:0;"><div class="wrap"><div class="dealerline"><b>' + P.dealers.t + '</b>' + P.dealers.d + '</div></div></section>';
+}
+
+h += '<div class="final"><div class="wrap">' +
+  '<div class="rule light" style="margin-top:0;"></div>' +
+  '<h2>' + P.finalH + '</h2><p class="lede">' + P.finalSub + '</p>' +
+  '<div class="ctarow">' +
+    '<a class="btn" href="' + (P.primary === 'contact' ? utm(CONTACT,'final-contact') : P.primary === 'quiz' ? utm(QUIZ,'final-quiz') : utm(CONFIG,'final-config')) + '">' + P.primaryLabel + '</a>' +
+    '<a class="btn ghost" href="' + (secondaryKind === 'quiz' ? utm(QUIZ,'final-quiz') : utm(CONFIG,'final-config')) + '">' + P.secondaryLabel + '</a>' +
+  '</div>' +
+  '<div class="phone">Or talk to the shop — we answer the phone and we like talking boats.<br><a href="tel:+12067228998">' + PHONE + '</a></div>' +
+'</div></div>';
+
+h += '<footer><div class="wrap">' +
+  '<b>Wooldridge Boats</b> · 1303 S 96th St, Seattle, WA 98108 · <a href="tel:+12067228998">' + PHONE + '</a> · <a href="mailto:info@wooldridgeboats.com">info@wooldridgeboats.com</a><br>' +
+  '© 2026 Wooldridge Boats. All hulls 5052 &amp; 5086 marine-grade aluminum, welded by hand in Seattle, WA. Prices subject to change — contact Wooldridge Boats directly for an official quote. Family built in Seattle since 1915.' +
+'</div></footer>';
+
+document.getElementById('page').innerHTML = h;
+</script>
+</html>
