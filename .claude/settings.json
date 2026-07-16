@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(awk 'NR>=1190 && NR<=1200 {print NR\": \"substr\\($0,1,150\\)}' Boat_Configurator_-_Customer_Version.html)",
+      "Bash(awk 'NR>=780 && NR<=940 && length\\($0\\)<2000' Boat_Configurator_-_Customer_Version.html)"
+    ]
+  }
+}

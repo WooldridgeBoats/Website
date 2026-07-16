@@ -52,7 +52,7 @@
     box-shadow:0 3px 0 rgba(47,84,150,.55);
   }
 
-  .wrap{
+  .cfg-wrap{
     max-width:1180px; margin:0 auto; padding:26px 26px 120px;
     display:grid; grid-template-columns:minmax(0,1fr) 360px; gap:34px; align-items:start;
   }
@@ -69,13 +69,13 @@
   .stephead .hint{font-size:12px; color:var(--slate); font-style:italic; font-family:var(--sans);}
 
   /* ── nautical flourishes ── */
-  .flourish{display:flex; align-items:center; justify-content:center; gap:15px; margin:6px 2px 30px;}
-  .flourish .fl-line{flex:1; height:1px; max-width:340px;
+  .cfg-flourish{display:flex; align-items:center; justify-content:center; gap:15px; margin:6px 2px 30px;}
+  .cfg-flourish .fl-line{flex:1; height:1px; max-width:340px;
     background:linear-gradient(90deg, transparent, var(--rule) 18%, var(--rule) 82%, transparent);}
-  .flourish .fl-mark{flex:none; color:var(--buoy); display:block;}
-  .flourish .fl-mark .pt{fill:currentColor;}
-  .flourish .fl-mark .ax{stroke:currentColor; stroke-width:.9; opacity:.5;}
-  .flourish .fl-mark .hub{fill:var(--paper);}
+  .cfg-flourish .fl-mark{flex:none; color:var(--buoy); display:block;}
+  .cfg-flourish .fl-mark .pt{fill:currentColor;}
+  .cfg-flourish .fl-mark .ax{stroke:currentColor; stroke-width:.9; opacity:.5;}
+  .cfg-flourish .fl-mark .hub{fill:var(--paper);}
   .mast .fl-mast{display:flex; justify-content:center; margin-top:15px; color:var(--buoy);}
   .mast .fl-mast .pt{fill:currentColor;}
   .mast .fl-mast .ax{stroke:currentColor; stroke-width:1; opacity:.45;}
@@ -243,10 +243,7 @@
   .qty .n{font-family:var(--mono); font-size:12px; font-weight:700; min-width:22px; text-align:center;}
 
   /* ── build sheet rail ── */
-  /* display:block + overflow:visible are set EXPLICITLY: the site-wide house.css (loaded
-     for the shared header/footer) defines a global .rail as a horizontal flex scroller,
-     which otherwise collapses this build-sheet panel to a sliver. Do not remove. */
-  .rail{position:sticky; top:20px; display:block; overflow:visible;}
+  .cfg-rail{position:sticky; top:20px; display:block; overflow:visible;}
   .sheet{
     background:var(--card); border:1px solid var(--ink); border-radius:2px;
     box-shadow:0 4px 0 rgba(47,84,150,.35); overflow:hidden;
@@ -327,8 +324,8 @@
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
 
   @media (max-width:1000px){
-    .wrap{grid-template-columns:1fr; padding-bottom:150px;}
-    .rail{position:static;}
+    .cfg-wrap{grid-template-columns:1fr; padding-bottom:150px;}
+    .cfg-rail{position:static;}
     .mbar{display:flex;}
     .cards{grid-template-columns:1fr;}
     .featgrid{grid-template-columns:1fr;}
@@ -425,8 +422,8 @@
   }
   #trailerStep .searchbox .clr:hover{color:var(--ink); border-color:var(--slate);}
   #trailerStep .searchbox.hasq .clr{display:block;}
-  #trailerStep .chiprow{display:flex; gap:8px; margin-top:12px; overflow-x:auto; scrollbar-width:none; align-items:center;}
-  #trailerStep .chiprow::-webkit-scrollbar{display:none;}
+  #trailerStep .cfg-chiprow{display:flex; gap:8px; margin-top:12px; overflow-x:auto; scrollbar-width:none; align-items:center;}
+  #trailerStep .cfg-chiprow::-webkit-scrollbar{display:none;}
   #trailerStep .bchip{
     background:var(--card); border:1px solid var(--rule); color:var(--slate); border-radius:2px;
     padding:6px 15px; font-family:inherit; font-size:12px; font-weight:700; letter-spacing:.05em; cursor:pointer; white-space:nowrap;
@@ -441,26 +438,19 @@
   }
   #trailerStep .grouplbl::after{content:''; flex:1; height:1px; background:var(--rule); box-shadow:0 2px 0 rgba(47,84,150,.25);}
   #trailerStep .trailers{display:flex; flex-direction:column; gap:10px;}
-  #trailerStep .mcard{
+  #trailerStep .cfg-mcard{
     background:var(--card); border:1px solid var(--rule); border-radius:2px; overflow:hidden;
     transition:border-color .12s; box-shadow:0 1px 0 rgba(33,43,49,.04);
+    cursor:default;
   }
-  #trailerStep .mcard.open{border-color:var(--ink);}
-  #trailerStep .mcard.inbuild{border-color:var(--kelp); box-shadow:0 0 0 1px var(--kelp);}
-  /* house.css (loaded for the shared header/footer) styles a global .mcard as the homepage
-     photo card: aspect-ratio:16/10 inflated these trailer rows into tall gray boxes, and its
-     ::after gradient overlay both painted the gray slab AND swallowed clicks on the row button
-     (dead trailer selector). Neutralize those leaks here - the tool's sheet wins on specificity
-     and load order. Do not remove. */
-  #trailerStep .mcard{aspect-ratio:auto; box-shadow:0 1px 0 rgba(33,43,49,.04); cursor:default;}
-  #trailerStep .mcard::after{content:none;}
-  #trailerStep .mcard img{width:auto; height:auto; object-fit:contain; transition:none;}
-  #trailerStep .mcard:hover img{transform:none;}
+  #trailerStep .cfg-mcard.open{border-color:var(--ink);}
+  #trailerStep .cfg-mcard.inbuild{border-color:var(--kelp); box-shadow:0 0 0 1px var(--kelp);}
+  #trailerStep .cfg-mcard img{width:auto; height:auto; object-fit:contain;}
   #trailerStep .mrow{
     display:grid; grid-template-columns:minmax(150px,1.1fr) 1.2fr auto auto; gap:14px; align-items:center; width:100%;
     background:none; border:none; padding:15px 18px; cursor:pointer; font-family:inherit; text-align:left; color:var(--ink);
   }
-  #trailerStep .mcard:not(.open) .mrow:hover{box-shadow:inset 0 0 0 1px var(--buoy);}
+  #trailerStep .cfg-mcard:not(.open) .mrow:hover{box-shadow:inset 0 0 0 1px var(--buoy);}
   #trailerStep .mrow .nm{font-size:15px; font-weight:800; letter-spacing:.01em; font-family:var(--mono);}
   #trailerStep .mrow .nm small{display:block; font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif; font-size:11px; font-weight:500; color:var(--slate); margin-top:2px;}
   #trailerStep .mrow .boats{font-size:12px; color:var(--slate); line-height:1.5;}
@@ -470,7 +460,7 @@
   #trailerStep .mrow .from .tbd{font-size:12px; font-weight:800; color:var(--buoy);}
   #trailerStep .mrow .caret{color:var(--slate); font-size:12px; font-weight:700; display:flex; align-items:center; gap:9px;}
   #trailerStep .mrow .caret .arr{transition:transform .15s; display:inline-block;}
-  #trailerStep .mcard.open .caret .arr{transform:rotate(90deg); color:var(--buoy);}
+  #trailerStep .cfg-mcard.open .caret .arr{transform:rotate(90deg); color:var(--buoy);}
   #trailerStep .inbuildtag{
     font-size:9.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--kelp);
     border:1px solid var(--kelp); border-radius:2px; padding:2px 7px; font-family:var(--mono);
@@ -575,9 +565,9 @@
     .custpanel, #trailerStep{display:none !important;}
     body{background:#fff;}
     .mast::after{box-shadow:none;}
-    .step, .mbar, .toast, .sheet .acts, .mast .tag, .flourish, .fl-mast{display:none !important;}
-    .wrap{display:block; padding:0 0 20px; max-width:none;}
-    .rail{position:static;}
+    .step, .mbar, .toast, .sheet .acts, .mast .tag, .cfg-flourish, .fl-mast{display:none !important;}
+    .cfg-wrap{display:block; padding:0 0 20px; max-width:none;}
+    .cfg-rail{position:static;}
     .sheet{border:1px solid #000; box-shadow:none; max-width:640px; margin:24px auto 0;}
     .mast{padding:20px 0 14px; max-width:640px;}
     .finefoot{max-width:640px; margin:14px auto 0;}
@@ -707,7 +697,7 @@
     --rope-a:#d6cfbd;
   }
 
-  .choice, .custpanel, .sheet, .optcat, .mcard, .inquirepanel, .rmodal .rbox,
+  .choice, .custpanel, .sheet, .optcat, .cfg-mcard, .inquirepanel, .rmodal .rbox,
   .stdfeat, .customwrap, .afthelm, .catprompt, .ticket, .modelnotes .optnote,
   .finder .searchbox, .snotes, .drivegrid .choice{ border-radius:8px; }
   .acts button, .sheet .acts button, .addbtn, .cta, .rbtn, .bchip, .toast,
@@ -716,7 +706,7 @@
   .stamp{ border-radius:4px; }
 
   /* single bold rounded borders that punctuate the boxes */
-  .choice, .custpanel, .sheet, .optcat, .mcard, .inquirepanel, .rmodal .rbox,
+  .choice, .custpanel, .sheet, .optcat, .cfg-mcard, .inquirepanel, .rmodal .rbox,
   .stdfeat, .customwrap, .catprompt{
     border:3px solid #000;
   }
@@ -743,7 +733,7 @@
   .cta.inbuild{ background:var(--card); border-color:var(--kelp); color:var(--kelp); }
   .mbar button{ border-radius:8px; }
 
-  .flourish .fl-line{
+  .cfg-flourish .fl-line{
     height:3px; border:0; border-radius:2px;
     background:repeating-linear-gradient(-55deg, var(--rope-a) 0 2px, transparent 2px 4.5px);
   }
@@ -934,7 +924,7 @@
   </div>
 </header>
 
-<div class="wrap">
+<div class="cfg-wrap">
   <main>
 
     <!-- customer -->
@@ -1040,7 +1030,7 @@
     </section>
 
     <!-- STEP 6: custom line items -->
-    <div class="flourish" aria-hidden="true">
+    <div class="cfg-flourish" aria-hidden="true">
       <span class="fl-line"></span>
       <svg class="fl-mark" width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M2 2 C 2 11, 6 14, 11 14 C 16 14, 20 11, 20 2" stroke="currentColor" stroke-width="1.2"/>
@@ -1073,7 +1063,7 @@
     </section>
 
     <!-- STEP 7: trailer -->
-    <div class="flourish" aria-hidden="true">
+    <div class="cfg-flourish" aria-hidden="true">
       <span class="fl-line"></span>
       <svg class="fl-mark" width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M2 2 C 2 11, 6 14, 11 14 C 16 14, 20 11, 20 2" stroke="currentColor" stroke-width="1.2"/>
@@ -1098,14 +1088,14 @@
               aria-label="Search boats, trailers, capacities, and part numbers">
             <button class="clr" onclick="TR.clearSearch()" aria-label="Clear search">Clear</button>
           </div>
-          <div class="chiprow" id="trChips"></div>
+          <div class="cfg-chiprow" id="trChips"></div>
         </div>
         <div id="trList"></div>
       </div>
     </section>
 
     <!-- STEP 8: additional notes -->
-    <div class="flourish" aria-hidden="true">
+    <div class="cfg-flourish" aria-hidden="true">
       <span class="fl-line"></span>
       <svg class="fl-mark" width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M2 2 C 2 11, 6 14, 11 14 C 16 14, 20 11, 20 2" stroke="currentColor" stroke-width="1.2"/>
@@ -1128,7 +1118,7 @@
   </main>
 
   <!-- build sheet rail -->
-  <aside class="rail" id="railTop">
+  <aside class="cfg-rail" id="railTop">
     <div class="sheet">
       <div class="shead">
         <div class="co2">Wooldridge Boats</div>
@@ -2503,7 +2493,7 @@ function buildCard(t, tag, fit){
   const from = fromRetail(t);
   const inbuild = buildTrailerId===t.id;
   const card = document.createElement('div');
-  card.className = 'mcard' + (openId===t.id?' open':'') + (inbuild?' inbuild':'');
+  card.className = 'cfg-mcard' + (openId===t.id?' open':'') + (inbuild?' inbuild':'');
 
   const row = document.createElement('button');
   row.className = 'mrow';
@@ -2527,7 +2517,7 @@ function toggle(id){
   openId = (openId===id) ? null : id;
   refresh();
   if(openId){
-    const el = document.querySelector('#trailerStep .mcard.open');
+    const el = document.querySelector('#trailerStep .cfg-mcard.open');
     if(el) el.scrollIntoView({block:'nearest', behavior:'smooth'});
   }
 }
@@ -2863,7 +2853,7 @@ body{margin:0; border:none; outline:none;}
 :root{--serif:Georgia,Palatino,'Palatino Linotype','Times New Roman',Times,serif;}
 .mast .co, .mast h1, .stephead h2{font-family:Georgia,Palatino,'Palatino Linotype','Times New Roman',Times,serif;}
 /* square the finish-pass rounds to drawing-sheet crispness */
-.choice, .custpanel, .sheet, .optcat, .mcard, .inquirepanel, .rmodal .rbox,
+.choice, .custpanel, .sheet, .optcat, .cfg-mcard, .inquirepanel, .rmodal .rbox,
 .stdfeat, .customwrap, .afthelm, .catprompt, .ticket, .modelnotes .optnote,
 .finder .searchbox, .snotes, .drivegrid .choice{ border-radius:2px; }</style>
 <script id="wb-industrial-skin-js">
