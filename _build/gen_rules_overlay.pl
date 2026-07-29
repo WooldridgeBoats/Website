@@ -15,6 +15,10 @@ my %APPROVED = map { $_ => 1 } qw(
   Q-CFG-04
   Q-CFG-05
   Q-CFG-06
+  Q-CFG-07
+  Q-CFG-08
+  Q-CFG-09
+  Q-CFG-10
 );
 # ───────────────────────────────────────────────────────
 
@@ -149,10 +153,10 @@ my @BLOCKS = (
     live => { reqAdd => \%reqAdd } },
   { q => 'Q-CFG-06', t => 'single-choice helm seat; swivels/slides/pedestals/box pairs/leaning post stay independent (CFG-R-10)',
     live => { radioCategories => [ { name => 'Seating', nonRadioPattern => 'swivel|slide|pedestal base|bracket|width of bench|pair upholstered|leaning post' } ] } },
-  { q => 'Q-CFG-07', t => 'single-choice starting battery; chargers/tender/ACR/converter/trolling banks stay independent (CFG-R-13)',
-    live => { radioCategories => [ { name => 'Battery System', nonRadioPattern => 'charger|tender|ACR|converter|trolling|forward upcharge' } ] } },
-  { q => 'Q-CFG-08', t => 'single-choice Garmin display; NMEA backbone stays independent (CFG-R-12) — CAUTION: blocks two-display boats',
-    live => { radioCategories => [ { name => 'Garmin Electronics', nonRadioPattern => 'NMEA' } ] } },
+  { q => 'Q-CFG-08', t => 'at most 3 Garmin displays per boat (CFG-R-12) — Stephen: "make it 3 max". A quantity cap could not express this: every Garmin row is a plain checkbox, so the customer was picking many DIFFERENT displays',
+    live => { catLimits => [ { cat => 'Garmin Electronics', match => '^ECHOMAP', max => 3, label => 'MAX 3 DISPLAYS' } ] } },
+  { q => 'Q-CFG-07', t => 'at most 2 starting batteries (CFG-R-13) — Stephen: cap it sensibly rather than force pick-one; chargers, tender, ACR, converter and lithium trolling banks are NOT counted',
+    live => { catLimits => [ { cat => 'Battery System', match => '(group 2[47]|MCA starting)', max => 2, label => 'MAX 2 STARTING BATTERIES' } ] } },
   { q => 'Q-CFG-09', t => 'single-choice kicker motor; brackets/tie-bar/bay kit/autopilot stay independent (CFG-R-09)',
     live => { radioCategories => [ { name => 'Kicker Installation', nonRadioPattern => 'bracket|tie-bar|bay kit|autopilot' } ] } },
   { q => 'Q-CFG-10', t => 'display names: Inboard suffixes (CFG-M-05) + Scout Widebody style title (CFG-M-10)',
@@ -178,6 +182,7 @@ my %LIVE = (
   catalogPatches  => [],
   hideItems       => [],
   addItems        => [],
+  catLimits       => [],
 );
 my @applied;
 for my $b (@BLOCKS) {
@@ -213,7 +218,7 @@ HEAD
 printf $o "/* APPROVED AND LIVE: %s */\n", (@applied ? join(', ', @applied) : 'none yet');
 print  $o "const RULES_OVERLAY = {\n";
 print  $o "  /* ─────────── LIVE — applied at load ─────────── */\n";
-for my $k (qw(radioCategories styleTags qtyMax qtyEnable excludes reqAdd lock241Add catalogPatches hideItems addItems)) {
+for my $k (qw(radioCategories styleTags qtyMax qtyEnable excludes reqAdd lock241Add catalogPatches hideItems addItems catLimits)) {
   printf $o "  %s: %s,\n", $k, $J->encode($LIVE{$k});
 }
 print $o "\n  /* ─────────── PROPOSED — inert until approved ─────────── */\n  PROPOSED: {\n";

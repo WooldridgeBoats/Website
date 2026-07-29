@@ -1212,6 +1212,12 @@ const MODELS = [{"id":"lt","nm":"Alaskan LT","tag":"Light utility jet sled \u201
    missing (the Sales Order Creator copy may lag behind). */
 const OVL = (typeof RULES_OVERLAY === 'object' && RULES_OVERLAY !== null) ? RULES_OVERLAY : {};
 const EXCL_MAP = {};   /* optionId -> Set(optionIds), bidirectional */
+/* optionId -> {key, max, label}: how many items of a group may be selected at
+   once. Neither a quantity cap nor pick-one expresses "at most 3 Garmin
+   displays" — every one of those rows is a plain checkbox, so the customer was
+   picking many DIFFERENT ones. This is the primitive that actually bounds it,
+   and it is how Stephen wants limits set: permissive but not absurd. */
+const LIMIT_OF = {};
 (function applyRulesOverlay(){
   const tags = OVL.styleTags || {}, caps = OVL.qtyMax || {}, excl = OVL.excludes || {};
   const qtyEn = new Set(OVL.qtyEnable || []), lock241 = new Set(OVL.lock241Add || []);
@@ -1292,6 +1298,15 @@ const EXCL_MAP = {};   /* optionId -> Set(optionIds), bidirectional */
       if (lock241.has(it.id)) it.lock241 = true;
       if (reqAdd[it.id]){ it.req = (it.req || []).concat(reqAdd[it.id].req); it.reqLabel = reqAdd[it.id].reqLabel || it.reqLabel; }
     });
+    /* group selection limits */
+    for (const lim of (OVL.catLimits || [])){
+      if (lim.cat !== cat.name) continue;
+      const re = lim.match ? new RegExp(lim.match, 'i') : null;
+      for (const it of cat.items){
+        if (re && !re.test(it.nm)) continue;
+        LIMIT_OF[it.id] = {key: m.id + '|' + cat.id + '|' + (lim.match || '*'), max: lim.max, label: lim.label || ('MAX ' + lim.max)};
+      }
+    }
   }));
 })();
 const M_INDEX = {};
@@ -1397,6 +1412,18 @@ function itemStatus(it){
   if (it.req){
     const met = it.req.some(r => r === '@pods' ? hasPods() : r === '@swim' ? hasSwim() : !!state.opts[r]);
     if (!met) return {ok:false, why:'SEE NOTE', reqNote:it.reqLabel};
+  }
+  /* group selection limit (overlay): e.g. at most 3 Garmin displays. Already-
+     selected rows stay selectable so the customer can always deselect. */
+  const lim = LIMIT_OF[it.id];
+  if (lim && !state.opts[it.id]){
+    let n = 0;
+    for (const id of Object.keys(state.opts)){
+      if (!state.opts[id]) continue;
+      const l = LIMIT_OF[id];
+      if (l && l.key === lim.key) n++;
+    }
+    if (n >= lim.max) return {ok:false, why:lim.label};
   }
   /* mutual exclusion (overlay): blocked while any excluded option is in the build */
   const ex = EXCL_MAP[it.id];
