@@ -176,5 +176,15 @@ my $quote_js = "const FACTS = " . $J->encode({ map {
 } @ids }) . ";";
 replace_block('tools/QUOTE_REQUEST.html', 'FACTS', $quote_js);
 
+# sales assist (internal) — quiz shape + slug (model page dir) + sheet
+# (price sheet path fragment under /pricesheets/). This was a FIFTH
+# hand-typed catalogue copy; found stale (old model names, slug 'xp').
+my $assist_js = "const FACTS = " . $J->encode({ map {
+  my $f = $facts{$_};
+  (my $slug = $PRESENTATION{$_}{url}) =~ s{^models/|/$}{}g;
+  $_ => { %$f, slug=>$slug, sheet=>"$_/" };
+} @ids }) . ";";
+replace_block('tools/WOOLDRIDGE_SALES_ASSIST.html', 'FACTS', $assist_js);
+
 printf "%d models derived. from-prices: %s\n", scalar @ids,
   join(' ', map { "$_=$facts{$_}{from}" } @ids);
