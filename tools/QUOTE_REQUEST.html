@@ -228,23 +228,46 @@ footer{padding:10px 20px 24px;}
       </div>
     </div>
     <div class="field subq"><label>Dealer preference</label>
+      <!-- WEB-F-03 (Carrie): Factory Direct on top, dealers grouped by state,
+           alphabetical inside each group. Option text unchanged — it is the
+           value the lead email carries. -->
       <select id="fDealer">
         <option value="">No preference — whoever's best for me</option>
         <option>Factory direct — Seattle, WA</option>
-        <option>West Coast Marine Services — Bellingham, WA</option>
-        <option>Alaska Mining &amp; Diving — Anchorage, AK</option>
-        <option>Bethel Prop Shop — Bethel, AK</option>
-        <option>Boat Shop — Fairbanks, AK</option>
-        <option>Rocky's Marine — Juneau / Petersburg, AK</option>
-        <option>Precision Boats — Idaho Falls, ID</option>
-        <option>Riverside Marine — Miles City, MT</option>
-        <option>Xcelerate Outdoor Sports — Bozeman, MT</option>
-        <option>Sunland Sales — Glendale, AZ</option>
-        <option>Brant Lake Marina — Brant Lake, NY</option>
-        <option>Coos Bay Marine — Coos Bay, OR</option>
-        <option>IFP Marine — Andrews, SC</option>
-        <option>Wholesale Trailers &amp; Marine — Nisku, AB</option>
-        <option>Rally Motorsports — Prince Albert, SK</option>
+        <optgroup label="Alaska">
+          <option>Alaska Mining &amp; Diving — Anchorage, AK</option>
+          <option>Bethel Prop Shop — Bethel, AK</option>
+          <option>Boat Shop — Fairbanks, AK</option>
+          <option>Rocky's Marine — Juneau / Petersburg, AK</option>
+        </optgroup>
+        <optgroup label="Arizona">
+          <option>Sunland Sales — Glendale, AZ</option>
+        </optgroup>
+        <optgroup label="Idaho">
+          <option>Precision Boats — Idaho Falls, ID</option>
+        </optgroup>
+        <optgroup label="Montana">
+          <option>Riverside Marine — Miles City, MT</option>
+          <option>Xcelerate Outdoor Sports — Bozeman, MT</option>
+        </optgroup>
+        <optgroup label="New York">
+          <option>Brant Lake Marina — Brant Lake, NY</option>
+        </optgroup>
+        <optgroup label="Oregon">
+          <option>Coos Bay Marine — Coos Bay, OR</option>
+        </optgroup>
+        <optgroup label="South Carolina">
+          <option>IFP Marine — Andrews, SC</option>
+        </optgroup>
+        <optgroup label="Washington">
+          <option>West Coast Marine Services — Bellingham, WA</option>
+        </optgroup>
+        <optgroup label="Canada — Alberta">
+          <option>Wholesale Trailers &amp; Marine — Nisku, AB</option>
+        </optgroup>
+        <optgroup label="Canada — Saskatchewan">
+          <option>Rally Motorsports — Prince Albert, SK</option>
+        </optgroup>
       </select>
     </div>
   </div>
@@ -293,6 +316,8 @@ footer{padding:10px 20px 24px;}
     <g class="lf-lab">
       <text x="370" y="81">16'</text><text x="460" y="81">18'</text><text x="550" y="81">19'</text><text x="640" y="81">20'</text><text x="730" y="81">21'</text><text x="820" y="81">23'</text><text x="910" y="81">25'</text><text x="1000" y="81">26'</text>
     </g>
+    <!-- WEB-F-04 / Q-C-8: Carrie read this drawing as a spec chart; label it as art -->
+    <text class="lf-cap" x="12" y="106">ILLUSTRATION ONLY &#8212; HULL LINES NOT TO SCALE</text>
     <text class="lf-cap" x="1116" y="106" text-anchor="end">FIVE MINUTES&#160;&#160;&#183;&#160;&#160;ONE REAL NUMBER&#160;&#160;&#183;&#160;&#160;CONFIRMED BY A HUMAN&#160;&#160;&#183;&#160;&#160;ONE SHOP</text>
   </svg>
 </footer>

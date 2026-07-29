@@ -73,10 +73,10 @@
               <li><a href="/custom-agency-builds/">Agency &amp; Government Builds</a></li>
             </ul>
           </div>
+          <!-- Q-C-9 / WEB-N-03: titled like the model columns, duplicates of the
+               main nav bar (New Boats / Pre-Owned / Custom Builds) removed -->
           <div class="megaside">
-            <a href="/new-inventory/">New Boats</a>
-            <a href="/pre-owned/">Pre-Owned</a>
-            <a href="/custom-agency-builds/">Custom Builds</a>
+            <h5>Tools</h5>
             <a href="/tools/Boat_Configurator_-_Customer_Version.html">Build &amp; Price</a>
             <a href="/tools/WHICH_WOOLDRIDGE_QUIZ_2.html">Which Wooldridge Quiz</a>
             <a href="/tools/QUOTE_REQUEST.html">Request a Quote</a>
@@ -177,7 +177,7 @@ Idaho Falls, ID 83401</div>
 Miles City, MT 59301</div>
             <div class="row"><a href="tel:+1">(406) 232-3300</a><a href="https://www.rmcmilescity.com" target="_blank" rel="noopener">WEBSITE ↗</a></div></div><div class="dealer"><div class="city">Bozeman</div><b>Xcelerate Outdoor Sports</b><div class="addr">16 E Cameron Bridge Rd
 Bozeman, MT 59718</div>
-            <div class="row"><a href="tel:+1">(406) 388-1680</a><a href="https://xcelerateoutdoorsports.com" target="_blank" rel="noopener">WEBSITE ↗</a></div></div></div></div><div class="dealregion"><h2>New York</h2><div class="dealgrid"><div class="dealer"><div class="city">Brant Lake</div><b>Brant Lake Marina</b><div class="addr">33 Palisades Road
+            <div class="row"><a href="tel:+1">(406) 388-1680</a><!-- Q-C-6: xcelerateoutdoorsports.com is dead in DNS; dealer stays listed, dead link removed --></div></div></div></div><div class="dealregion"><h2>New York</h2><div class="dealgrid"><div class="dealer"><div class="city">Brant Lake</div><b>Brant Lake Marina</b><div class="addr">33 Palisades Road
 Brant Lake, NY 12815</div>
             <div class="row"><a href="tel:+1">(518) 494-2677</a><a href="https://www.brantlakemarina.com" target="_blank" rel="noopener">WEBSITE ↗</a></div></div></div></div><div class="dealregion"><h2>Oregon</h2><div class="dealgrid"><div class="dealer"><div class="city">Coos Bay</div><b>Coos Bay Marine</b><div class="addr">1201 Ocean Blvd NW
 Coos Bay, OR 97420</div>
@@ -257,7 +257,7 @@ var DEALERS = [
   {nm:'Sunland Sales and Service', city:'Glendale, AZ', lat:33.539, lon:-112.186, tel:'(602) 430-3957'},
   {nm:'Precision Boats', city:'Idaho Falls, ID', lat:43.492, lon:-112.040, tel:'(208) 529-0520', web:'https://www.precision-performance.com'},
   {nm:'Riverside Marine and Cycle', city:'Miles City, MT', lat:46.408, lon:-105.841, tel:'(406) 232-3300', web:'https://www.rmcmilescity.com'},
-  {nm:'Xcelerate Outdoor Sports', city:'Bozeman, MT', lat:45.680, lon:-111.039, tel:'(406) 388-1680', web:'https://xcelerateoutdoorsports.com'},
+  {nm:'Xcelerate Outdoor Sports', city:'Bozeman, MT', lat:45.680, lon:-111.039, tel:'(406) 388-1680'},
   {nm:'Brant Lake Marina', city:'Brant Lake, NY', lat:43.700, lon:-73.709, tel:'(518) 494-2677', web:'https://www.brantlakemarina.com'},
   {nm:'Coos Bay Marine', city:'Coos Bay, OR', lat:43.367, lon:-124.218, tel:'(541) 888-2535', web:'https://www.coosbaymarine.com'},
   {nm:'IFP Marine', city:'Andrews, SC', lat:33.451, lon:-79.561, tel:'(843) 359-6527'},
@@ -408,5 +408,6 @@ document.getElementById('dfGeo').addEventListener('click', function(){
 })();
 </script>
 <script src="../assets/shop.js"></script>
+<script src="/assets/pagenav.js" defer></script>
 </body>
 </html>
