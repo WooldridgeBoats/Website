@@ -1038,9 +1038,29 @@
       </svg>
       <span class="fl-line"></span>
     </div>
+    <!-- STEP: vinyl colour (CFG-U-03 — placeholder swatches until Stephen supplies the real range, OQ-11) -->
+    <section class="step" id="stepVinyl">
+      <div class="stephead">
+        <span class="stepnum">07</span><h2>Vinyl colour</h2>
+        <span class="hint">interior upholstery · optional</span>
+      </div>
+      <div class="custnote" style="margin:-4px 0 14px"><b>Preview swatches only.</b> These placeholder colours are for design reference and are <b>not the actual vinyl offering</b> — our team confirms the real colour range with you when the order is written.</div>
+      <div id="vinylRow" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
+    </section>
+
+    <div class="cfg-flourish" aria-hidden="true">
+      <span class="fl-line"></span>
+      <svg class="fl-mark" width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 2 C 2 11, 6 14, 11 14 C 16 14, 20 11, 20 2" stroke="currentColor" stroke-width="1.2"/>
+        <path d="M5 3 C 5 9.5, 7.5 12, 11 12 C 14.5 12, 17 9.5, 17 3" stroke="currentColor" stroke-width="1" opacity=".65"/>
+        <path d="M8 4 C 8 8.5, 9.3 10, 11 10 C 12.7 10, 14 8.5, 14 4" stroke="currentColor" stroke-width="1" opacity=".4"/>
+        <line x1="11" y1="1" x2="11" y2="15" stroke="currentColor" stroke-width=".8" opacity=".35" stroke-dasharray="2 2"/>
+      </svg>
+      <span class="fl-line"></span>
+    </div>
     <section class="step" id="step6">
       <div class="stephead">
-        <span class="stepnum">07</span><h2>Custom line items</h2>
+        <span class="stepnum">08</span><h2>Custom line items</h2>
         <span class="hint">request custom work — we’ll price it for you</span>
       </div>
       <div class="customwrap">
@@ -1073,7 +1093,7 @@
     </div>
     <section class="step" id="step7">
       <div class="stephead">
-        <span class="stepnum">08</span><h2>Configure a trailer</h2>
+        <span class="stepnum">09</span><h2>Configure a trailer</h2>
         <span class="hint">EZ Loader · optional</span>
       </div>
       <div class="custnote" style="margin:-4px 0 14px" id="trailerNote">Price a matched EZ Loader trailer — trailers that fit your boat and length are grouped at the top, and the trailer price is added to your build total.</div>
@@ -1105,7 +1125,7 @@
     </div>
     <section class="step" id="step8">
       <div class="stephead">
-        <span class="stepnum">09</span><h2>Additional notes</h2>
+        <span class="stepnum">10</span><h2>Additional notes</h2>
         <span class="hint">included on the build sheet, email, and PDF</span>
       </div>
       <div class="notesbox">
@@ -1974,6 +1994,53 @@ function addCustom(){
   toast('Added: ' + nm);
 }
 
+/* ════════ VINYL COLOUR PICKER (CFG-U-03) ════════
+   Placeholder swatches only — clearly labelled; the real colour range comes
+   from Stephen (OQ-11) and is a one-list swap below. The pick rides the
+   custom-line-item mechanism (price 0), so it appears on the build sheet,
+   email, PDF, and share links with no extra plumbing. */
+const VINYL_COLORS = [
+  {nm:'Marine Grey',  hex:'#8a8f94'},
+  {nm:'Charcoal',     hex:'#3c4043'},
+  {nm:'Glacier White',hex:'#e8e6df'},
+  {nm:'Storm Blue',   hex:'#3d5a80'},
+  {nm:'Navy',         hex:'#1d2f4f'},
+  {nm:'Sand',         hex:'#c9b592'},
+  {nm:'Forest',       hex:'#2f4a3a'},
+  {nm:'Signal Red',   hex:'#8e2f2f'}
+];
+const VINYL_PREFIX = 'Vinyl colour (placeholder swatch): ';
+function vinylCurrent(){ return state.custom.find(c => String(c.name).indexOf(VINYL_PREFIX) === 0); }
+function renderVinyl(){
+  const host = $('#vinylRow');
+  if (!host) return;
+  const cur = vinylCurrent();
+  host.innerHTML = '';
+  VINYL_COLORS.forEach(v => {
+    const on = cur && cur.name === VINYL_PREFIX + v.nm;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    b.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 14px;cursor:pointer;background:#fff;'
+      + 'border:1px solid ' + (on ? 'var(--buoy)' : 'var(--rule)') + ';'
+      + (on ? 'box-shadow:0 0 0 1px var(--buoy);' : '');
+    b.innerHTML = '<span style="width:18px;height:18px;border-radius:50%;border:1px solid rgba(0,0,0,.25);background:' + v.hex + ';"></span>'
+      + '<span style="font-size:13px;">' + esc(v.nm) + '</span>';
+    b.addEventListener('click', () => {
+      const existing = vinylCurrent();
+      if (existing && existing.name === VINYL_PREFIX + v.nm){
+        state.custom = state.custom.filter(c => c !== existing);      /* click again to clear */
+      } else if (existing){
+        existing.name = VINYL_PREFIX + v.nm;
+      } else {
+        state.custom.push({id:'cust' + (customSeq++), name:VINYL_PREFIX + v.nm, price:0});
+      }
+      sync();
+    });
+    host.appendChild(b);
+  });
+}
+
 /* bridge — the trailer picker reports its chosen build trailer here, and reads build context for fit tags */
 window.WB = {
   setTrailer(payload){ state.trailer = payload; renderSheet(); },
@@ -2082,6 +2149,7 @@ function sync(){
   renderEngines();
   renderOptions();
   renderCustomList();
+  renderVinyl();
   renderCustomer();
   renderNotes();
   renderSheet();

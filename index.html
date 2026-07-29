@@ -482,7 +482,7 @@ function renderFleet(filter){
       <p class="desc">${b.tag}</p>
       <div class="from">${b.d==='offshore' ? `HULL FROM ${fmt(b.from)} <i>power priced with our team</i>` : `BOAT + POWER FROM ${fmt(b.from)}`}</div>
       <div class="acts">
-        <a class="build" href="${buildLink(b.id,b.d)}" target="_blank" rel="noopener">Build this boat →</a>
+        <a class="build" href="${buildLink(b.id,b.d)}" data-inline-build="1">Build this boat →</a>
         <a class="spec" href="${b.url}">Model details</a>
       </div>`;
     grid.appendChild(el);
@@ -544,6 +544,20 @@ document.querySelectorAll('[data-tool]').forEach(a=>{
   /* TOOL-03: scroll to the opened tool, not just the #tools anchor — footer and
      body links used to land the visitor on the boat list above the tool frame */
   a.addEventListener('click', ()=>{ showTool(a.dataset.tool); frameWrap.scrollIntoView({behavior:'smooth', block:'nearest'}); });
+});
+
+/* CFG-U-01: "Build this boat" opens Build & Price inline with the model
+   preselected; the tool frame's "Open full page" link carries the same build.
+   Delegated — fleet cards re-render on every tab switch. */
+document.getElementById('fleetGrid').addEventListener('click', function(e){
+  const a = e.target.closest('a[data-inline-build]');
+  if (!a) return;
+  e.preventDefault();
+  showTool('build');
+  frame.src = a.href;          /* configurator URL with the packed #b= hash */
+  loadedTool = 'build';
+  toolOpen.href = a.href;
+  frameWrap.scrollIntoView({behavior:'smooth', block:'nearest'});
 });
 
 /* ── click-to-play videos (keeps page light, no YT until asked) ── */
