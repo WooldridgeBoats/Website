@@ -10,15 +10,16 @@
 #
 #   perl _build/sync_soc_rules.pl [path-to-SOC.html]
 #
-# Default target is the dated staging copy, NOT the live file — swapping the
-# staging copy in is Stephen's call.
+# Default target is the LIVE Sales Order Creator — the staging copy was
+# swapped in with Stephen's approval (Q-E-1, 28 Jul 2026). Pass a path to
+# target something else.
 use strict; use warnings;
 use File::Basename qw(dirname);
 use Cwd qw(abs_path);
 
 my $root    = dirname(dirname(abs_path(__FILE__)));
 my $overlay = "$root/tools/RULES_OVERLAY.js";
-my $soc     = shift || 'C:/Users/Stephen/OneDrive - Wooldridge Boats Inc/Wooldridge Boats Inc_ - Documents/BUILD HUB/MISC NECESSARY CONTENT/SALES ORDER CREATOR/SALES ORDER CREATOR (staging 2026-07-29).html';
+my $soc     = shift || 'C:/Users/Stephen/OneDrive - Wooldridge Boats Inc/Wooldridge Boats Inc_ - Documents/BUILD HUB/MISC NECESSARY CONTENT/SALES ORDER CREATOR/SALES ORDER CREATOR.html';
 
 die "overlay not found: $overlay\n" unless -f $overlay;
 die "SOC not found: $soc\n"        unless -f $soc;

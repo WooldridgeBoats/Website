@@ -1312,6 +1312,10 @@ const LIMIT_OF = {};
         cat.items.unshift({id: m.id + '_' + cat.id + '_none', nm: 'None', price: 0, included: true});
     }
     cat.items.forEach(it => {
+      /* renameItems: regeneration-proof display-name fixes — e.g. the price
+         sheets' doubled "helm-seat seat" (the clean spelling exists on other
+         models' sheets for the same product; one of the two is a typo) */
+      if ((OVL.renameItems || {})[it.id]) it.nm = OVL.renameItems[it.id];
       if (tags[it.id]) it.style = tags[it.id];
       if (caps[it.id]) it.max = caps[it.id];
       if (qtyEn.has(it.id)) it.qty = true;
