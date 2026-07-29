@@ -792,7 +792,7 @@ document.getElementById('btnAskDanny').addEventListener('click', () => {
   body += '\nPlease send pricing and availability.\n\nName:\nPhone:\nBest time to reach me:\n';
   body += '\n--- WB-INQUIRY v1 (for our records - please leave this section intact) ---\nSource: Boat Comparison Tool\nType: COMPARISON\n';
   if (names.length) body += 'Models: ' + names.join(' / ') + '\n';
-  location.href = 'mailto:danny@wooldridgeboats.com?cc=data%40wooldridgeboats.com&subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  location.href = 'mailto:info@wooldridgeboats.com?cc=data%40wooldridgeboats.com%2Cstephen%40wooldridgeboats.com&subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
 });
 
 /* ── deep link: #c=ak,xl ── */

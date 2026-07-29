@@ -7,10 +7,12 @@
    never taken from the request. Sends the shop the submission and the
    customer an auto-response (WEB-F-01 / WEB-F-06).
 
-   Forms served:
-     contact  -> info@   (general inquiry)
-     quote    -> danny@  cc stephen@, data@   (quote request, photos)
-     careers  -> info@   (application, resume attachment)
+   Forms served (Q-D-1, Stephen 28 Jul 2026: everything to info@, with
+   data@ and stephen@ cc'd on every one — danny@ deliberately NOT a
+   direct recipient; he works quote leads from the info@ inbox):
+     contact  -> info@  cc data@, stephen@
+     quote    -> info@  cc data@, stephen@
+     careers  -> info@  cc data@, stephen@
 
    Change recipients below — nothing else needs editing.
    ═══════════════════════════════════════════════════════════════════ */
@@ -18,9 +20,9 @@
 header('Content-Type: application/json; charset=utf-8');
 
 $ROUTES = array(
-  'contact' => array('to' => 'info@wooldridgeboats.com',  'cc' => 'data@wooldridgeboats.com'),
-  'quote'   => array('to' => 'danny@wooldridgeboats.com', 'cc' => 'stephen@wooldridgeboats.com, data@wooldridgeboats.com'),
-  'careers' => array('to' => 'info@wooldridgeboats.com',  'cc' => 'data@wooldridgeboats.com'),
+  'contact' => array('to' => 'info@wooldridgeboats.com', 'cc' => 'data@wooldridgeboats.com, stephen@wooldridgeboats.com'),
+  'quote'   => array('to' => 'info@wooldridgeboats.com', 'cc' => 'data@wooldridgeboats.com, stephen@wooldridgeboats.com'),
+  'careers' => array('to' => 'info@wooldridgeboats.com', 'cc' => 'data@wooldridgeboats.com, stephen@wooldridgeboats.com'),
 );
 $FROM        = 'website@wooldridgeboats.com';   /* envelope/from for both mails */
 $AUTO_REPLY  = true;

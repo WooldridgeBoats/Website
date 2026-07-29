@@ -466,7 +466,7 @@ document.getElementById('btnAskDanny').addEventListener('click', () => {
   body += '\nPlease send me pricing and availability.\n\nName:\nPhone:\nBest time to reach me:\n';
   body += '\n--- WB-INQUIRY v1 (for our records - please leave this section intact) ---\nSource: Which Wooldridge Quiz\nType: QUIZ RESULT\n';
   if (LAST) body += 'Model: ' + FACTS[LAST.win].nm + '\nRunnerUp: ' + FACTS[LAST.run].nm + '\n';
-  location.href = 'mailto:danny@wooldridgeboats.com?cc=data%40wooldridgeboats.com&subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  location.href = 'mailto:info@wooldridgeboats.com?cc=data%40wooldridgeboats.com%2Cstephen%40wooldridgeboats.com&subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
 });
 
 render();

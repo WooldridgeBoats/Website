@@ -163,7 +163,7 @@
       };
       var fallback = function(){
         var note = f.resume.files[0] ? '\n\n(Please attach your resume to this email before sending.)' : '';
-        location.href = 'mailto:info@wooldridgeboats.com?cc=data@wooldridgeboats.com&subject='
+        location.href = 'mailto:info@wooldridgeboats.com?cc=data@wooldridgeboats.com,stephen@wooldridgeboats.com&subject='
           + encodeURIComponent('Application — ' + f.position.value + ' — ' + f.nm.value)
           + '&body=' + encodeURIComponent('Name: ' + f.nm.value + '\nEmail: ' + f.em.value + '\nPhone: ' + f.ph.value
           + '\nPosition: ' + f.position.value + '\nYears of experience: ' + f.yrs.value
