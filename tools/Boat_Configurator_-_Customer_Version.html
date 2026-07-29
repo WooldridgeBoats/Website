@@ -1255,6 +1255,26 @@ const EXCL_MAP = {};   /* optionId -> Set(optionIds), bidirectional */
     if (p.styleId){ const s = mo.styles.find(x => x.id === p.styleId); if (s) s[p.prop] = p.v; }
     else mo[p.prop] = p.v;
   }
+  /* addItems: options the price sheets don't carry yet, e.g. extending an
+     existing product line to models that had a different one. Inserted at the
+     position of the item they replace when `after` is given. */
+  for (const a of (OVL.addItems || [])){
+    const mo = MODELS.find(x => x.id === a.m);
+    if (!mo) continue;
+    const cat = mo.cats.find(c => c.name === a.cat);
+    if (!cat || cat.items.some(it => it.id === a.id)) continue;
+    const row = {id:a.id, nm:a.nm, price:a.price};
+    if (a.qty) row.qty = true;
+    const at = a.after ? cat.items.findIndex(it => it.id === a.after) : -1;
+    if (at >= 0) cat.items.splice(at + 1, 0, row); else cat.items.push(row);
+  }
+  /* hideItems: discontinued options. Removed outright so they cannot be
+     priced, rendered, or restored from an old share link. The price sheet is
+     the source of truth and must follow — see the change record. */
+  const hideSet = new Set(OVL.hideItems || []);
+  if (hideSet.size) MODELS.forEach(m => m.cats.forEach(cat => {
+    cat.items = cat.items.filter(it => !hideSet.has(it.id));
+  }));
   MODELS.forEach(m => m.cats.forEach(cat => {
     /* Steering keeps its bespoke handling below — skip it here */
     if ((cat.name in radioCats) && cat.name !== 'Steering' && !cat.radio){
@@ -1392,8 +1412,12 @@ function itemStatus(it){
   }
   return {ok:true};
 }
-/* per-option quantity cap: overlay qtyMax -> it.max, else the legacy default of 8 */
-const qtyMaxOf = it => it.max || 8;
+/* per-option quantity cap: overlay qtyMax -> it.max, else the global default.
+   Stephen's rule: a cap is an anti-nonsense backstop, not a merchandising
+   limit — a customer should be able to ask for something and be told no by a
+   person, so these run generous. */
+const QTY_MAX_DEFAULT = 12;
+const qtyMaxOf = it => it.max || QTY_MAX_DEFAULT;
 function priceOf(it){
   if (it.price === null || it.price === undefined) return null;
   if (typeof it.price === 'object'){

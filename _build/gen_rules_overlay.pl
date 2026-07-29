@@ -11,6 +11,8 @@ use JSON::PP;
 my %APPROVED = map { $_ => 1 } qw(
   Q-CFG-01
   Q-CFG-02
+  Q-CFG-03
+  Q-CFG-04
 );
 # ───────────────────────────────────────────────────────
 
@@ -64,6 +66,49 @@ for my $m (@$models) {
 my %exclBoth = (%exclFloor);
 for my $k (keys %exclFoot) { push @{$exclBoth{$k}}, @{$exclFoot{$k}} }
 
+# ── Q-CFG-03: retire Bentley, extend the Airwave line to those 4 models ──
+# Stephen: "no bentley stuff period. we offer the airwave ecosystem across all boats now"
+# Prices are the SAME items' existing published prices on the other 14 models —
+# continuity, not invention. Low-back 2099 / High-back 2249 / swivel-slide 349.
+my (@hide, @add, %seatQty, %seatCap);
+for my $m (@$models) {
+  for my $c (@{$m->{cats}}) {
+    next unless $c->{name} eq 'Seating';
+    my $lastBentley;
+    for my $it (@{$c->{items}}) {
+      push @hide, $it->{id} if $it->{nm} =~ /Bentley/i;
+      $lastBentley = $it->{id} if $it->{nm} =~ /Bentley/i;
+      # every Airwave-base seat becomes steppable (Stephen: multiple instances possible)
+      if ($it->{nm} =~ /Airwave suspension base/i && $it->{nm} !~ /Bentley/i) {
+        push @{$seatQty{list}}, $it->{id} unless $it->{qty};
+        $seatCap{ $it->{id} } = 6;
+      }
+    }
+    next unless $lastBentley;   # this model carried Bentley — graft the Airwave line in
+    my $anchor = $c->{items}[0]{id};
+    for my $it (@{$c->{items}}) { $anchor = $it->{id} if $it->{nm} =~ /Leaning post/i }
+    my $p = "$m->{id}_seating_airwave";
+    push @add,
+      { m=>$m->{id}, cat=>'Seating', id=>$p.'_low',  nm=>'Low-back upholstered helm-seat seat with Airwave suspension base',  price=>2099, qty=>1, after=>$anchor },
+      { m=>$m->{id}, cat=>'Seating', id=>$p.'_high', nm=>'High-back upholstered helm-seat seat with Airwave suspension base', price=>2249, qty=>1, after=>$p.'_low' },
+      { m=>$m->{id}, cat=>'Seating', id=>$p.'_sws',  nm=>'Swivel / slide for upholstered helm-seat seat, installed',          price=>349,  qty=>1, after=>$p.'_high' };
+    $seatCap{$p.'_low'} = 6; $seatCap{$p.'_high'} = 6;
+  }
+}
+
+# ── Q-CFG-04: generous caps. Global default is 12 (in the configurator);
+#    these are the reviewer-named options that warrant something different.
+my %caps = %seatCap;
+for my $m (@$models) {
+  for my $c (@{$m->{cats}}) {
+    for my $it (@{$c->{items}}) {
+      next unless $it->{qty};
+      $caps{$it->{id}} = 8 if $it->{nm} =~ /^Additional 12V plug|^Additional dual USB/i;
+      $caps{$it->{id}} = 6 if $it->{nm} =~ /cup holder/i;
+    }
+  }
+}
+
 # ── canvas rigid frame requires a canvas top ──
 my %reqAdd;
 for my $m (@$models) {
@@ -83,6 +128,10 @@ my @BLOCKS = (
     live => { styleTags => \%tags } },
   { q => 'Q-CFG-02', t => 'SeaDek <-> non-slip powder floor (CFG-R-11/SOC-03) + one urethane jet foot per boat (CFG-R-08)',
     live => { excludes => \%exclBoth } },
+  { q => 'Q-CFG-03', t => 'retire all Bentley seating, extend the Airwave line to Sport/SSD/SO/SSO, seats steppable to 6 (Stephen)',
+    live => { hideItems => \@hide, addItems => \@add, qtyEnable => ($seatQty{list} || []) } },
+  { q => 'Q-CFG-04', t => 'generous quantity caps: global default 12, 12V/USB 8, cup holders 6, Airwave seats 6 (Stephen)',
+    live => { qtyMax => \%caps } },
   { q => 'Q-CFG-05', t => 'welded rigid frame requires a canvas top (CFG-R-17, Grant)',
     live => { reqAdd => \%reqAdd } },
   { q => 'Q-CFG-06', t => 'single-choice helm seat; swivels/slides/pedestals/box pairs/leaning post stay independent (CFG-R-10)',
@@ -114,6 +163,8 @@ my %LIVE = (
   reqAdd          => {},
   lock241Add      => [],
   catalogPatches  => [],
+  hideItems       => [],
+  addItems        => [],
 );
 my @applied;
 for my $b (@BLOCKS) {
@@ -149,7 +200,7 @@ HEAD
 printf $o "/* APPROVED AND LIVE: %s */\n", (@applied ? join(', ', @applied) : 'none yet');
 print  $o "const RULES_OVERLAY = {\n";
 print  $o "  /* ─────────── LIVE — applied at load ─────────── */\n";
-for my $k (qw(radioCategories styleTags qtyMax qtyEnable excludes reqAdd lock241Add catalogPatches)) {
+for my $k (qw(radioCategories styleTags qtyMax qtyEnable excludes reqAdd lock241Add catalogPatches hideItems addItems)) {
   printf $o "  %s: %s,\n", $k, $J->encode($LIVE{$k});
 }
 print $o "\n  /* ─────────── PROPOSED — inert until approved ─────────── */\n  PROPOSED: {\n";
