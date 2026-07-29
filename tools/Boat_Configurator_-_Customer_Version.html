@@ -2195,6 +2195,9 @@ function wbInquiryBlock(type){
   if (state.len) L.push('Length: ' + state.len);
   if (cs) L.push('Config: ' + cs.nm);
   if (state.engine && state.engine !== 'hull') L.push('Motor: ' + state.engine);
+  /* CHAIN-01: the trailer used to vanish here — the parsed block carried no
+     trailer line, so it never survived into the Inquiries Hub or the SO */
+  if (state.trailer) L.push('Trailer: ' + state.trailer.name + ' — ' + fmt(state.trailer.retail));
   if (s2.total) L.push('Total: ' + fmt(s2.total));
   if (s2.name) L.push('Name: ' + s2.name);
   if (c2.email.trim()) L.push('Email: ' + c2.email.trim());
