@@ -116,7 +116,71 @@
   <p style='font-size:15px; line-height:1.7; margin-bottom:14px;'>Wooldridge Boats is a four-generation family shop in Seattle building 70 to 140 boats a year. We hire people who take pride in work that outlives them: welders, fabricators, riggers, finishers, and service techs.</p><p style='font-size:15px; line-height:1.7; margin-bottom:14px;'>If you want to build boats that run the hardest water in North America, we want to hear from you.</p>
   <div class="sechead tight"><div class="eyebrow">We Hire</div><h2 style="font-size:clamp(20px,2.6vw,28px);">The trades that build a boat</h2></div>
   <div class="optchips"><span class='optchip'>Aluminum Welders / Fabricators</span><span class='optchip'>Boat Riggers (electrical, fuel, controls)</span><span class='optchip'>Finish & Upholstery</span><span class='optchip'>Service & Parts</span><span class='optchip'>General Production</span></div>
-  <div class="emptystate" style="margin-top:34px;"><div class="t">How to apply</div><p>Send a resume and a few words about your experience to info@wooldridgeboats.com, or stop by the factory Monday–Thursday.</p>
+  <div class="sechead tight" style="margin-top:34px;"><div class="eyebrow">Apply</div><h2 style="font-size:clamp(20px,2.6vw,28px);">Apply online</h2></div>
+  <!-- WEB-X-04 / FORM-01: online application, resume attachment optional. Posts to /forms/submit.php with mailto fallback. -->
+  <form class="form" id="careersForm" action="/forms/submit.php" method="post" enctype="multipart/form-data" style="max-width:640px;">
+    <label for="c-pos">Position <span style="color:#c0392b;">*</span></label>
+    <select id="c-pos" name="position" required>
+      <option>Aluminum Welder / Fabricator</option>
+      <option>Boat Rigger (electrical, fuel, controls)</option>
+      <option>Finish &amp; Upholstery</option>
+      <option>Service &amp; Parts</option>
+      <option>General Production</option>
+      <option>Other / Not sure yet</option>
+    </select>
+    <label for="c-nm">Name <span style="color:#c0392b;">*</span></label><input id="c-nm" name="nm" required autocomplete="name">
+    <label for="c-em">Email <span style="color:#c0392b;">*</span></label><input id="c-em" name="em" type="email" required autocomplete="email">
+    <label for="c-ph">Phone <span style="color:#c0392b;">*</span></label><input id="c-ph" name="ph" required autocomplete="tel">
+    <label for="c-yrs">Years of relevant experience</label><input id="c-yrs" name="yrs" inputmode="numeric" placeholder="e.g. 4">
+    <label for="c-cert">Certifications or tickets (welding certs, licenses — if any)</label><input id="c-cert" name="cert">
+    <label for="c-when">When could you start?</label><input id="c-when" name="when" placeholder="e.g. two weeks' notice">
+    <label for="c-exp">Tell us about your experience <span style="color:#c0392b;">*</span></label>
+    <textarea id="c-exp" name="exp" required placeholder="What you've built, welded, rigged, or fixed — and where."></textarea>
+    <label for="c-resume">Resume (PDF or Word, optional)</label><input id="c-resume" name="resume" type="file" accept=".pdf,.doc,.docx">
+    <label for="c-how">How did you hear about us?</label><input id="c-how" name="how">
+    <input name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;" aria-hidden="true">
+    <button class="plate" type="submit">Submit Application</button>
+    <p id="careersDone" style="display:none; font-size:15px; line-height:1.6; margin-top:14px;"><b>Application received — thank you.</b> We will be in contact with you soon.</p>
+  </form>
+  <script>
+  (function(){
+    var f = document.getElementById('careersForm');
+    f.addEventListener('submit', function(ev){
+      ev.preventDefault();
+      var fd = new FormData();
+      fd.append('form', 'careers');
+      fd.append('subject', 'Application — ' + f.position.value + ' — ' + f.nm.value.trim());
+      fd.append('name', f.nm.value.trim());
+      fd.append('email', f.em.value.trim());
+      fd.append('phone', f.ph.value.trim());
+      fd.append('position', f.position.value);
+      fd.append('experience_years', f.yrs.value.trim());
+      fd.append('certifications', f.cert.value.trim());
+      fd.append('available', f.when.value.trim());
+      fd.append('experience', f.exp.value.trim());
+      fd.append('heard_from', f.how.value.trim());
+      fd.append('website', f.website.value);
+      if (f.resume.files[0]) fd.append('resume', f.resume.files[0], f.resume.files[0].name);
+      var done = function(){
+        f.querySelector('button').style.display = 'none';
+        document.getElementById('careersDone').style.display = 'block';
+      };
+      var fallback = function(){
+        var note = f.resume.files[0] ? '\n\n(Please attach your resume to this email before sending.)' : '';
+        location.href = 'mailto:info@wooldridgeboats.com?cc=data@wooldridgeboats.com&subject='
+          + encodeURIComponent('Application — ' + f.position.value + ' — ' + f.nm.value)
+          + '&body=' + encodeURIComponent('Name: ' + f.nm.value + '\nEmail: ' + f.em.value + '\nPhone: ' + f.ph.value
+          + '\nPosition: ' + f.position.value + '\nYears of experience: ' + f.yrs.value
+          + '\nCertifications: ' + f.cert.value + '\nAvailable: ' + f.when.value
+          + '\n\n' + f.exp.value + '\n\nHeard about us: ' + f.how.value + note);
+      };
+      fetch('/forms/submit.php', {method:'POST', body:fd})
+        .then(function(r){ if (r.ok) done(); else fallback(); })
+        .catch(fallback);
+    });
+  })();
+  </script>
+  <div class="emptystate" style="margin-top:24px;"><div class="t">Prefer email or in person?</div><p>Send a resume and a few words about your experience to info@wooldridgeboats.com, or stop by the factory Monday–Thursday.</p>
   <div class="modelctas" style="justify-content:center;"><a class="plate" href="mailto:info@wooldridgeboats.com?cc=data@wooldridgeboats.com&subject=Careers">Email Your Resume</a></div></div>
 </div></section>
 </main>

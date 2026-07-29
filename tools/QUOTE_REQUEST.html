@@ -304,9 +304,10 @@ footer{padding:10px 20px 24px;}
    ───────────────────────────────────────────── */
 const DEALER_EMAIL = 'danny@wooldridgeboats.com';   /* lead recipient */
 const CC_EMAIL = 'stephen@wooldridgeboats.com; data@wooldridgeboats.com';     /* cc'd on every lead */
-const FORM_ENDPOINT = '';   /* optional: POST URL (Formspree/Netlify/own API).
-                               When set, submits FormData incl. photos instead
-                               of opening a mailto draft. */
+const FORM_ENDPOINT = '/forms/submit.php';   /* FORM-01: our own cPanel handler.
+                               Submits FormData incl. photos; the mailto
+                               draft remains the automatic fallback if the
+                               POST fails (e.g. handler not deployed yet). */
 
 /* ---- 2026 fleet facts + quiz scoring matrix (from the master site data) ---- */
 const FACTS = {
@@ -590,6 +591,7 @@ $('#qiForm').addEventListener('submit', e => {
 
   if (FORM_ENDPOINT){
     const fd = new FormData();
+    fd.append('form', 'quote');
     fd.append('subject', subject);
     fd.append('summary', summary);
     fd.append('name', name);
@@ -627,7 +629,11 @@ function showSummary(a, summary, subject, mode){
   h += '<div class="submitrow" style="margin-top:16px;">';
   if (mode !== 'posted') h += '<a class="btn" href="' + mailto + '">Open email &amp; send to the shop</a>';
   h += '<button type="button" class="btn ghost" id="btnCopy">Copy summary</button>' +
-    '<button type="button" class="btn ghost" id="btnBack">← Edit my answers</button></div>' +
+    '<button type="button" class="btn ghost" id="btnBack">← Edit my answers</button>' +
+    /* WEB-N-01: one click back to wherever the visitor came from */
+    (mode === 'posted' && document.referrer && document.referrer.indexOf(location.host) !== -1
+      ? '<button type="button" class="btn ghost" onclick="history.back()">← Return to the previous page</button>' : '') +
+    '</div>' +
     '<p class="formnote" style="margin-top:12px;">Or just call us: <a href="tel:+12067228998">(206) 722-8998</a> — Mon–Thu, 6:00am–4:30pm Pacific.</p></div>';
   box.innerHTML = h;
   $('#sumText').textContent = summary;

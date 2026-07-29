@@ -120,16 +120,47 @@
         <p style="font-weight:200; font-size:14px; margin:6px 0 14px;">Our quote request form asks the questions a salesperson would ask anyway — your water, your load, your timeline — and routes straight to the sales floor. Five minutes now saves three phone calls later.</p>
         <a class="plate" href="../tools/QUOTE_REQUEST.html"><span class="k">No Obligation</span>Request a Quote</a>
       </div>
-      <!-- FORM HANDLER PENDING — the form below posts nowhere yet. Wire action= to your handler (WP endpoint, Formspree, etc.). Until then the Send button opens a pre-filled email. -->
-      <form class="form" action="#" method="post" onsubmit="event.preventDefault(); location.href='mailto:info@wooldridgeboats.com?cc=data@wooldridgeboats.com&subject=Boat%20Inquiry&body='+encodeURIComponent('Name: '+this.nm.value+'\nPhone: '+this.ph.value+'\nDepartment: '+this.dept.value+'\n\n'+this.msg.value);">
-        <label for="f-nm">Name</label><input id="f-nm" name="nm" required autocomplete="name">
-        <label for="f-em">Email</label><input id="f-em" name="em" type="email" required autocomplete="email">
+      <!-- FORM-01: posts to /forms/submit.php; the mailto draft remains the fallback if the POST fails -->
+      <form class="form" id="contactForm" action="/forms/submit.php" method="post">
+        <label for="f-nm">Name <span class="reqstar" style="color:#c0392b;">*</span></label><input id="f-nm" name="nm" required autocomplete="name">
+        <label for="f-em">Email <span class="reqstar" style="color:#c0392b;">*</span></label><input id="f-em" name="em" type="email" required autocomplete="email">
         <label for="f-ph">Phone (optional)</label><input id="f-ph" name="ph" autocomplete="tel">
         <label for="f-dept">Department</label>
         <select id="f-dept" name="dept"><option>Sales</option><option>Parts</option><option>Service</option><option>Dealer Inquiry</option><option>Other</option></select>
-        <label for="f-msg">How can we help?</label><textarea id="f-msg" name="msg" required></textarea>
+        <label for="f-msg">How can we help? <span class="reqstar" style="color:#c0392b;">*</span></label><textarea id="f-msg" name="msg" required></textarea>
+        <input name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;" aria-hidden="true">
         <button class="plate" type="submit">Send Message</button>
+        <p id="contactDone" style="display:none; font-size:15px; line-height:1.6; margin-top:14px;"><b>Thank you for your inquiry.</b> We will be in contact with you soon.</p>
       </form>
+      <script>
+      (function(){
+        var f = document.getElementById('contactForm');
+        f.addEventListener('submit', function(ev){
+          ev.preventDefault();
+          var fd = new FormData();
+          fd.append('form', 'contact');
+          fd.append('name', f.nm.value.trim());
+          fd.append('email', f.em.value.trim());
+          fd.append('phone', f.ph.value.trim());
+          fd.append('department', f.dept.value);
+          fd.append('message', f.msg.value.trim());
+          fd.append('website', f.website.value);
+          var done = function(){
+            f.querySelector('button').style.display = 'none';
+            document.getElementById('contactDone').style.display = 'block';   /* WEB-F-01 */
+          };
+          var fallback = function(){
+            /* mail client draft — now includes the email address (it used to be dropped) */
+            location.href = 'mailto:info@wooldridgeboats.com?cc=data@wooldridgeboats.com&subject=Boat%20Inquiry&body='
+              + encodeURIComponent('Name: ' + f.nm.value + '\nEmail: ' + f.em.value + '\nPhone: ' + f.ph.value
+              + '\nDepartment: ' + f.dept.value + '\n\n' + f.msg.value);
+          };
+          fetch('/forms/submit.php', {method:'POST', body:fd})
+            .then(function(r){ if (r.ok) done(); else fallback(); })
+            .catch(fallback);
+        });
+      })();
+      </script>
     </div>
     <div>
       <div class="infocard"><h3>Factory / Showroom</h3><div class="mono">1303 S 96TH ST<br>SEATTLE, WA 98108-5011<br><br>
