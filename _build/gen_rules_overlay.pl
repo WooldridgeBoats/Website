@@ -13,6 +13,8 @@ my %APPROVED = map { $_ => 1 } qw(
   Q-CFG-02
   Q-CFG-03
   Q-CFG-04
+  Q-CFG-05
+  Q-CFG-06
 );
 # ───────────────────────────────────────────────────────
 
@@ -109,17 +111,28 @@ for my $m (@$models) {
   }
 }
 
-# ── canvas rigid frame requires a canvas top ──
+# ── Q-CFG-05: the welded rigid frame requires a canvas top (CFG-R-17, Grant) ──
+# Match the TOP itself, not anything with the word "top" in it. Every model's
+# Canvas Top category has the same shape: one base canvas top ("Canvas and side
+# curtains with 1" stainless steel bows...") plus a hard-top alternative
+# ("Removable hard top with canvas front and sides"). The rest are modifiers
+# (cruise curtain, add 8" to height, slant back, tonneau, zipper, wrap for
+# shipping) and must NOT satisfy the requirement — an earlier loose /top/i match
+# picked those and left the frame unselectable even with a real top chosen.
 my %reqAdd;
 for my $m (@$models) {
-  my ($frame, @canvas);
+  my ($frame, @tops);
   for my $c (@{$m->{cats}}) {
+    next unless $c->{name} eq 'Canvas Top';
     for my $it (@{$c->{items}}) {
-      $frame = $it if $it->{nm} =~ /rigid frame/i && !$it->{req};
-      push @canvas, $it->{id} if $c->{name} eq 'Canvas Top' && $it->{nm} =~ /top/i && $it->{nm} !~ /rigid frame/i;
+      if ($it->{nm} =~ /rigid frame/i) { $frame = $it unless $it->{req}; next }
+      push @tops, $it->{id} if $it->{nm} =~ /^Canvas and side curtains/i
+                            || $it->{nm} =~ /hard top with canvas/i;
     }
   }
-  $reqAdd{$frame->{id}} = { req => [@canvas], reqLabel => 'Requires a canvas top' } if $frame && @canvas;
+  next unless $frame && @tops;
+  # req is OR-semantics in itemStatus(), so either top satisfies it
+  $reqAdd{$frame->{id}} = { req => [@tops], reqLabel => 'Requires a canvas top' };
 }
 
 # ── blocks, each keyed to its question ──

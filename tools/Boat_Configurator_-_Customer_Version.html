@@ -1337,6 +1337,7 @@ const state = {
   engine:null,         // engine name string | 'hull' | null
   opts:{},             // itemId -> qty
   radios:{},           // catId -> itemId
+  radioQty:{},         // catId -> qty, for single-choice categories whose item carries qty
   customer:{first:'', last:'', phone:'', email:'', zip:''},
   custom:[],
   notesText:'',
@@ -1486,7 +1487,7 @@ function renderModelCards(){
       if (state.model !== m.id){
         state.model = m.id; state.drive = m.drive;
         state.style = null; state.len = null; state.adder = false;
-        state.engine = null; state.opts = {}; state.radios = {};
+        state.engine = null; state.opts = {}; state.radios = {}; state.radioQty = {};
         $('#adderChk').checked = false;
       }
       sync();
@@ -1699,7 +1700,11 @@ function renderOptions(){
         const included = cat.items.find(x => x.included);
         input.checked = (state.radios[cat.id] || (included && included.id)) === it.id;
         input.disabled = !st.ok;   /* unavailable radio rows were previously left selectable */
-        input.addEventListener('change', () => { if (input.checked){ state.radios[cat.id] = it.id; sync(); } });
+        input.addEventListener('change', () => { if (input.checked){
+          state.radios[cat.id] = it.id;
+          if (it.qty && !state.radioQty[cat.id]) state.radioQty[cat.id] = 1;
+          sync();
+        } });
       } else {
         input.checked = !!state.opts[it.id];
         input.disabled = !st.ok;
@@ -1717,17 +1722,32 @@ function renderOptions(){
       if (it.reqLabel && st.ok) inner += `<span class="req">${esc(it.reqLabel)}</span>`;
       ot.innerHTML = inner;
 
-      if (it.qty && !isRadio){
+      /* Quantity stepper. Radio rows get one too (Stephen: pick one model of
+         seat, then say how many) — their count lives in state.radioQty keyed
+         by category, so it can't collide with the checkbox opts map. */
+      if (it.qty && (!isRadio || input.checked)){
+        const cur = isRadio ? (state.radioQty[cat.id] || 1) : (state.opts[it.id] || 1);
+        const on  = isRadio ? input.checked : !!state.opts[it.id];
         const q = document.createElement('span');
-        q.className = 'qty' + (state.opts[it.id] ? ' on' : '');
-        q.innerHTML = `<button type="button" aria-label="Fewer">&minus;</button><span class="n">${state.opts[it.id] || 1}</span><button type="button" aria-label="More">+</button>`;
+        q.className = 'qty' + (on ? ' on' : '');
+        q.innerHTML = `<button type="button" aria-label="Fewer">&minus;</button><span class="n">${cur}</span><button type="button" aria-label="More">+</button>`;
         const [minus, , plus] = q.children;
         minus.addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation();
-          if (!state.opts[it.id]) return;
-          state.opts[it.id] = Math.max(1, state.opts[it.id] - 1); sync();
+          if (isRadio){
+            if (!input.checked) return;
+            state.radioQty[cat.id] = Math.max(1, (state.radioQty[cat.id] || 1) - 1);
+          } else {
+            if (!state.opts[it.id]) return;
+            state.opts[it.id] = Math.max(1, state.opts[it.id] - 1);
+          }
+          sync();
         });
         plus.addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation();
-          if (!state.opts[it.id]){ state.opts[it.id] = 1; } else { state.opts[it.id] = Math.min(qtyMaxOf(it), state.opts[it.id] + 1); }
+          if (isRadio){
+            state.radios[cat.id] = it.id;
+            state.radioQty[cat.id] = Math.min(qtyMaxOf(it), (state.radioQty[cat.id] || 1) + 1);
+          } else if (!state.opts[it.id]){ state.opts[it.id] = 1; }
+          else { state.opts[it.id] = Math.min(qtyMaxOf(it), state.opts[it.id] + 1); }
           sync();
         });
         ot.appendChild(document.createElement('br'));
@@ -1799,8 +1819,10 @@ function enforce(){
   /* radio selections that became unavailable fall back to the included default */
   for (const cid of Object.keys(state.radios)){
     const rit = m.itemIndex[state.radios[cid]];
-    if (rit && !itemStatus(rit).ok){ delete state.radios[cid]; dropped.push(rit.nm); }
+    if (rit && !itemStatus(rit).ok){ delete state.radios[cid]; delete state.radioQty[cid]; dropped.push(rit.nm); }
+    else if (rit && state.radioQty[cid] > qtyMaxOf(rit)) state.radioQty[cid] = qtyMaxOf(rit);
   }
+  for (const cid of Object.keys(state.radioQty)) if (!state.radios[cid]) delete state.radioQty[cid];
   for (const cid of Object.keys(state.radios)){
     const it = m.itemIndex[state.radios[cid]];
     if (!it) delete state.radios[cid];
@@ -1841,7 +1863,10 @@ function buildLines(){
     for (const [catId, itemId] of Object.entries(state.radios)){
       const it = m.itemIndex[itemId];
       if (!it || it.included) continue;
-      lines.push({cls:'opt', l1:it.nm, p:priceOf(it), radioCat:catId});
+      const rq = (it.qty ? (state.radioQty[catId] || 1) : 1);
+      const rp = priceOf(it);
+      if (rp === null){ inqs.push(it.nm); continue; }
+      lines.push({cls:'opt', l1:it.nm + (rq > 1 ? ` × ${rq}` : ''), p:rp * rq, radioCat:catId});
     }
     for (const [id, qty] of Object.entries(state.opts)){
       const it = m.itemIndex[id];
@@ -2079,7 +2104,7 @@ window.WB = {
 const SAVE_KEY = CUSTOMER_MODE ? 'wb_build_customer_v1' : 'wb_build_internal_v1';
 function packState(){
   return {v:1, d:state.drive, m:state.model, s:state.style, l:state.len, a:state.adder ? 1 : 0,
-    e:state.engine, o:state.opts, r:state.radios, cu:state.custom, n:state.notesText,
+    e:state.engine, o:state.opts, r:state.radios, rq:state.radioQty, cu:state.custom, n:state.notesText,
     t:(window.TR && TR.exportBuild) ? TR.exportBuild() : null};
 }
 function applyPacked(p){
@@ -2094,6 +2119,7 @@ function applyPacked(p){
   state.engine = typeof p.e === 'string' ? p.e : null;
   state.opts   = (p.o && typeof p.o === 'object' && !Array.isArray(p.o)) ? p.o : {};
   state.radios = (p.r && typeof p.r === 'object' && !Array.isArray(p.r)) ? p.r : {};
+  state.radioQty = (p.rq && typeof p.rq === 'object' && !Array.isArray(p.rq)) ? p.rq : {};
   state.custom = Array.isArray(p.cu) ? p.cu.filter(c => c && typeof c.name === 'string') : [];
   customSeq = state.custom.reduce((a, c) => Math.max(a, (parseInt(String(c.id).replace(/\D/g, ''), 10) || 0) + 1), 0);
   state.notesText = typeof p.n === 'string' ? p.n : '';
@@ -2468,7 +2494,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') $('#reserveM
 $('#btnReset').addEventListener('click', () => {
   state.drive = null;
   state.model = null; state.style = null; state.len = null; state.adder = false; state.engine = null;
-  state.opts = {}; state.radios = {}; state.custom = []; state.notesText = '';
+  state.opts = {}; state.radios = {}; state.radioQty = {}; state.custom = []; state.notesText = '';
   $('#buildNotes').value = '';
   state.customer = {first:'', last:'', phone:'', email:'', zip:''}; custTouched = false;
   $('#adderChk').checked = false;
