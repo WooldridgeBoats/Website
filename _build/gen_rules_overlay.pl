@@ -19,6 +19,8 @@ my %APPROVED = map { $_ => 1 } qw(
   Q-CFG-08
   Q-CFG-09
   Q-CFG-10
+  Q-CFG-11
+  Q-CFG-12
 );
 # ───────────────────────────────────────────────────────
 
@@ -166,8 +168,13 @@ my @BLOCKS = (
       { m => 'skagitx', prop => 'nm', v => 'Skagit-X Inboard' },
       { m => 'scoutwb', styleId => 'ws', prop => 'nm', v => 'Cabin with Idaho deck' },
     ] } },
-  { q => 'Q-CFG-11', t => 'Drifter Inboard 20ft retired -> 21/23/25 (doc 4; 20ft hull price carries to the 21 pending confirmation)',
+  { q => 'Q-CFG-11', t => 'Drifter Inboard 20ft retired -> 21/23/25 (Luke, doc 4). Stephen confirmed the 20ft hull price carries to the 21 — it is the same boat remeasured, not a bigger one',
     live => { catalogPatches => [ { m => 'ssdib', lenRename => { from => 20, to => 21 } } ] } },
+  { q => 'Q-CFG-12', t => 'Center Console hull style on the five inboards that lack it (CFG-M-08) — priced identically to the windshield hull, which is Grant\'s own stated rule',
+    live => { addStyles => [
+      map { { m => $_, id => 'occ', nm => 'Center Console', copyHullsFrom => 'ws' } }
+        qw(xlib scout skagitib sportib ssdib)
+    ] } },
 );
 
 # ── merge approved blocks into the live keys ──
@@ -218,7 +225,7 @@ HEAD
 printf $o "/* APPROVED AND LIVE: %s */\n", (@applied ? join(', ', @applied) : 'none yet');
 print  $o "const RULES_OVERLAY = {\n";
 print  $o "  /* ─────────── LIVE — applied at load ─────────── */\n";
-for my $k (qw(radioCategories styleTags qtyMax qtyEnable excludes reqAdd lock241Add catalogPatches hideItems addItems catLimits)) {
+for my $k (qw(radioCategories styleTags qtyMax qtyEnable excludes reqAdd lock241Add catalogPatches hideItems addItems catLimits addStyles)) {
   printf $o "  %s: %s,\n", $k, $J->encode($LIVE{$k});
 }
 print $o "\n  /* ─────────── PROPOSED — inert until approved ─────────── */\n  PROPOSED: {\n";

@@ -38,11 +38,11 @@ my $ov = <$oh>;
 close $oh;
 
 my %live;
-for my $k (qw(radioCategories styleTags qtyMax qtyEnable excludes reqAdd lock241Add catalogPatches hideItems addItems catLimits)) {
+for my $k (qw(radioCategories styleTags qtyMax qtyEnable excludes reqAdd lock241Add catalogPatches hideItems addItems catLimits addStyles)) {
   if ($ov =~ /^  \Q$k\E: (.*),$/m) { $live{$k} = $1 }
-  else { $live{$k} = ($k =~ /^(radioCategories|qtyEnable|lock241Add|catalogPatches|hideItems|addItems|catLimits)$/) ? '[]' : '{}' }
+  else { $live{$k} = ($k =~ /^(radioCategories|qtyEnable|lock241Add|catalogPatches|hideItems|addItems|catLimits|addStyles)$/) ? '[]' : '{}' }
 }
-my $json = '{' . join(',', map { "\"$_\":$live{$_}" } qw(radioCategories styleTags qtyMax qtyEnable excludes reqAdd lock241Add catalogPatches hideItems addItems catLimits)) . '}';
+my $json = '{' . join(',', map { "\"$_\":$live{$_}" } qw(radioCategories styleTags qtyMax qtyEnable excludes reqAdd lock241Add catalogPatches hideItems addItems catLimits addStyles)) . '}';
 
 # ── splice it into the SOC between the markers ──
 open my $sh, '<:raw', $soc or die $!;

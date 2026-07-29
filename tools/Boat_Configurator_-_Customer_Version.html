@@ -1256,10 +1256,34 @@ const LIMIT_OF = {};
         if (it.lens) it.lens = it.lens.map(n => n === from ? to : n);
         if (typeof it.price === 'object' && it.price && it.price[from] != null){ it.price[to] = it.price[from]; delete it.price[from]; }
       }));
+      /* the marketing tagline advertises the length list too — leaving it would
+         show "20/23/25 ft" on a boat that now starts at 21 */
+      if (mo.tag) mo.tag = mo.tag.replace(new RegExp('\\b' + from + '\\b'), String(to));
       continue;
     }
     if (p.styleId){ const s = mo.styles.find(x => x.id === p.styleId); if (s) s[p.prop] = p.v; }
     else mo[p.prop] = p.v;
+  }
+  /* addStyles: a hull style the catalog lacks, priced by copying an existing
+     style. Engines are keyed style+length, so those must be copied too or the
+     new style would offer no motors at all. */
+  for (const s of (OVL.addStyles || [])){
+    const mo = MODELS.find(x => x.id === s.m);
+    if (!mo || mo.styles.some(x => x.id === s.id)) continue;
+    const src = mo.styles.find(x => x.id === s.copyHullsFrom);
+    if (!src) continue;
+    mo.styles.push({
+      id: s.id, nm: s.nm,
+      hulls: Object.assign({}, src.hulls),
+      hullNotes: Object.assign({}, src.hullNotes || {})
+    });
+    for (const len of mo.lengths){
+      const from = s.copyHullsFrom + len, to = s.id + len;
+      if (mo.engines[from] && !mo.engines[to]) mo.engines[to] = mo.engines[from];
+    }
+    (mo.stdSwimCombos || []).slice().forEach(c => {
+      if (c.style === s.copyHullsFrom) mo.stdSwimCombos.push({style: s.id, len: c.len});
+    });
   }
   /* addItems: options the price sheets don't carry yet, e.g. extending an
      existing product line to models that had a different one. Inserted at the
