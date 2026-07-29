@@ -78,7 +78,7 @@
             </ul>
           </div>
           <div class="megaside">
-            <a href="/new-inventory/">New Inventory</a>
+            <a href="/new-inventory/">New Boats</a>
             <a href="/pre-owned/">Pre-Owned</a>
             <a href="/custom-agency-builds/">Custom Builds</a>
             <a href="/tools/Boat_Configurator_-_Customer_Version.html">Build &amp; Price</a>
@@ -109,7 +109,7 @@
 <header class="pagemast"><div class="wrap">
   <div class="co">Wooldridge Boats &nbsp;·&nbsp; Seattle, Washington</div>
   <div class="crumb"><a href="../">HOME</a> / STORE</div>
-  <h1>Factory parts, shipped.</h1><div class="kick">JET FEET · IMPELLERS · LINERS · GEAR</div><div class="tag">The same parts we rig boats with, shipped to your door.</div>
+  <h1>Factory parts, shipped</h1><div class="kick">JET FEET · IMPELLERS · LINERS · GEAR</div><div class="tag">The same parts we rig boats with, shipped to your door.</div>
   <div class="dbl mastrule"></div>
 </div></header>
 <section class="pagebody"><div class="wrap">
@@ -117,6 +117,27 @@
   <div class="demo-note">Sample storefront layout &mdash; <b>design demonstration.</b> Cart &amp; checkout connect to our commerce platform at launch. Prices shown are placeholders.</div>
 
   <div class="shopbar">
+    <!-- WEB-S-01: dropdown that jumps straight to a product section -->
+    <select id="storeJump" aria-label="Jump to a section" style="font-family:inherit; font-size:13px; padding:8px 10px; border:1px solid var(--rule,#ccc); background:#fff; margin-right:10px;">
+      <option value="">Jump to&hellip;</option>
+      <option value="all">All Products</option>
+      <option value="pumps">Jet Feet &amp; Pumps</option>
+      <option value="impellers">Impellers</option>
+      <option value="liners">Liners &amp; Wear Rings</option>
+      <option value="grill">Grill Bars &amp; Intakes</option>
+      <option value="apparel">Apparel</option>
+      <option value="course">Jet Boating 101</option>
+    </select>
+    <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      document.getElementById('storeJump').addEventListener('change', function(){
+        if (!this.value) return;
+        var chip = document.querySelector('#chiprow .chip[data-cat="' + this.value + '"]');
+        if (chip){ chip.click(); document.getElementById('products').scrollIntoView({behavior:'smooth', block:'start'}); }
+        this.value = '';
+      });
+    });
+    </script>
     <div class="chiprow" id="chiprow">
       <button class="chip on" data-cat="all">All Products</button>
       <button class="chip" data-cat="pumps">Jet Feet &amp; Pumps</button>
@@ -182,7 +203,7 @@
       <div class="prodph"><span class="mono">WB</span></div>
       <div class="pbody">
         <div class="pcat">Liners &amp; Wear Rings</div>
-        <h3>Wear Ring &mdash; Flangeless</h3>
+        <h3>Wear Ring &mdash; Non-Flanged</h3>
         <p class="pdesc">Direct-fit flangeless liner for late-model pumps.</p>
         <div class="prow"><span class="price">$199<small>In stock</small></span><button class="addcart">Add to Cart</button></div>
       </div>
@@ -268,7 +289,7 @@
     <div class="frow">
       <a href="/#fleet">Our Boats</a>
       <a href="/pre-owned/">Pre-Owned</a>
-      <a href="/new-inventory/">New Inventory</a>
+      <a href="/new-inventory/">New Boats</a>
       <a href="/dealers/">Dealers</a>
       <a href="/our-history/">About | History</a>
       <a href="/faq/">FAQ</a>
