@@ -38,12 +38,21 @@ local $/;
 my $ov = <$oh>;
 close $oh;
 
-my %live;
-for my $k (qw(radioCategories styleTags qtyMax qtyEnable excludes reqAdd lock241Add catalogPatches hideItems addItems catLimits addStyles)) {
-  if ($ov =~ /^  \Q$k\E: (.*),$/m) { $live{$k} = $1 }
-  else { $live{$k} = ($k =~ /^(radioCategories|qtyEnable|lock241Add|catalogPatches|hideItems|addItems|catLimits|addStyles)$/) ? '[]' : '{}' }
+# Copy EVERY live top-level key the overlay carries (except the inert
+# PROPOSED block) rather than a hardcoded list. A hardcoded list silently
+# dropped renameItems the night that primitive was added — the SOC loaded
+# fine and simply never applied the renames. Discovery beats curation here:
+# a primitive the SOC engine doesn't know yet is harmless extra data, but a
+# primitive the sync drops is a live divergence between the sales floor and
+# the customer configurator.
+my (%live, @order);
+while ($ov =~ /^  ([A-Za-z][A-Za-z0-9_]*): (.*),$/mg) {
+  next if $1 eq 'PROPOSED';
+  push @order, $1 unless exists $live{$1};
+  $live{$1} = $2;
 }
-my $json = '{' . join(',', map { "\"$_\":$live{$_}" } qw(radioCategories styleTags qtyMax qtyEnable excludes reqAdd lock241Add catalogPatches hideItems addItems catLimits addStyles)) . '}';
+die "no live keys found in the overlay — format changed?\n" unless @order;
+my $json = '{' . join(',', map { "\"$_\":$live{$_}" } @order) . '}';
 
 # ── splice it into the SOC between the markers ──
 open my $sh, '<:raw', $soc or die $!;
