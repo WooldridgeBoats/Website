@@ -21,6 +21,7 @@ my %APPROVED = map { $_ => 1 } qw(
   Q-CFG-10
   Q-CFG-11
   Q-CFG-12
+  Q-E-4
 );
 # ───────────────────────────────────────────────────────
 
@@ -141,6 +142,40 @@ for my $m (@$models) {
   $reqAdd{$frame->{id}} = { req => [@tops], reqLabel => 'Requires a canvas top' };
 }
 
+# ── Q-E-4: Christian's four new options (SOC-09..12) — all UNPRICED.
+#    price => undef becomes null: the engine renders "Priced on request"
+#    and routes the item to the inquiry list instead of the total.
+#    Stephen (28 Jul): build them, flag that prices are still needed from
+#    Christian before public launch. NEVER put a number here by hand —
+#    when Christian prices them, the numbers replace the undefs below.
+#    Placement is name-readable, not invented: the two Garmin items join
+#    every "Garmin Electronics" category; the Folbe Junior sits directly
+#    under the full-size Folbe it is the junior of; extra bases join every
+#    "Rod Holder" category. Rod items are quantity-steppable like their
+#    neighbours.
+my @qe4;
+for my $m (@$models){
+  my $p = "$m->{id}_qe4";
+  if (grep { $_->{name} eq 'Garmin Electronics' } @{$m->{cats}}){
+    push @qe4,
+      { m=>$m->{id}, cat=>'Garmin Electronics', id=>$p.'_striker',
+        nm=>'Garmin STRIKER GPS / Fishfinder (budget option), installed', price=>undef },
+      { m=>$m->{id}, cat=>'Garmin Electronics', id=>$p.'_maps',
+        nm=>'Non-US inland maps card for Garmin display', price=>undef };
+  }
+  my ($rodcat) = grep { $_->{name} eq 'Rod Holder' } @{$m->{cats}};
+  if ($rodcat){
+    my ($folbe) = grep { $_->{nm} =~ /^Folbe Advantage rod holder/ } @{$rodcat->{items}};
+    push @qe4,
+      { m=>$m->{id}, cat=>'Rod Holder', id=>$p.'_folbejr',
+        nm=>'Folbe Advantage Junior rod holder - surface mount or rail mount, installed',
+        price=>undef, qty=>1, ($folbe ? (after=>$folbe->{id}) : ()) },
+      { m=>$m->{id}, cat=>'Rod Holder', id=>$p.'_rodbase',
+        nm=>'Additional rod holder base / socket, installed - mounting locations noted on the order',
+        price=>undef, qty=>1 };
+  }
+}
+
 # ── blocks, each keyed to its question ──
 my @BLOCKS = (
   { q => 'Q-CFG-01', t => 'the 51 name-readable style tags (CFG-R-18)',
@@ -170,6 +205,8 @@ my @BLOCKS = (
     ] } },
   { q => 'Q-CFG-11', t => 'Drifter Inboard 20ft retired -> 21/23/25 (Luke, doc 4). Stephen confirmed the 20ft hull price carries to the 21 — it is the same boat remeasured, not a bigger one',
     live => { catalogPatches => [ { m => 'ssdib', lenRename => { from => 20, to => 21 } } ] } },
+  { q => q{Q-E-4}, t => q{Christian: Garmin Striker budget option, non-US maps, Folbe Advantage Junior, extra rod holder bases w/ location note (SOC-09..12) - built UNPRICED, "Priced on request" until Stephen has numbers from Christian},
+    live => { addItems => \@qe4 } },
   { q => 'Q-CFG-12', t => 'Center Console hull style on the five inboards that lack it (CFG-M-08) — priced identically to the windshield hull, which is Grant\'s own stated rule',
     live => { addStyles => [
       map { { m => $_, id => 'occ', nm => 'Center Console', copyHullsFrom => 'ws' } }
