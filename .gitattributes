@@ -1,0 +1,62 @@
+# Line endings and binary safety.
+#
+# WHY THIS EXISTS (added 2026-07-29)
+#
+# 1. CHURN. This machine has core.autocrlf=true, and the build scripts in _build/
+#    are Perl and write LF. So every time a generator runs, dozens of pages show
+#    up as "modified" in GitHub Desktop with zero content changed — 37 of them on
+#    29 July, which is enough noise to hide a real change. `* text=auto` settles
+#    it: git normalises to LF in the repository and checks out with native endings,
+#    so a regenerated file only appears modified when its content actually differs.
+#
+# 2. BINARIES. With no rules at all, git relies on auto-detection to decide what
+#    is text. That is usually right, but "usually" is a poor guarantee for the
+#    photographs and PDFs this site is built from — a binary mistaken for text gets
+#    its bytes rewritten on checkout and arrives corrupt. The rules below say so
+#    explicitly for every binary type in the tree, so it can never be guessed at.
+#
+# Note for anyone who sees a large one-off diff after this lands: that is the
+# normalisation itself, not a content change. `git add --renormalize .` is the
+# command that performs it deliberately.
+
+# Default: let git decide text vs binary, and normalise text to LF in the repo.
+* text=auto
+
+# Web sources — always text, always LF in the repository.
+*.html  text eol=lf
+*.htm   text eol=lf
+*.css   text eol=lf
+*.js    text eol=lf
+*.json  text eol=lf
+*.svg   text eol=lf
+*.md    text eol=lf
+*.txt   text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.pl    text eol=lf
+*.pm    text eol=lf
+*.htaccess text eol=lf
+
+# Windows-native helpers must keep CRLF or they misbehave when double-clicked.
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+*.ps1   text eol=crlf
+
+# Binaries — never transformed, never diffed as text.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.webp  binary
+*.ico   binary
+*.pdf   binary
+*.zip   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.eot   binary
+*.otf   binary
+*.mp4   binary
+*.mov   binary
+*.docx  binary
+*.xlsx  binary
