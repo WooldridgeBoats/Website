@@ -241,49 +241,39 @@ section{ padding:64px 0; }
    looked deliberate at small caps turns into a gappy mess at 68px, and it also
    blew past the viewport on phones. Kept the restrained dimensionality Stephen
    liked — a hairline top highlight plus one soft drop, house shadow values. */
-/* Rev 4 (2026-07-30). The brand name is back on top and both lines are blue,
-   split by the compass rose. The two sizes are pinned to real things on the page
-   rather than picked: the brand takes clamp(_,3.9vw,46px) — the size the slogan
-   held in rev 3 — and the slogan drops to clamp(_,3.4vw,40px), matching
-   ".sechead h2" ("Explore by Power, Purpose & Water") exactly. Both keep the
-   restrained dimensionality: hairline top highlight, one soft drop. */
+/* FINAL (rev 6, 2026-07-30). Six passes of art direction collapsed into one
+   block, because the intermediate states were only confusing to read. What the
+   band is now, in order under the hero video:
+
+       NOT FOR PRACTICE      the only headline, Wooldridge blue
+       "For over a century"  the story blurb
+       compass rose          closes the band and hands off to "Explore by Power"
+
+   The brand name is deliberately NOT here — the wing logo in the nav carries it,
+   and it was grown to 62px for exactly that reason. Do not "restore" it.
+
+   The 22px floor is load-bearing: 16 uppercase characters at .055em tracking
+   need more width than a 360px phone's gutters leave if you go bigger, and the
+   line breaks. Tracking eases to .03em under 640px for the same reason.
+   text-indent cancels the trailing letterspace so the line optically centres. */
 .tagband h1.slogan{ line-height:1.04; margin:0; }
-.tagband h1.slogan .brandline,
 .tagband h1.slogan .punch{
   display:block; color:var(--blue);
-  text-shadow:0 1px 0 rgba(255,255,255,.5), 0 3px 6px rgba(20,30,40,.16);
-}
-/* Rev 5 (2026-07-30). Stephen read the brand as the SMALLER line and asked to
-   swap them — worth recording why, because the instinct was right and a literal
-   swap would have made it worse. Measured at 1280px, rev 4 was:
-       brand  46px -> 407px wide
-       slogan 40px -> 453px wide
-   The slogan was the smaller type but the BIGGER object, because uppercase plus
-   .055em tracking inflates its footprint by about 28% per point. Size hierarchy
-   and visual hierarchy were pointing opposite ways, so the eye followed the
-   footprint. Fixed by moving both in the right direction until the brand wins on
-   BOTH counts: 58px / 513px against 36px / 407px, a 1.61 ratio. */
-.tagband h1.slogan .brandline{
-  font-size:clamp(30px,4.9vw,58px); font-weight:700; letter-spacing:.015em;
-}
-.tagband h1.slogan .punch{
-  /* floors are load-bearing: at 360px anything larger needs more width than the
-     gutters leave and breaks the line (measured, not guessed) */
   font-size:clamp(22px,3.05vw,36px); font-weight:700; letter-spacing:.055em;
   text-transform:uppercase;
-  text-indent:.055em;   /* recentre: tracking pads the right edge only */
+  text-indent:.055em;
+  text-shadow:0 1px 0 rgba(255,255,255,.5), 0 3px 6px rgba(20,30,40,.16);
 }
-/* the rose is a sibling of the h1 now, not a child — it divides slogan from
-   story rather than splitting two lines of a lockup, so it sits on its own */
+/* The rose is the band's closing rule, so its top margin has to clear the blurb
+   rather than hug the headline. No bottom margin — the tagband's own 30px of
+   bottom padding plus #explore's 26px top padding already separate it. */
 .tagband .navrose{
   display:block; width:clamp(230px,34vw,410px); height:auto;
-  margin:18px auto 4px; color:var(--ink);
+  margin:34px auto 0; color:var(--ink);
 }
 @media (max-width:640px){
-  /* Rockwell bold at 30px+ with any real tracking runs wide fast; "NOT FOR
-     PRACTICE" is 16 characters and has to clear a 390px phone without wrapping */
   .tagband h1.slogan .punch{ letter-spacing:.03em; text-indent:.03em; }
-  .tagband .navrose{ margin-top:14px; }
+  .tagband .navrose{ margin-top:26px; }
 }
 .tagband .blurb{
   max-width:960px; margin:20px auto 0; font-weight:400;
