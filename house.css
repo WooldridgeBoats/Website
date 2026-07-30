@@ -1363,3 +1363,150 @@ main > .pagenav:last-child{ border-bottom:0; border-top:1px solid var(--line); m
   .pagenav{ padding:10px 14px; gap:10px; }
   .pagenav a{ font-size:11.5px; }
 }
+
+/* ==========================================================================
+   ROGUE RIVER BACKDROP (2026-07-29, Stephen's call)
+   --------------------------------------------------------------------------
+   A hand-drawn chart of the Rogue through the Siskiyou — Blossom Bar, Devil's
+   Stairs, Battle Bar, Kelsey Canyon — sitting behind the whole site the way the
+   Tom Sachs LEM sits behind the Build Hub's landing page. Two reasons it earns
+   the position: the Rogue is a model in the fleet, and Grants Pass, where
+   Wooldridge started, is on that river. It is the shop's own water.
+
+   HOW IT WORKS, because the mechanism is not obvious:
+
+   1. The artwork is line work on OPAQUE WHITE — no alpha channel. Laid over the
+      page at low opacity it would wash the background pale instead of reading as
+      drawing. So it is composited with `mix-blend-mode:multiply`: white
+      multiplies to no change and disappears, the linework stays. That is what
+      makes it read as ink on the page rather than a faded photograph.
+
+   2. It is painted on `html::before`, not `body::before`, and deliberately so.
+      A negative-z-index child of BODY paints above body's own background, which
+      would work — until print and the blueprint ritual, both of which repaint
+      body opaquely and would bury it. Hanging it off `html` puts it under
+      everything body does, and the two rules that need it gone say so explicitly.
+
+   3. `position:fixed` means the page scrolls over a stationary chart. The river
+      stays put and the content moves across it, which is what makes it feel like
+      a backdrop rather than a very tall image.
+
+   Legibility governs the opacity. The site's text is 200-weight on #F2F2F2, so
+   the ceiling is low: strong enough to anchor the eye, never enough to compete
+   with a paragraph.
+   ========================================================================== */
+html{ background:var(--bg); }
+
+html::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background:url("/assets/brand/rogue-river-map.png") no-repeat center 38% / cover;
+  mix-blend-mode:multiply;
+  opacity:.07;
+}
+
+/* The scrim, and why there is one.
+
+   First pass put the chart behind everything at a flat opacity and it fought the
+   body copy: paragraphs sat straight on top of the labelled rapids and both lost.
+   The Build Hub solves the same problem the same way — its #homebg carries an
+   ::after gradient — so this follows the house pattern rather than inventing one.
+
+   The gradient runs HORIZONTALLY, not vertically, because that is where the
+   conflict actually is: text lives in a centred column of max-width 1240px, so
+   veiling the middle and leaving the flanks clear turns the chart into a frame
+   around the content instead of a texture under it. The drawing stays legible
+   where there is nothing to read, and gets out of the way where there is. */
+html::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;              /* same layer as ::before, painted after it, so above */
+  pointer-events:none;
+  background:linear-gradient(90deg,
+    rgba(242,242,242,0)    0%,
+    rgba(242,242,242,.30) 14%,
+    rgba(242,242,242,.68) 34%,
+    rgba(242,242,242,.74) 50%,
+    rgba(242,242,242,.68) 66%,
+    rgba(242,242,242,.30) 86%,
+    rgba(242,242,242,0)  100%);
+}
+
+/* The home page is the emptiest page and the one that sets expectations, so it
+   carries the chart at closer to full strength, framed higher where the hero sits.
+   Set by adding class="home-page" to <html> on the index page only. */
+html.home-page::before{ opacity:.13; background-position:center 30%; }
+
+/* The chart is a broad horizontal band (1900x1024). On a tall, narrow viewport
+   `cover` crops it to a meaningless middle slice, so below the tablet breakpoint
+   it is pulled back to a width-fit band anchored high, which keeps the river
+   readable as a river. */
+@media (max-width:900px){
+  html::before{
+    background-size:190% auto;
+    background-position:center 22%;
+    opacity:.06;
+  }
+  html.home-page::before{ opacity:.10; }
+  /* No flanks to spare on a phone — the content column IS the viewport, so the
+     framing gradient becomes an even veil rather than a centre-weighted one. */
+  html::after{ background:rgba(242,242,242,.45); }
+}
+
+/* The konami blueprint ritual inverts the site to dark. Multiply on a dark
+   ground would erase black ink entirely, so the chart is inverted to white
+   linework and switched to `screen` — the same drawing, read as chalk instead
+   of ink. It suits a blueprint better than the light version does. */
+html.blueprint::before{
+  filter:invert(1);
+  mix-blend-mode:screen;
+  opacity:.16;
+}
+/* The scrim is keyed to the light ground (#F2F2F2); on the dark one it would
+   read as a pale wash straight down the middle of the page. Re-tinted to the
+   blueprint ground so it still protects the text column. */
+html.blueprint::after{
+  background:linear-gradient(90deg,
+    rgba(16,24,31,0)    0%,
+    rgba(16,24,31,.30) 14%,
+    rgba(16,24,31,.68) 34%,
+    rgba(16,24,31,.74) 50%,
+    rgba(16,24,31,.68) 66%,
+    rgba(16,24,31,.30) 86%,
+    rgba(16,24,31,0)  100%);
+}
+
+/* Never on paper: it would drink ink and print as grey mud. */
+@media print{
+  html::before,
+  html::after{ display:none !important; }
+}
+
+/* Anyone who has asked for reduced transparency effects gets the plain ground. */
+@media (prefers-reduced-transparency:reduce){
+  html::before,
+  html::after{ display:none; }
+}
+
+/* --------------------------------------------------------------------------
+   Why body must be transparent for any of the above to be visible.
+
+   Paint order puts the root element's background down first, then the root's
+   negative-z-index children (our chart), then in-flow content — and BODY is
+   in-flow content of html. So body's own opaque #F2F2F2 was painting straight
+   over the chart: every property computed correctly, asset loaded 200, and
+   nothing appeared. The page colour therefore lives on `html` (set above) and
+   body hands over the ground.
+
+   The two states that repaint body deliberately keep doing so: print wants real
+   white paper, and the blueprint ritual wants its dark ground — which now sits
+   on html so the inverted chart still reads through it.
+   -------------------------------------------------------------------------- */
+body{ background:transparent; }
+
+html.blueprint{ background:#10181f; }
+html.blueprint body{ background:transparent; }

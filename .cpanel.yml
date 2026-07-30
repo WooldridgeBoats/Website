@@ -1,5 +1,38 @@
 ---
+# cPanel git deployment.
+#
+# NOTE ON THE COPY STEP: `cp -R` only ever ADDS and OVERWRITES. It never removes a
+# file from the host that has been deleted from the repo. So anything that was
+# published once stays published forever unless it is deleted explicitly below.
+#
+# That is why the 18 retired price sheets needed a cleanup step: commit 8d7ec67
+# replaced the static PDFs with sheets generated from the catalogue and deleted
+# them from the repo, but the host kept serving its copies - four of them still
+# showing Bentley seats. Nothing links to them, but a live URL is a live URL.
+# (Stephen's ruling E2, 2026-07-29: remove them at deploy time.)
+#
+# `rm -f` on specific paths, not `rm -rf` on the folder: the generated sheets land
+# in the same place, and a folder-level delete would race the copy step.
 deployment:
   tasks:
     - export DEPLOYPATH=/home/hx01pil7u5iy/public_html/dev
     - /bin/cp -R * $DEPLOYPATH
+    # --- retire the 18 static price-sheet PDFs left behind on the host (E2) ---
+    - /bin/rm -f $DEPLOYPATH/pricesheets/ALASKAN_LT_OB_Price_Sheet.pdf
+    - /bin/rm -f $DEPLOYPATH/pricesheets/ALASKAN_OB_Price_Sheet.pdf
+    - /bin/rm -f $DEPLOYPATH/pricesheets/ALASKAN_XLT_OB_Price_Sheet.pdf
+    - /bin/rm -f $DEPLOYPATH/pricesheets/ALASKAN_XL_IB_Price_Sheet.pdf
+    - /bin/rm -f $DEPLOYPATH/pricesheets/ALASKAN_XL_OB_Price_Sheet.pdf
+    - /bin/rm -f $DEPLOYPATH/pricesheets/ROGUE_HDPE_OB_Price_Sheet.pdf
+    - /bin/rm -f $DEPLOYPATH/pricesheets/SCOUT_IB_Price_Sheet.pdf
+    - /bin/rm -f $DEPLOYPATH/pricesheets/SCOUT_WIDEBODY_IB_Price_Sheet.pdf
+    - /bin/rm -f $DEPLOYPATH/pricesheets/SKAGIT_IB_Price_Sheet.pdf
+    - /bin/rm -f $DEPLOYPATH/pricesheets/SKAGIT_OB_Price_Sheet.pdf
+    - /bin/rm -f $DEPLOYPATH/pricesheets/SKAGIT_X_IB_Price_Sheet.pdf
+    - /bin/rm -f $DEPLOYPATH/pricesheets/SPORTSTER_OB_Price_Sheet.pdf
+    - /bin/rm -f $DEPLOYPATH/pricesheets/SPORT_IB_Price_Sheet.pdf
+    - /bin/rm -f $DEPLOYPATH/pricesheets/SPORT_OB_Price_Sheet.pdf
+    - /bin/rm -f $DEPLOYPATH/pricesheets/SPORT_OFFSHORE_OB_Price_Sheet.pdf
+    - /bin/rm -f $DEPLOYPATH/pricesheets/SUPER_SPORT_DRIFTER_IB_Price_Sheet.pdf
+    - /bin/rm -f $DEPLOYPATH/pricesheets/SUPER_SPORT_DRIFTER_OB_Price_Sheet.pdf
+    - /bin/rm -f $DEPLOYPATH/pricesheets/SUPER_SPORT_OFFSHORE_OB_Price_Sheet.pdf
