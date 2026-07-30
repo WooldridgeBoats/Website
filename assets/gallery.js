@@ -194,12 +194,17 @@
     }
   }
 
-  /* click delegation: any gallery/carousel photo opens the lightbox */
+  /* click delegation: any gallery/carousel photo opens the lightbox.
+     Shop-live rows (data-shop-live, from sync_shop_live.ps1) are each their
+     own build, so their pop-out is scoped to THAT row's photos — Stephen's
+     spec: one small carousel row per build, one gallery per row. Everything
+     else keeps the page-wide sequence it always had. */
   document.addEventListener('click', function (e) {
     var a = e.target.closest ? e.target.closest('.pcartrack a, .gallery a') : null;
     if (!a || !/\.jpe?g$/i.test(a.getAttribute('href') || '')) return;
     e.preventDefault();
-    openLb(a, false);
+    var row = a.closest ? a.closest('.prow[data-shop-live]') : null;
+    openLb(a, false, row ? [].slice.call(row.querySelectorAll('.pcartrack a')) : undefined);
   });
 
   function openFromHash() {
@@ -238,6 +243,15 @@
   }
   function wireAllCarousels(root) {
     (root || document).querySelectorAll('.pcar').forEach(wireCarousel);
+  }
+  /* The home page's shop-live rows (sync_shop_live.ps1) use these same
+     carousels, so wire every .pcar on ANY page — not just the photos page.
+     wireCarousel marks each one dataset.wired, so the photos page wiring
+     that follows can never double-bind. */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { wireAllCarousels(document); });
+  } else {
+    wireAllCarousels(document);
   }
 
   /* row carousel ⇄ grid toggle */
