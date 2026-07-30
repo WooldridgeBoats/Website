@@ -1405,7 +1405,10 @@ html::before{
   pointer-events:none;
   background:url("/assets/brand/rogue-river-map.png") no-repeat center 38% / cover;
   mix-blend-mode:multiply;
-  opacity:.07;
+  /* Raised from .07 on 2026-07-29: the first tuning protected the body text so
+     carefully that Stephen could not find the chart at all, which defeats the
+     point of putting it there. The brief was a page that felt too empty. */
+  opacity:.11;
 }
 
 /* The scrim, and why there is one.
@@ -1428,18 +1431,31 @@ html::after{
   pointer-events:none;
   background:linear-gradient(90deg,
     rgba(242,242,242,0)    0%,
-    rgba(242,242,242,.30) 14%,
-    rgba(242,242,242,.68) 34%,
-    rgba(242,242,242,.74) 50%,
-    rgba(242,242,242,.68) 66%,
-    rgba(242,242,242,.30) 86%,
+    rgba(242,242,242,.24) 14%,
+    rgba(242,242,242,.54) 34%,
+    rgba(242,242,242,.60) 50%,
+    rgba(242,242,242,.54) 66%,
+    rgba(242,242,242,.24) 86%,
     rgba(242,242,242,0)  100%);
 }
 
 /* The home page is the emptiest page and the one that sets expectations, so it
    carries the chart at closer to full strength, framed higher where the hero sits.
    Set by adding class="home-page" to <html> on the index page only. */
-html.home-page::before{ opacity:.13; background-position:center 30%; }
+html.home-page::before{ opacity:.20; background-position:center 30%; }
+
+/* The centre-weighted gradient above assumes there are empty flanks to put the
+   chart into. That is only true once the viewport is wider than the content:
+   .wrap is max-width 1240px plus 24px of padding each side, so real margin only
+   exists above about 1288px.
+
+   Measured at 1100px, 157 text elements — nav links, headings, fine print — were
+   sitting in what the gradient treats as empty flank and taking the chart at full
+   strength. So below that width the scrim becomes an even veil instead, because
+   there is no flank to frame with: the content column IS the viewport. */
+@media (max-width:1287px){
+  html::after{ background:rgba(242,242,242,.42); }
+}
 
 /* The chart is a broad horizontal band (1900x1024). On a tall, narrow viewport
    `cover` crops it to a meaningless middle slice, so below the tablet breakpoint
@@ -1449,12 +1465,9 @@ html.home-page::before{ opacity:.13; background-position:center 30%; }
   html::before{
     background-size:190% auto;
     background-position:center 22%;
-    opacity:.06;
+    opacity:.10;
   }
-  html.home-page::before{ opacity:.10; }
-  /* No flanks to spare on a phone — the content column IS the viewport, so the
-     framing gradient becomes an even veil rather than a centre-weighted one. */
-  html::after{ background:rgba(242,242,242,.45); }
+  html.home-page::before{ opacity:.16; }
 }
 
 /* The konami blueprint ritual inverts the site to dark. Multiply on a dark
@@ -1464,7 +1477,7 @@ html.home-page::before{ opacity:.13; background-position:center 30%; }
 html.blueprint::before{
   filter:invert(1);
   mix-blend-mode:screen;
-  opacity:.16;
+  opacity:.22;
 }
 /* The scrim is keyed to the light ground (#F2F2F2); on the dark one it would
    read as a pale wash straight down the middle of the page. Re-tinted to the
@@ -1472,11 +1485,11 @@ html.blueprint::before{
 html.blueprint::after{
   background:linear-gradient(90deg,
     rgba(16,24,31,0)    0%,
-    rgba(16,24,31,.30) 14%,
-    rgba(16,24,31,.68) 34%,
-    rgba(16,24,31,.74) 50%,
-    rgba(16,24,31,.68) 66%,
-    rgba(16,24,31,.30) 86%,
+    rgba(16,24,31,.24) 14%,
+    rgba(16,24,31,.54) 34%,
+    rgba(16,24,31,.60) 50%,
+    rgba(16,24,31,.54) 66%,
+    rgba(16,24,31,.24) 86%,
     rgba(16,24,31,0)  100%);
 }
 
