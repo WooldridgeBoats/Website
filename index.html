@@ -32,7 +32,7 @@
   "openingHours": "Mo-Th 06:00-16:30"
 }
 </script>
-<link rel="stylesheet" href="house.css?v=741eaf42">
+<link rel="stylesheet" href="house.css?v=781d9d24">
 </head>
 <body>
 
@@ -141,9 +141,21 @@
 <!-- ══ tagline ══ -->
 <section class="tagband" id="tagline">
   <div class="wrap">
-    <!-- New slogan, 2026-07-30, replacing "Go Farther. Go Skinny. Go Wooldridge."
-         Two lines by design: the company name sets up, the second line lands. -->
-    <h1 class="slogan">Wooldridge Boats Inc.<br><span class="punch">Not For Practice</span></h1>
+    <!-- Slogan lockup, 2026-07-30 (rev 2, Stephen's art direction): brand name
+         dominant, slogan much smaller, both outlined in ink with the ground
+         color inside, split by an elongated compass rose. One h1 for SEO. -->
+    <h1 class="slogan">
+      <span class="brandline">Wooldridge Boats Inc.</span>
+      <svg class="navrose" viewBox="0 0 640 64" role="presentation" aria-hidden="true" focusable="false">
+        <polygon points="6,32 300,27.5 316,32 300,36.5" fill="currentColor"/>
+        <polygon points="634,32 340,27.5 324,32 340,36.5" fill="currentColor"/>
+        <circle cx="320" cy="32" r="17" fill="var(--bg)" stroke="currentColor" stroke-width="1.5"/>
+        <polygon points="331,21 325.5,32 331,43 320,37.5 309,43 314.5,32 309,21 320,26.5" fill="currentColor"/>
+        <polygon points="320,6 326,26 346,32 326,38 320,58 314,38 294,32 314,26" fill="var(--bg)" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter"/>
+        <circle cx="320" cy="32" r="2" fill="currentColor"/>
+      </svg>
+      <span class="punch">Not For Practice</span>
+    </h1>
     <p class="blurb">For over a century, Wooldridge Boats has set the standard for innovation on the water. Founded in 1915 by Glen Wooldridge, the company was born from a relentless drive to explore rivers few had ever dared to run&mdash;and to build boats capable of getting there.</p>
   </div>
 </section>

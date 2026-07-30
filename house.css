@@ -203,14 +203,38 @@ section{ padding:64px 0; }
 .tagband h1,.tagband h2{
   font-size:clamp(28px,4.2vw,52px); letter-spacing:.02em;
 }
-/* The slogan (2026-07-30) is two lines that have to read as ONE mark, so the
-   line-height tightens from the global 1.15 and the second line carries the
-   punch: Rockwell bold, a touch more tracking, ink instead of blue so it reads
-   as the statement rather than a second heading. */
-.tagband h1.slogan{ line-height:1.06; }
+/* The slogan lockup (2026-07-30, rev 2 — Stephen's art direction). Brand name
+   dominant, slogan deliberately much smaller; BOTH lines are outlined type —
+   ink border, ground color inside — and an elongated compass rose divides
+   them. The rose inherits ink via currentColor and knocks its facets out with
+   var(--bg), so the whole mark stays in the site palette. */
+.tagband h1.slogan{ line-height:1.04; }
+.tagband h1.slogan .brandline,
 .tagband h1.slogan .punch{
-  display:block; font-weight:700; letter-spacing:.06em;
-  text-transform:uppercase; color:var(--ink); font-size:.92em;
+  display:block; color:var(--bg);
+  -webkit-text-stroke:1.6px var(--ink); paint-order:stroke fill;
+}
+.tagband h1.slogan .brandline{
+  font-size:clamp(36px,5.6vw,68px); font-weight:700; letter-spacing:.02em;
+}
+.tagband h1.slogan .punch{
+  font-size:clamp(14px,1.9vw,24px); font-weight:700; letter-spacing:.26em;
+  text-transform:uppercase; -webkit-text-stroke-width:1px;
+  margin-top:2px; text-indent:.26em; /* recentre: tracking pads the right edge only */
+}
+/* outlined type needs the stroke to actually exist — engines without
+   text-stroke get solid ink instead of invisible bg-on-bg letters */
+@supports not (-webkit-text-stroke:1px black){
+  .tagband h1.slogan .brandline,
+  .tagband h1.slogan .punch{ color:var(--ink); }
+}
+.tagband h1.slogan .navrose{
+  display:block; width:clamp(230px,34vw,410px); height:auto;
+  margin:12px auto 10px; color:var(--ink);
+}
+@media (max-width:640px){
+  .tagband h1.slogan .brandline{ -webkit-text-stroke-width:1.1px; }
+  .tagband h1.slogan .punch{ -webkit-text-stroke-width:.8px; letter-spacing:.2em; text-indent:.2em; }
 }
 .tagband .blurb{
   max-width:960px; margin:20px auto 0; font-weight:200;
