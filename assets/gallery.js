@@ -138,8 +138,12 @@
     lbImg.src = a.href;
     lbImg.alt = (a.querySelector('img') || {}).alt || '';
 
-    lbTitle.innerHTML = (m.len ? '<span class="len">' + m.len + '&#8242;</span>' : '') +
-      (m.name || 'Wooldridge');
+    /* agency-lc29's display name already leads with its length ("29' LC ..."),
+       so prepending m.len rendered "29′29' LC". Skip the prefix when the name
+       itself starts with it. */
+    var nm = m.name || 'Wooldridge';
+    var dupLen = m.len && nm.indexOf(m.len + "'") === 0;
+    lbTitle.innerHTML = (m.len && !dupLen ? '<span class="len">' + m.len + '&#8242;</span>' : '') + nm;
     lbCount.textContent = (cur + 1) + ' / ' + seq.length;
 
     var bits = [];
@@ -411,7 +415,8 @@
         if (m.shot) a.dataset.shot = m.shot;
         var img = a.querySelector('img');
         if (img && m.name) {
-          img.alt = (m.len ? m.len + "' " : '') + m.name +
+          /* same duplicate-length guard as the lightbox title */
+          img.alt = (m.len && m.name.indexOf(m.len + "'") !== 0 ? m.len + "' " : '') + m.name +
             (m.cfg ? ' — ' + m.cfg : '') + (m.hull ? ' — hull ' + m.hull : '');
         }
         var key = m.len || 'x';
