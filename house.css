@@ -15,9 +15,16 @@
   --card:      #ffffff;
   --blue:      #1b75bb;
   --blue-dark: #135a92;
+  /* Ink ramp darkened 2026-07-30 at Stephen's request: with the Rogue chart
+     backdrop at its 07-29 strength, the old --muted #71787e (4.0:1 bare, ~3.1:1
+     under the chart) and weight-200 --body #3c4247 text drowned. The 07-29
+     commit flagged --muted as a pre-existing AA failure left for a deliberate
+     decision — this is that decision. New values measured against #F2F2F2:
+     --body 11.1:1, --muted 7.0:1 bare (~5.8:1 under worst-case chart linework),
+     so muted copy now clears AA everywhere the backdrop shows. */
   --ink:       #23282d;
-  --body:      #3c4247;
-  --muted:     #71787e;
+  --body:      #2f353a;
+  --muted:     #4d5359;
   --line:      #dcdfe2;
   --rule:      #c9cdd1;
   --shadow:    0 1px 2px rgba(20,30,40,.06), 0 6px 22px rgba(20,30,40,.08);
@@ -25,7 +32,7 @@
   --serif:     Georgia, Palatino, "Palatino Linotype", "Times New Roman", Times, serif;
   --sans:      "Inter", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
   --rad:       10px;
-  --slate:     #71787e;   /* legacy alias — inline styles on interior pages */
+  --slate:     #4d5359;   /* legacy alias — inline styles on interior pages; tracks --muted */
 }
 
 /* ── reset-ish ─────────────────────────────────────────────────────────── */
