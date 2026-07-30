@@ -12,7 +12,7 @@
     var blue = "color:#1b75bb;font-family:monospace;font-weight:700";
     var slate = "color:#71787e;font-family:monospace";
     console.log("%c  WOOLDRIDGE BOATS  //  EST. 1915  //  SEATTLE, WA  ", ink);
-    console.log("%cGO FARTHER. GO SKINNY. GO WOOLDRIDGE.", blue);
+    console.log("%cNOT FOR PRACTICE.", blue);   /* slogan retired 2026-07-30 */
     console.log(
       "%cEverything on this page was cut, welded, and floated by hand.\n" +
       "So was the website. If you read source for fun, you'd fit in here:\n" +

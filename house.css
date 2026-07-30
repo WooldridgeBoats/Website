@@ -203,6 +203,15 @@ section{ padding:64px 0; }
 .tagband h1,.tagband h2{
   font-size:clamp(28px,4.2vw,52px); letter-spacing:.02em;
 }
+/* The slogan (2026-07-30) is two lines that have to read as ONE mark, so the
+   line-height tightens from the global 1.15 and the second line carries the
+   punch: Rockwell bold, a touch more tracking, ink instead of blue so it reads
+   as the statement rather than a second heading. */
+.tagband h1.slogan{ line-height:1.06; }
+.tagband h1.slogan .punch{
+  display:block; font-weight:700; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--ink); font-size:.92em;
+}
 .tagband .blurb{
   max-width:960px; margin:20px auto 0; font-weight:200;
   font-size:17.5px; line-height:1.7; color:var(--body);
