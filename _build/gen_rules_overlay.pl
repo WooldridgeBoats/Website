@@ -149,6 +149,14 @@ for my $m (@$models) {
 #    Stephen (28 Jul): build them, flag that prices are still needed from
 #    Christian before public launch. NEVER put a number here by hand —
 #    when Christian prices them, the numbers replace the undefs below.
+#    PRICED 29 Jul 2026 — three of the four came from Stephen directly, so the
+#    undefs are replaced as intended rather than by hand-guessing:
+#      maps    $299   folbejr $99   rodbase $49
+#    The Garmin STRIKER stays undef ON PURPOSE. Stephen left it blank because
+#    the open question is not the price, it is WHICH Striker model(s) we sell —
+#    the line has several. It keeps showing "Priced on request" until Christian
+#    names the model, which is the honest state: we cannot price a product we
+#    have not identified.
 #    Placement is name-readable, not invented: the two Garmin items join
 #    every "Garmin Electronics" category; the Folbe Junior sits directly
 #    under the full-size Folbe it is the junior of; extra bases join every
@@ -162,7 +170,7 @@ for my $m (@$models){
       { m=>$m->{id}, cat=>'Garmin Electronics', id=>$p.'_striker',
         nm=>'Garmin STRIKER GPS / Fishfinder (budget option), installed', price=>undef },
       { m=>$m->{id}, cat=>'Garmin Electronics', id=>$p.'_maps',
-        nm=>'Non-US inland maps card for Garmin display', price=>undef };
+        nm=>'Non-US inland maps card for Garmin display', price=>299 };
   }
   my ($rodcat) = grep { $_->{name} eq 'Rod Holder' } @{$m->{cats}};
   if ($rodcat){
@@ -170,10 +178,10 @@ for my $m (@$models){
     push @qe4,
       { m=>$m->{id}, cat=>'Rod Holder', id=>$p.'_folbejr',
         nm=>'Folbe Advantage Junior rod holder - surface mount or rail mount, installed',
-        price=>undef, qty=>1, ($folbe ? (after=>$folbe->{id}) : ()) },
+        price=>99, qty=>1, ($folbe ? (after=>$folbe->{id}) : ()) },
       { m=>$m->{id}, cat=>'Rod Holder', id=>$p.'_rodbase',
         nm=>'Additional rod holder base / socket, installed - mounting locations noted on the order',
-        price=>undef, qty=>1 };
+        price=>49, qty=>1 };
   }
 }
 
