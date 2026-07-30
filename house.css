@@ -253,13 +253,23 @@ section{ padding:64px 0; }
   display:block; color:var(--blue);
   text-shadow:0 1px 0 rgba(255,255,255,.5), 0 3px 6px rgba(20,30,40,.16);
 }
+/* Rev 5 (2026-07-30). Stephen read the brand as the SMALLER line and asked to
+   swap them — worth recording why, because the instinct was right and a literal
+   swap would have made it worse. Measured at 1280px, rev 4 was:
+       brand  46px -> 407px wide
+       slogan 40px -> 453px wide
+   The slogan was the smaller type but the BIGGER object, because uppercase plus
+   .055em tracking inflates its footprint by about 28% per point. Size hierarchy
+   and visual hierarchy were pointing opposite ways, so the eye followed the
+   footprint. Fixed by moving both in the right direction until the brand wins on
+   BOTH counts: 58px / 513px against 36px / 407px, a 1.61 ratio. */
 .tagband h1.slogan .brandline{
-  font-size:clamp(26px,3.9vw,46px); font-weight:700; letter-spacing:.015em;
+  font-size:clamp(30px,4.9vw,58px); font-weight:700; letter-spacing:.015em;
 }
 .tagband h1.slogan .punch{
-  /* 26px floor is load-bearing: at 360px a larger uppercase setting needs more
-     width than the gutters leave and breaks the line (measured, not guessed) */
-  font-size:clamp(26px,3.4vw,40px); font-weight:700; letter-spacing:.055em;
+  /* floors are load-bearing: at 360px anything larger needs more width than the
+     gutters leave and breaks the line (measured, not guessed) */
+  font-size:clamp(22px,3.05vw,36px); font-weight:700; letter-spacing:.055em;
   text-transform:uppercase;
   text-indent:.055em;   /* recentre: tracking pads the right edge only */
 }
