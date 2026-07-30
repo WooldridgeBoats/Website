@@ -210,31 +210,37 @@ section{ padding:64px 0; }
    var(--bg), so the whole mark stays in the site palette. */
 .tagband h1.slogan{ line-height:1.04; }
 .tagband h1.slogan .brandline,
-.tagband h1.slogan .punch{
-  display:block; color:var(--bg);
-  -webkit-text-stroke:1.6px var(--ink); paint-order:stroke fill;
-}
+.tagband h1.slogan .punch{ display:block; paint-order:stroke fill; }
+/* SOLID fill, not knockout (Stephen, 2026-07-30 — the bg-filled version was
+   tried and rejected). The brand keeps Wooldridge blue with a thin ink edge to
+   define it, plus the dimensionality he asked for: a hairline white highlight
+   along the top of each letter and one soft drop below. Deliberately restrained
+   — it should read as cast metal in daylight, not as a bevel filter. Shadow
+   values follow the house --shadow language rather than inventing new ones. */
 .tagband h1.slogan .brandline{
   font-size:clamp(36px,5.6vw,68px); font-weight:700; letter-spacing:.02em;
+  color:var(--blue);
+  -webkit-text-stroke:1.2px var(--ink);
+  text-shadow:0 1px 0 rgba(255,255,255,.55), 0 3px 6px rgba(20,30,40,.16);
 }
 .tagband h1.slogan .punch{
   font-size:clamp(14px,1.9vw,24px); font-weight:700; letter-spacing:.26em;
-  text-transform:uppercase; -webkit-text-stroke-width:1px;
+  text-transform:uppercase; color:var(--ink);
   margin-top:2px; text-indent:.26em; /* recentre: tracking pads the right edge only */
-}
-/* outlined type needs the stroke to actually exist — engines without
-   text-stroke get solid ink instead of invisible bg-on-bg letters */
-@supports not (-webkit-text-stroke:1px black){
-  .tagband h1.slogan .brandline,
-  .tagband h1.slogan .punch{ color:var(--ink); }
+  text-shadow:0 1px 0 rgba(255,255,255,.5);
 }
 .tagband h1.slogan .navrose{
   display:block; width:clamp(230px,34vw,410px); height:auto;
   margin:12px auto 10px; color:var(--ink);
 }
 @media (max-width:640px){
-  .tagband h1.slogan .brandline{ -webkit-text-stroke-width:1.1px; }
-  .tagband h1.slogan .punch{ -webkit-text-stroke-width:.8px; letter-spacing:.2em; text-indent:.2em; }
+  /* at 36px the 1.2px edge is proportionally heavier, so ease it off; the
+     slogan's wide tracking also needs pulling in before it crowds the gutters */
+  .tagband h1.slogan .brandline{
+    -webkit-text-stroke-width:.9px;
+    text-shadow:0 1px 0 rgba(255,255,255,.5), 0 2px 4px rgba(20,30,40,.14);
+  }
+  .tagband h1.slogan .punch{ letter-spacing:.2em; text-indent:.2em; }
 }
 .tagband .blurb{
   max-width:960px; margin:20px auto 0; font-weight:200;
