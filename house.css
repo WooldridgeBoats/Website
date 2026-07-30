@@ -228,10 +228,12 @@ section{ padding:64px 0; }
 .tagband h1.slogan{ line-height:1.04; margin:0; }
 .tagband h1.slogan .punch{
   display:block;
-  /* 26px floor, not 30: measured at 360px (common Android) a 30px setting needs
-     ~328px of the 312px available and breaks the line. 26px clears it with room. */
-  font-size:clamp(26px,5.6vw,68px); font-weight:700; letter-spacing:.055em;
-  text-transform:uppercase; color:#000;
+  /* Sized off the section headings, not the old brand line (Stephen, 2026-07-30:
+     68px read as too huge). ".sechead h2" is clamp(26px,3.4vw,40px), so this sits
+     about a step and a half above it — 46px against their 40px at desktop. The
+     26px floor stays: at 360px a larger setting breaks the line (measured). */
+  font-size:clamp(26px,3.9vw,46px); font-weight:700; letter-spacing:.055em;
+  text-transform:uppercase; color:var(--blue);
   text-indent:.055em;   /* recentre: tracking pads the right edge only */
   text-shadow:0 1px 0 rgba(255,255,255,.5), 0 3px 6px rgba(20,30,40,.16);
 }
