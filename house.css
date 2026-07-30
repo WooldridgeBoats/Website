@@ -89,7 +89,13 @@ h1,h2,h3,.h-serif{
 }
 .nav .wrap{
   position:relative;                     /* positioning context for the mega menu */
-  display:flex; align-items:center; gap:16px;
+  /* gap tightened 16px -> 11px on 2026-07-30 to pay for the larger wing logo.
+     Measured: at 1280px the bar had ZERO horizontal slack — even a 50px logo
+     pushed the social icons onto a second row. Ten gaps x 5px buys back the
+     ~53px the wider logo costs, so 1280 and up stay a single row. (Below about
+     1280 the bar already wrapped at the old 46px logo — that is pre-existing
+     behaviour in the 901-1279 band, not something the logo change caused.) */
+  display:flex; align-items:center; gap:11px;
   min-height:78px; flex-wrap:wrap; padding-top:8px; padding-bottom:8px;
   max-width:1420px;
 }
@@ -100,7 +106,10 @@ h1,h2,h3,.h-serif{
 }
 .nav a:hover,.nav a.on{ color:var(--blue); }
 .nav .brand{ margin-right:auto; display:flex; align-items:center; }
-.nav .brand img{ height:46px; width:auto; }
+/* Grown from 46px on 2026-07-30: with "Wooldridge Boats Inc." removed from the
+   home page, this wing is the ONLY place the brand name appears above the fold,
+   so it has to carry that on its own. */
+.nav .brand img{ height:62px; width:auto; }
 .nav .navsoc{ display:flex; gap:8px; align-items:center; margin-left:2px; }
 .nav .navsoc a{ display:block; }
 .nav .navsoc img{ height:24px; width:24px; }
@@ -208,39 +217,35 @@ section{ padding:64px 0; }
    ink border, ground color inside — and an elongated compass rose divides
    them. The rose inherits ink via currentColor and knocks its facets out with
    var(--bg), so the whole mark stays in the site palette. */
-.tagband h1.slogan{ line-height:1.04; }
-.tagband h1.slogan .brandline,
-.tagband h1.slogan .punch{ display:block; paint-order:stroke fill; }
-/* SOLID fill, not knockout (Stephen, 2026-07-30 — the bg-filled version was
-   tried and rejected). The brand keeps Wooldridge blue with a thin ink edge to
-   define it, plus the dimensionality he asked for: a hairline white highlight
-   along the top of each letter and one soft drop below. Deliberately restrained
-   — it should read as cast metal in daylight, not as a bevel filter. Shadow
-   values follow the house --shadow language rather than inventing new ones. */
-.tagband h1.slogan .brandline{
-  font-size:clamp(36px,5.6vw,68px); font-weight:700; letter-spacing:.02em;
-  color:var(--blue);
-  -webkit-text-stroke:1.2px var(--ink);
-  text-shadow:0 1px 0 rgba(255,255,255,.55), 0 3px 6px rgba(20,30,40,.16);
-}
+/* Slogan lockup, rev 3 (2026-07-30 design review). The brand line is gone, so
+   the slogan inherits its scale and becomes the only headline here. Black, as
+   asked — not the --ink ramp, which is the softer #23282d used for body-adjacent
+   type; this is the one mark on the page that should read as ink on paper.
+   Tracking is much tighter than the old 24px treatment: wide letterspacing that
+   looked deliberate at small caps turns into a gappy mess at 68px, and it also
+   blew past the viewport on phones. Kept the restrained dimensionality Stephen
+   liked — a hairline top highlight plus one soft drop, house shadow values. */
+.tagband h1.slogan{ line-height:1.04; margin:0; }
 .tagband h1.slogan .punch{
-  font-size:clamp(14px,1.9vw,24px); font-weight:700; letter-spacing:.26em;
-  text-transform:uppercase; color:var(--ink);
-  margin-top:2px; text-indent:.26em; /* recentre: tracking pads the right edge only */
-  text-shadow:0 1px 0 rgba(255,255,255,.5);
+  display:block;
+  /* 26px floor, not 30: measured at 360px (common Android) a 30px setting needs
+     ~328px of the 312px available and breaks the line. 26px clears it with room. */
+  font-size:clamp(26px,5.6vw,68px); font-weight:700; letter-spacing:.055em;
+  text-transform:uppercase; color:#000;
+  text-indent:.055em;   /* recentre: tracking pads the right edge only */
+  text-shadow:0 1px 0 rgba(255,255,255,.5), 0 3px 6px rgba(20,30,40,.16);
 }
-.tagband h1.slogan .navrose{
+/* the rose is a sibling of the h1 now, not a child — it divides slogan from
+   story rather than splitting two lines of a lockup, so it sits on its own */
+.tagband .navrose{
   display:block; width:clamp(230px,34vw,410px); height:auto;
-  margin:12px auto 10px; color:var(--ink);
+  margin:18px auto 4px; color:var(--ink);
 }
 @media (max-width:640px){
-  /* at 36px the 1.2px edge is proportionally heavier, so ease it off; the
-     slogan's wide tracking also needs pulling in before it crowds the gutters */
-  .tagband h1.slogan .brandline{
-    -webkit-text-stroke-width:.9px;
-    text-shadow:0 1px 0 rgba(255,255,255,.5), 0 2px 4px rgba(20,30,40,.14);
-  }
-  .tagband h1.slogan .punch{ letter-spacing:.2em; text-indent:.2em; }
+  /* Rockwell bold at 30px+ with any real tracking runs wide fast; "NOT FOR
+     PRACTICE" is 16 characters and has to clear a 390px phone without wrapping */
+  .tagband h1.slogan .punch{ letter-spacing:.03em; text-indent:.03em; }
+  .tagband .navrose{ margin-top:14px; }
 }
 .tagband .blurb{
   max-width:960px; margin:20px auto 0; font-weight:200;
@@ -695,7 +700,7 @@ html.blueprint img{ filter:none; }  /* photos stay true color */
 }
 @media (max-width:760px){
   .nav .wrap{ gap:14px; min-height:70px; }
-  .nav .brand img{ height:40px; }
+  .nav .brand img{ height:52px; }   /* scaled with the desktop bump, 2026-07-30 */
   .mega{ position:static; transform:none; }
   .mega-in{ grid-template-columns:1fr 1fr; width:100%; }
   .explore{ grid-template-columns:1fr; }
