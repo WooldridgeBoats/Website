@@ -256,12 +256,43 @@ section{ padding:64px 0; }
    need more width than a 360px phone's gutters leave if you go bigger, and the
    line breaks. Tracking eases to .03em under 640px for the same reason.
    text-indent cancels the trailing letterspace so the line optically centres. */
-.tagband h1.slogan{ line-height:1.04; margin:0; }
+/* Flanking rules (2026-07-30): without them the slogan reads as a sentence
+   rather than a mark — Stephen's note was that a visitor might take it for
+   ordinary copy. They taper out to nothing at the far end, which echoes the
+   needle points on the compass rose below rather than inventing a new device. */
+.tagband h1.slogan{
+  display:flex; align-items:center; justify-content:center;
+  gap:clamp(12px,1.8vw,26px);
+  line-height:1.04; margin:0;
+}
+.tagband h1.slogan::before,
+.tagband h1.slogan::after{
+  content:""; height:1px; min-width:0;
+  flex:0 1 clamp(34px,8.5vw,124px);
+  /* sized in the SLOGAN's type scale, not the h1's — the h1 still carries the
+     old 52px .tagband sizing, so an em here would be measured against that */
+  font-size:clamp(22px,3.05vw,36px);
+  background:linear-gradient(90deg,transparent,rgba(35,40,45,.5));
+  /* Nudge to the optical centre of the CAPS rather than the line box, derived
+     from Rockwell's real metrics rather than guessed: ascent 34 / descent 8 at
+     36px makes the content box (42px) TALLER than the 1.04 line-height (37.44px),
+     so half-leading is negative, the baseline sits low, and the cap centre lands
+     1px BELOW the line-box centre. Hence a small positive shift — the intuitive
+     "nudge it up" would have been 3px wrong. */
+  transform:translateY(0.028em);
+}
+.tagband h1.slogan::after{
+  background:linear-gradient(90deg,rgba(35,40,45,.5),transparent);
+}
 .tagband h1.slogan .punch{
-  display:block; color:var(--blue);
+  color:var(--blue);
   font-size:clamp(22px,3.05vw,36px); font-weight:700; letter-spacing:.055em;
   text-transform:uppercase;
-  text-indent:.055em;
+  /* letter-spacing hangs a phantom space off the last letter. As a centred flex
+     item that would push the right-hand rule .055em further out than the left,
+     so the box is pulled back in by exactly that much (this replaces the
+     text-indent trick, which was right only while it was a standalone block). */
+  margin-right:-.055em;
   text-shadow:0 1px 0 rgba(255,255,255,.5), 0 3px 6px rgba(20,30,40,.16);
 }
 /* The rose is the band's closing rule, so its top margin has to clear the blurb
@@ -272,7 +303,7 @@ section{ padding:64px 0; }
   margin:34px auto 0; color:var(--ink);
 }
 @media (max-width:640px){
-  .tagband h1.slogan .punch{ letter-spacing:.03em; text-indent:.03em; }
+  .tagband h1.slogan .punch{ letter-spacing:.03em; margin-right:-.03em; }
   .tagband .navrose{ margin-top:26px; }
 }
 .tagband .blurb{
