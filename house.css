@@ -424,32 +424,22 @@ section{ padding:64px 0; }
 }
 .plate.ghost:hover{ background:var(--blue); color:#fff; }
 
-/* ── tools (Build & Price / Quiz embeds) ───────────────────────────────── */
+/* ── tools (planning-tool cards - plain links to the tool PAGES since the
+      2026-07-31 absorption; the iframe embed machinery is gone) ─────────── */
 .tooltabs{ display:flex; gap:18px; justify-content:center; flex-wrap:wrap; margin-bottom:26px; }
 .tooltab{
-  font-family:var(--sans); text-align:left; cursor:pointer;
+  font-family:var(--sans); text-align:left; cursor:pointer; display:block;
   background:var(--card); border:1px solid var(--line); border-radius:var(--rad);
   box-shadow:var(--shadow); padding:18px 22px; max-width:390px; flex:1 1 230px;
 }
+.tooltab:hover{ border-color:var(--blue); box-shadow:0 0 0 2px rgba(27,117,187,.25), var(--shadow); }
+.tooltab:hover b{ color:var(--blue); }
 .tooltab .k{
   display:block; font-weight:500; font-size:10.5px; letter-spacing:.12em;
   text-transform:uppercase; color:var(--muted); margin-bottom:4px;
 }
 .tooltab b{ display:block; font-weight:500; font-size:16.5px; color:var(--ink); margin-bottom:4px; }
 .tooltab span:last-child{ font-weight:400; font-size:13px; color:var(--body); }
-.tooltab.on{ border-color:var(--blue); box-shadow:0 0 0 2px rgba(27,117,187,.25), var(--shadow); }
-.tooltab.on b{ color:var(--blue); }
-.toolframe{
-  background:var(--card); border:1px solid var(--line); border-radius:var(--rad);
-  box-shadow:var(--shadow-lg); overflow:hidden;
-}
-.toolbar{
-  display:flex; justify-content:space-between; align-items:center;
-  padding:12px 18px; border-bottom:1px solid var(--line);
-  font-weight:500; font-size:12px; letter-spacing:.08em; text-transform:uppercase;
-  color:var(--muted);
-}
-.toolframe iframe{ width:100%; height:min(78vh,860px); border:0; display:block; background:#fff; }
 
 /* ── videos ────────────────────────────────────────────────────────────── */
 .vids{ display:grid; grid-template-columns:repeat(3,1fr); gap:26px; }
@@ -734,14 +724,14 @@ footer .foot .mono{ font-weight:400; font-size:13px; line-height:1.8; margin-top
 
 /* ── konami ritual: inverted palette (photos stay true color) ──────────── */
 html.blueprint body{ background:#10181f; color:#c6cdd3; }
-html.blueprint .nav,html.blueprint footer,html.blueprint .toolbar,
+html.blueprint .nav,html.blueprint footer,
 html.blueprint footer .legal{ background:#151f28; border-color:#22303b; }
 html.blueprint .nav a,html.blueprint footer .frow a,
 html.blueprint footer .fcontact,html.blueprint footer .faddr,
 html.blueprint footer .fhours{ color:#c6cdd3; }
 html.blueprint .boat,html.blueprint .spec-card,html.blueprint .net,
 html.blueprint .stdsec,html.blueprint .ptable,html.blueprint .tooltab,
-html.blueprint .toolframe,html.blueprint .fact,html.blueprint .mega-in,
+html.blueprint .fact,html.blueprint .mega-in,
 html.blueprint .tab,html.blueprint .optchip{
   background:#151f28; border-color:#22303b; color:#c6cdd3;
 }
@@ -889,7 +879,7 @@ html.blueprint img{ filter:none; }  /* photos stay true color */
 .product:hover::after,.inv:hover::after,.rescard:hover::after{ transform:scaleX(1); }
 
 /* matted double-frame for hero / feature panels — a passe-partout edge */
-.modelhero,.toolframe,.storycollage{
+.modelhero,.storycollage{
   box-shadow:var(--shadow-lg), inset 0 0 0 5px #fff, inset 0 0 0 6px var(--line);
 }
 
@@ -1038,7 +1028,7 @@ footer::before{
 }
 @media (max-width:760px){
   .products,.listing-grid{ grid-template-columns:1fr; }
-  .modelhero,.toolframe,.storycollage{ box-shadow:var(--shadow-lg), inset 0 0 0 3px #fff, inset 0 0 0 4px var(--line); }
+  .modelhero,.storycollage{ box-shadow:var(--shadow-lg), inset 0 0 0 3px #fff, inset 0 0 0 4px var(--line); }
   .shopbar{ flex-direction:column; align-items:stretch; }
 }
 

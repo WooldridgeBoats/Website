@@ -237,7 +237,7 @@ for my $mo (@$models){
     <button class="plate ghost psbtn" onclick="window.print()">Print / Save as PDF</button>
   </div>
 $h
-  <p class="psfine" style="margin-top:26px;">Prices are 2026 factory list, subject to change without notice &mdash; contact Wooldridge Boats directly for an official quote: (206) 722-8998. Boat + power combinations exclude trailer, freight and rigging unless stated. This sheet is generated from the same catalogue that drives <a href="/tools/Boat_Configurator_-_Customer_Version.html">Build &amp; Price</a> and always matches it.</p>
+  <p class="psfine" style="margin-top:26px;">Prices are 2026 factory list, subject to change without notice &mdash; contact Wooldridge Boats directly for an official quote: (206) 722-8998. Boat + power combinations exclude trailer, freight and rigging unless stated. This sheet is generated from the same catalogue that drives <a href="/build-and-price/">Build &amp; Price</a> and always matches it.</p>
 </div>
 </main>
 
