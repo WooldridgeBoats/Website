@@ -1021,6 +1021,7 @@
         <span class="stepnum">06</span><h2>Add your options</h2>
         <span class="hint">prices are installed unless noted · items marked CALL are priced on request</span>
       </div>
+      <div class="optguide-row"><a id="optGuideLink" href="/option-guide/">Not sure what an option means? Open the plain-English option guide &rarr;</a></div>
       <div id="optCats"></div>
     </section>
 
@@ -1158,6 +1159,7 @@
       <div class="acts">
         <button type="button" id="btnPrint" class="primary">Print build sheet</button>
         <button type="button" id="btnEmail" class="primary">Email + PDF</button>
+        <button type="button" id="btnQuote" class="primary">Request a quote</button>
         <button type="button" id="btnReserve" class="reserve">Reserve build slot</button>
         <button type="button" id="btnShareLink">Copy build link</button>
         <button type="button" id="btnReset" style="flex-basis:100%">Start over</button>
@@ -1192,6 +1194,90 @@
   </div>
 </div>
 
+<!-- OPTION GUIDE DRAWER (tools absorption 2026-07-31): a house-style
+     slide-over that fetches /option-guide/ at click time and runs its
+     widget inside a shadow root so the two pages' styles cannot collide.
+     If the fetch fails the trigger degrades to a plain link. -->
+<style id="oxdrawer-styles">
+.optguide-row{margin:-4px 0 14px;}
+.optguide-row a{font-size:13px; color:var(--buoy); text-decoration:underline;}
+.oxdrawer{position:fixed; inset:0; z-index:1000;}
+.oxdrawer[hidden]{display:none;}
+.oxdrawer-scrim{position:absolute; inset:0; background:rgba(20,30,40,.45);}
+.oxdrawer-panel{position:absolute; top:0; right:0; bottom:0; width:min(720px,94vw); background:#fff;
+  box-shadow:0 2px 6px rgba(20,30,40,.08), 0 16px 44px rgba(20,30,40,.14);
+  display:flex; flex-direction:column; border-radius:10px 0 0 10px; overflow:hidden;
+  animation:oxdrawer-in .22s ease;}
+@keyframes oxdrawer-in{from{transform:translateX(30px); opacity:0;} to{transform:none; opacity:1;}}
+.oxdrawer-head{display:flex; align-items:center; gap:14px; padding:13px 18px; border-bottom:1px solid var(--rule); background:#fff;}
+.oxdrawer-head b{font-size:15px; color:var(--ink); font-family:'Rockwell',Georgia,Palatino,'Palatino Linotype','Times New Roman',Times,serif;}
+.oxdrawer-full{font-size:12.5px; color:var(--buoy); margin-left:auto; white-space:nowrap;}
+.oxdrawer-close{background:none; border:1px solid var(--rule); border-radius:6px; width:30px; height:30px; cursor:pointer; color:var(--ink); font-size:13px; flex:none;}
+.oxdrawer-close:hover{border-color:var(--buoy); color:var(--buoy);}
+.oxdrawer-body{flex:1; overflow:auto; background:#F2F2F2; padding:0 0 30px;}
+.oxdrawer-loading{padding:40px; text-align:center; color:var(--slate); font-size:14px;}
+@media print{ .oxdrawer, .optguide-row{display:none !important;} }
+</style>
+<div class="oxdrawer" id="oxDrawer" hidden>
+  <div class="oxdrawer-scrim" id="oxDrawerScrim"></div>
+  <aside class="oxdrawer-panel" role="dialog" aria-modal="true" aria-label="Options and terms, explained">
+    <div class="oxdrawer-head">
+      <b>Options &amp; terms, explained</b>
+      <a href="/option-guide/" class="oxdrawer-full">Open full page &#8599;</a>
+      <button type="button" class="oxdrawer-close" id="oxDrawerClose" aria-label="Close">&#10005;</button>
+    </div>
+    <div class="oxdrawer-body" id="oxDrawerBody"><div class="oxdrawer-loading">Loading the option guide&hellip;</div></div>
+  </aside>
+</div>
+<script>
+(function(){
+  'use strict';
+  var link = document.getElementById('optGuideLink');
+  var drawer = document.getElementById('oxDrawer');
+  var body = document.getElementById('oxDrawerBody');
+  if (!link || !drawer) return;
+  var loaded = false, failed = false;
+  function close(){ drawer.hidden = true; document.documentElement.style.overflow = ''; }
+  document.getElementById('oxDrawerClose').addEventListener('click', close);
+  document.getElementById('oxDrawerScrim').addEventListener('click', close);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !drawer.hidden) close(); });
+  link.addEventListener('click', function(e){
+    if (failed) return;              /* fail soft: behave as the plain link */
+    e.preventDefault();
+    drawer.hidden = false; document.documentElement.style.overflow = 'hidden';
+    if (loaded) return;
+    fetch('/option-guide/', {credentials:'same-origin'}).then(function(r){
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    }).then(function(html){
+      var doc = new DOMParser().parseFromString(html, 'text/html');
+      var style = doc.getElementById('ox-styles');
+      var script = doc.getElementById('ox-script');
+      var m = html.match(/<!-- =+ BEGIN WIDGET MARKUP =+ -->([\s\S]*?)<!-- =+ END WIDGET MARKUP =+ -->/);
+      if (!style || !script || !m) throw new Error('unexpected option-guide markup');
+      /* run the guide inside a shadow root: its page-level CSS (body, a, h1)
+         cannot leak into the configurator, and vice versa. Hide its mast and
+         per-card footer links (copy-link / "price it" would be circular here). */
+      body.innerHTML = '';
+      var host = document.createElement('div');
+      body.appendChild(host);
+      var shadow = host.attachShadow({mode:'open'});
+      shadow.innerHTML = '<style>' + style.textContent +
+        '\n.ox-mast{display:none!important}.oxfoot{display:none!important}' +
+        '\n.oxbar{position:sticky; top:0;}</style>' + m[1];
+      var src = script.textContent.replace(
+        /window\.scrollTo\(\{top:[^}]*\}\);/,
+        "el.scrollIntoView({block:'start'});");
+      new Function('document', src)(shadow);   /* ShadowRoot serves getElementById/querySelectorAll */
+      loaded = true;
+    }).catch(function(){
+      failed = true;
+      close();
+      window.location.href = '/option-guide/';
+    });
+  });
+})();
+</script>
 <div class="toast" id="toast"></div>
 
 <script src="/tools/RULES_OVERLAY.js?v=a13457e3"></script>
@@ -2216,6 +2302,13 @@ $('#btnShareLink').addEventListener('click', () => {
   try { history.replaceState(null, '', '#b=' + enc); } catch(e){}
   copyText(location.href.split('#')[0] + '#b=' + enc,
     'Build link copied — opening it restores this exact build. Customer contact info is never included in the link.');
+});
+
+/* Request a quote - hands the packed build to /request-a-quote/ using the
+   same #b= encoding the share link uses; the quote page decodes it, selects
+   the model, and drops a build summary + link into the notes. */
+$('#btnQuote').addEventListener('click', () => {
+  window.location.href = '/request-a-quote/#b=' + b64enc(JSON.stringify(packState()));
 });
 
 if (CUSTOMER_MODE){

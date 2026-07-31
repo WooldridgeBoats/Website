@@ -1,6 +1,6 @@
 # MEDIA CENSUS - vetted vs placeholder
 
-Generated 2026-07-31 10:16 by _build\media_census.ps1. The manifest is the arbiter:
+Generated 2026-07-31 13:09 by _build\media_census.ps1. The manifest is the arbiter:
 vetted = in Tylers SALES TOOLS provenance manifest. shop-* folders exempt.
 
 | Gallery | Vetted | Placeholder |
@@ -39,6 +39,15 @@ vetted = in Tylers SALES TOOLS provenance manifest. shop-* folders exempt.
 - super-sport-offshore (20 placeholder photos carrying the gallery)
 
 ## Pages hardcoding placeholder files (break on purge until re-pointed or re-shot)
+- compare\index.html  ->  rogue/5162-water-1.jpg
+- compare\index.html  ->  skagit/4647-product-1.jpg
+- compare\index.html  ->  skagit-inboard/5094-product-12.jpg
+- compare\index.html  ->  sport/4589-product-3.jpg
+- compare\index.html  ->  sportinboard/sportib-water-1.jpg
+- compare\index.html  ->  sportoffshore/5021-product-2.jpg
+- compare\index.html  ->  sportster/sportster-water-1.jpg
+- compare\index.html  ->  supersportdrifterinboard/4403-photo-1.jpg
+- compare\index.html  ->  super-sport-offshore/4660-product-7.jpg
 - index.html  ->  alaskan/4459-product-18-ws-ak-1.jpg
 - index.html  ->  alaskanxl/5226-product-1.jpg
 - index.html  ->  alaskan-xl-inboard/2026-20-first-responder-30.jpg
@@ -796,21 +805,4 @@ vetted = in Tylers SALES TOOLS provenance manifest. shop-* folders exempt.
 - new-inventory\index.html  ->  skagit-x/5092-21-skagit-x-blue-01.jpg
 - new-inventory\index.html  ->  sport/4589-product-3.jpg
 - new-inventory\index.html  ->  supersportdrifter/5175-product-1.jpg
-- tools\BOAT_COMPARISON_TOOL.html  ->  alaskan/4459-product-18-ws-ak-1.jpg
-- tools\BOAT_COMPARISON_TOOL.html  ->  alaskanxl/5226-product-1.jpg
-- tools\BOAT_COMPARISON_TOOL.html  ->  alaskan-xl-inboard/2026-20-first-responder-30.jpg
-- tools\BOAT_COMPARISON_TOOL.html  ->  alaskan-xlt/5053-product-1.jpg
-- tools\BOAT_COMPARISON_TOOL.html  ->  rogue/5162-water-1.jpg
-- tools\BOAT_COMPARISON_TOOL.html  ->  scout/5113-product-1.jpg
-- tools\BOAT_COMPARISON_TOOL.html  ->  scout-widebody/5119-scout-widebody-product-27.jpg
-- tools\BOAT_COMPARISON_TOOL.html  ->  skagit/4647-product-1.jpg
-- tools\BOAT_COMPARISON_TOOL.html  ->  skagit-inboard/5094-product-12.jpg
-- tools\BOAT_COMPARISON_TOOL.html  ->  skagit-x/5092-21-skagit-x-blue-01.jpg
-- tools\BOAT_COMPARISON_TOOL.html  ->  sport/4589-product-3.jpg
-- tools\BOAT_COMPARISON_TOOL.html  ->  sportinboard/sportib-water-1.jpg
-- tools\BOAT_COMPARISON_TOOL.html  ->  sportoffshore/5021-product-2.jpg
-- tools\BOAT_COMPARISON_TOOL.html  ->  sportster/sportster-water-1.jpg
-- tools\BOAT_COMPARISON_TOOL.html  ->  supersportdrifter/5175-product-1.jpg
-- tools\BOAT_COMPARISON_TOOL.html  ->  supersportdrifterinboard/4403-photo-1.jpg
-- tools\BOAT_COMPARISON_TOOL.html  ->  super-sport-offshore/4660-product-7.jpg
 
