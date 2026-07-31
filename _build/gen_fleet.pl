@@ -5,8 +5,8 @@
 #
 # Targets (all between BEGIN/END markers, replaced in place):
 #   index.html                        — const FLEET   (home fleet rail)
-#   tools/WHICH_WOOLDRIDGE_QUIZ_2.html— const FACTS   (quiz fleet facts)
-#   tools/QUOTE_REQUEST.html          — const FACTS   (quote fleet facts)
+#   which-wooldridge/index.html— const FACTS   (quiz fleet facts)
+#   request-a-quote/index.html          — const FACTS   (quote fleet facts)
 #
 # This exists because the home page and both tools carried hand-typed
 # copies of the catalogue, and they drifted (LE-1 — the drift Carrie
@@ -67,7 +67,7 @@ sub slurp { my ($f)=@_; open my $fh,'<:raw',$f or die "read $f: $!"; local $/; <
 sub spew  { my ($f,$c)=@_; open my $fh,'>:raw',$f or die "write $f: $!"; print $fh $c; close $fh }
 
 # ── load catalogue ──
-my $cfg = slurp("$root/tools/Boat_Configurator_-_Customer_Version.html");
+my $cfg = slurp("$root/build-and-price/index.html");
 $cfg =~ /^const MODELS = (\[.*?\]);\r?$/m or die "const MODELS not found";
 my $models = decode_json($1);
 
@@ -175,7 +175,7 @@ replace_block('index.html', 'FLEET', $fleet_js);
 
 # quiz — full FACTS shape
 my $quiz_js = "const FACTS = " . $J->encode({ map { $_ => $facts{$_} } @ids }) . ";";
-replace_block('tools/WHICH_WOOLDRIDGE_QUIZ_2.html', 'FACTS', $quiz_js);
+replace_block('which-wooldridge/index.html', 'FACTS', $quiz_js);
 
 # quote request — slimmer FACTS shape (nm/from/drive/maxLen, pp only when true)
 my $quote_js = "const FACTS = " . $J->encode({ map {
@@ -183,7 +183,7 @@ my $quote_js = "const FACTS = " . $J->encode({ map {
   $_ => { nm=>$f->{nm}, from=>$f->{from}, drive=>$f->{drive}, maxLen=>$f->{maxLen},
           ($f->{pp} ? (pp=>JSON::PP::true) : ()) };
 } @ids }) . ";";
-replace_block('tools/QUOTE_REQUEST.html', 'FACTS', $quote_js);
+replace_block('request-a-quote/index.html', 'FACTS', $quote_js);
 
 # sales assist (internal) — quiz shape + slug (model page dir) + sheet
 # (price sheet path fragment under /pricesheets/). This was a FIFTH

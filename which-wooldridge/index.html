@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/house.css?v=23461263">
+<title>Which Wooldridge Is Right For You?</title>
+<style>
+  :root{
+    --paper:#F2F2F2;       /* page/grid ground — eggshell cream, matches Build & Price configurator */
+    --card:#ffffff;
+    --linen:#e6e8ea;
+    --rule:#c9cdd1;
+    --ink:#23282d;
+    --slate:#4d5359;
+    --buoy:#1b75bb;
+    --buoy-bright:#2f8ad2;
+    --buoy-deep:#135a92;
+    --kelp:#3a6ea5;
+    --mono:'Courier New', ui-monospace, 'SF Mono', monospace;
+    --sans:"Inter", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  *{margin:0; padding:0; box-sizing:border-box;}
+  html{background:var(--paper);}
+  body{
+    font-family:var(--sans); color:var(--ink); background:var(--paper);
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+    display:flex; flex-direction:column;
+  }
+  button{font-family:inherit; cursor:pointer;}
+  button:focus-visible, a:focus-visible{outline:2px solid var(--buoy); outline-offset:2px;}
+
+  /* ── mast ── */
+  .mast{max-width:860px; width:100%; margin:0 auto; padding:34px 20px 0;}
+  .mast .addr{font-family:var(--mono); font-size:11.5px; letter-spacing:.08em; color:var(--slate);}
+  .mast .brand{font-size:clamp(30px,5vw,44px); font-weight:700; letter-spacing:-.01em; line-height:1.05; margin-top:6px;}
+  .mast .tag{font-style:italic; font-size:13.5px; color:var(--slate); margin-top:7px;}
+  .mastrule{max-width:860px; width:calc(100% - 40px); margin:20px auto 0; border-top:2px solid var(--ink); position:relative;}
+  .mastrule::after{content:''; position:absolute; left:0; right:0; top:2px; border-top:1px solid var(--rule);}
+
+  /* ── stage ── */
+  .stage{max-width:860px; width:100%; margin:0 auto; padding:26px 20px 40px; flex:1;}
+  .eyebrow{font-family:var(--mono); font-size:12px; font-weight:700; letter-spacing:.14em; color:var(--buoy); text-transform:uppercase;}
+  .progress{height:3px; background:var(--linen); margin:12px 0 26px; position:relative;}
+  .progress i{position:absolute; left:0; top:0; bottom:0; background:var(--buoy); transition:width .25s ease;}
+  @media (prefers-reduced-motion: reduce){ .progress i{transition:none;} .card{transition:none !important;} }
+
+  .qtitle{font-size:clamp(20px,3.4vw,27px); font-weight:700; letter-spacing:.01em; line-height:1.25;}
+  .qhint{font-size:13px; color:var(--slate); font-style:italic; margin-top:6px;}
+
+  .opts{margin-top:22px; display:grid; gap:12px;}
+  @media (min-width:640px){ .opts.cols2{grid-template-columns:1fr 1fr;} }
+  .choice{
+    text-align:left; background:var(--card); border:1px solid var(--rule); padding:16px 18px;
+    display:block; width:100%; transition:border-color .12s ease, background .12s ease;
+  }
+  .choice:hover{border-color:var(--buoy);}
+  .choice.on{border-color:var(--buoy); background:#fff; box-shadow:inset 3px 0 0 var(--buoy);}
+  .choice .kicker{font-family:var(--mono); font-size:9.5px; font-weight:700; letter-spacing:.14em; color:var(--kelp); text-transform:uppercase; display:block;}
+  .choice .cname{display:block; font-size:16.5px; font-weight:700; margin-top:3px;}
+  .choice .cdesc{display:block; font-size:13px; color:var(--slate); margin-top:4px; line-height:1.45;}
+
+  .navrow{margin-top:26px; display:flex; align-items:center; gap:14px;}
+  .btn{
+    background:var(--buoy); color:#fff; border:1px solid var(--buoy-deep);
+    font-weight:700; font-size:14.5px; padding:12px 22px; letter-spacing:.02em;
+  }
+  .btn:hover{background:var(--buoy-deep);}
+  .btn[disabled]{opacity:.45; cursor:not-allowed;}
+  .ghostlink{background:none; border:none; color:var(--slate); font-size:13.5px; text-decoration:underline; padding:6px 2px;}
+  .ghostlink:hover{color:var(--ink);}
+  .tradeoff{
+    margin-top:18px; border:1px solid var(--rule); background:var(--card); padding:14px 16px;
+    font-size:13.5px; color:var(--slate); line-height:1.55; display:none;
+  }
+  .tradeoff b{color:var(--ink);}
+
+  /* ── result ── */
+  .verdict-eyebrow{font-family:var(--mono); font-size:12px; font-weight:700; letter-spacing:.18em; color:var(--buoy); text-transform:uppercase;}
+  .winner{border:2px solid var(--ink); background:var(--card); margin-top:14px; position:relative;}
+  .winner::after{content:''; position:absolute; left:-2px; right:-2px; top:-2px; height:4px; background:var(--buoy);}
+  .winner .inner{padding:26px 26px 24px;}
+  .wname{font-size:clamp(26px,4.4vw,36px); font-weight:700; letter-spacing:-.01em;}
+  .wtag{font-style:italic; color:var(--slate); font-size:14px; margin-top:4px;}
+  .wmeta{display:flex; flex-wrap:wrap; gap:10px 26px; margin-top:16px; padding-top:14px; border-top:1px solid var(--rule);}
+  .wmeta div{font-family:var(--mono); font-size:12px; letter-spacing:.05em;}
+  .wmeta b{display:block; font-family:var(--sans); font-size:17px; letter-spacing:0; margin-top:2px;}
+  .why{margin-top:16px;}
+  .why .w{display:flex; gap:10px; font-size:14px; line-height:1.5; margin-top:8px;}
+  .why .w::before{content:'\25C6'; color:var(--buoy); font-size:9px; line-height:2.3; flex:none;}
+  .ctarow{margin-top:22px; display:flex; flex-wrap:wrap; gap:12px; align-items:center;}
+  .runner{border:1px solid var(--rule); background:var(--card); margin-top:16px; padding:16px 20px;}
+  .runner .rk{font-family:var(--mono); font-size:10px; font-weight:700; letter-spacing:.16em; color:var(--kelp); text-transform:uppercase;}
+  .runner .rn{font-weight:700; font-size:17px; margin-top:3px;}
+  .runner .rt{font-size:13px; color:var(--slate); font-style:italic; margin-top:2px;}
+  .runner .rfrom{font-family:var(--mono); font-size:12.5px; margin-top:6px;}
+  .smallnote{font-size:12.5px; color:var(--slate); margin-top:16px; line-height:1.55;}
+
+  /* ── ask bar ── */
+  .askbar{border-top:1px solid var(--rule); background:var(--card); margin-top:34px;}
+  .askbar .in{max-width:860px; margin:0 auto; padding:22px 20px; display:flex; flex-wrap:wrap; align-items:center; gap:16px; justify-content:space-between;}
+  .askbar .txt{font-size:14px; color:var(--slate); line-height:1.5; max-width:520px;}
+  .askbar .txt b{color:var(--ink);}
+
+  .btn.ghost2{background:var(--card); color:var(--buoy-deep); border:1px solid var(--buoy); text-decoration:none; display:inline-block;}
+  .btn.ghost2:hover{background:#fff;}
+
+  /* ── lofting footer ── */
+  footer{margin-top:auto; padding:10px 20px 24px;}
+  .linesfoot{max-width:1180px; margin:0 auto; display:block; width:100%; opacity:.66;}
+  .lf-st line{stroke:var(--rule); stroke-width:1; stroke-dasharray:3 4;}
+  .lf-dat{stroke:var(--ink); stroke-width:1;}
+  .lf-tr{stroke:var(--ink); stroke-width:1.8;}
+  .lf-hull path{stroke:var(--ink); stroke-width:1.1; stroke-linecap:round; fill:none;}
+  .lf-lab text{font-family:var(--mono); font-size:9.5px; fill:var(--ink); letter-spacing:1px;}
+  .lf-cap{font-family:var(--mono); font-size:13px; font-weight:700; fill:var(--ink); letter-spacing:2.5px;}
+</style>
+</head>
+<body>
+
+<div id="siteHeaderWrap"><!-- PARTIAL:header -->
+<div class="topstrip">
+  <div class="wrap">
+    <div>FACTORY &amp; SHOWROOM — 1303 S 96TH ST, SEATTLE, WA 98108 &nbsp;·&nbsp; <a href="tel:+12067228998">(206) 722-8998</a> &nbsp;·&nbsp; MON–THU 6:00AM–4:30PM</div>
+    <div class="soc"><a href="https://www.instagram.com/wooldridgeboats/">Instagram</a><a href="https://www.facebook.com/WooldridgeBoats/">Facebook</a><a href="https://www.youtube.com/channel/UC-hVTJ7HySkqCjUENQY5CCQ">YouTube</a></div>
+  </div>
+</div>
+<nav class="nav" aria-label="Primary">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Wooldridge Boats &#8212; Home">
+      <img src="/assets/brand/logo-wing-dark.png" alt="Wooldridge Boats 1915">
+    </a>
+    <span class="hasmega">
+      <a href="/#fleet">Our Boats</a>
+      <div class="mega" role="menu">
+        <div class="mega-in">
+          <div>
+            <h5>Inboard</h5>
+            <ul>
+              <li><a href="/models/alaskan-xl-inboard/">Alaskan XL Inboard</a></li>
+              <li><a href="/models/scout/">Scout</a></li>
+              <li><a href="/models/scout-widebody/">Scout Widebody</a></li>
+              <li><a href="/models/skagit-inboard/">Skagit Inboard</a></li>
+              <li><a href="/models/skagit-x/">Skagit-X</a></li>
+              <li><a href="/models/sportinboard/">Sport Inboard</a></li>
+              <li><a href="/models/supersportdrifterinboard/">Super Sport Drifter Inboard</a></li>
+            </ul>
+          </div>
+          <div>
+            <h5>Outboard</h5>
+            <ul>
+              <li><a href="/models/alaskan/">Alaskan</a></li>
+              <li><a href="/models/alaskan-lt/">Alaskan LT</a></li>
+              <li><a href="/models/alaskanxl/">Alaskan XL</a></li>
+              <li><a href="/models/xlt/">Alaskan XLT</a></li>
+              <li><a href="/models/rogue/">Rogue</a></li>
+              <li><a href="/models/skagit/">Skagit</a></li>
+              <li><a href="/models/sport/">Sport</a></li>
+              <li><a href="/models/sportster/">Sportster</a></li>
+              <li><a href="/models/supersportdrifter/">Super Sport Drifter</a></li>
+            </ul>
+          </div>
+          <div>
+            <h5>Offshore</h5>
+            <ul>
+              <li><a href="/models/sportoffshore/">Sport Offshore</a></li>
+              <li><a href="/models/super-sport-offshore/">Super Sport Offshore</a></li>
+            </ul>
+          </div>
+          <div>
+            <h5>Custom Builds</h5>
+            <ul>
+              <li><a href="/models/canyon/">Canyon</a></li>
+              <li><a href="/models/riverrat-diy-kit/">River Rat DIY Kit</a></li>
+              <li><a href="/models/landing-craft/">Landing Craft</a></li>
+              <li><a href="/models/deepwater/">Deepwater Series</a></li>
+              <li><a href="/models/pybus-offshore/">Pybus Offshore</a></li>
+              <li><a href="/models/angler/">SSO Angler</a></li>
+              <li><a href="/models/supersportoffshorepilothouse/">SSO Pilothouse</a></li>
+              <li><a href="/custom-agency-builds/">Agency &amp; Government Builds</a></li>
+            </ul>
+          </div>
+          <!-- Q-C-9 / WEB-N-03: titled like the model columns, duplicates of the
+               main nav bar (New Boats / Pre-Owned / Custom Builds) removed -->
+          <div class="megaside">
+            <h5>Tools</h5>
+            <a href="/tools/Boat_Configurator_-_Customer_Version.html">Build &amp; Price</a>
+            <a href="/tools/WHICH_WOOLDRIDGE_QUIZ_2.html">Which Wooldridge Quiz</a>
+            <a href="/tools/QUOTE_REQUEST.html">Request a Quote</a>
+            <a href="/tools/BOAT_COMPARISON_TOOL.html">Compare Models</a>
+          </div>
+        </div>
+      </div>
+    </span>
+    <a href="/pre-owned/">Pre-Owned</a>
+    <a href="/custom-agency-builds/">Custom Builds</a>
+    <a href="/our-history/">About | History</a>
+    <a href="/#whats-happening">What&rsquo;s Happening</a>
+    <a href="/dealers/">Dealers</a>
+    <a href="/store/">Store</a>
+    <a href="/contact/">Contact</a>
+    <a class="nav-cta" href="/tools/Boat_Configurator_-_Customer_Version.html">Build &amp; Price</a>
+    <span class="navsoc">
+      <a href="https://www.instagram.com/wooldridgeboats/" aria-label="Instagram"><img src="/assets/brand/ic-instagram.png" alt="Instagram"></a>
+      <a href="https://www.facebook.com/WooldridgeBoats/" aria-label="Facebook"><img src="/assets/brand/ic-facebook.png" alt="Facebook"></a>
+      <a href="https://www.youtube.com/channel/UC-hVTJ7HySkqCjUENQY5CCQ" aria-label="YouTube"><img src="/assets/brand/ic-youtube.png" alt="YouTube"></a>
+    </span>
+  </div>
+</nav>
+<!-- /PARTIAL:header --></div>
+
+<header class="mast">
+  <div class="addr">WOOLDRIDGE BOATS &middot; SEATTLE, WASHINGTON &middot; SINCE 1915</div>
+  <div class="brand">Which Wooldridge is right for you?</div>
+  <div class="tag">A few quick questions. One honest recommendation from the full 2026 lineup &mdash; built the way we&rsquo;d spec it for a friend.</div>
+</header>
+<div class="mastrule"></div>
+
+<main class="stage" id="stage" aria-live="polite"></main>
+
+<div class="askbar">
+  <div class="in">
+    <div class="txt"><b>Want a real person on it?</b> Send your answers straight to the shop and we’ll follow up with pricing, build slots, and honest advice — no obligation.</div>
+    <div style="display:flex; flex-wrap:wrap; gap:10px;">
+      <button type="button" class="btn" id="btnAskDanny">Email us for more information</button>
+      <a class="btn ghost2" id="btnOpenConfig" href="/build-and-price/">Build &amp; price your boat &rarr;</a>
+    </div>
+  </div>
+</div>
+
+<footer class="linesfoot" aria-hidden="true">
+  <svg width="100%" viewBox="0 0 1128 112" fill="none" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
+    <g class="lf-st">
+      <line x1="160" y1="6" x2="160" y2="82"/><line x1="320" y1="6" x2="320" y2="82"/>
+      <line x1="480" y1="6" x2="480" y2="82"/><line x1="640" y1="6" x2="640" y2="82"/>
+      <line x1="800" y1="6" x2="800" y2="82"/><line x1="960" y1="6" x2="960" y2="82"/>
+    </g>
+    <line class="lf-dat" x1="12" y1="68" x2="1116" y2="68"/>
+    <line class="lf-tr" x1="24" y1="14" x2="24" y2="68"/>
+    <g class="lf-hull">
+      <path d="M24 46 C 156 44, 287 47, 340 52 L 380 68"/>
+      <path d="M24 41 C 189 39, 354 43, 424 50 L 470 68"/>
+      <path d="M24 37 C 222 33, 421 38, 508 47 L 560 68"/>
+      <path d="M24 32 C 256 28, 487 34, 592 45 L 650 68"/>
+      <path d="M24 27 C 289 22, 554 29, 676 42 L 740 68"/>
+      <path d="M24 22 C 322 17, 620 25, 760 40 L 830 68"/>
+      <path d="M24 18 C 356 12, 687 21, 844 37 L 920 68"/>
+      <path d="M24 13 C 389 6, 754 16, 928 35 L 1010 68"/>
+    </g>
+    <g class="lf-lab">
+      <text x="370" y="81">16'</text><text x="460" y="81">18'</text><text x="550" y="81">19'</text><text x="640" y="81">20'</text><text x="730" y="81">21'</text><text x="820" y="81">23'</text><text x="910" y="81">25'</text><text x="1000" y="81">26'</text>
+    </g>
+    <text class="lf-cap" x="1116" y="106" text-anchor="end">18 MODELS&#160;&#160;&#183;&#160;&#160;43 HULLS&#160;&#160;&#183;&#160;&#160;67 CONFIGURATIONS&#160;&#160;&#183;&#160;&#160;ONE SHOP</text>
+  </svg>
+</footer>
+
+<script>
+'use strict';
+/* Point this at the deployed customer configurator so "Start your build" deep-links with the model pre-selected. */
+const CONFIG_URL = '/build-and-price/';
+
+/* FACTS:BEGIN - generated by _build/gen_fleet.pl from the configurator catalog - do not hand-edit; re-run instead */
+const FACTS = {"ak":{"drive":"ob","from":56658,"lengths":[18,20],"maxLen":20,"nm":"Alaskan","pp":false,"styles":["occ","ws"],"tag":"The classic Wooldridge sled \u2014 18/20 ft"},"lt":{"drive":"ob","from":31889,"lengths":[16,18,20],"maxLen":20,"nm":"Alaskan LT","pp":false,"styles":["tiller","occ"],"tag":"Light utility jet sled \u2014 16/18/20 ft"},"rogue":{"drive":"ob","from":49889,"lengths":[16,18,20],"maxLen":20,"nm":"Rogue HDPE","pp":false,"styles":["tiller","occ"],"tag":"Fully welded HDPE hull \u2014 16/18/20 ft"},"scout":{"drive":"ib","from":119999,"lengths":[19,21,23],"maxLen":23,"nm":"Scout Inboard","pp":false,"styles":["ws","occ"],"tag":"Inboard jet workhorse \u2014 19/21/23 ft"},"scoutwb":{"drive":"ib","from":165999,"lengths":[21,23,25],"maxLen":25,"nm":"Scout Widebody Inboard","pp":false,"styles":["ws"],"tag":"Full-cabin inboard \u2014 21/23/25 ft"},"skagit":{"drive":"ob","from":70019,"lengths":[18,20],"maxLen":20,"nm":"Skagit","pp":false,"styles":["occ","ws"],"tag":"Deep-sided offshore sled \u2014 18/20 ft"},"skagitib":{"drive":"ib","from":114999,"lengths":[18,20],"maxLen":20,"nm":"Skagit Inboard","pp":false,"styles":["ws","occ"],"tag":"Inboard jet sled \u2014 18/20 ft"},"skagitx":{"drive":"ib","from":124999,"lengths":[21],"maxLen":21,"nm":"Skagit-X Inboard","pp":false,"styles":["ws"],"tag":"Low-side aft-helm inboard \u2014 21 ft"},"so":{"drive":"offshore","from":56499,"lengths":[18,20],"maxLen":20,"nm":"Sport Offshore","pp":true,"styles":["occ","ws"],"tag":"Offshore-bracket crossover \u2014 18/20 ft"},"sport":{"drive":"ob","from":71519,"lengths":[18,20],"maxLen":20,"nm":"Sport","pp":false,"styles":["occ","ws"],"tag":"Pointed-bow crossover \u2014 18/20 ft"},"sportib":{"drive":"ib","from":116999,"lengths":[18,20],"maxLen":20,"nm":"Sport Inboard","pp":false,"styles":["ws","occ"],"tag":"Inboard jet crossover \u2014 18/20 ft"},"sportster":{"drive":"ob","from":90534,"lengths":[21,23,25],"maxLen":25,"nm":"Sportster","pp":false,"styles":["occ","ws"],"tag":"Outboard jet sportster \u2014 21/23/25 ft"},"ssd":{"drive":"ob","from":78519,"lengths":[21,23,25],"maxLen":25,"nm":"Super Sport Drifter","pp":false,"styles":["occ","ws"],"tag":"Pointed-bow jet drifter \u2014 21/23/25 ft"},"ssdib":{"drive":"ib","from":123499,"lengths":[21,23,25],"maxLen":25,"nm":"Super Sport Drifter Inboard","pp":false,"styles":["ws","occ"],"tag":"Inboard jet drifter \u2014 21/23/25 ft"},"sso":{"drive":"offshore","from":62999,"lengths":[20,21,23,26],"maxLen":26,"nm":"Super Sport Offshore","pp":true,"styles":["occ","ws"],"tag":"Big-water offshore \u2014 20/21/23/26 ft"},"xl":{"drive":"ob","from":68019,"lengths":[20],"maxLen":20,"nm":"Alaskan XL","pp":false,"styles":["occ","ws"],"tag":"Big-water 20 ft heavy hauler"},"xlib":{"drive":"ib","from":112999,"lengths":[20,21],"maxLen":21,"nm":"Alaskan XL Inboard","pp":false,"styles":["ws","occ"],"tag":"Inboard jet heavy hauler \u2014 20/21 ft"},"xlt":{"drive":"ob","from":43439,"lengths":[18,20],"maxLen":20,"nm":"Alaskan XLT","pp":false,"styles":["tiller","occ"],"tag":"Extra-wide tiller & console \u2014 18/20 ft"}};
+/* FACTS:END */
+
+/* Positioning blurbs — drawn from wooldridgeboats.com model copy */
+const BLURB = {
+  lt:'The light-utility sled. Easy to tow, easy to power, and it still carries the exclusive Wooldridge jet tunnel.',
+  xlt:'The extra-wide open workboat. Maximum deck and payload in a tiller or console rig that a midsize truck can pull.',
+  ak:'The classic Wooldridge river sled, redesigned in 2023 — agile, sure-footed, and superb in shallow water.',
+  xl:'The biggest brother in the Alaskan line. A 76&Prime; bottom built for load hauling and the most extreme river fun.',
+  rogue:'Our fully welded HDPE hull. The slick bottom slides over what stops aluminum — the technical shallow-water specialist, with trim blades to tune the ride.',
+  skagit:'Rugged squared bow, deep sides, rigid as a tank. The shallowest-running outboard jet of its size, and it still hauls a serious load.',
+  sport:'The pointed-bow crossover. A V entry breaks up chop on big water; the jet tunnel still gets you into the skinny stuff.',
+  ssd:'The big pointed-bow drifter — 21 to 25 feet of open-water capability with jet-boat draft.',
+  xlib:'The XL hull with V8 inboard jet torque. Weight amidships, huge payload, clean gunnels for fishing.',
+  scout:'A shallow-water go-kart with big-whitewater DNA. Inboard V8, Hamilton jet, precise control in technical water.',
+  scoutwb:'Full cabin, widebody beam, 75-gallon tank. The all-weather, all-season family and expedition rig.',
+  skagitib:'The Skagit workhorse with inboard V8 power — the same platform fish-and-wildlife agencies order for hard duty.',
+  sportster:'Big-water inboard comfort at 21 to 25 feet. Room for the whole crew without giving up jet draft.',
+  sportib:'The Sport hull with an inboard V8: shallow rivers, heavy loads on big water, and it pulls skiers and wakeboards.',
+  ssdib:'The flagship drifter with inboard V8 power. Big water, big crews, and watersports on the same hull.',
+  skagitx:'The newest evolution of the Skagit — inboard power and maximum structure for the hardest use.',
+  so:'The Sport hull engineered for the salt — coastal water, tide rips, and open-water confidence.',
+  sso:'The offshore angler flagship. 20 to 26 feet for the Sound, the coast, and beyond.'
+};
+
+/* Scoring matrix. Higher = better fit for that answer. Edit freely — the engine just sums weighted scores. */
+const T = {
+  lt:       {water:{skinny:3,rivers:2,big:0,salt:0}, shallow:{extreme:3,some:2,rarely:1}, use:{riverfish:2,saltfish:0,hunt:3,family:1,haul:1}, crew:{solo:3,small:2,big:0}, rough:{never:2,some:0,often:-2}, helm:{tiller:3,console:3,windshield:2,cabin:0}, tow:{mid:3,full:2,hd:1}, load:{light:3,mid:1,heavy:0}},
+  xlt:      {water:{skinny:3,rivers:2,big:0,salt:0}, shallow:{extreme:3,some:2,rarely:0}, use:{riverfish:2,saltfish:0,hunt:3,family:1,haul:2}, crew:{solo:3,small:2,big:0}, rough:{never:2,some:0,often:-2}, helm:{tiller:3,console:3,windshield:1,cabin:0}, tow:{mid:3,full:2,hd:1}, load:{light:2,mid:3,heavy:1}},
+  ak:       {water:{skinny:3,rivers:3,big:1,salt:0}, shallow:{extreme:3,some:2,rarely:1}, use:{riverfish:3,saltfish:0,hunt:2,family:2,haul:1}, crew:{solo:2,small:3,big:0}, rough:{never:2,some:1,often:-1}, helm:{tiller:0,console:3,windshield:3,cabin:0}, tow:{mid:2,full:3,hd:2}, load:{light:2,mid:3,heavy:1}},
+  xl:       {water:{skinny:2,rivers:3,big:2,salt:0}, shallow:{extreme:2,some:3,rarely:1}, use:{riverfish:3,saltfish:1,hunt:1,family:2,haul:3}, crew:{solo:1,small:3,big:2}, rough:{never:1,some:2,often:0}, helm:{tiller:1,console:3,windshield:3,cabin:0}, tow:{mid:1,full:3,hd:2}, load:{light:0,mid:2,heavy:3}},
+  rogue:    {water:{skinny:3,rivers:2,big:0,salt:0}, shallow:{extreme:3,some:1,rarely:0}, use:{riverfish:3,saltfish:0,hunt:2,family:0,haul:0}, crew:{solo:3,small:2,big:0}, rough:{never:2,some:0,often:-2}, helm:{tiller:3,console:3,windshield:0,cabin:0}, tow:{mid:3,full:2,hd:1}, load:{light:3,mid:1,heavy:0}},
+  skagit:   {water:{skinny:2,rivers:3,big:3,salt:1}, shallow:{extreme:2,some:3,rarely:2}, use:{riverfish:3,saltfish:2,hunt:1,family:1,haul:3}, crew:{solo:1,small:3,big:2}, rough:{never:0,some:3,often:2}, helm:{tiller:0,console:3,windshield:3,cabin:0}, tow:{mid:1,full:3,hd:2}, load:{light:0,mid:2,heavy:3}},
+  sport:    {water:{skinny:2,rivers:3,big:2,salt:1}, shallow:{extreme:2,some:3,rarely:2}, use:{riverfish:3,saltfish:2,hunt:1,family:2,haul:1}, crew:{solo:1,small:3,big:1}, rough:{never:1,some:3,often:1}, helm:{tiller:0,console:3,windshield:3,cabin:0}, tow:{mid:2,full:3,hd:2}, load:{light:1,mid:3,heavy:1}},
+  ssd:      {water:{skinny:0,rivers:2,big:3,salt:2}, shallow:{extreme:0,some:2,rarely:3}, use:{riverfish:2,saltfish:2,hunt:0,family:2,haul:2}, crew:{solo:0,small:2,big:3}, rough:{never:0,some:2,often:3}, helm:{tiller:0,console:3,windshield:3,cabin:0}, tow:{mid:0,full:2,hd:3}, load:{light:0,mid:2,heavy:3}},
+  xlib:     {water:{skinny:2,rivers:3,big:2,salt:0}, shallow:{extreme:2,some:3,rarely:1}, use:{riverfish:2,saltfish:0,hunt:1,family:2,haul:3}, crew:{solo:0,small:3,big:2}, rough:{never:1,some:2,often:1}, helm:{tiller:0,console:0,windshield:3,cabin:1}, tow:{mid:0,full:2,hd:3}, load:{light:0,mid:2,heavy:3}},
+  scout:    {water:{skinny:3,rivers:3,big:1,salt:0}, shallow:{extreme:3,some:2,rarely:0}, use:{riverfish:3,saltfish:0,hunt:2,family:1,haul:2}, crew:{solo:1,small:3,big:1}, rough:{never:1,some:2,often:2}, helm:{tiller:0,console:0,windshield:3,cabin:1}, tow:{mid:0,full:2,hd:3}, load:{light:0,mid:3,heavy:2}},
+  scoutwb:  {water:{skinny:1,rivers:3,big:2,salt:0}, shallow:{extreme:1,some:3,rarely:1}, use:{riverfish:2,saltfish:0,hunt:1,family:3,haul:3}, crew:{solo:0,small:2,big:3}, rough:{never:0,some:2,often:2}, helm:{tiller:0,console:0,windshield:2,cabin:3}, tow:{mid:0,full:1,hd:3}, load:{light:0,mid:1,heavy:3}},
+  skagitib: {water:{skinny:2,rivers:3,big:2,salt:0}, shallow:{extreme:2,some:3,rarely:1}, use:{riverfish:3,saltfish:1,hunt:1,family:1,haul:3}, crew:{solo:1,small:3,big:1}, rough:{never:1,some:2,often:2}, helm:{tiller:0,console:0,windshield:3,cabin:1}, tow:{mid:0,full:2,hd:3}, load:{light:0,mid:2,heavy:3}},
+  sportster:{water:{skinny:0,rivers:2,big:3,salt:1}, shallow:{extreme:0,some:2,rarely:3}, use:{riverfish:2,saltfish:2,hunt:0,family:3,haul:1}, crew:{solo:0,small:2,big:3}, rough:{never:0,some:3,often:2}, helm:{tiller:0,console:0,windshield:3,cabin:2}, tow:{mid:0,full:1,hd:3}, load:{light:0,mid:3,heavy:2}},
+  sportib:  {water:{skinny:2,rivers:3,big:2,salt:0}, shallow:{extreme:2,some:3,rarely:1}, use:{riverfish:2,saltfish:1,hunt:1,family:3,haul:2}, crew:{solo:1,small:3,big:1}, rough:{never:1,some:2,often:1}, helm:{tiller:0,console:0,windshield:3,cabin:1}, tow:{mid:0,full:2,hd:3}, load:{light:0,mid:3,heavy:2}},
+  ssdib:    {water:{skinny:0,rivers:2,big:3,salt:2}, shallow:{extreme:0,some:2,rarely:3}, use:{riverfish:2,saltfish:2,hunt:0,family:3,haul:2}, crew:{solo:0,small:2,big:3}, rough:{never:0,some:2,often:3}, helm:{tiller:0,console:0,windshield:3,cabin:2}, tow:{mid:0,full:1,hd:3}, load:{light:0,mid:2,heavy:3}},
+  skagitx:  {water:{skinny:1,rivers:3,big:3,salt:1}, shallow:{extreme:1,some:3,rarely:2}, use:{riverfish:2,saltfish:2,hunt:1,family:1,haul:3}, crew:{solo:0,small:3,big:2}, rough:{never:0,some:2,often:3}, helm:{tiller:0,console:0,windshield:3,cabin:1}, tow:{mid:0,full:1,hd:3}, load:{light:0,mid:1,heavy:3}},
+  so:       {water:{skinny:0,rivers:1,big:3,salt:3}, shallow:{extreme:0,some:1,rarely:3}, use:{riverfish:1,saltfish:3,hunt:0,family:1,haul:1}, crew:{solo:1,small:3,big:1}, rough:{never:0,some:2,often:3}, helm:{tiller:0,console:3,windshield:3,cabin:0}, tow:{mid:0,full:3,hd:2}, load:{light:1,mid:3,heavy:1}},
+  sso:      {water:{skinny:0,rivers:0,big:3,salt:3}, shallow:{extreme:0,some:0,rarely:3}, use:{riverfish:0,saltfish:3,hunt:0,family:2,haul:2}, crew:{solo:0,small:2,big:3}, rough:{never:0,some:2,often:3}, helm:{tiller:0,console:2,windshield:3,cabin:0}, tow:{mid:0,full:1,hd:3}, load:{light:0,mid:2,heavy:3}}
+};
+
+const DIM_WEIGHT = {water:3, shallow:2, use:2, crew:1.5, rough:1.5, helm:1.5, tow:1, load:1.5};
+const BUDGET = [
+  {id:'b1', label:'Under $50K',    cap:50000,   desc:'Alaskan LT and XLT territory — a lot of welded aluminum for the money'},
+  {id:'b2', label:'$50K – $85K',   cap:85000,   desc:'The heart of the outboard lineup: Alaskan, XL, Skagit, Sport, Rogue, Drifter'},
+  {id:'b3', label:'$85K – $135K',  cap:135000,  desc:'Inboard V8 jet country — Scout, Skagit IB, Sport IB, XL IB'},
+  {id:'b4', label:'$135K and up',  cap:Infinity,desc:'Sportster, Scout Widebody, and the flagship builds'},
+  {id:'b0', label:'Not sure yet',  cap:Infinity,desc:'Skip the money question — we\u2019ll recommend on fit alone'}
+];
+
+const QUESTIONS = [
+  {id:'water', k:'WATER', title:'Where will you run this boat most?', hint:'The single biggest fork in the lineup.', opts:[
+    {id:'skinny', nm:'Skinny, technical rivers', d:'Gravel bars, braided channels, inches of water — where others can\u2019t follow'},
+    {id:'rivers', nm:'Bigger rivers and lakes', d:'Columbia tribs, mainstems, reservoirs — shallow sometimes, open water often'},
+    {id:'big',    nm:'Large open water', d:'The big Columbia, Puget Sound, sizable bays and wind chop'},
+    {id:'salt',   nm:'Saltwater and coastal', d:'The Sound, the coast, tide rips — serious open water'}
+  ]},
+  {id:'shallow', k:'DRAFT', title:'How shallow do you honestly need to run?', hint:'Be honest — it decides how much hull we put in the water.', skip:a=>a.water==='salt', opts:[
+    {id:'extreme', nm:'Inches', d:'Upriver past where the crowds stop — shallow is the whole point'},
+    {id:'some',    nm:'Shallow sometimes', d:'I cross thin water to get somewhere, but I don\u2019t live in it'},
+    {id:'rarely',  nm:'Depth is rarely my problem', d:'Launch, run, fish — mostly deeper water'}
+  ]},
+  {id:'use', k:'MISSION', title:'What\u2019s this boat mostly for?', hint:'Pick up to two.', multi:2, opts:[
+    {id:'riverfish', nm:'River salmon & steelhead', d:'Anchor up, pull plugs, chase fish up the system'},
+    {id:'saltfish',  nm:'Saltwater fishing', d:'Downriggers, crab pots, coastal salmon and bottomfish'},
+    {id:'hunt',      nm:'Hunting & remote access', d:'Duck blinds, deer camp, getting gear where roads don\u2019t go'},
+    {id:'family',    nm:'Family days & watersports', d:'Crew aboard, cruising, maybe a skier or wakeboard behind'},
+    {id:'haul',      nm:'Hauling heavy loads', d:'Cabin runs, camps, fuel, dogs, quarters — a working boat'}
+  ]},
+  {id:'crew', k:'CREW', title:'How many people are usually aboard?', opts:[
+    {id:'solo',  nm:'Just me, or one partner', d:'Light, quick, easy to handle alone'},
+    {id:'small', nm:'Two or three', d:'A fishing crew or the immediate family'},
+    {id:'big',   nm:'Four or more', d:'The whole crew — room matters'}
+  ]},
+  {id:'rough', k:'SEA STATE', title:'Will you cross serious rough water?', hint:'Wind chop on big water, tide rips, a river bar.', opts:[
+    {id:'never', nm:'Never', d:'I pick my days and my water'},
+    {id:'some',  nm:'Occasionally', d:'It happens — I want a hull that shrugs it off'},
+    {id:'often', nm:'Regularly', d:'Big water is part of the plan, not an accident'}
+  ]},
+  {id:'power', k:'POWER', title:'Outboard jet or inboard jet?', hint:'The biggest mechanical fork in the lineup.', skip:a=>a.water==='salt', tradeoff:'<b>Outboard:</b> open transom, lighter tow, easy service and repowering. <b>Inboard V8:</b> big torque, weight centered in the hull for handling and heavy loads, clean gunnels. Not sure? Pick \u201cRecommend for me\u201d and your other answers will decide.', opts:[
+    {id:'ob',     nm:'Outboard jet', d:'Yamaha or Mercury on the transom'},
+    {id:'ib',     nm:'Inboard V8 jet', d:'Chevy power, Hamilton jet, engine amidships'},
+    {id:'either', nm:'Recommend for me', d:'Show me the tradeoffs and pick what fits'}
+  ]},
+  {id:'helm', k:'HELM', title:'How do you want to drive it?', opts:[
+    {id:'tiller',     nm:'Tiller', d:'Nothing between you and the boat — max deck space'},
+    {id:'console',    nm:'Open console', d:'Wheel steering, open layout'},
+    {id:'windshield', nm:'Full walk-through windshield', d:'Weather off your face, walk-through to the bow'},
+    {id:'cabin',      nm:'Cabin / full enclosure', d:'All-season, all-weather — heater territory'}
+  ]},
+  {id:'tow', k:'TOW & STOW', title:'What\u2019s towing it — and where does it sleep?', hint:'No point recommending a boat your truck and garage can\u2019t live with.', opts:[
+    {id:'mid',  nm:'Midsize truck / SUV, garage stored', d:'Tacoma-class tow, standard garage length'},
+    {id:'full', nm:'Full-size truck, flexible storage', d:'F-150 / 1500-class, driveway or shop'},
+    {id:'hd',   nm:'Heavy-duty truck, no constraints', d:'3/4-ton or better — size is not the limit'}
+  ]},
+  {id:'load', k:'PAYLOAD', title:'How much gear are you actually hauling?', opts:[
+    {id:'light', nm:'Light', d:'Day trips, two anglers, rods and a cooler'},
+    {id:'mid',   nm:'Moderate', d:'Full crew, coolers, downriggers, the works'},
+    {id:'heavy', nm:'Expedition', d:'Fuel, dogs, quarters, camp for a week'}
+  ]},
+  {id:'budget', k:'BUDGET', title:'What\u2019s the budget for boat and power?', hint:'Complete boat with motor, before trailer and options.', opts:BUDGET.map(b=>({id:b.id, nm:b.label, d:b.desc}))}
+];
+
+/* phrases used to explain WHY the winner won */
+const WHY = {
+  water:{skinny:'Built for the skinny, technical water you named as home', rivers:'At its best on the river-and-lake mix you run', big:'A hull with the freeboard and beam for genuinely big water', salt:'Engineered for saltwater and coastal duty'},
+  shallow:{extreme:'The jet tunnel and draft to run in inches', some:'Shallow-capable without giving up big-water manners', rarely:'Trades extreme draft for ride and room — matching how you boat'},
+  use:{riverfish:'Laid out for river salmon and steelhead work', saltfish:'Rigged and hulled for saltwater fishing', hunt:'An open, tough platform for hunting and remote access', family:'Room and comfort for family days aboard', haul:'Serious payload — this is the load-hauler answer'},
+  crew:{solo:'Easy to run single-handed', small:'Right-sized for a two-to-three person crew', big:'The deck space for four or more'},
+  rough:{some:'Shrugs off the occasional rough crossing', often:'Freeboard and structure for regular rough water'},
+  helm:{tiller:'Available as the tiller rig you asked for', console:'Available in the open console layout you want', windshield:'The full walk-through windshield you asked for', cabin:'The enclosed, all-weather helm you asked for'},
+  load:{heavy:'Structure and displacement for expedition loads', mid:'Comfortable with a full working load', light:'Light enough to stay quick and efficient'}
+};
+
+const fmt = n => '$' + n.toLocaleString('en-US');
+const state = {step:0, ans:{}};
+const stage = document.getElementById('stage');
+
+function activeQuestions(){
+  return QUESTIONS.filter(q => !(q.skip && q.skip(state.ans)));
+}
+function render(){
+  const qs = activeQuestions();
+  if (state.step >= qs.length){ renderResult(); return; }
+  const q = qs[state.step];
+  const total = qs.length;
+  let html = `<div class="eyebrow">${q.k}</div>
+    <div class="qtitle">${q.title}</div>
+    ${q.hint ? `<div class="qhint">${q.hint}</div>` : ''}
+    <div class="opts ${q.opts.length>3?'cols2':''}">`;
+  const cur = state.ans[q.id];
+  for (const o of q.opts){
+    const on = q.multi ? (Array.isArray(cur) && cur.includes(o.id)) : cur === o.id;
+    html += `<button type="button" class="choice ${on?'on':''}" data-opt="${o.id}">
+      <span class="kicker">${q.k}</span><span class="cname">${o.nm}</span>
+      ${o.d ? `<span class="cdesc">${o.d}</span>` : ''}</button>`;
+  }
+  html += `</div>`;
+  if (q.tradeoff) html += `<div class="tradeoff" id="tradeoff">${q.tradeoff}</div>`;
+  html += `<div class="navrow">`;
+  if (q.multi) html += `<button type="button" class="btn" id="btnNext" ${Array.isArray(cur)&&cur.length?'':'disabled'}>Continue</button>`;
+  if (state.step > 0) html += `<button type="button" class="ghostlink" id="btnBack">&larr; Back</button>`;
+  html += `</div>`;
+  stage.innerHTML = html;
+
+  stage.querySelectorAll('.choice').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.opt;
+      if (q.multi){
+        let arr = Array.isArray(state.ans[q.id]) ? state.ans[q.id].slice() : [];
+        if (arr.includes(id)) arr = arr.filter(x => x !== id);
+        else { arr.push(id); if (arr.length > q.multi) arr.shift(); }
+        state.ans[q.id] = arr;
+        render();
+      } else {
+        state.ans[q.id] = id;
+        if (q.id === 'power' && id === 'either'){
+          const t = document.getElementById('tradeoff');
+          if (t && t.style.display !== 'block'){ t.style.display = 'block'; }
+        }
+        state.step++;
+        render();
+        window.scrollTo({top:0});
+      }
+    });
+  });
+  const nx = document.getElementById('btnNext');
+  if (nx) nx.addEventListener('click', () => { state.step++; render(); window.scrollTo({top:0}); });
+  const bk = document.getElementById('btnBack');
+  if (bk) bk.addEventListener('click', () => { state.step--; render(); window.scrollTo({top:0}); });
+}
+
+function score(){
+  const a = state.ans;
+  const results = [];
+  for (const id in T){
+    const t = T[id], f = FACTS[id];
+    let s = 0; const contrib = [];
+    for (const dim of ['water','shallow','crew','rough','helm','tow','load']){
+      if (!(dim in a)) continue;
+      const v = (t[dim][a[dim]] ?? 0) * DIM_WEIGHT[dim];
+      s += v;
+      if (v > 0 && WHY[dim] && WHY[dim][a[dim]]) contrib.push({v, txt:WHY[dim][a[dim]]});
+    }
+    for (const u of (a.use || [])){
+      const v = (t.use[u] ?? 0) * DIM_WEIGHT.use;
+      s += v;
+      if (v >= 4 && WHY.use[u]) contrib.push({v, txt:WHY.use[u]});
+    }
+    /* power preference */
+    if (a.power === 'ob'){ s += (f.drive !== 'ib') ? 5 : -6; }
+    if (a.power === 'ib'){ s += (f.drive === 'ib') ? 5 : -6; }
+    /* salt short-circuit: nothing but the offshore hulls should win open salt */
+    if (a.water === 'salt' && f.drive !== 'offshore') s -= 4;
+    /* practical constraints */
+    if (a.crew === 'big' && f.maxLen < 20) s -= 4;
+    if (a.tow === 'mid' && f.maxLen >= 23) s -= 4;
+    if (a.helm === 'tiller' && !f.styles.includes('tiller')) s -= 2;
+    /* budget */
+    const b = BUDGET.find(x => x.id === a.budget);
+    if (b && b.id !== 'b0'){
+      if (f.from > b.cap) s -= 8;
+      else { s += 2; }
+    }
+    results.push({id, s, contrib});
+  }
+  results.sort((x,y) => y.s - x.s);
+  return results;
+}
+
+/* Pick the length to preload in Build & Price, from signals the quiz already
+   scores with: a midsize-truck tow rules out the long hulls (same rule the
+   scorer applies), a big crew takes the longest, solo the shortest, otherwise
+   the middle of the range. Just a preselect - one click changes it. */
+function pickLen(id){
+  const lens = (FACTS[id].lengths || []).slice();
+  if (!lens.length) return null;
+  const a = state.ans;
+  let pool = lens;
+  if (a.tow === 'mid'){ const fit = lens.filter(L => L <= 20); if (fit.length) pool = fit; }
+  if (a.crew === 'big') return pool[pool.length - 1];
+  if (a.crew === 'solo') return pool[0];
+  return pool[Math.floor((pool.length - 1) / 2)];
+}
+function buildLink(id){
+  const f = FACTS[id];
+  const packed = {v:1, d:f.drive, m:id, s:null, l:pickLen(id), a:0, e:null, o:{}, r:{}, cu:[], n:'', t:null};
+  return CONFIG_URL + '#b=' + btoa(JSON.stringify(packed));
+}
+
+let LAST = null;   /* latest recommendation, used by the email button and the Build & Price link */
+function syncConfigLink(){
+  const a = document.getElementById('btnOpenConfig');
+  if (a) a.href = LAST ? buildLink(LAST.win) : CONFIG_URL;
+}
+function renderResult(){
+  const r = score();
+  const w = r[0], ru = r[1];
+  LAST = {win:w.id, run:ru.id};
+  syncConfigLink();
+  const f = FACTS[w.id], fr = FACTS[ru.id];
+  const whys = w.contrib.sort((a,b) => b.v - a.v)
+    .filter((c,i,arr) => arr.findIndex(x => x.txt === c.txt) === i)
+    .slice(0,3);
+  const b = BUDGET.find(x => x.id === state.ans.budget);
+  const priceLine = f.pp
+    ? `Hull from ${fmt(f.from)} &middot; power packages priced with our team`
+    : `Complete boat + power from ${fmt(f.from)}`;
+  let html = `<div class="verdict-eyebrow">Our recommendation</div>
+  <div class="winner"><div class="inner">
+    <div class="wname">${f.nm}</div>
+    <div class="wtag">${f.tag.replace(/\u2014/g,'&mdash;')}</div>
+    <div class="why"><div class="w">${BLURB[w.id]}</div>${whys.map(c => `<div class="w">${c.txt}</div>`).join('')}</div>
+    <div class="wmeta">
+      <div>LENGTHS<b>${f.lengths.map(L => L + '\u2032').join(' / ')}</b></div>
+      <div>POWER<b>${f.drive === 'ib' ? 'Inboard V8 jet' : f.drive === 'offshore' ? 'Outboard \u00b7 offshore' : 'Outboard jet'}</b></div>
+      <div>PRICED FROM<b>${f.pp ? fmt(f.from) + ' hull' : fmt(f.from)}</b></div>
+    </div>
+    <div class="smallnote">${priceLine}${b && b.id !== 'b0' && !f.pp ? (f.from <= b.cap ? ' &mdash; inside your ' + b.label.toLowerCase() + ' budget.' : ' &mdash; note: this runs above the budget you selected; the runner-up below fits it.') : '.'}</div>
+    <div class="ctarow">
+      <a class="btn" style="text-decoration:none; display:inline-block;" href="${buildLink(w.id)}">BUILD THIS BOAT &rarr;</a>
+      <button type="button" class="ghostlink" id="btnRestart">Start over</button>
+    </div>
+  </div></div>
+  <div class="runner">
+    <div class="rk">Worth a look</div>
+    <div class="rn">${fr.nm}</div>
+    <div class="rt">${BLURB[ru.id]}</div>
+    <div class="rfrom">${fr.pp ? 'Hull from ' + fmt(fr.from) : 'From ' + fmt(fr.from)} &nbsp;&middot;&nbsp; <a href="${buildLink(ru.id)}" style="color:var(--buoy);">build this one instead &rarr;</a></div>
+  </div>
+  <div class="smallnote">Every Wooldridge is built to order in Seattle and carries a Limited Lifetime Hull Warranty for the original owner. Not sure between the two? Call the shop at (206) 722-8998 &mdash; four generations of Wooldridges have talked people into the <i>right</i> boat, not the biggest one.</div>`;
+  stage.innerHTML = html;
+  document.getElementById('btnRestart').addEventListener('click', () => {
+    state.step = 0; state.ans = {}; render(); window.scrollTo({top:0});
+  });
+}
+
+function answerSummary(){
+  const lines = [];
+  for (const q of QUESTIONS){
+    const v = state.ans[q.id];
+    if (v == null || (Array.isArray(v) && !v.length)) continue;
+    const ids = Array.isArray(v) ? v : [v];
+    const labels = ids.map(id => (q.opts.find(o => o.id === id) || {}).nm).filter(Boolean);
+    if (labels.length) lines.push('- ' + q.k + ': ' + labels.join(', '));
+  }
+  return lines;
+}
+document.getElementById('btnAskDanny').addEventListener('click', () => {
+  let subject = 'Boat inquiry from the Which Wooldridge quiz';
+  let body = 'Hi Danny,\n\nI just went through the \u201cWhich Wooldridge Is Right For You\u201d quiz and I\u2019d like more information.\n';
+  if (LAST){
+    const fw = FACTS[LAST.win], fr = FACTS[LAST.run];
+    subject = fw.nm + ' inquiry \u2014 from the Which Wooldridge quiz';
+    body += '\nIt recommended the ' + fw.nm + ' (runner-up: ' + fr.nm + ').\n';
+  }
+  const sum = answerSummary();
+  if (sum.length) body += '\nMy answers:\n' + sum.join('\n') + '\n';
+  body += '\nPlease send me pricing and availability.\n\nName:\nPhone:\nBest time to reach me:\n';
+  body += '\n--- WB-INQUIRY v1 (for our records - please leave this section intact) ---\nSource: Which Wooldridge Quiz\nType: QUIZ RESULT\n';
+  if (LAST) body += 'Model: ' + FACTS[LAST.win].nm + '\nRunnerUp: ' + FACTS[LAST.run].nm + '\n';
+  location.href = 'mailto:info@wooldridgeboats.com?cc=data%40wooldridgeboats.com%2Cstephen%40wooldridgeboats.com&subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+});
+
+render();
+</script>
+<style id="wb-industrial-skin">
+/* ============================================================
+   WOOLDRIDGE INDUSTRIAL SKIN (added 2026-07)
+   Shared design language with the WEBSITE: Rockwell display
+   type, 4x4 graph-paper ground, drawing-sheet frame with zone
+   labels, and a gridded title block. ref: ANSI drafting sheets.
+   ============================================================ */
+body{
+  background-color:var(--paper);
+  background-image:
+    linear-gradient(rgba(27,117,187,.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27,117,187,.14) 1px, transparent 1px),
+    linear-gradient(rgba(27,117,187,.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27,117,187,.055) 1px, transparent 1px);
+  background-size:108px 108px,108px 108px,27px 27px,27px 27px;
+  padding-top:24px;
+}
+.wb-sheetframe{position:fixed; inset:7px; border:1.6px solid var(--ink); pointer-events:none; z-index:60;}
+.wb-sheetframe::before{content:""; position:absolute; inset:4px; border:1px solid var(--ink); opacity:.45;}
+.wb-zonelab{
+  position:fixed; z-index:61; pointer-events:none;
+  font-family:'Courier New',ui-monospace,monospace; font-size:10px; font-weight:700; letter-spacing:.08em;
+  color:var(--ink); opacity:.75; background:var(--paper); padding:0 5px; line-height:1.4;
+}
+.wb-zl-top{position:absolute; top:11px; transform:translateX(-50%);}
+.wb-zl-bottom{bottom:12px; transform:translateX(-50%);}
+.wb-zl-left{left:13px; transform:translateY(-50%);}
+.wb-zl-right{right:13px; transform:translateY(-50%);}
+.wb-tbwrap{max-width:860px; margin:34px auto 0; padding:0 26px 26px;}
+.wb-titleblock{
+  display:grid; grid-template-columns:1.5fr 1fr 1fr .55fr 1.25fr .6fr;
+  border:1.6px solid var(--ink); background:var(--card);
+  font-family:'Courier New',ui-monospace,monospace; box-shadow:3px 3px 0 rgba(27,117,187,.35);
+}
+.wb-tb-cell{border-left:1px solid var(--ink); padding:6px 10px 7px; min-width:0;}
+.wb-tb-row2{border-top:1px solid var(--ink);}
+.wb-tb-title{grid-column:span 2;}
+.wb-tb-notes{
+  grid-row:1/3; border-left:none; padding:8px 10px;
+  font-size:8.5px; line-height:1.7; letter-spacing:.1em; text-transform:uppercase; color:var(--slate);
+}
+.wb-tb-notes b{color:var(--ink);}
+.wb-tb-k{display:block; font-size:8.5px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:#3a6ea5;}
+.wb-tb-v{display:block; font-size:12px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--ink); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.wb-tb-v.big{font-size:16px;}
+@media (max-width:860px){
+  .wb-titleblock{grid-template-columns:repeat(2,1fr);}
+  .wb-tb-notes{display:none;}
+  .wb-tb-cell{border-top:1px solid var(--ink); border-left:1px solid var(--ink);}
+  .wb-tb-cell:nth-child(even){border-left:none;}
+  .wb-tb-cell:nth-child(2), .wb-tb-cell:nth-child(3){border-top:none;}
+}
+@media (max-width:720px){ .wb-sheetframe, .wb-zonelab{display:none;} body{padding-top:0;} }
+@media print{ .wb-sheetframe, .wb-zonelab, .wb-tbwrap{display:none !important;} body{background-image:none !important; padding-top:0 !important;} }
+.mast .brand, .qtitle, .wname{font-family:'Rockwell',Georgia,Palatino,'Palatino Linotype','Times New Roman',Times,serif;}</style>
+<script id="wb-industrial-skin-js">
+(function () {
+  "use strict";
+  var CFG = { dwg: "WB-2026-QUIZ-2", title: "WHICH WOOLDRIDGE", notes: "ALL HULLS 5052 & 5086 MARINE-GRADE ALUMINUM, WELDED BY HAND IN SEATTLE, WA.<br>EVERY BOAT SEA-TRIALED BEFORE DELIVERY.<br>DO NOT SCALE DRAWING." };
+  function init() {
+    if (document.querySelector(".wb-sheetframe")) return;
+    var f = document.createElement("div");
+    f.className = "wb-sheetframe"; f.setAttribute("aria-hidden", "true");
+    document.body.appendChild(f);
+    function zone(cls, prop, val, txt) {
+      var s = document.createElement("span");
+      s.className = "wb-zonelab " + cls; s.style[prop] = val;
+      s.textContent = txt; s.setAttribute("aria-hidden", "true");
+      document.body.appendChild(s);
+    }
+    var nums = ["4", "3", "2", "1"];
+    for (var i = 0; i < 4; i++) {
+      var x = (12.5 + i * 25) + "%";
+      zone("wb-zl-top", "left", x, nums[i]);
+      zone("wb-zl-bottom", "left", x, nums[i]);
+    }
+    zone("wb-zl-left", "top", "25%", "B"); zone("wb-zl-right", "top", "25%", "B");
+    zone("wb-zl-left", "top", "75%", "A"); zone("wb-zl-right", "top", "75%", "A");
+    function cell(k, v, cls) {
+      return '<div class="wb-tb-cell ' + (cls || "") + '"><span class="wb-tb-k">' + k +
+             '</span><span class="wb-tb-v' + (k === "SIZE" ? " big" : "") + '">' + v + "</span></div>";
+    }
+    var w = document.createElement("div");
+    w.className = "wb-tbwrap"; w.setAttribute("aria-hidden", "true");
+    w.innerHTML = '<div class="wb-titleblock">' +
+      '<div class="wb-tb-cell wb-tb-notes"><b>UNLESS OTHERWISE SPECIFIED:</b><br>' + CFG.notes + "</div>" +
+      cell("DRAWN", "WOOLDRIDGE FAMILY") + cell("CHECKED", "SEA-TRIALED") + cell("SIZE", "B") +
+      cell("DWG. NO.", CFG.dwg) + cell("REV", "2026") +
+      cell("TITLE", CFG.title, "wb-tb-row2 wb-tb-title") + cell("SCALE", "1:1", "wb-tb-row2") +
+      cell("WEIGHT", "SEE SPECS", "wb-tb-row2") + cell("SHEET", "1 OF 1", "wb-tb-row2") +
+      "</div>";
+    document.body.appendChild(w);
+  }
+  if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", init); }
+  else { init(); }
+})();
+</script>
+<div id="siteFooterWrap"><!-- PARTIAL:footer -->
+<footer>
+  <div class="wrap">
+    <div class="flogo"><img src="/assets/brand/logo-wing-dark.png" alt="Wooldridge Boats 1915"></div>
+    <div class="fcontact">
+      <a href="tel:+12067228998">206.722.8998</a><span class="sep">|</span><a href="mailto:info@wooldridgeboats.com?cc=data@wooldridgeboats.com">info@wooldridgeboats.com</a>
+    </div>
+    <div class="faddr">Factory | Showroom<br>1303 S 96th St.<br>Seattle, WA 98108-5011</div>
+    <div class="fhours">Monday &ndash; Thursday 6:00AM &ndash; 4:30PM</div>
+    <div class="fsoc">
+      <a href="https://www.instagram.com/wooldridgeboats/" aria-label="Instagram"><img src="/assets/brand/ic-instagram.png" alt="Instagram"></a>
+      <a href="https://www.facebook.com/WooldridgeBoats/" aria-label="Facebook"><img src="/assets/brand/ic-facebook.png" alt="Facebook"></a>
+      <a href="https://www.youtube.com/channel/UC-hVTJ7HySkqCjUENQY5CCQ" aria-label="YouTube"><img src="/assets/brand/ic-youtube.png" alt="YouTube"></a>
+    </div>
+    <div class="frow">
+      <a href="/#fleet">Our Boats</a>
+      <a href="/pre-owned/">Pre-Owned</a>
+      <a href="/new-inventory/">New Boats</a>
+      <a href="/dealers/">Dealers</a>
+      <a href="/our-history/">About | History</a>
+      <a href="/faq/">FAQ</a>
+      <a href="/store/">Store</a>
+      <a href="/contact/">Contact</a>
+    </div>
+    <div class="frow frow2">
+      <a href="/tools/Boat_Configurator_-_Customer_Version.html">Build &amp; Price</a>
+      <a href="/tools/WHICH_WOOLDRIDGE_QUIZ_2.html">Which Wooldridge Quiz</a>
+      <a href="/tools/BOAT_COMPARISON_TOOL.html">Compare Models</a>
+      <a href="/tools/QUOTE_REQUEST.html">Request a Quote</a>
+      <a href="/tools/OPTION_EXPLAINER.html">Options &amp; Terms, Explained</a>
+      <a href="/photos/">Photos</a>
+      <a href="/dealer-resources/">Dealer Resources</a>
+      <a href="/careers/">Careers</a>
+      <a href="/privacy-policy/">Privacy Policy</a>
+      <a href="/return-policy/">Returns</a>
+    </div>
+  </div>
+  <div class="legal">
+    <div class="wrap">
+      <span class="fineprint">&copy; 2026 WOOLDRIDGE BOATS. ALL RIGHTS RESERVED.</span>
+      <span class="fineprint">ALL HULLS 5052 &amp; 5086 MARINE-GRADE ALUMINUM, WELDED BY HAND IN SEATTLE, WA.</span>
+      <span class="fineprint">PRICES SUBJECT TO CHANGE &#8212; CONTACT WOOLDRIDGE BOATS DIRECTLY FOR AN OFFICIAL QUOTE.</span>
+      <span class="fineprint">FAMILY BUILT SINCE 1915.</span>
+    </div>
+  </div>
+<script defer src="/assets/media-provenance.js?v=4192756b"></script><script defer src="/assets/media-fade.js?v=b9e3e85e"></script>
+</footer>
+<!-- /PARTIAL:footer --></div>
+</body>
+</html>

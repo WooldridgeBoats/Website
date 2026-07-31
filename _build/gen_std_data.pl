@@ -15,7 +15,7 @@ use File::Basename qw(dirname);
 use Cwd qw(abs_path);
 
 my $root = dirname(dirname(abs_path(__FILE__)));
-my $cfg  = "$root/tools/Boat_Configurator_-_Customer_Version.html";
+my $cfg  = "$root/build-and-price/index.html";
 my $out  = "$root/tools/STD_DATA.js";
 
 open my $fh, '<:raw', $cfg or die "can't read configurator: $!";

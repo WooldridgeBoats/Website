@@ -31,7 +31,7 @@ sub spew  { my ($f,$c)=@_; open my $fh,'>:encoding(UTF-8)',$f or die "write $f: 
 # handle "works" but warns — and the same mistake with mixed byte/wide strings
 # double-encoded a whole file earlier tonight. Encode on purpose, always.
 
-my $cfg = slurp("$root/tools/Boat_Configurator_-_Customer_Version.html");
+my $cfg = slurp("$root/build-and-price/index.html");
 $cfg =~ /^const MODELS = (\[.*?\]);\r?$/m or die "const MODELS not found";
 my $models = decode_json($1);
 
