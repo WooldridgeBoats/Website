@@ -25,6 +25,15 @@
 # Run after any catalogue regeneration or overlay change:
 #   perl _build/gen_fleet.pl
 use strict; use warnings;
+# REQUIRED — do not remove. The %PRESENTATION tags below are typed with real em
+# dashes, so this file is UTF-8 source. Without this pragma Perl reads each em
+# dash as its three raw bytes (E2 80 94) treated as three Latin-1 characters,
+# JSON::PP->ascii dutifully escapes them as â, and the home page
+# renders "sled â the boat" instead of "sled — the boat". That was
+# live on 2026-07-30 until Stephen spotted it in the Alaskan card. The other
+# generated copies were clean, which is why it hid for so long: only the home
+# page's FLEET block carries these hardcoded tags.
+use utf8;
 use JSON::PP;
 use File::Basename qw(dirname);
 use Cwd qw(abs_path);
