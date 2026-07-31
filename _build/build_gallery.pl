@@ -2,8 +2,13 @@
 # Generate photo-data.js + rebuilt photos/index.html for the Wooldridge site.
 use strict; use warnings; use utf8;
 use JSON::PP;
+use File::Spec;
+use File::Basename qw(dirname);
 
-my $ROOT   = 'C:/Users/steph/Desktop/ALMOST DONE (1)/ALMOST DONE';
+# Repo root = parent of _build (this script's own folder). Never hardcode:
+# the OneDrive parent folder name has moved before and will move again.
+my $ROOT   = dirname(dirname(File::Spec->rel2abs($0)));
+$ROOT =~ s{\\}{/}g;
 my $PHOTOS = "$ROOT/assets/photos";
 my $PAGE   = "$ROOT/photos/index.html";
 
@@ -108,10 +113,15 @@ open my $pf, '<:encoding(UTF-8)', $PAGE or die $!;
 my $old = do { local $/; <$pf> }; close $pf;
 
 my ($head_nav) = $old =~ /^(.*?)<main>/s or die "no <main>";
-my ($footer)   = $old =~ /(<footer>.*?<\/footer>)/s or die "no footer";
+# keep the PARTIAL:footer markers when present — inject_partials.pl needs them
+my ($footer)   = $old =~ /(<!--\s*PARTIAL:footer\s*-->.*?<!--\s*\/PARTIAL:footer\s*-->)/s;
+($footer)      = $old =~ /(<footer>.*?<\/footer>)/s unless defined $footer;
+die "no footer" unless defined $footer;
+# any extra deferred scripts after the footer (e.g. pagenav.js) must survive a rebuild
+my @extra_scripts = $old =~ m{^(<script src="[^"]+"[^>]*\bdefer\b[^>]*></script>)$}mg;
 
 my %sec_meta;
-while ($old =~ m{<div class="sechead tight" id="([^"]+)"[^>]*><div class="eyebrow">(.*?)</div>\s*<h2[^>]*>(.*?)</h2>\s*<p class="lede">(.*?)</p></div>}sg) {
+while ($old =~ m{<div class="sechead tight(?: psec)?" id="([^"]+)"[^>]*><div class="eyebrow">(.*?)</div>\s*<h2[^>]*>(.*?)</h2>\s*<p class="lede">(.*?)</p></div>}sg) {
   my ($sid, $eb, $h2, $lede) = ($1, $2, $3, $4);
   $sec_meta{$sid} = { eyebrow=>$eb, lede=>$lede };
 }
@@ -154,8 +164,8 @@ push @body, "<main>\n";
 push @body, <<"MAST";
 <header class="pagemast"><div class="wrap">
   <div class="co">Wooldridge Boats &nbsp;&#183;&nbsp; Seattle, Washington</div>
-  <div class="crumb"><a href="../index.html">HOME</a> / FLEET GALLERY</div>
-  <h1>The fleet, on film.</h1><div class="kick">$total PHOTOS &#183; ${\ scalar @MODELS} BOATS &#183; SHOT IN THE FIELD AND ON THE FLOOR</div>
+  <div class="crumb"><a href="../">HOME</a> / FLEET GALLERY</div>
+  <h1>The fleet, on film</h1><div class="kick">$total PHOTOS &#183; ${\ scalar @MODELS} BOATS &#183; SHOT IN THE FIELD AND ON THE FLOOR</div>
   <div class="tag">Real boats, real water &#8212; no renderings. Browse by model or by length, tap any photo for the full-screen viewer, and use your back button anytime &#8212; it always brings you right back here.</div>
   <div class="dbl mastrule"></div>
 </div></header>
@@ -220,7 +230,9 @@ push @body, qq{</div></section>\n</main>\n};
 my $new = $head_nav . join('', @body) . $footer
   . qq{\n<script src="../assets/photo-data.js"></script>}
   . qq{<script src="../assets/gallery.js"></script>}
-  . qq{<script src="../assets/shop.js"></script>\n</body>\n</html>\n};
+  . qq{<script src="../assets/shop.js"></script>\n}
+  . join('', map { "$_\n" } @extra_scripts)     # e.g. pagenav.js — carried over from the old page
+  . qq{</body>\n</html>\n};
 
 $new =~ s{<title>Photos by Model &#8212; Wooldridge Boats</title>}
          {<title>Fleet Photo Gallery &#8212; Wooldridge Boats</title>};
