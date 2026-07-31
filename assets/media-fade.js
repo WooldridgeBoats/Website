@@ -19,6 +19,7 @@
   'use strict';
 
   var NOTE_KEY = 'wbPhNote';
+  var PH_TITLE = 'Placeholder photo - not from the vetted media library';
   var noteShown = false;
 
   function keyFor(src) {
@@ -69,10 +70,23 @@
     if (src.indexOf('/shop-') !== -1) return; // live-build carousels: excluded
     var key = keyFor(src);
     if (!key) return;
+    var wrap = img.parentElement;
     if (vetted[key]) {
       img.classList.remove('wb-ph');
+      if (img.getAttribute('title') === PH_TITLE) img.removeAttribute('title');
+      // drop the corner tab unless another placeholder still lives in this wrapper
+      if (wrap && wrap.classList && wrap.classList.contains('wb-ph-wrap')
+          && !wrap.querySelector('img.wb-ph')) {
+        wrap.classList.remove('wb-ph-wrap');
+      }
     } else {
       img.classList.add('wb-ph');
+      if (!img.getAttribute('title')) img.setAttribute('title', PH_TITLE);
+      // corner tab: pseudo-elements cannot attach to <img>, so the immediate
+      // wrapper carries it (gallery cells, fleet-card frames, the lightbox)
+      if (wrap && wrap !== document.body && wrap.classList) {
+        wrap.classList.add('wb-ph-wrap');
+      }
       showNote();
     }
   }

@@ -1672,6 +1672,18 @@ img.wb-ph{
   transition:filter .35s ease;
 }
 
+/* second identifier beyond the fade: a small folded-corner tab, top right.
+   Lives on the placeholder image's immediate wrapper (imgs can't carry
+   pseudo-elements); media-fade.js adds/removes .wb-ph-wrap in step with
+   .wb-ph, so the tab and the fade can never disagree. */
+.wb-ph-wrap{ position:relative; }
+.wb-ph-wrap::after{
+  content:""; position:absolute; top:0; right:0; width:0; height:0;
+  border-style:solid; border-width:0 22px 22px 0;
+  border-color:transparent rgba(35,40,45,.55) transparent transparent;
+  pointer-events:none; z-index:2;
+}
+
 /* the one-time explainer pill, bottom-left, dismissible */
 .wb-phnote{
   position:fixed; left:16px; bottom:16px; z-index:9000;
