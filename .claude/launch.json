@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "website-preview",
+      "runtimeExecutable": "C:\Program Files\Git\usr\bin\perl.exe",
+      "runtimeArgs": ["_build\serve.pl", ".", "8410"],
+      "port": 8410
+    }
+  ]
+}

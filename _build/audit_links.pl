@@ -9,6 +9,12 @@ use File::Basename qw(dirname);
 use Cwd qw(abs_path);
 
 my $root = dirname(dirname(abs_path(__FILE__)));
+# Git-for-Windows Perl resolves abs_path() against its POSIX cwd, so invoking this
+# script by ABSOLUTE Windows path yields a garbage root ("/c/Users/x/C:/Users/x/...")
+# that find() silently walks as nothing -- and a zero-page scan used to still print
+# "no broken internal links", a false pass. Run it from the repo root
+# (perl _build/audit_links.pl); the guard at the bottom now makes a no-op scan fatal.
+die "audit_links: derived root does not exist: $root\n" unless -d $root;
 my (@bad, %ext, $pages, $links);
 
 find(sub {
@@ -36,6 +42,9 @@ find(sub {
   }
 }, $root);
 
+$pages ||= 0; $links ||= 0;
+die "audit_links: scanned 0 pages under $root -- refusing to report a clean audit.\n"
+  . "Run it from the repo root: perl _build/audit_links.pl\n" unless $pages;
 print "pages scanned: $pages, internal links checked: $links\n";
 if (@bad){ print "BROKEN INTERNAL LINKS (" . @bad . "):\n"; print "  $_\n" for @bad }
 else { print "no broken internal links.\n" }
