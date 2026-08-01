@@ -1721,3 +1721,63 @@ img.wb-ph{
   color:#71787e; font-size:16px; line-height:1; padding:2px 4px;
 }
 .wb-phnote button:hover{ color:#23282d; }
+
+/* ── tool nudge (bottom right) ──────────────────────────────────────────────
+   Built by tool-nudge.js. Collapsed it is a blue pill; clicking swaps it for a
+   white card carrying the two tool links. Bottom RIGHT deliberately — the
+   placeholder pill above owns bottom left, and the two can be on screen at
+   once. Both sit at z-index 9000, but they never overlap. */
+.wb-nudge{
+  position:fixed; right:16px; bottom:16px; z-index:9000;
+  max-width:min(340px, calc(100vw - 32px));
+  opacity:0; transform:translateY(8px);
+  transition:opacity .28s ease, transform .28s ease;
+}
+.wb-nudge-in{ opacity:1; transform:none; }
+.wb-nudge-tab{
+  /* matches .nav .nav-cta's livery so it reads as the same family of button,
+     but pill-shaped so it reads as a floating aside rather than site chrome */
+  display:block; border:0; cursor:pointer;
+  background:var(--blue); color:#fff;
+  font:700 13px/1 "Inter", system-ui, sans-serif;
+  letter-spacing:.01em; padding:11px 16px; border-radius:999px;
+  box-shadow:0 1px 2px rgba(20,30,40,.06), 0 6px 22px rgba(20,30,40,.14);
+}
+.wb-nudge-tab:hover{ background:var(--blue-dark); }
+.wb-nudge-panel{
+  display:none;
+  align-items:flex-start; gap:10px;
+  background:#fff; color:#23282d;
+  border:1px solid #dcdfe2; border-radius:12px;
+  box-shadow:0 1px 2px rgba(20,30,40,.06), 0 6px 22px rgba(20,30,40,.08);
+  padding:13px 14px;
+}
+.wb-nudge-open .wb-nudge-tab{ display:none; }
+.wb-nudge-open .wb-nudge-panel{ display:flex; }
+.wb-nudge-msg{
+  margin:0; font:400 13.5px/1.55 "Inter", system-ui, sans-serif;
+}
+.wb-nudge-msg a{
+  color:var(--blue); font-weight:700; text-decoration:underline;
+  text-underline-offset:2px;
+}
+.wb-nudge-msg a:hover{ color:var(--blue-dark); }
+/* An inline link's hit area is its text box (~16px here), not its line box, so
+   line-height cannot fix this — the anchors have to become inline-block to take
+   vertical padding. Touch pointers only; on a mouse 16px is already fine and
+   inline-block risks odd wrapping for no gain. Both phrases are far narrower
+   than the panel, so they still read as one sentence. */
+@media (pointer:coarse){
+  .wb-nudge-msg a{ display:inline-block; padding:4px 0; }
+}
+.wb-nudge-x{
+  flex:0 0 auto; border:0; background:none; cursor:pointer;
+  color:#71787e; font-size:16px; line-height:1; padding:2px 4px;
+}
+.wb-nudge-x:hover{ color:#23282d; }
+@media (prefers-reduced-motion:reduce){
+  .wb-nudge{ transition:none; }
+}
+@media print{
+  .wb-nudge,.wb-phnote{ display:none !important; }
+}
