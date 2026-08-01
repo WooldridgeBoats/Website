@@ -245,12 +245,24 @@ section{ padding:64px 0; }
    block, because the intermediate states were only confusing to read. What the
    band is now, in order under the hero video:
 
-       NOT FOR PRACTICE      the only headline, Wooldridge blue
+       NOT FOR PRACTICE      the only headline, in the wing logo's livery
        "For over a century"  the story blurb
        compass rose          closes the band and hands off to "Explore by Power"
 
    The brand name is deliberately NOT here — the wing logo in the nav carries it,
    and it was grown to 62px for exactly that reason. Do not "restore" it.
+
+   Rev 7 (2026-07-31, Stephen's direction): the slogan now wears the wing logo's
+   exact treatment — blue fill, solid black border — because nothing else on the
+   page visually tied the slogan to the brand mark, and a visitor had no way to
+   read NOT FOR PRACTICE as *ours*. Colors are sampled from the logo PNG itself:
+   fill #1b75bb (identical to --blue), border #000. The border is drawn by a
+   ::before that repeats the text (via the data-text attribute on the span in
+   index.html — KEEP IT IN SYNC with the visible text) with a fat text-stroke,
+   layered *behind* the blue fill. Do not put text-stroke on the span itself:
+   a centered stroke eats the letterforms from the inside and thins the type —
+   the back-copy approach grows the border outward only, exactly like the logo's
+   black plate behind its blue wing.
 
    The 22px floor is load-bearing: 16 uppercase characters at .055em tracking
    need more width than a 360px phone's gutters leave if you go bigger, and the
@@ -285,14 +297,33 @@ section{ padding:64px 0; }
   background:linear-gradient(90deg,rgba(35,40,45,.5),transparent);
 }
 .tagband h1.slogan .punch{
-  color:#000;
+  position:relative; z-index:0;   /* stacking context so the border copy stays sandwiched */
+  color:var(--blue);
   font-size:clamp(22px,3.05vw,36px); font-weight:700; letter-spacing:.055em;
   text-transform:uppercase;
+  /* Found while measuring rev 7: rev 6's "the 22px floor just fits" was wrong —
+     at 375px the mark wrapped NOT FOR / PRACTICE (the flanking rules' 34px
+     basis plus gaps ate the difference). nowrap makes the text the immovable
+     object; the rules are flex 0 1 with min-width:0, so THEY compress toward
+     zero instead. Measured after the fix: one line at 375px and 360px. */
+  white-space:nowrap;
   /* letter-spacing hangs a phantom space off the last letter. As a centred flex
      item that would push the right-hand rule .055em further out than the left,
      so the box is pulled back in by exactly that much (this replaces the
      text-indent trick, which was right only while it was a standalone block). */
   margin-right:-.055em;
+}
+.tagband h1.slogan .punch::before{
+  content:attr(data-text);
+  position:absolute; left:0; top:0; width:100%; z-index:-1;
+  color:#000;
+  /* Visible border = HALF this stroke (the blue plate covers the inner half).
+     .12em tracks the logo's border-to-height ratio at desktop; the 3px floor
+     keeps the border legible at the 22px phone size where .12em collapses
+     under 3px. Fill is #000 too so the stroke has no hollow core. */
+  -webkit-text-stroke:max(3px,.12em) #000;
+  /* rev 6's restrained dimensionality, moved to the back plate so the shadow
+     hangs off the black border (as on the logo) instead of the blue fill */
   text-shadow:0 1px 0 rgba(255,255,255,.5), 0 3px 6px rgba(20,30,40,.16);
 }
 /* The rose is the band's closing rule, so its top margin has to clear the blurb
