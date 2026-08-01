@@ -318,10 +318,13 @@ section{ padding:64px 0; }
   position:absolute; left:0; top:0; width:100%; z-index:-1;
   color:#000;
   /* Visible border = HALF this stroke (the blue plate covers the inner half).
-     .12em tracks the logo's border-to-height ratio at desktop; the 3px floor
-     keeps the border legible at the 22px phone size where .12em collapses
-     under 3px. Fill is #000 too so the stroke has no hollow core. */
-  -webkit-text-stroke:max(3px,.12em) #000;
+     Was .12em at rev 7; Stephen same day: "a hair thicker - i want the internal
+     blue to compliment the aesthetic, not dominate it." .16em ≈ 2.9px visible
+     at the 36px desktop size, and sits nearer the logo's own proportions
+     (its black runs 10-15px against blue limbs of 51-80px, measured from the
+     PNG). The 4px floor keeps the border reading at the 22px phone size.
+     Fill is #000 too so the stroke has no hollow core. */
+  -webkit-text-stroke:max(4px,.16em) #000;
   /* rev 6's restrained dimensionality, moved to the back plate so the shadow
      hangs off the black border (as on the logo) instead of the blue fill */
   text-shadow:0 1px 0 rgba(255,255,255,.5), 0 3px 6px rgba(20,30,40,.16);

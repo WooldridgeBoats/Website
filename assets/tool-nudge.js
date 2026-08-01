@@ -13,15 +13,20 @@
  * someone already taking the quiz is noise, and the configurator and quote form
  * are further down the funnel than this nudge is trying to push.
  *
- * Dismissal (the x) is permanent via localStorage. Collapsing (Escape, or a
- * click outside) is not — the pill comes back, because collapsing means "not
- * now", not "never".
+ * Dismissal (the x) is a 14-day snooze via localStorage, not forever — Stephen
+ * dismissed it while testing on 2026-07-31, expected it back, and it wasn't:
+ * for a discovery nudge, one misclick should not mean permanent invisibility.
+ * The stored value is the dismissal timestamp; the old permanent flag ("1")
+ * fails the timestamp check and therefore un-dismisses itself. Collapsing
+ * (Escape, or a click outside) is lighter still — the pill returns instantly,
+ * because collapsing means "not now", not "not this fortnight".
  */
 (function () {
   'use strict';
 
   var KEY = 'wbToolNudge';
   var DELAY = 1200;   // let the page settle first; an instant pill reads as a popup ad
+  var SNOOZE = 14 * 24 * 60 * 60 * 1000;   // how long the x keeps it away
 
   // Pages where the nudge has nothing useful to offer. Matched as path prefixes.
   var SKIP = [
@@ -33,7 +38,13 @@
   ];
 
   function dismissed() {
-    try { return window.localStorage.getItem(KEY) === '1'; }
+    try {
+      var at = parseInt(window.localStorage.getItem(KEY), 10);
+      // NaN (never dismissed, or the retired permanent "1"... 1 is a valid int:
+      // it parses to epoch-1970, which is older than any snooze) fails the
+      // window test below, so both cases correctly mean "show the pill".
+      return !isNaN(at) && (Date.now() - at) < SNOOZE;
+    }
     catch (e) { return true; } // storage blocked: stay quiet rather than nag
   }
 
@@ -102,7 +113,7 @@
     }
 
     function dismiss() {
-      try { window.localStorage.setItem(KEY, '1'); } catch (e) {}
+      try { window.localStorage.setItem(KEY, String(Date.now())); } catch (e) {}
       if (root.parentNode) root.parentNode.removeChild(root);
       document.removeEventListener('keydown', onKey);
       document.removeEventListener('click', onOutside);
