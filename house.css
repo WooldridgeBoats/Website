@@ -292,7 +292,7 @@ section{ padding:64px 0; }
      the current value and the sizing rationale; kept as two declarations
      rather than a shared variable because these rules predate that need and
      a custom property here would be the only one in this whole section. */
-  font-size:clamp(29px,3.75vw,44px);
+  font-size:clamp(19px,2.6vw,31px);
   background:linear-gradient(90deg,transparent,rgba(0,0,0,.75));
   /* Nudge to the optical centre of the CAPS rather than the line box, derived
      from Rockwell's real metrics rather than guessed: ascent 34 / descent 8 at
@@ -308,17 +308,18 @@ section{ padding:64px 0; }
 .tagband h1.slogan .punch{
   position:relative; z-index:0;   /* stacking context so the border copy stays sandwiched */
   color:var(--blue);
-  /* Rev 8 (2026-07-31). Was clamp(22px,3.05vw,36px). Stephen wanted the mark
-     "a bit smaller ... 1/2 or 1 font size bigger than Explore by Power" —
-     which is .sechead h2 at clamp(26px,3.4vw,40px). The old numbers were
-     already SMALLER than Explore at every width; the mark only read bigger
-     because of the bold weight, the black border and the tight tracking.
-     So this is a size INCREASE that answers a "make it smaller" note: it puts
-     the relationship where he asked instead of where it looked. New value is
-     Explore's clamp x1.1 — a half-to-one step in this file's own rhythm,
-     where .sechead h2's 40px cap sits one step above .duo h2's 32px.
+  /* Rev 9 (2026-07-31). Sizing history, because it went the wrong way once:
+     rev 7 was clamp(22px,3.05vw,36px); rev 8 read Stephen's "1/2 or 1 font
+     size bigger than Explore by Power" literally and went UP to 44px, since
+     the mark measured smaller than Explore even though it read louder. He
+     retracted the reference immediately — "SMALLER I SAID ... even smaller
+     than it previously was" — so the Explore relationship is NOT a
+     constraint here and should not be reintroduced. This is rev 7 x ~0.86:
+     31px cap, 19px floor. The mark reads big for its size because of the
+     bold weight, the black border and the .055em tracking; the number has to
+     go under what looks right, not match it.
      KEEP IN SYNC with the flanking rules' font-size above. */
-  font-size:clamp(29px,3.75vw,44px); font-weight:700; letter-spacing:.055em;
+  font-size:clamp(19px,2.6vw,31px); font-weight:700; letter-spacing:.055em;
   text-transform:uppercase;
   /* Found while measuring rev 7: rev 6's "the 22px floor just fits" was wrong —
      at 375px the mark wrapped NOT FOR / PRACTICE (the flanking rules' 34px
@@ -359,19 +360,12 @@ section{ padding:64px 0; }
   .tagband h1.slogan .punch{ letter-spacing:.03em; margin-right:-.03em; }
   .tagband .navrose{ margin-top:26px; }
 }
-/* Below ~430px the rev-8 slogan (29px floor, ~317px wide set) leaves under
-   ~17px per flanking rule, and by 360px they compress to literally 0 — the
-   nowrap trade-off working as intended, but rendering as nothing. The size
-   Stephen asked for and visible rules cannot coexist at phone widths: holding
-   the mark above .sechead h2's 26px floor forces the set wider than the
-   gutters leave room for. Hiding them is the honest resolution — the black
-   border, which did not exist when these rules were added, now does their
-   original job of stopping the slogan reading as ordinary copy. */
-@media (max-width:430px){
-  .tagband h1.slogan::before,
-  .tagband h1.slogan::after{ display:none; }
-  .tagband h1.slogan{ gap:0; }
-}
+/* Rev 8 needed a max-width:430px block here that hid the flanking rules: at
+   its 29px floor the set ran ~317px and squeezed them to 0 on a 360px phone.
+   Rev 9's 19px floor sets ~208px, which leaves ~40px per rule at 360px, so
+   the block is gone and the rules survive at every width again. If the mark
+   is ever enlarged past roughly a 24px floor, re-measure that — the rules
+   vanish quietly rather than overflowing, so nothing will fail loudly. */
 .tagband .blurb{
   max-width:960px; margin:20px auto 0; font-weight:400;
   font-size:17.5px; line-height:1.7; color:var(--body);
