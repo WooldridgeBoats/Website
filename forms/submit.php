@@ -20,9 +20,9 @@
 header('Content-Type: application/json; charset=utf-8');
 
 $ROUTES = array(
-  'contact' => array('to' => 'info@wooldridgeboats.com', 'cc' => 'data@wooldridgeboats.com, stephen@wooldridgeboats.com'),
-  'quote'   => array('to' => 'info@wooldridgeboats.com', 'cc' => 'data@wooldridgeboats.com, stephen@wooldridgeboats.com'),
-  'careers' => array('to' => 'info@wooldridgeboats.com', 'cc' => 'data@wooldridgeboats.com, stephen@wooldridgeboats.com'),
+  'contact' => array('to' => 'data@wooldridgeboats.com', 'cc' => 'stephen@wooldridgeboats.com'),
+  'quote'   => array('to' => 'data@wooldridgeboats.com', 'cc' => 'stephen@wooldridgeboats.com'),
+  'careers' => array('to' => 'data@wooldridgeboats.com', 'cc' => 'stephen@wooldridgeboats.com'),
 );
 $FROM        = 'website@wooldridgeboats.com';   /* envelope/from for both mails */
 $AUTO_REPLY  = true;
@@ -109,7 +109,7 @@ if (!mail($to, $subject, $msg, $hdr)) fail(500, 'mail() failed');
 
 /* customer auto-response (WEB-F-06 wording — business days, on purpose) */
 if ($AUTO_REPLY && $email !== ''){
-  $ar_h = "From: Wooldridge Boats <" . $FROM . ">\r\nReply-To: info@wooldridgeboats.com\r\nContent-Type: text/plain; charset=utf-8\r\n";
+  $ar_h = "From: Wooldridge Boats <" . $FROM . ">\r\nReply-To: data@wooldridgeboats.com\r\nContent-Type: text/plain; charset=utf-8\r\n";
   $ar_b = "Thank you for your inquiry — this is an automatic confirmation that it reached us.\n\n"
         . "A real person will be in contact with you within 2-3 business days.\n\n"
         . "If it's time-sensitive, call the shop directly: (206) 722-8998, Mon-Thu 6:00am-4:30pm Pacific.\n\n"
