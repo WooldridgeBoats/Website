@@ -1602,7 +1602,7 @@ function renderModelCards(){
     panel.innerHTML = `<div class="inquirepanel">
       <div class="ih">${cat.nm} builds are configured with us directly</div>
       <p>${cat.blurb}</p>
-      <a class="rbtn" href="mailto:Grant@wooldridgeboats.com?cc=${encodeURIComponent('danny@wooldridgeboats.com; stephen@wooldridgeboats.com; data@wooldridgeboats.com')}&amp;subject=${encodeURIComponent(cat.nm + ' build inquiry')}">Email Grant@wooldridgeboats.com</a>
+      <a class="rbtn" href="mailto:Grant@wooldridgeboats.com?cc=${encodeURIComponent('danny@wooldridgeboats.com,stephen@wooldridgeboats.com,data@wooldridgeboats.com')}&amp;subject=${encodeURIComponent(cat.nm + ' build inquiry')}">Email Grant@wooldridgeboats.com</a>
       <a class="rbtn ghost" href="tel:+12067228998">Call (206) 722-8998</a>
     </div>`;
     $('#modelNotes').innerHTML = '';
@@ -2360,7 +2360,7 @@ $('#btnPrint').addEventListener('click', () => {
 
 /* ════════ EMAIL + PDF BUILD SHEET ════════ */
 const DEALER_EMAIL = 'data@wooldridgeboats.com';   /* lead recipient (Q-D-1: info@, not danny@ - Stephen 28 Jul 2026) */
-const CC_EMAIL = 'stephen@wooldridgeboats.com; data@wooldridgeboats.com';   /* cc'd on every outbound email trigger */
+const CC_EMAIL = 'stephen@wooldridgeboats.com,data@wooldridgeboats.com';   /* cc'd on every outbound email trigger - RFC 6068: comma-separated, semicolons silently drop the cc in Gmail/Apple Mail */
 
 function sheetSummary(){
   /* shared text model for the email body and the PDF */
@@ -2596,7 +2596,7 @@ function emailBuildSheet(){
   /* 2. open a pre-addressed email to the customer + dealership */
   const subject = 'Wooldridge Boats Build Sheet \u2014 ' + name;
   const mailto = 'mailto:' + encodeURIComponent(c.email.trim())
-    + '?cc=' + encodeURIComponent(DEALER_EMAIL + '; ' + CC_EMAIL)
+    + '?cc=' + encodeURIComponent(DEALER_EMAIL + ',' + CC_EMAIL)
     + '&subject=' + encodeURIComponent(subject)
     + '&body=' + encodeURIComponent(emailBodyText());
   toast('Build sheet PDF downloaded \u2014 attach it to the email that opens.');

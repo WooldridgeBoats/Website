@@ -164,7 +164,7 @@
       };
       var fallback = function(){
         var note = f.resume.files[0] ? '\n\n(Please attach your resume to this email before sending.)' : '';
-        location.href = 'mailto:data@wooldridgeboats.com,stephen@wooldridgeboats.com&subject='
+        location.href = 'mailto:data@wooldridgeboats.com?cc=stephen@wooldridgeboats.com&subject='
           + encodeURIComponent('Application — ' + f.position.value + ' — ' + f.nm.value)
           + '&body=' + encodeURIComponent('Name: ' + f.nm.value + '\nEmail: ' + f.em.value + '\nPhone: ' + f.ph.value
           + '\nPosition: ' + f.position.value + '\nYears of experience: ' + f.yrs.value
@@ -178,7 +178,7 @@
   })();
   </script>
   <div class="emptystate" style="margin-top:24px;"><div class="t">Prefer email or in person?</div><p>Send a resume and a few words about your experience to data@wooldridgeboats.com, or stop by the factory Monday–Thursday.</p>
-  <div class="modelctas" style="justify-content:center;"><a class="plate" href="mailto:data@wooldridgeboats.com&subject=Careers">Email Your Resume</a></div></div>
+  <div class="modelctas" style="justify-content:center;"><a class="plate" href="mailto:data@wooldridgeboats.com?subject=Careers">Email Your Resume</a></div></div>
 </div></section>
 </main>
 <!-- PARTIAL:footer -->

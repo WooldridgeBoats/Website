@@ -148,7 +148,7 @@
           };
           var fallback = function(){
             /* mail client draft — now includes the email address (it used to be dropped) */
-            location.href = 'mailto:data@wooldridgeboats.com,stephen@wooldridgeboats.com&subject=Boat%20Inquiry&body='
+            location.href = 'mailto:data@wooldridgeboats.com?cc=stephen@wooldridgeboats.com&subject=Boat%20Inquiry&body='
               + encodeURIComponent('Name: ' + f.nm.value + '\nEmail: ' + f.em.value + '\nPhone: ' + f.ph.value
               + '\nDepartment: ' + f.dept.value + '\n\n' + f.msg.value);
           };
