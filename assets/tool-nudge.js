@@ -8,9 +8,7 @@
  *      The point is discovery — the tools are in the nav and the footer, but a
  *      visitor reading a model page has no reason to look there.
  *   2. "Click here to Email Danny!" — clicking opens a card with Danny's
- *      address as a mailto link plus a copy button. Always shown, every page:
- *      it is a contact affordance, not a nudge, so it ignores both the snooze
- *      and the SKIP list below.
+ *      address as a mailto link plus a copy button.
  *
  * Both pills wear the wing logo's blue-in-black livery (see .wb-nudge-tab in
  * house.css) — Stephen's 2026-08-02 direction: logo, slogan, BUILD & PRICE and
@@ -20,26 +18,21 @@
  * the stacks never collide.
  *
  * The quiz nudge is not shown on the tool pages themselves (see SKIP) —
- * offering the quiz to someone already taking the quiz is noise, and the
- * configurator and quote form are further down the funnel than this nudge is
- * trying to push.
+ * offering the quiz to someone already taking the quiz is noise. The Danny
+ * pill shows everywhere: it is a line to a human, not a nudge.
  *
- * Dismissal (the x on the quiz card) is a 14-day snooze via localStorage, not
- * forever — Stephen dismissed it while testing on 2026-07-31, expected it
- * back, and it wasn't: for a discovery nudge, one misclick should not mean
- * permanent invisibility. The stored value is the dismissal timestamp; the old
- * permanent flag ("1") fails the timestamp check and therefore un-dismisses
- * itself. Collapsing (Escape, or a click outside) is lighter still — the pill
- * returns instantly, because collapsing means "not now", not "not this
- * fortnight". The Danny card's x only ever collapses; there is nothing to
- * snooze about a way to reach a human.
+ * Lifecycle, per Stephen 2026-08-02, both pills identical: present on every
+ * page load; the x (inside the opened card) removes that pill for the CURRENT
+ * PAGE VIEW ONLY. Nothing is persisted — navigate anywhere and back, or
+ * return to the site next week, and both pills are there again. This
+ * deliberately replaced the earlier 14-day localStorage snooze (old visitors
+ * may still carry the dead 'wbToolNudge' key; nothing reads it now). Clicking
+ * outside an open card, or Escape, merely collapses it back to a pill.
  */
 (function () {
   'use strict';
 
-  var KEY = 'wbToolNudge';
   var DELAY = 1200;   // let the page settle first; an instant pill reads as a popup ad
-  var SNOOZE = 14 * 24 * 60 * 60 * 1000;   // how long the x keeps the quiz nudge away
 
   // Capital D on purpose — Stephen wrote it that way and mail routing is
   // case-insensitive, so the friendlier form costs nothing.
@@ -54,17 +47,6 @@
     '/request-a-quote/',    // mid-form: do not distract
     '/option-guide/'        // reference page reached FROM the tools
   ];
-
-  function dismissed() {
-    try {
-      var at = parseInt(window.localStorage.getItem(KEY), 10);
-      // NaN (never dismissed, or the retired permanent "1"... 1 is a valid int:
-      // it parses to epoch-1970, which is older than any snooze) fails the
-      // window test below, so both cases correctly mean "show the pill".
-      return !isNaN(at) && (Date.now() - at) < SNOOZE;
-    }
-    catch (e) { return true; } // storage blocked: stay quiet rather than nag
-  }
 
   function skipped() {
     var path = window.location.pathname;
@@ -89,9 +71,9 @@
 
   // One collapsible pill-to-card widget. Returns its root; open/collapse are
   // wired so that opening one widget collapses its siblings (the corner stays
-  // one card tall).
+  // one card tall). The x removes the widget from this page view.
   var widgets = [];
-  function widget(id, tabText, fillPanel, onDismiss) {
+  function widget(id, tabText, fillPanel) {
     var root = el('div', 'wb-nudge');
     root.id = id;
 
@@ -109,7 +91,7 @@
     var x = document.createElement('button');
     x.type = 'button';
     x.className = 'wb-nudge-x';
-    x.setAttribute('aria-label', onDismiss ? 'Dismiss' : 'Close');
+    x.setAttribute('aria-label', 'Dismiss');
     x.textContent = '×';
     panel.appendChild(x);
 
@@ -137,7 +119,9 @@
 
     tab.addEventListener('click', w.open);
     x.addEventListener('click', function () {
-      if (onDismiss) onDismiss(w); else w.collapse();
+      // gone for THIS page view only — the next page load rebuilds everything
+      if (root.parentNode) root.parentNode.removeChild(root);
+      widgets.splice(widgets.indexOf(w), 1);
     });
 
     widgets.push(w);
@@ -178,8 +162,8 @@
     var corner = el('div', 'wb-corner');
     corner.id = 'wb-corner';
 
-    // 1. the quiz/compare discovery nudge (snoozeable, skips tool pages)
-    if (!dismissed() && !skipped()) {
+    // 1. the quiz/compare discovery nudge (skips the tool pages)
+    if (!skipped()) {
       corner.appendChild(widget('wb-nudge', 'Not sure which boat?', function (panel) {
         // Stephen's copy, verbatim: the two phrases are the two destinations.
         var msg = el('p', 'wb-nudge-msg');
@@ -189,11 +173,6 @@
         msg.appendChild(link('/compare/', 'compare models'));
         msg.appendChild(document.createTextNode(' now'));
         panel.appendChild(msg);
-      }, function (w) {
-        // the x = the 14-day snooze; remove ONLY this widget, Danny stays
-        try { window.localStorage.setItem(KEY, String(Date.now())); } catch (e) {}
-        if (w.root.parentNode) w.root.parentNode.removeChild(w.root);
-        widgets.splice(widgets.indexOf(w), 1);
       }));
     }
 
@@ -209,7 +188,7 @@
       copy.textContent = 'Copy';
       copy.addEventListener('click', function () { copyEmail(copy); });
       panel.appendChild(copy);
-    }, null));
+    }));
 
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Escape') return;
