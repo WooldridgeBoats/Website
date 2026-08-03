@@ -132,6 +132,11 @@ h1,h2,h3,.h-serif{
 .nav .nav-cta{
   background:var(--blue); color:#fff; padding:8px 14px; border-radius:6px;
   font-weight:700;
+  /* 2.5px black border = the wing logo / NOT FOR PRACTICE livery (the slogan's
+     stroke reads at ~2.5px on desktop). Deliberate: logo, slogan, and the two
+     sales-funnel buttons share the blue-in-black treatment so the eye groups
+     all four. Same border on .wb-nudge-tab — change them together. */
+  border:2.5px solid #000;
 }
 .nav .nav-cta:hover{ background:var(--blue-dark); color:#fff; }
 
@@ -860,7 +865,10 @@ html.blueprint img{ filter:none; }  /* photos stay true color */
     border-top:1px solid var(--line);
   }
   .nav.nav-open .wrap > .navsoc{ display:flex; flex-basis:100%; padding:14px 2px 4px; gap:16px; }
-  .nav.nav-open .nav-cta{ text-align:center; margin-top:8px; }
+  /* re-assert the full black border: the shared rule above hands every stacked
+     row a hairline border-top, which would leave the CTA black on three sides
+     and grey on top */
+  .nav.nav-open .wrap > .nav-cta{ text-align:center; margin-top:8px; border:2.5px solid #000; }
   /* mega menu: tap to expand inline (no hover on touch) */
   .hasmega > a::after{ content:" +"; font-weight:500; }
   .hasmega.mega-open > a::after{ content:" –"; }
@@ -1751,23 +1759,28 @@ img.wb-ph{
 }
 .wb-phnote button:hover{ color:#23282d; }
 
-/* ── tool nudge (bottom right) ──────────────────────────────────────────────
-   Built by tool-nudge.js. Collapsed it is a blue pill; clicking swaps it for a
-   white card carrying the two tool links. Bottom RIGHT deliberately — the
-   placeholder pill above owns bottom left, and the two can be on screen at
-   once. Both sit at z-index 9000, but they never overlap. */
-.wb-nudge{
+/* ── corner widgets (bottom right) ──────────────────────────────────────────
+   Built by tool-nudge.js: a fixed stack holding the tool nudge ("Not sure
+   which boat?") and, below it, the email-Danny pill. Each is a blue pill that
+   clicking swaps for a white card. Bottom RIGHT deliberately — the placeholder
+   pill above owns bottom left, and the two can be on screen at once. Both sit
+   at z-index 9000, but they never overlap. */
+.wb-corner{
   position:fixed; right:16px; bottom:16px; z-index:9000;
+  display:flex; flex-direction:column; align-items:flex-end; gap:10px;
   max-width:min(340px, calc(100vw - 32px));
   opacity:0; transform:translateY(8px);
   transition:opacity .28s ease, transform .28s ease;
 }
-.wb-nudge-in{ opacity:1; transform:none; }
+.wb-corner-in{ opacity:1; transform:none; }
 .wb-nudge-tab{
   /* matches .nav .nav-cta's livery so it reads as the same family of button,
-     but pill-shaped so it reads as a floating aside rather than site chrome */
-  display:block; border:0; cursor:pointer;
+     but pill-shaped so it reads as a floating aside rather than site chrome.
+     The 2.5px black border is the logo/slogan livery — keep in step with
+     .nav .nav-cta. */
+  display:block; cursor:pointer;
   background:var(--blue); color:#fff;
+  border:2.5px solid #000;
   font:700 13px/1 "Inter", system-ui, sans-serif;
   letter-spacing:.01em; padding:11px 16px; border-radius:999px;
   box-shadow:0 1px 2px rgba(20,30,40,.06), 0 6px 22px rgba(20,30,40,.14);
@@ -1775,7 +1788,9 @@ img.wb-ph{
 .wb-nudge-tab:hover{ background:var(--blue-dark); }
 .wb-nudge-panel{
   display:none;
-  align-items:flex-start; gap:10px;
+  /* wrap: the Danny card's email + Copy + x can overrun a 320px phone; the
+     Copy button dropping to a second row beats the address truncating */
+  align-items:flex-start; gap:10px; flex-wrap:wrap;
   background:#fff; color:#23282d;
   border:1px solid #dcdfe2; border-radius:12px;
   box-shadow:0 1px 2px rgba(20,30,40,.06), 0 6px 22px rgba(20,30,40,.08);
@@ -1804,9 +1819,17 @@ img.wb-ph{
   color:#71787e; font-size:16px; line-height:1; padding:2px 4px;
 }
 .wb-nudge-x:hover{ color:#23282d; }
+/* the copy-email button inside the Danny card */
+.wb-copy{
+  flex:0 0 auto; cursor:pointer;
+  background:var(--blue); color:#fff; border:0; border-radius:6px;
+  font:700 12px/1 "Inter", system-ui, sans-serif;
+  padding:7px 10px;
+}
+.wb-copy:hover{ background:var(--blue-dark); }
 @media (prefers-reduced-motion:reduce){
-  .wb-nudge{ transition:none; }
+  .wb-corner{ transition:none; }
 }
 @media print{
-  .wb-nudge,.wb-phnote{ display:none !important; }
+  .wb-corner,.wb-phnote{ display:none !important; }
 }

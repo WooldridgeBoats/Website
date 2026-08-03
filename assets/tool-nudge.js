@@ -1,34 +1,52 @@
-/* tool-nudge.js — the bottom-right discovery nudge (hand-written; not generator
+/* tool-nudge.js — the bottom-right corner widgets (hand-written; not generator
  * output).
  *
- * A small pill sits in the bottom-right corner. Clicking it opens a card
- * offering the two front-door tools: the Which Wooldridge quiz and the model
- * comparison. The point is discovery — the tools are in the nav and the footer,
- * but a visitor reading a model page has no reason to look there.
+ * A fixed stack sits in the bottom-right corner holding two blue pills:
+ *
+ *   1. "Not sure which boat?" — clicking opens a card offering the two
+ *      front-door tools: the Which Wooldridge quiz and the model comparison.
+ *      The point is discovery — the tools are in the nav and the footer, but a
+ *      visitor reading a model page has no reason to look there.
+ *   2. "Click here to Email Danny!" — clicking opens a card with Danny's
+ *      address as a mailto link plus a copy button. Always shown, every page:
+ *      it is a contact affordance, not a nudge, so it ignores both the snooze
+ *      and the SKIP list below.
+ *
+ * Both pills wear the wing logo's blue-in-black livery (see .wb-nudge-tab in
+ * house.css) — Stephen's 2026-08-02 direction: logo, slogan, BUILD & PRICE and
+ * these pills share the treatment so the eye groups them.
  *
  * Corner choice matters: media-fade.js's placeholder pill is bottom-LEFT, so
- * the two never collide.
+ * the stacks never collide.
  *
- * Not shown on the tool pages themselves (see SKIP) — offering the quiz to
- * someone already taking the quiz is noise, and the configurator and quote form
- * are further down the funnel than this nudge is trying to push.
+ * The quiz nudge is not shown on the tool pages themselves (see SKIP) —
+ * offering the quiz to someone already taking the quiz is noise, and the
+ * configurator and quote form are further down the funnel than this nudge is
+ * trying to push.
  *
- * Dismissal (the x) is a 14-day snooze via localStorage, not forever — Stephen
- * dismissed it while testing on 2026-07-31, expected it back, and it wasn't:
- * for a discovery nudge, one misclick should not mean permanent invisibility.
- * The stored value is the dismissal timestamp; the old permanent flag ("1")
- * fails the timestamp check and therefore un-dismisses itself. Collapsing
- * (Escape, or a click outside) is lighter still — the pill returns instantly,
- * because collapsing means "not now", not "not this fortnight".
+ * Dismissal (the x on the quiz card) is a 14-day snooze via localStorage, not
+ * forever — Stephen dismissed it while testing on 2026-07-31, expected it
+ * back, and it wasn't: for a discovery nudge, one misclick should not mean
+ * permanent invisibility. The stored value is the dismissal timestamp; the old
+ * permanent flag ("1") fails the timestamp check and therefore un-dismisses
+ * itself. Collapsing (Escape, or a click outside) is lighter still — the pill
+ * returns instantly, because collapsing means "not now", not "not this
+ * fortnight". The Danny card's x only ever collapses; there is nothing to
+ * snooze about a way to reach a human.
  */
 (function () {
   'use strict';
 
   var KEY = 'wbToolNudge';
   var DELAY = 1200;   // let the page settle first; an instant pill reads as a popup ad
-  var SNOOZE = 14 * 24 * 60 * 60 * 1000;   // how long the x keeps it away
+  var SNOOZE = 14 * 24 * 60 * 60 * 1000;   // how long the x keeps the quiz nudge away
 
-  // Pages where the nudge has nothing useful to offer. Matched as path prefixes.
+  // Capital D on purpose — Stephen wrote it that way and mail routing is
+  // case-insensitive, so the friendlier form costs nothing.
+  var DANNY = 'Danny@wooldridgeboats.com';
+
+  // Pages where the QUIZ nudge has nothing useful to offer (the Danny pill
+  // still shows on all of these). Matched as path prefixes.
   var SKIP = [
     '/which-wooldridge/',   // it links here
     '/compare/',            // it links here
@@ -63,89 +81,160 @@
     return a;
   }
 
-  function build() {
-    var root = document.createElement('div');
-    root.className = 'wb-nudge';
-    root.id = 'wb-nudge';
+  function el(tag, cls) {
+    var e = document.createElement(tag);
+    e.className = cls;
+    return e;
+  }
+
+  // One collapsible pill-to-card widget. Returns its root; open/collapse are
+  // wired so that opening one widget collapses its siblings (the corner stays
+  // one card tall).
+  var widgets = [];
+  function widget(id, tabText, fillPanel, onDismiss) {
+    var root = el('div', 'wb-nudge');
+    root.id = id;
 
     var tab = document.createElement('button');
     tab.type = 'button';
     tab.className = 'wb-nudge-tab';
-    tab.id = 'wb-nudge-tab';
     tab.setAttribute('aria-expanded', 'false');
-    tab.setAttribute('aria-controls', 'wb-nudge-panel');
-    tab.textContent = 'Not sure which boat?';
+    tab.setAttribute('aria-controls', id + '-panel');
+    tab.textContent = tabText;
 
-    var panel = document.createElement('div');
-    panel.className = 'wb-nudge-panel';
-    panel.id = 'wb-nudge-panel';
-
-    // Stephen's copy, verbatim: the two phrases are the two destinations.
-    var msg = document.createElement('p');
-    msg.className = 'wb-nudge-msg';
-    msg.appendChild(document.createTextNode('Take our '));
-    msg.appendChild(link('/which-wooldridge/', 'Which Wooldridge quiz'));
-    msg.appendChild(document.createTextNode(' or '));
-    msg.appendChild(link('/compare/', 'compare models'));
-    msg.appendChild(document.createTextNode(' now'));
+    var panel = el('div', 'wb-nudge-panel');
+    panel.id = id + '-panel';
+    fillPanel(panel);
 
     var x = document.createElement('button');
     x.type = 'button';
     x.className = 'wb-nudge-x';
-    x.setAttribute('aria-label', 'Dismiss');
+    x.setAttribute('aria-label', onDismiss ? 'Dismiss' : 'Close');
     x.textContent = '×';
-
-    panel.appendChild(msg);
     panel.appendChild(x);
+
     root.appendChild(tab);
     root.appendChild(panel);
 
-    function open() {
-      root.classList.add('wb-nudge-open');
-      tab.setAttribute('aria-expanded', 'true');
-      var first = panel.querySelector('a');
-      if (first) first.focus();
+    var w = {
+      root: root,
+      open: function () {
+        for (var i = 0; i < widgets.length; i++) {
+          if (widgets[i] !== w) widgets[i].collapse();
+        }
+        root.classList.add('wb-nudge-open');
+        tab.setAttribute('aria-expanded', 'true');
+        var first = panel.querySelector('a');
+        if (first) first.focus();
+      },
+      collapse: function () {
+        root.classList.remove('wb-nudge-open');
+        tab.setAttribute('aria-expanded', 'false');
+      },
+      isOpen: function () { return root.classList.contains('wb-nudge-open'); },
+      focusTab: function () { tab.focus(); }
+    };
+
+    tab.addEventListener('click', w.open);
+    x.addEventListener('click', function () {
+      if (onDismiss) onDismiss(w); else w.collapse();
+    });
+
+    widgets.push(w);
+    return root;
+  }
+
+  function copyEmail(btn) {
+    function done() {
+      var was = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.disabled = true;
+      window.setTimeout(function () {
+        btn.textContent = was;
+        btn.disabled = false;
+      }, 1600);
+    }
+    // execCommand fallback: the clipboard API needs a secure context, and this
+    // must also work off a plain-http preview or an emailed copy of a page.
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = DANNY;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); done(); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(DANNY).then(done, fallback);
+    } else {
+      fallback();
+    }
+  }
+
+  function build() {
+    var corner = el('div', 'wb-corner');
+    corner.id = 'wb-corner';
+
+    // 1. the quiz/compare discovery nudge (snoozeable, skips tool pages)
+    if (!dismissed() && !skipped()) {
+      corner.appendChild(widget('wb-nudge', 'Not sure which boat?', function (panel) {
+        // Stephen's copy, verbatim: the two phrases are the two destinations.
+        var msg = el('p', 'wb-nudge-msg');
+        msg.appendChild(document.createTextNode('Take our '));
+        msg.appendChild(link('/which-wooldridge/', 'Which Wooldridge quiz'));
+        msg.appendChild(document.createTextNode(' or '));
+        msg.appendChild(link('/compare/', 'compare models'));
+        msg.appendChild(document.createTextNode(' now'));
+        panel.appendChild(msg);
+      }, function (w) {
+        // the x = the 14-day snooze; remove ONLY this widget, Danny stays
+        try { window.localStorage.setItem(KEY, String(Date.now())); } catch (e) {}
+        if (w.root.parentNode) w.root.parentNode.removeChild(w.root);
+        widgets.splice(widgets.indexOf(w), 1);
+      }));
     }
 
-    function collapse() {
-      root.classList.remove('wb-nudge-open');
-      tab.setAttribute('aria-expanded', 'false');
-    }
+    // 2. the email-Danny pill (always)
+    corner.appendChild(widget('wb-danny', 'Click here to Email Danny!', function (panel) {
+      var msg = el('p', 'wb-nudge-msg');
+      msg.appendChild(link('mailto:' + DANNY, DANNY));
+      panel.appendChild(msg);
 
-    function dismiss() {
-      try { window.localStorage.setItem(KEY, String(Date.now())); } catch (e) {}
-      if (root.parentNode) root.parentNode.removeChild(root);
-      document.removeEventListener('keydown', onKey);
-      document.removeEventListener('click', onOutside);
-    }
+      var copy = document.createElement('button');
+      copy.type = 'button';
+      copy.className = 'wb-copy';
+      copy.textContent = 'Copy';
+      copy.addEventListener('click', function () { copyEmail(copy); });
+      panel.appendChild(copy);
+    }, null));
 
-    function onKey(e) {
-      if (e.key === 'Escape' && root.classList.contains('wb-nudge-open')) {
-        collapse();
-        tab.focus();
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      for (var i = 0; i < widgets.length; i++) {
+        if (widgets[i].isOpen()) {
+          widgets[i].collapse();
+          widgets[i].focusTab();
+        }
       }
-    }
+    });
+    document.addEventListener('click', function (e) {
+      if (corner.contains(e.target)) return;
+      for (var i = 0; i < widgets.length; i++) widgets[i].collapse();
+    });
 
-    function onOutside(e) {
-      if (root.classList.contains('wb-nudge-open') && !root.contains(e.target)) collapse();
-    }
-
-    tab.addEventListener('click', open);
-    x.addEventListener('click', dismiss);
-    document.addEventListener('keydown', onKey);
-    document.addEventListener('click', onOutside);
-
-    document.body.appendChild(root);
+    document.body.appendChild(corner);
     // A tick later, so the entrance transition has a start state to animate
     // from. setTimeout rather than requestAnimationFrame on purpose: rAF is
     // SUSPENDED while a tab is hidden, so a page opened in a background tab
-    // (middle-click, "open in new tab") would append the nudge and then never
+    // (middle-click, "open in new tab") would append the corner and then never
     // add the class that makes it visible. setTimeout still fires.
-    window.setTimeout(function () { root.classList.add('wb-nudge-in'); }, 20);
+    window.setTimeout(function () { corner.classList.add('wb-corner-in'); }, 20);
   }
 
   function start() {
-    if (dismissed() || skipped()) return;
     window.setTimeout(build, DELAY);
   }
 
