@@ -115,7 +115,10 @@ footer{padding:10px 20px 24px;}
 </head>
 <body>
 <div class="mast"><div class="wrap">
-  <div class="addr">WOOLDRIDGE BOATS &middot; SEATTLE, WASHINGTON &middot; SINCE 1915 &middot; <a href="tel:+12067228998" style="color:inherit;">(206) 722-8998</a></div>
+  <!-- WEB-N-02 (Stephen 2 Aug 2026): this page is self-contained by design — no
+       site header — which trapped visitors here. One plain way back, top left. -->
+  <div style="margin-bottom:10px;"><a href="/" style="color:inherit; font-size:13px; text-decoration:underline; text-underline-offset:3px;">&larr; Back to wooldridgeboats.com</a></div>
+  <div class="addr">WOOLDRIDGE BOATS &middot; SEATTLE, WASHINGTON &middot; SINCE 1915 &middot; <a href="tel:+12067228998" style="color:inherit;">(206) 722-8998</a> &middot; <a href="mailto:sales@wooldridgeboats.com" style="color:inherit;">SALES@WOOLDRIDGEBOATS.COM</a></div>
   <div class="k">Request a Quote</div>
   <h1>Tell us about your water.<br>We’ll come back with a real number.</h1>
   <p>Five minutes here saves three phone calls later. The more we know about how you’ll actually use the boat, the better the first quote — and the first conversation — will be.</p>
@@ -327,8 +330,8 @@ footer{padding:10px 20px 24px;}
 /* ─────────────────────────────────────────────
    CONFIG — integration settings (edit these)
    ───────────────────────────────────────────── */
-const DEALER_EMAIL = 'data@wooldridgeboats.com';   /* lead recipient (Q-D-1: info@, not danny@ - Stephen 28 Jul 2026) */
-const CC_EMAIL = 'stephen@wooldridgeboats.com,data@wooldridgeboats.com';     /* cc'd on every lead - RFC 6068: comma-separated, semicolons silently drop the cc in Gmail/Apple Mail */
+const DEALER_EMAIL = 'sales@wooldridgeboats.com';   /* lead recipient (Stephen 2 Aug 2026 — a quote is a sales lead; supersedes the Q-D-1 info@ scheme) */
+const CC_EMAIL = 'data@wooldridgeboats.com';     /* cc'd on every lead - RFC 6068: comma-separated, semicolons silently drop the cc in Gmail/Apple Mail */
 const FORM_ENDPOINT = '/forms/submit.php';   /* FORM-01: our own cPanel handler.
                                Submits FormData incl. photos; the mailto
                                draft remains the automatic fallback if the
@@ -646,11 +649,17 @@ function showSummary(a, summary, subject, mode){
   if (mode !== 'posted') h += '<a class="btn" href="' + mailto + '">Open email &amp; send to the shop</a>';
   h += '<button type="button" class="btn ghost" id="btnCopy">Copy summary</button>' +
     '<button type="button" class="btn ghost" id="btnBack">← Edit my answers</button>' +
-    /* WEB-N-01: one click back to wherever the visitor came from */
-    (mode === 'posted' && document.referrer && document.referrer.indexOf(location.host) !== -1
-      ? '<button type="button" class="btn ghost" onclick="history.back()">← Return to the previous page</button>' : '') +
+    /* WEB-N-01/N-02: a way OUT, every mode — history.back() only helped
+       visitors who arrived from inside the site */
+    '<a class="btn ghost" href="/">← Back to the site</a>' +
     '</div>' +
-    '<p class="formnote" style="margin-top:12px;">Or just call us: <a href="tel:+12067228998">(206) 722-8998</a> — Mon–Thu, 6:00am–4:30pm Pacific.</p></div>';
+    /* WEB-F-07 (Stephen 2 Aug 2026): the addresses themselves, visible and
+       copyable — the blue mailto button is dead weight for anyone whose
+       browser has no mail app wired up, which is most people on webmail */
+    '<p class="formnote" style="margin-top:12px;">Prefer to send it yourself? Paste the summary in an email to ' +
+    '<b>' + DEALER_EMAIL + '</b> <button type="button" class="btn ghost" id="btnCopyAddr" style="padding:4px 10px; font-size:12px;">Copy address</button> ' +
+    '(cc <b>' + CC_EMAIL + '</b>)</p>' +
+    '<p class="formnote" style="margin-top:8px;">Or just call us: <a href="tel:+12067228998">(206) 722-8998</a> — Mon–Thu, 6:00am–4:30pm Pacific.</p></div>';
   box.innerHTML = h;
   $('#sumText').textContent = summary;
   box.style.display = '';
@@ -659,6 +668,12 @@ function showSummary(a, summary, subject, mode){
     navigator.clipboard.writeText(summary).then(() => {
       $('#btnCopy').textContent = 'Copied ✓';
       setTimeout(() => $('#btnCopy').textContent = 'Copy summary', 1400);
+    });
+  });
+  $('#btnCopyAddr').addEventListener('click', () => {
+    navigator.clipboard.writeText(DEALER_EMAIL).then(() => {
+      $('#btnCopyAddr').textContent = 'Copied ✓';
+      setTimeout(() => $('#btnCopyAddr').textContent = 'Copy address', 1400);
     });
   });
   $('#btnBack').addEventListener('click', () => {

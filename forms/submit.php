@@ -7,12 +7,14 @@
    never taken from the request. Sends the shop the submission and the
    customer an auto-response (WEB-F-01 / WEB-F-06).
 
-   Forms served (Q-D-1, Stephen 28 Jul 2026: everything to info@, with
-   data@ and stephen@ cc'd on every one — danny@ deliberately NOT a
-   direct recipient; he works quote leads from the info@ inbox):
-     contact  -> info@  cc data@, stephen@
-     quote    -> info@  cc data@, stephen@
-     careers  -> info@  cc data@, stephen@
+   Forms served (Stephen 2 Aug 2026, superseding the 28 Jul info@ scheme
+   — info@ is dead, see the governance doc's mail-routing section):
+     contact  -> sales@  cc data@
+     quote    -> sales@  cc data@   (a quote IS a sales lead; same lane)
+     careers  -> data@   cc stephen@, parts@
+
+   The customer auto-response includes a full copy of what they sent
+   (Stephen 2 Aug 2026) — text only; uploaded files don't ride back.
 
    Change recipients below — nothing else needs editing.
    ═══════════════════════════════════════════════════════════════════ */
@@ -20,9 +22,9 @@
 header('Content-Type: application/json; charset=utf-8');
 
 $ROUTES = array(
-  'contact' => array('to' => 'data@wooldridgeboats.com', 'cc' => 'stephen@wooldridgeboats.com'),
-  'quote'   => array('to' => 'data@wooldridgeboats.com', 'cc' => 'stephen@wooldridgeboats.com'),
-  'careers' => array('to' => 'data@wooldridgeboats.com', 'cc' => 'stephen@wooldridgeboats.com'),
+  'contact' => array('to' => 'sales@wooldridgeboats.com', 'cc' => 'data@wooldridgeboats.com'),
+  'quote'   => array('to' => 'sales@wooldridgeboats.com', 'cc' => 'data@wooldridgeboats.com'),
+  'careers' => array('to' => 'data@wooldridgeboats.com', 'cc' => 'stephen@wooldridgeboats.com, parts@wooldridgeboats.com'),
 );
 $FROM        = 'website@wooldridgeboats.com';   /* envelope/from for both mails */
 $AUTO_REPLY  = true;
@@ -62,9 +64,12 @@ if (!empty($_POST['summary'])) {
     $body .= ucfirst($k) . ": " . trim((string)$v) . "\n";
   }
 }
-$body .= "\n---\nSent by the wooldridgeboats.com " . $form . " form\n"
-       . "Time: " . date('Y-m-d H:i:s T') . "\n"
-       . "IP: " . (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '?') . "\n";
+/* keep the customer-visible content separate from the shop-only meta footer:
+   the auto-response echoes $body back to the customer, and their own IP in a
+   confirmation email reads as creepy rather than transparent */
+$meta = "\n---\nSent by the wooldridgeboats.com " . $form . " form\n"
+      . "Time: " . date('Y-m-d H:i:s T') . "\n"
+      . "IP: " . (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '?') . "\n";
 
 /* attachments (photos / resume) */
 $parts = array();
@@ -93,7 +98,7 @@ $hdr .= "X-WB-Form: " . $form . "\r\n";
 if ($parts){
   $bnd  = 'wb' . md5(uniqid('', true));
   $hdr .= "MIME-Version: 1.0\r\nContent-Type: multipart/mixed; boundary=\"$bnd\"\r\n";
-  $msg  = "--$bnd\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n" . $body . "\r\n";
+  $msg  = "--$bnd\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n" . $body . $meta . "\r\n";
   foreach ($parts as $p){
     $msg .= "--$bnd\r\nContent-Type: application/octet-stream; name=\"{$p['name']}\"\r\n"
           . "Content-Transfer-Encoding: base64\r\nContent-Disposition: attachment; filename=\"{$p['name']}\"\r\n\r\n"
@@ -102,18 +107,24 @@ if ($parts){
   $msg .= "--$bnd--";
 } else {
   $hdr .= "Content-Type: text/plain; charset=utf-8\r\n";
-  $msg  = $body;
+  $msg  = $body . $meta;
 }
 
 if (!mail($to, $subject, $msg, $hdr)) fail(500, 'mail() failed');
 
-/* customer auto-response (WEB-F-06 wording — business days, on purpose) */
+/* customer auto-response (WEB-F-06 wording — business days, on purpose),
+   with a full copy of their own message (Stephen 2 Aug 2026) */
 if ($AUTO_REPLY && $email !== ''){
-  $ar_h = "From: Wooldridge Boats <" . $FROM . ">\r\nReply-To: data@wooldridgeboats.com\r\nContent-Type: text/plain; charset=utf-8\r\n";
+  $ar_h = "From: Wooldridge Boats <" . $FROM . ">\r\nReply-To: sales@wooldridgeboats.com\r\nContent-Type: text/plain; charset=utf-8\r\n";
   $ar_b = "Thank you for your inquiry — this is an automatic confirmation that it reached us.\n\n"
         . "A real person will be in contact with you within 2-3 business days.\n\n"
         . "If it's time-sensitive, call the shop directly: (206) 722-8998, Mon-Thu 6:00am-4:30pm Pacific.\n\n"
-        . "Wooldridge Boats - 1303 S 96th St, Seattle, WA 98108\nFamily built since 1915.\n";
+        . "Wooldridge Boats - 1303 S 96th St, Seattle, WA 98108\nFamily built since 1915.\n\n"
+        . "----------------------------------------\n"
+        . "A copy of what you sent us:\n\n"
+        . $body;
+  if ($parts) $ar_b .= "\n(Your attached file" . (count($parts) > 1 ? "s" : "") . " reached us too, but "
+        . (count($parts) > 1 ? "they aren't" : "it isn't") . " included in this copy.)\n";
   @mail($email, 'We received your ' . ($form === 'careers' ? 'application' : 'inquiry') . ' — Wooldridge Boats', $ar_b, $ar_h);
 }
 
