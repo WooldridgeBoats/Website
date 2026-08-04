@@ -23,6 +23,7 @@ my %APPROVED = map { $_ => 1 } qw(
   Q-CFG-12
   Q-E-4
   AUD-TYPO-01
+  AUD-TYPO-02
 );
 # ───────────────────────────────────────────────────────
 
@@ -207,10 +208,34 @@ for my $m (@$models){
   }
 }
 
+# ── AUD-TYPO-02: 8 of the 18 Triple-135Ah lithium items (the inboards) lost
+#    the closing ')' of "(for 36v trolling motor applications)" in the SOC's
+#    embedded catalog — seam 4 of the 2026-08-03 pipeline seam audit. The
+#    configurator's copy is correct on all 18, so its build emails carry the
+#    name WITH the ')' and the SOC's importer misses exactly those 8 lines
+#    (2,261 of 2,269 names resolve). Derived, not typed: every catalogue item
+#    carrying the phrase gets id -> canonical name emitted, appending the ')'
+#    if the walked copy is ever bare. On the website these renames are
+#    identity no-ops; the SOC applies renameItems by id at load, so its 8
+#    bare names heal there. Names only — prices untouched.
+my %renames36;
+for my $m (@$models){
+  for my $c (@{$m->{cats}}){
+    for my $it (@{$c->{items}}){
+      next unless $it->{nm} =~ /\(for 36v trolling motor applications\)?$/;
+      my $fixed = $it->{nm};
+      $fixed .= ')' unless $fixed =~ /\)$/;
+      $renames36{$it->{id}} = $fixed;
+    }
+  }
+}
+
 # ── blocks, each keyed to its question ──
 my @BLOCKS = (
   { q => 'AUD-TYPO-01', t => 'de-double "helm-seat seat" -> "helm-seat" (the clean spelling the other price sheets use for the same product)',
     live => { renameItems => \%renames } },
+  { q => 'AUD-TYPO-02', t => 'close the truncated "(for 36v trolling motor applications" names — 8 SOC copies lost the paren and the email importer missed those lines (pipeline seam audit 2026-08-03, seam 4)',
+    live => { renameItems => \%renames36 } },
   { q => 'Q-CFG-01', t => 'the 51 name-readable style tags (CFG-R-18)',
     live => { styleTags => \%tags } },
   { q => 'Q-CFG-02', t => 'SeaDek <-> non-slip powder floor (CFG-R-11/SOC-03) + one urethane jet foot per boat (CFG-R-08)',
