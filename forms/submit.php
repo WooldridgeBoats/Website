@@ -44,8 +44,12 @@
        Email Deliverability / DKIM tool at all.
 
    So the site now sends the way a mail client does: authenticated SMTP
-   straight to Microsoft 365 as data@wooldridgeboats.com. Because M365
-   is the sender, SPF and DKIM and DMARC all pass, with zero DNS changes.
+   straight to Microsoft 365, as a DEDICATED send-only mailbox,
+   website@wooldridgeboats.com (Stephen's final call, 3 Aug 2026 — the
+   data@ alias route below was considered and abandoned as too
+   convoluted: an alias can't authenticate, so it would have meant
+   putting Stephen's own mailbox password on a web server). Because
+   M365 is the sender, SPF and DKIM and DMARC all pass, zero DNS changes.
    It also means we get a SYNCHRONOUS answer — the handler knows whether
    the message was accepted and tells the browser the truth instead of a
    thank-you (see the ok:false paths below and the failure copy on the
@@ -63,26 +67,22 @@
        return array(
          'host' => 'smtp.office365.com',
          'port' => 587,
-         'user' => '<the MAILBOX that authenticates>',
+         'user' => 'website@wooldridgeboats.com',
          'pass' => '<its password / app password>',
-         'from' => 'data@wooldridgeboats.com',
+         'from' => 'website@wooldridgeboats.com',
        );
 
    If that file is missing, unreadable, or 'user'/'pass' is empty, this
    handler LOGS the reason and returns ok:false. It never claims success.
 
-   'user' AND 'from' ARE DELIBERATELY SEPARATE, and here is why it matters:
-   data@ was confirmed on 3 Aug 2026 to be an ALIAS on Stephen's own
-   stephen@ mailbox, not a mailbox of its own. An alias cannot authenticate.
-   So 'user' has to be whatever real mailbox M365 authenticates (stephen@,
-   or better, a dedicated send-only mailbox) while 'from' stays data@.
-   Consequence to expect: M365 REWRITES the From: header to the mailbox's
-   primary address unless the tenant has SendFromAliasEnabled turned on, so
-   the shop may see mail from stephen@ even though this file asks for data@.
-   That is a tenant setting, not a bug in this code — do not "fix" it here.
-   Whether to use a dedicated send-only mailbox instead of Stephen's own
-   (his password on a web server = full read access to his mail) is an OPEN
-   DECISION, see Desktop\TO DO\1 - DO NOW.
+   'user' and 'from' are kept as SEPARATE config keys but are expected to be
+   the SAME address now that the sender is a dedicated mailbox — it
+   authenticates as itself, so there is no alias rewriting to work around
+   and no From: surprise. (Earlier drafts of this file used data@, an
+   alias on Stephen's own stephen@ mailbox; that route was abandoned 3 Aug
+   2026 because an alias can't authenticate and putting Stephen's own
+   password on a web server was too much exposure. The two keys stayed
+   separate in case a future mailbox change repeats that situation.)
 
    PENDING, and nothing here can work until it is done: Authenticated SMTP
    (SMTP AUTH) must be ENABLED on that mailbox in Microsoft 365 — Richard's
@@ -241,25 +241,22 @@ if (!is_array($MAIL)){
   wb_log('ABORT ' . $form . ': ' . $cfgPath . ' did not return an array');
   fail(503, 'mail config unreadable');
 }
-/* No default for 'user' on purpose: data@ is an ALIAS on stephen@, not a
-   mailbox, and an alias cannot authenticate. Guessing a username here would
+/* No default for 'user' on purpose: guessing a mailbox name here would
    produce a 535 that looks like a wrong password. Make the config say it. */
 $MAIL = array_merge(array(
   'host' => 'smtp.office365.com',
   'port' => 587,
   'user' => '',
   'pass' => '',
-  'from' => 'data@wooldridgeboats.com',
+  'from' => 'website@wooldridgeboats.com',
 ), $MAIL);
 if (trim((string)$MAIL['user']) === '' || trim((string)$MAIL['pass']) === ''){
   wb_log('ABORT ' . $form . ": 'user' or 'pass' is empty in " . $cfgPath
     . ' — pending SMTP AUTH being enabled on the data@ mailbox (Richard) and the password being put in the file (Stephen)');
   fail(503, 'mail credentials not set');
 }
-/* What we ASK to send as. M365 accepts it if it is one of the authenticating
-   mailbox's own addresses (data@ is an alias on stephen@, so it qualifies) —
-   but it silently rewrites the From: header to the mailbox's primary address
-   unless SendFromAliasEnabled is on for the tenant. See the header comment. */
+/* What we ASK to send as — the dedicated mailbox itself, so no alias
+   rewriting applies. See the header comment. */
 $FROM = ($MAIL['from'] !== '') ? $MAIL['from'] : $MAIL['user'];
 $fromDomain = (strpos($FROM, '@') !== false) ? substr($FROM, strpos($FROM, '@') + 1) : 'wooldridgeboats.com';
 
