@@ -152,11 +152,16 @@ for my $m (@$models) {
 #    PRICED 29 Jul 2026 — three of the four came from Stephen directly, so the
 #    undefs are replaced as intended rather than by hand-guessing:
 #      maps    $299   folbejr $99   rodbase $49
+#      RE-PRICED 3 Aug 2026 - maps cut $299 -> $199, Stephen's call on the 9c
+#      sheet; QuickBooks already carried $199, this closes that gap.
 #    The Garmin STRIKER stays undef ON PURPOSE. Stephen left it blank because
 #    the open question is not the price, it is WHICH Striker model(s) we sell —
-#    the line has several. It keeps showing "Priced on request" until Christian
-#    names the model, which is the honest state: we cannot price a product we
-#    have not identified.
+#    the line has several. NAMED 3 Aug 2026: Stephen confirmed it is the
+#    STRIKER Vivid 7cv, so the name now says so (append form on purpose -
+#    codeify() in gen_qb_import.pl truncates at 30 chars, so the QB leaf stays
+#    GARMIN-STRIKER-GPS-FISHFINDER and the imported item is not orphaned).
+#    The price stays undef: QB carries $999 but no website price has been
+#    approved - written up for Stephen rather than decided here.
 #    Placement is name-readable, not invented: the two Garmin items join
 #    every "Garmin Electronics" category; the Folbe Junior sits directly
 #    under the full-size Folbe it is the junior of; extra bases join every
@@ -168,9 +173,9 @@ for my $m (@$models){
   if (grep { $_->{name} eq 'Garmin Electronics' } @{$m->{cats}}){
     push @qe4,
       { m=>$m->{id}, cat=>'Garmin Electronics', id=>$p.'_striker',
-        nm=>'Garmin STRIKER GPS / Fishfinder (budget option), installed', price=>undef },
+        nm=>'Garmin STRIKER GPS / Fishfinder (budget option), installed - STRIKER Vivid 7cv', price=>undef },
       { m=>$m->{id}, cat=>'Garmin Electronics', id=>$p.'_maps',
-        nm=>'Non-US inland maps card for Garmin display', price=>299 };
+        nm=>'Non-US inland maps card for Garmin display', price=>199 };
   }
   my ($rodcat) = grep { $_->{name} eq 'Rod Holder' } @{$m->{cats}};
   if ($rodcat){
