@@ -117,7 +117,8 @@
         <p style="font-weight:400; font-size:14px; margin:6px 0 14px;">Our quote request form asks the questions a salesperson would ask anyway — your water, your load, your timeline — and routes straight to the sales floor. Five minutes now saves three phone calls later.</p>
         <a class="plate" href="/request-a-quote/"><span class="k">No Obligation</span>Request a Quote</a>
       </div>
-      <!-- FORM-01: posts to /forms/submit.php; the mailto draft remains the fallback if the POST fails -->
+      <!-- FORM-01: posts to /forms/submit.php, which sends by authenticated M365 SMTP.
+           On failure it shows #contactFail (the mailto redirect fallback was removed 3 Aug 2026). -->
       <form class="form" id="contactForm" action="/forms/submit.php" method="post">
         <label for="f-nm">Name <span class="reqstar" style="color:#c0392b;">*</span></label><input id="f-nm" name="nm" required autocomplete="name">
         <label for="f-em">Email <span class="reqstar" style="color:#c0392b;">*</span></label><input id="f-em" name="em" type="email" required autocomplete="email">
@@ -128,6 +129,10 @@
         <input name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;" aria-hidden="true">
         <button class="plate" type="submit">Send Message</button>
         <p id="contactDone" style="display:none; font-size:15px; line-height:1.6; margin-top:14px;"><b>Thank you for your inquiry.</b> We will be in contact with you soon.</p>
+        <!-- FORM-01 honesty (3 Aug 2026): the handler now sends by authenticated
+             SMTP and knows whether the message was accepted, so a failure says so
+             instead of showing a thank-you nobody received. -->
+        <p id="contactFail" style="display:none; font-size:15px; line-height:1.6; margin-top:14px; padding:12px 14px; border-left:3px solid #c0392b; background:#fdf3f2;"><b>We couldn't send that.</b> Please email <a href="mailto:sales@wooldridgeboats.com">sales@wooldridgeboats.com</a> or call <a href="tel:+12067228998">(206) 722-8998</a> and we'll pick it up from there.</p>
       </form>
       <script>
       (function(){
@@ -144,17 +149,27 @@
           fd.append('website', f.website.value);
           var done = function(){
             f.querySelector('button').style.display = 'none';
+            document.getElementById('contactFail').style.display = 'none';
             document.getElementById('contactDone').style.display = 'block';   /* WEB-F-01 */
           };
-          var fallback = function(){
-            /* mail client draft — now includes the email address (it used to be dropped) */
-            location.href = 'mailto:sales@wooldridgeboats.com?cc=data@wooldridgeboats.com&subject=Boat%20Inquiry&body='
-              + encodeURIComponent('Name: ' + f.nm.value + '\nEmail: ' + f.em.value + '\nPhone: ' + f.ph.value
-              + '\nDepartment: ' + f.dept.value + '\n\n' + f.msg.value);
+          /* FORM-01 (3 Aug 2026): say it plainly instead of a thank-you.
+             The old behaviour redirected to a mailto: draft, which is dead
+             weight for anyone on webmail with no mail app wired up (Stephen's
+             own experience — see WEB-F-07 on the quote page). The button stays
+             visible so they can try again. */
+          var failed = function(){
+            document.getElementById('contactDone').style.display = 'none';
+            document.getElementById('contactFail').style.display = 'block';
           };
           fetch('/forms/submit.php', {method:'POST', body:fd})
-            .then(function(r){ if (r.ok) done(); else fallback(); })
-            .catch(fallback);
+            .then(function(r){
+              /* trust the payload, not just the status code: ok:true is the
+                 handler's own confirmation that SMTP accepted the message */
+              return r.json().then(function(d){ return r.ok && d && d.ok === true; },
+                                   function(){ return false; });
+            })
+            .then(function(sent){ if (sent) done(); else failed(); })
+            .catch(failed);
         });
       })();
       </script>

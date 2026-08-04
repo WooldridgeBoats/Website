@@ -617,8 +617,13 @@ $('#qiForm').addEventListener('submit', e => {
     fd.append('email', $('#fEmail').value.trim());
     fd.append('phone', $('#fPhone').value.trim());
     files.forEach((f,i) => fd.append('photo' + (i+1), f, f.name));
+    /* FORM-01 (3 Aug 2026): trust the payload, not just the status code. The
+       handler sends by authenticated M365 SMTP now, so ok:true is a real
+       confirmation that the message was accepted for delivery — anything else
+       is a genuine failure and must show the 'post-failed' screen. */
     fetch(FORM_ENDPOINT, {method:'POST', body:fd})
-      .then(r => showSummary(a, summary, subject, r.ok ? 'posted' : 'post-failed'))
+      .then(r => r.json().then(d => r.ok && d && d.ok === true, () => false))
+      .then(sent => showSummary(a, summary, subject, sent ? 'posted' : 'post-failed'))
       .catch(() => showSummary(a, summary, subject, 'post-failed'));
   } else {
     showSummary(a, summary, subject, 'mailto');
@@ -643,7 +648,7 @@ function showSummary(a, summary, subject, mode){
     h += '<div class="attachwarn"><b>Your ' + files.length + ' photo' + (files.length>1?'s':'') + ':</b> email links can’t carry attachments — after your mail app opens, attach the photo' + (files.length>1?'s':'') + ' you selected (' + files.map(f=>f.name).join(', ') + ') before sending.</div>';
   }
   if (mode === 'post-failed'){
-    h += '<div class="attachwarn"><b>Heads up:</b> the direct submission didn’t go through — use the email button below instead.</div>';
+    h += '<div class="attachwarn"><b>We couldn’t send that.</b> Nothing reached us yet — email it to <b>' + DEALER_EMAIL + '</b> using the button below, or call (206) 722-8998.</div>';
   }
   h += '<div class="submitrow" style="margin-top:16px;">';
   if (mode !== 'posted') h += '<a class="btn" href="' + mailto + '">Open email &amp; send to the shop</a>';

@@ -114,7 +114,9 @@
   <div class="sechead tight"><div class="eyebrow">We Hire</div><h2 style="font-size:clamp(20px,2.6vw,28px);">The trades that build a boat</h2></div>
   <div class="optchips"><span class='optchip'>Aluminum Welders / Fabricators</span><span class='optchip'>Boat Riggers (electrical, fuel, controls)</span><span class='optchip'>Finish & Upholstery</span><span class='optchip'>Service & Parts</span><span class='optchip'>General Production</span></div>
   <div class="sechead tight" style="margin-top:34px;"><div class="eyebrow">Apply</div><h2 style="font-size:clamp(20px,2.6vw,28px);">Apply online</h2></div>
-  <!-- WEB-X-04 / FORM-01: online application, resume attachment optional. Posts to /forms/submit.php with mailto fallback. -->
+  <!-- WEB-X-04 / FORM-01: online application, resume attachment optional. Posts to
+       /forms/submit.php, which sends by authenticated M365 SMTP. On failure it shows
+       #careersFail (the mailto redirect fallback was removed 3 Aug 2026). -->
   <form class="form" id="careersForm" action="/forms/submit.php" method="post" enctype="multipart/form-data" style="max-width:640px;">
     <label for="c-pos">Position <span style="color:#c0392b;">*</span></label>
     <select id="c-pos" name="position" required>
@@ -138,6 +140,10 @@
     <input name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;" aria-hidden="true">
     <button class="plate" type="submit">Submit Application</button>
     <p id="careersDone" style="display:none; font-size:15px; line-height:1.6; margin-top:14px;"><b>Application received — thank you.</b> We will be in contact with you soon.</p>
+    <!-- FORM-01 honesty (3 Aug 2026): the handler now sends by authenticated
+         SMTP and knows whether the message was accepted, so a failure says so
+         instead of showing a thank-you nobody received. -->
+    <p id="careersFail" style="display:none; font-size:15px; line-height:1.6; margin-top:14px; padding:12px 14px; border-left:3px solid #c0392b; background:#fdf3f2;"><b>We couldn't send that.</b> Please email your application to <a href="mailto:data@wooldridgeboats.com">data@wooldridgeboats.com</a> or call <a href="tel:+12067228998">(206) 722-8998</a> and we'll pick it up from there.</p>
   </form>
   <script>
   (function(){
@@ -160,20 +166,26 @@
       if (f.resume.files[0]) fd.append('resume', f.resume.files[0], f.resume.files[0].name);
       var done = function(){
         f.querySelector('button').style.display = 'none';
+        document.getElementById('careersFail').style.display = 'none';
         document.getElementById('careersDone').style.display = 'block';
       };
-      var fallback = function(){
-        var note = f.resume.files[0] ? '\n\n(Please attach your resume to this email before sending.)' : '';
-        location.href = 'mailto:data@wooldridgeboats.com?cc=' + encodeURIComponent('stephen@wooldridgeboats.com,parts@wooldridgeboats.com') + '&subject='
-          + encodeURIComponent('Application — ' + f.position.value + ' — ' + f.nm.value)
-          + '&body=' + encodeURIComponent('Name: ' + f.nm.value + '\nEmail: ' + f.em.value + '\nPhone: ' + f.ph.value
-          + '\nPosition: ' + f.position.value + '\nYears of experience: ' + f.yrs.value
-          + '\nCertifications: ' + f.cert.value + '\nAvailable: ' + f.when.value
-          + '\n\n' + f.exp.value + '\n\nHeard about us: ' + f.how.value + note);
+      /* FORM-01 (3 Aug 2026): say it plainly instead of a thank-you. The old
+         behaviour redirected to a mailto: draft — useless on webmail, and it
+         also silently dropped the resume the applicant had already attached.
+         The button stays visible so they can try again. */
+      var failed = function(){
+        document.getElementById('careersDone').style.display = 'none';
+        document.getElementById('careersFail').style.display = 'block';
       };
       fetch('/forms/submit.php', {method:'POST', body:fd})
-        .then(function(r){ if (r.ok) done(); else fallback(); })
-        .catch(fallback);
+        .then(function(r){
+          /* trust the payload, not just the status code: ok:true is the
+             handler's own confirmation that SMTP accepted the message */
+          return r.json().then(function(d){ return r.ok && d && d.ok === true; },
+                               function(){ return false; });
+        })
+        .then(function(sent){ if (sent) done(); else failed(); })
+        .catch(failed);
     });
   })();
   </script>
