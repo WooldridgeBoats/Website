@@ -17,6 +17,15 @@
    (Stephen 2 Aug 2026) — text only; uploaded files don't ride back.
 
    Change recipients below — nothing else needs editing.
+
+   DELIVERY DEPENDS ON DNS, NOT ON THIS FILE (found 3 Aug 2026): the
+   domain publishes SPF `include:spf.protection.outlook.com -all` and
+   DMARC `p=reject`, so mail this web server sends as
+   @wooldridgeboats.com is REJECTED by M365 and Gmail (never even Junk)
+   until (a) cPanel DKIM for the domain is enabled and its TXT record
+   published in Cloudflare, and/or (b) this server's IP is added to SPF.
+   mail() returning true only means the LOCAL MTA accepted it. Josh owns
+   the cPanel side, Richard owns Cloudflare DNS / M365.
    ═══════════════════════════════════════════════════════════════════ */
 
 header('Content-Type: application/json; charset=utf-8');
@@ -110,7 +119,10 @@ if ($parts){
   $msg  = $body . $meta;
 }
 
-if (!mail($to, $subject, $msg, $hdr)) fail(500, 'mail() failed');
+/* '-f' sets the ENVELOPE sender (Return-Path). Without it exim stamps the raw
+   cPanel account as envelope-from: bounces route nowhere and SPF can never
+   align with the From: domain even once DNS is fixed. */
+if (!mail($to, $subject, $msg, $hdr, '-f' . $FROM)) fail(500, 'mail() failed');
 
 /* customer auto-response (WEB-F-06 wording — business days, on purpose),
    with a full copy of their own message (Stephen 2 Aug 2026) */
@@ -125,7 +137,7 @@ if ($AUTO_REPLY && $email !== ''){
         . $body;
   if ($parts) $ar_b .= "\n(Your attached file" . (count($parts) > 1 ? "s" : "") . " reached us too, but "
         . (count($parts) > 1 ? "they aren't" : "it isn't") . " included in this copy.)\n";
-  @mail($email, 'We received your ' . ($form === 'careers' ? 'application' : 'inquiry') . ' — Wooldridge Boats', $ar_b, $ar_h);
+  @mail($email, 'We received your ' . ($form === 'careers' ? 'application' : 'inquiry') . ' — Wooldridge Boats', $ar_b, $ar_h, '-f' . $FROM);
 }
 
 echo json_encode(array('ok' => true));
