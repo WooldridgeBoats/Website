@@ -63,21 +63,33 @@
        return array(
          'host' => 'smtp.office365.com',
          'port' => 587,
-         'user' => 'data@wooldridgeboats.com',
-         'pass' => '<the app password / mailbox password>',
+         'user' => '<the MAILBOX that authenticates>',
+         'pass' => '<its password / app password>',
          'from' => 'data@wooldridgeboats.com',
        );
 
-   If that file is missing, unreadable, or 'pass' is empty, this handler
-   LOGS the reason and returns ok:false. It never claims success.
+   If that file is missing, unreadable, or 'user'/'pass' is empty, this
+   handler LOGS the reason and returns ok:false. It never claims success.
 
-   PENDING, and nothing here can work until it is done: the data@ mailbox
-   must have Authenticated SMTP (SMTP AUTH) ENABLED in Microsoft 365 —
-   Richard's side. Microsoft disables it by default per-mailbox and many
-   tenants also block basic auth for SMTP tenant-wide. If the tenant
-   requires OAuth2, AUTH LOGIN here will fail with 535 5.7.139 and this
-   file needs XOAUTH2 instead — that is a known open question, not a bug
-   to guess at.
+   'user' AND 'from' ARE DELIBERATELY SEPARATE, and here is why it matters:
+   data@ was confirmed on 3 Aug 2026 to be an ALIAS on Stephen's own
+   stephen@ mailbox, not a mailbox of its own. An alias cannot authenticate.
+   So 'user' has to be whatever real mailbox M365 authenticates (stephen@,
+   or better, a dedicated send-only mailbox) while 'from' stays data@.
+   Consequence to expect: M365 REWRITES the From: header to the mailbox's
+   primary address unless the tenant has SendFromAliasEnabled turned on, so
+   the shop may see mail from stephen@ even though this file asks for data@.
+   That is a tenant setting, not a bug in this code — do not "fix" it here.
+   Whether to use a dedicated send-only mailbox instead of Stephen's own
+   (his password on a web server = full read access to his mail) is an OPEN
+   DECISION, see Desktop\TO DO\1 - DO NOW.
+
+   PENDING, and nothing here can work until it is done: Authenticated SMTP
+   (SMTP AUTH) must be ENABLED on that mailbox in Microsoft 365 — Richard's
+   side. Microsoft disables it by default per-mailbox and many tenants also
+   block basic auth for SMTP tenant-wide. If the tenant requires OAuth2,
+   AUTH LOGIN here will fail with 535 5.7.139 and this file needs XOAUTH2
+   instead — that is a known open question, not a bug to guess at.
    ═══════════════════════════════════════════════════════════════════ */
 
 require_once dirname(__FILE__) . '/lib/wb-smtp.php';
@@ -229,19 +241,25 @@ if (!is_array($MAIL)){
   wb_log('ABORT ' . $form . ': ' . $cfgPath . ' did not return an array');
   fail(503, 'mail config unreadable');
 }
+/* No default for 'user' on purpose: data@ is an ALIAS on stephen@, not a
+   mailbox, and an alias cannot authenticate. Guessing a username here would
+   produce a 535 that looks like a wrong password. Make the config say it. */
 $MAIL = array_merge(array(
   'host' => 'smtp.office365.com',
   'port' => 587,
-  'user' => 'data@wooldridgeboats.com',
+  'user' => '',
   'pass' => '',
-  'from' => '',
+  'from' => 'data@wooldridgeboats.com',
 ), $MAIL);
 if (trim((string)$MAIL['user']) === '' || trim((string)$MAIL['pass']) === ''){
   wb_log('ABORT ' . $form . ": 'user' or 'pass' is empty in " . $cfgPath
     . ' — pending SMTP AUTH being enabled on the data@ mailbox (Richard) and the password being put in the file (Stephen)');
   fail(503, 'mail credentials not set');
 }
-/* From: must be the authenticated identity or M365 refuses to send it */
+/* What we ASK to send as. M365 accepts it if it is one of the authenticating
+   mailbox's own addresses (data@ is an alias on stephen@, so it qualifies) —
+   but it silently rewrites the From: header to the mailbox's primary address
+   unless SendFromAliasEnabled is on for the tenant. See the header comment. */
 $FROM = ($MAIL['from'] !== '') ? $MAIL['from'] : $MAIL['user'];
 $fromDomain = (strpos($FROM, '@') !== false) ? substr($FROM, strpos($FROM, '@') + 1) : 'wooldridgeboats.com';
 
