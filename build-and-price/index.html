@@ -2359,7 +2359,7 @@ $('#btnPrint').addEventListener('click', () => {
 });
 
 /* ════════ EMAIL + PDF BUILD SHEET ════════ */
-const DEALER_EMAIL = 'data@wooldridgeboats.com';   /* lead recipient (Q-D-1: info@, not danny@ - Stephen 28 Jul 2026) */
+const DEALER_EMAIL = 'data@wooldridgeboats.com';   /* lead recipient - data@, per the 1 Aug 2026 info@ retirement (Q-D-1 originally named info@) */
 const CC_EMAIL = 'stephen@wooldridgeboats.com,data@wooldridgeboats.com';   /* cc'd on every outbound email trigger - RFC 6068: comma-separated, semicolons silently drop the cc in Gmail/Apple Mail */
 
 function sheetSummary(){
@@ -2596,7 +2596,7 @@ function emailBuildSheet(){
   /* 2. open a pre-addressed email to the customer + dealership */
   const subject = 'Wooldridge Boats Build Sheet \u2014 ' + name;
   const mailto = 'mailto:' + encodeURIComponent(c.email.trim())
-    + '?cc=' + encodeURIComponent(DEALER_EMAIL + ',' + CC_EMAIL)
+    + '?cc=' + encodeURIComponent(CC_EMAIL) /* CC_EMAIL already contains data@ - concatenating DEALER_EMAIL doubled it in the customer's CC line (audit 2026-08-03) */
     + '&subject=' + encodeURIComponent(subject)
     + '&body=' + encodeURIComponent(emailBodyText());
   toast('Build sheet PDF downloaded \u2014 attach it to the email that opens.');
