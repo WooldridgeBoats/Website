@@ -123,13 +123,24 @@ $report = @()
 foreach ($b in $live) {
   $so = [string]$b.SO
   $label = "SO $so"
-  # find the build folder by NAME across every category - discover, never map
-  $bf = $null
-  foreach ($cd in $catDirs) {
-    $p = Join-Path $cd.FullName $b.FolderName
-    if (Test-Path -LiteralPath $p) { $bf = $p; break }
+  # find the build folder by NAME across every category - discover, never map.
+  # DiskFolder is the build's ACTUAL on-disk name and the source of truth for folder
+  # operations since the Build Hub delivery-seam fix (2026-08-04); FolderName is the
+  # card's display name. They are identical except in the window after a failed rename,
+  # where FolderName alone would make this sync skip a live build. Try both. (2026-08-05)
+  $names = @()
+  foreach ($n in @([string]$b.DiskFolder, [string]$b.FolderName)) {
+    if ($n -and ($names -notcontains $n)) { $names += $n }
   }
-  if (-not $bf) { $report += "SKIP  $label - folder '$($b.FolderName)' not found under IN PROCESS BUILDS"; continue }
+  $bf = $null
+  foreach ($nm in $names) {
+    foreach ($cd in $catDirs) {
+      $p = Join-Path $cd.FullName $nm
+      if (Test-Path -LiteralPath $p) { $bf = $p; break }
+    }
+    if ($bf) { break }
+  }
+  if (-not $bf) { $report += "SKIP  $label - folder '$($names -join "' / '")' not found under IN PROCESS BUILDS"; continue }
   # photo parent: PHOTOS or <SO>-PHOTOS, whichever the build has
   $photoParent = $null
   foreach ($n in @("$so-PHOTOS", 'PHOTOS')) {
