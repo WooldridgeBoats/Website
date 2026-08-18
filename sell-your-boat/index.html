@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sell Your Boat — Wooldridge Boats</title>
+<meta name="description" content="Thinking about selling? Tell us about your boat and we'll put together a listing for our Used Boats page.">
+<style>
+  /* Rockwell rides in the repo (assets/fonts/) — the same two faces house.css
+     declares. Repeated here because this page is deliberately standalone (no
+     house.css, same pattern as /request-a-quote/); without them, visitors who
+     don't have Rockwell installed fall back to Georgia and lose the approved
+     look. */
+  @font-face{
+    font-family:"Rockwell";
+    src:url("/assets/fonts/Rockwell.otf") format("opentype");
+    font-weight:400; font-style:normal; font-display:swap;
+  }
+  @font-face{
+    font-family:"Rockwell";
+    src:url("/assets/fonts/Rockwell-bold.otf") format("opentype");
+    font-weight:700; font-style:normal; font-display:swap;
+  }
+  :root{
+    --blue:#1b75bb; --blue-dark:#135a92;
+    --ink:#23282d; --ink2:#3c4247; --ink3:#71787e;
+    --line:#dcdfe2; --line2:#c9cdd1;
+    --ground:#F2F2F2;
+    --shadow:0 1px 2px rgba(20,30,40,.06), 0 6px 22px rgba(20,30,40,.08);
+    --danger:#a8422f;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--ground);color:var(--ink);
+       font:15px/1.55 "Segoe UI",system-ui,-apple-system,Arial,sans-serif;}
+  .wrap{max-width:880px;margin:0 auto;padding:26px 16px 90px}
+
+  h1,h2,.rockwell{font-family:Rockwell,"Rockwell Nova","Roboto Slab",Georgia,serif}
+
+  .card{background:#fff;border:1px solid #e6e9ec;border-radius:16px;
+        padding:26px 28px;margin-top:18px;box-shadow:var(--shadow)}
+  @media (max-width:640px){.card{padding:20px 16px}}
+
+  .hero{border-top:4px solid var(--blue);margin-top:0}
+  .eyebrow{color:var(--blue);font-weight:700;font-size:12.5px;letter-spacing:.14em;margin:0 0 6px}
+  h1{font-size:30px;margin:0 0 10px;letter-spacing:.02em}
+  .hero p{color:var(--ink2);margin:0;max-width:64ch}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .chip{background:#eef5fb;color:var(--blue-dark);border:1px solid #d3e5f4;
+        border-radius:999px;padding:5px 13px;font-size:12.5px;font-weight:600}
+  #draftNotice{display:none;margin-top:16px;background:#fdf6e7;border:1px solid #efdcae;
+        color:#7a5c14;border-radius:10px;padding:10px 14px;font-size:13.5px}
+  #draftNotice a{color:#7a5c14;font-weight:700}
+
+  .sec{display:flex;align-items:center;gap:12px;margin:0}
+  .secnum{flex:0 0 auto;width:34px;height:34px;border-radius:10px;background:var(--blue);color:#fff;
+          display:flex;align-items:center;justify-content:center;
+          font-family:Rockwell,Georgia,serif;font-weight:700;font-size:16px}
+  h2{font-size:19px;margin:0;letter-spacing:.03em}
+  .sechint{color:var(--ink3);font-size:13.5px;margin:6px 0 4px 46px}
+  @media (max-width:640px){.sechint{margin-left:0}}
+
+  .row{display:grid;gap:14px 16px;margin-top:16px}
+  .r2{grid-template-columns:1fr 1fr}
+  .r3{grid-template-columns:1fr 1fr 1fr}
+  @media (max-width:640px){.r2,.r3{grid-template-columns:1fr}}
+
+  .field label.lbl{display:block;font-weight:600;font-size:13.5px;color:var(--ink2);margin:0 0 6px}
+  .req::after{content:" *";color:var(--blue);font-weight:700}
+  .hint{font-size:12.5px;color:var(--ink3);margin-top:5px}
+
+  input[type=text],input[type=tel],input[type=email],input[type=number],select,textarea{
+    width:100%;padding:11px 12px;border:1.5px solid var(--line2);border-radius:10px;
+    font:15px "Segoe UI",system-ui,Arial,sans-serif;color:var(--ink);background:#fff;
+    transition:border-color .15s, box-shadow .15s}
+  textarea{resize:vertical;min-height:88px}
+  input:focus,select:focus,textarea:focus{
+    outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(27,117,187,.16)}
+  ::placeholder{color:#9aa1a8}
+
+  .money{position:relative}
+  .money input{padding-left:26px}
+  .money::before{content:"$";position:absolute;left:12px;top:50%;transform:translateY(-50%);
+                 color:var(--ink3);font-weight:600}
+
+  .pills{display:flex;flex-wrap:wrap;gap:8px}
+  .pill{position:relative;cursor:pointer}
+  .pill input{position:absolute;opacity:0;pointer-events:none}
+  .pill span{display:inline-block;padding:9px 16px;border:1.5px solid var(--line2);border-radius:999px;
+             background:#fff;color:var(--ink2);font-weight:600;font-size:14px;
+             transition:all .15s;user-select:none}
+  .pill:hover span{border-color:var(--blue)}
+  .pill input:checked + span{background:var(--blue);border-color:var(--blue);color:#fff}
+  .pill input:focus-visible + span{outline:3px solid rgba(27,117,187,.35);outline-offset:2px}
+
+  .eq-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px 18px;margin-top:16px}
+  .eq-item{min-width:0}
+  .eq-check{display:flex;align-items:center;gap:9px;cursor:pointer;font-size:14.5px;color:var(--ink2);font-weight:600}
+  .eq-check input{width:17px;height:17px;accent-color:var(--blue);flex:0 0 auto;cursor:pointer}
+  .eq-detail{margin-top:7px;padding:8px 10px !important;font-size:13.5px !important}
+
+  .reveal{margin-top:14px}
+  .hidden{display:none !important}
+
+  .field.err input,.field.err select,.field.err textarea{
+    border-color:var(--danger);box-shadow:0 0 0 3px rgba(168,66,47,.12)}
+  .field .msg{display:none;color:var(--danger);font-size:13px;font-weight:600;margin-top:6px}
+  .field.err .msg{display:block}
+  .field.err .pill span{border-color:var(--danger)}
+
+  .cert{display:flex;gap:11px;align-items:flex-start;background:#f7f9fb;border:1px solid var(--line);
+        border-radius:12px;padding:14px 16px;margin-top:16px}
+  .cert input{width:18px;height:18px;accent-color:var(--blue);margin-top:2px;flex:0 0 auto;cursor:pointer}
+  .cert label{font-size:13.5px;color:var(--ink2);cursor:pointer}
+
+  .btn{display:inline-block;border:0;border-radius:12px;padding:14px 30px;cursor:pointer;
+       font:700 16px Rockwell,Georgia,serif;letter-spacing:.03em;transition:all .15s}
+  .btn-primary{background:var(--blue);color:#fff;box-shadow:var(--shadow)}
+  .btn-primary:hover{background:var(--blue-dark)}
+  .btn-ghost{background:#fff;color:var(--blue-dark);border:1.5px solid var(--line2);font-size:14px;padding:11px 20px}
+  .btn-ghost:hover{border-color:var(--blue)}
+  .submitrow{margin-top:20px;display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+  .fineprint{font-size:12.5px;color:var(--ink3);margin-top:14px}
+
+  #donePanel h2,#sentPanel h2{font-size:22px}
+  .done-badge{display:inline-block;background:#e8f4ea;color:#2e6b39;border:1px solid #cbe5d0;
+              border-radius:999px;padding:5px 14px;font-size:12.5px;font-weight:700;margin-bottom:12px}
+  #summaryBox{font:13px/1.5 Consolas,Menlo,monospace;min-height:320px;white-space:pre;overflow:auto}
+  #copyStatus{font-size:13.5px;font-weight:600;margin-top:8px;display:none}
+  #copyStatus.ok{display:block;color:#2e6b39}
+  #copyStatus.warn{display:block;color:#7a5c14}
+  #copyStatus.errst{display:block;color:var(--danger)}
+  .steps{color:var(--ink2);font-size:14.5px;padding-left:20px;margin:10px 0}
+  .steps li{margin:6px 0}
+
+  .hp{position:absolute;left:-9999px;top:-9999px;height:1px;width:1px;overflow:hidden}
+
+  #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(80px);
+         background:var(--ink);color:#fff;border-radius:999px;padding:10px 20px;font-size:14px;
+         font-weight:600;opacity:0;transition:all .3s;pointer-events:none;box-shadow:var(--shadow);z-index:50}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  footer{margin-top:26px;text-align:center;color:var(--ink3);font-size:12.5px}
+
+  /* escape links — same reasoning as /request-a-quote/: a standalone page with
+     no site header traps visitors without them (governance doc, 2 Aug 2026) */
+  .eyebrow a,footer a{color:inherit;text-decoration:none}
+  .eyebrow a:hover,footer a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="card hero">
+    <p class="eyebrow"><a href="/pre-owned/">WOOLDRIDGE BOATS — PRE-OWNED</a></p>
+    <h1>SELL YOUR BOAT</h1>
+    <p>Thinking about selling? Tell us about your boat below and we'll put together a
+       listing for our Used Boats page. We review every submission and follow up with
+       next steps — usually a quick conversation about pricing, photos, and paperwork.</p>
+    <div class="chips">
+      <span class="chip">Takes about 8–10 minutes</span>
+      <span class="chip">Progress saves on this device</span>
+      <span class="chip">No account needed</span>
+    </div>
+    <div id="draftNotice">We restored the draft you started earlier — pick up where you left off,
+      or <a href="#" id="freshLink">start fresh</a>.</div>
+  </div>
+
+  <form id="intake" novalidate>
+
+    <div class="hp" aria-hidden="true">
+      <label>Leave this field empty<input type="text" name="company_website" tabindex="-1" autocomplete="off"></label>
+    </div>
+
+    <!-- 1 ABOUT YOU -->
+    <div class="card">
+      <div class="sec"><div class="secnum">1</div><h2>ABOUT YOU</h2></div>
+      <p class="sechint">How we reach you. This stays between you and us — it's never published with the listing.</p>
+      <div class="row r2">
+        <div class="field" data-f="seller_name">
+          <label class="lbl req" for="seller_name">Full name</label>
+          <input type="text" id="seller_name" name="seller_name" autocomplete="name">
+          <div class="msg"></div>
+        </div>
+        <div class="field" data-f="seller_phone">
+          <label class="lbl req" for="seller_phone">Phone</label>
+          <input type="tel" id="seller_phone" name="seller_phone" autocomplete="tel" placeholder="(206) 555-0123">
+          <div class="msg"></div>
+        </div>
+      </div>
+      <div class="row r2">
+        <div class="field" data-f="seller_email">
+          <label class="lbl req" for="seller_email">Email</label>
+          <input type="email" id="seller_email" name="seller_email" autocomplete="email">
+          <div class="msg"></div>
+        </div>
+        <div class="field">
+          <label class="lbl">Best way to reach you</label>
+          <div class="pills">
+            <label class="pill"><input type="radio" name="contact_pref" value="Phone call"><span>Phone call</span></label>
+            <label class="pill"><input type="radio" name="contact_pref" value="Text"><span>Text</span></label>
+            <label class="pill"><input type="radio" name="contact_pref" value="Email"><span>Email</span></label>
+          </div>
+        </div>
+      </div>
+      <div class="row r2">
+        <div class="field" data-f="seller_city">
+          <label class="lbl req" for="seller_city">City</label>
+          <input type="text" id="seller_city" name="seller_city" autocomplete="address-level2">
+          <div class="msg"></div>
+        </div>
+        <div class="field" data-f="seller_state">
+          <label class="lbl req" for="seller_state">State / Province</label>
+          <input type="text" id="seller_state" name="seller_state" autocomplete="address-level1" placeholder="WA">
+          <div class="msg"></div>
+        </div>
+      </div>
+      <div class="row r2">
+        <div class="field" data-f="legal_owner">
+          <label class="lbl req">Are you the legal owner?</label>
+          <div class="pills">
+            <label class="pill"><input type="radio" name="legal_owner" value="Yes"><span>Yes</span></label>
+            <label class="pill"><input type="radio" name="legal_owner" value="No"><span>No</span></label>
+          </div>
+          <div class="msg"></div>
+        </div>
+        <div class="field" data-f="lien">
+          <label class="lbl req">Any loan or lien on the boat?</label>
+          <div class="pills">
+            <label class="pill"><input type="radio" name="lien" value="No"><span>No</span></label>
+            <label class="pill"><input type="radio" name="lien" value="Yes"><span>Yes</span></label>
+          </div>
+          <div class="hint">A loan is no problem — we'll just walk through the payoff details together.</div>
+          <div class="msg"></div>
+        </div>
+      </div>
+      <div class="reveal hidden" data-reveal-if="legal_owner=No">
+        <div class="field" data-f="legal_owner_note">
+          <label class="lbl req" for="legal_owner_note">No problem — tell us a bit about the situation</label>
+          <input type="text" id="legal_owner_note" name="legal_owner_note" placeholder="e.g., selling on behalf of a family member">
+          <div class="msg"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2 THE BOAT -->
+    <div class="card">
+      <div class="sec"><div class="secnum">2</div><h2>THE BOAT</h2></div>
+      <p class="sechint">The basics buyers ask about first.</p>
+      <div class="row r3">
+        <div class="field" data-f="year">
+          <label class="lbl req" for="year">Year</label>
+          <input type="number" id="year" name="year" min="1940" max="2027" placeholder="2019">
+          <div class="msg"></div>
+        </div>
+        <div class="field" data-f="manufacturer">
+          <label class="lbl req" for="manufacturer">Manufacturer</label>
+          <input type="text" id="manufacturer" name="manufacturer" placeholder="Wooldridge">
+          <div class="msg"></div>
+        </div>
+        <div class="field" data-f="model">
+          <label class="lbl req" for="model">Model</label>
+          <input type="text" id="model" name="model" placeholder="e.g., 20' Alaskan XL">
+          <div class="msg"></div>
+        </div>
+      </div>
+      <div class="row r3">
+        <div class="field" data-f="length">
+          <label class="lbl req" for="length">Length (ft)</label>
+          <input type="number" id="length" name="length" min="8" max="60" step="any" placeholder="20">
+          <div class="msg"></div>
+        </div>
+        <div class="field">
+          <label class="lbl" for="hull_material">Hull material</label>
+          <select id="hull_material" name="hull_material">
+            <option value="">Select…</option>
+            <option>Aluminum</option>
+            <option>Fiberglass</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="lbl" for="hin">Hull ID (HIN)</label>
+          <input type="text" id="hin" name="hin" placeholder="Optional">
+          <div class="hint">Stamped on the transom, upper starboard corner. Speeds up title verification.</div>
+        </div>
+      </div>
+      <div class="row r2">
+        <div class="field" data-f="boat_location">
+          <label class="lbl req" for="boat_location">Where is the boat right now?</label>
+          <input type="text" id="boat_location" name="boat_location" placeholder="City, State">
+          <div class="msg"></div>
+        </div>
+        <div class="field">
+          <label class="lbl" for="owned_length">How long have you owned it?</label>
+          <select id="owned_length" name="owned_length">
+            <option value="">Select…</option>
+            <option>Less than 1 year</option>
+            <option>1–3 years</option>
+            <option>3–5 years</option>
+            <option>5–10 years</option>
+            <option>10+ years</option>
+            <option>Original owner</option>
+          </select>
+        </div>
+      </div>
+      <div class="row r2">
+        <div class="field" data-f="price">
+          <label class="lbl req" for="price">Asking price</label>
+          <div class="money"><input type="text" inputmode="numeric" id="price" name="price" placeholder="45,000"></div>
+          <div class="msg"></div>
+        </div>
+        <div class="field">
+          <label class="lbl">Price flexibility</label>
+          <div class="pills">
+            <label class="pill"><input type="radio" name="price_flex" value="Or best offer"><span>Or best offer</span></label>
+            <label class="pill"><input type="radio" name="price_flex" value="Firm"><span>Firm</span></label>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label class="lbl">Primary use — check all that apply</label>
+          <div class="pills">
+            <label class="pill"><input type="checkbox" name="primary_use" value="Fishing"><span>Fishing</span></label>
+            <label class="pill"><input type="checkbox" name="primary_use" value="Hunting"><span>Hunting</span></label>
+            <label class="pill"><input type="checkbox" name="primary_use" value="River running"><span>River running</span></label>
+            <label class="pill"><input type="checkbox" name="primary_use" value="Offshore"><span>Offshore</span></label>
+            <label class="pill"><input type="checkbox" name="primary_use" value="Cruising"><span>Cruising</span></label>
+            <label class="pill"><input type="checkbox" name="primary_use" value="Other" id="use_other_cb"><span>Other</span></label>
+          </div>
+          <input type="text" class="eq-detail hidden" id="use_other_detail" name="use_other_detail" placeholder="Tell us more" style="max-width:340px">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label class="lbl">Has it been used in saltwater?</label>
+          <div class="pills">
+            <label class="pill"><input type="radio" name="saltwater" value="No — freshwater only"><span>No — freshwater only</span></label>
+            <label class="pill"><input type="radio" name="saltwater" value="Yes"><span>Yes</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 ENGINE & PROPULSION -->
+    <div class="card">
+      <div class="sec"><div class="secnum">3</div><h2>ENGINE &amp; PROPULSION</h2></div>
+      <p class="sechint">Hours and service history are the first things serious buyers want to see.</p>
+      <div class="row">
+        <div class="field" data-f="drive">
+          <label class="lbl req">Drive type</label>
+          <div class="pills">
+            <label class="pill"><input type="radio" name="drive" value="Outboard — prop"><span>Outboard — prop</span></label>
+            <label class="pill"><input type="radio" name="drive" value="Outboard — jet"><span>Outboard — jet</span></label>
+            <label class="pill"><input type="radio" name="drive" value="Inboard jet"><span>Inboard jet</span></label>
+            <label class="pill"><input type="radio" name="drive" value="Sterndrive"><span>Sterndrive</span></label>
+            <label class="pill"><input type="radio" name="drive" value="Other"><span>Other</span></label>
+          </div>
+          <div class="msg"></div>
+        </div>
+      </div>
+      <div class="reveal hidden" data-reveal-if="drive=Other">
+        <div class="field" data-f="drive_other">
+          <label class="lbl req" for="drive_other">What kind of drive?</label>
+          <input type="text" id="drive_other" name="drive_other" style="max-width:340px">
+          <div class="msg"></div>
+        </div>
+      </div>
+      <div class="row r2">
+        <div class="field" data-f="engine_make">
+          <label class="lbl req" for="engine_make">Main engine make</label>
+          <input type="text" id="engine_make" name="engine_make" placeholder="e.g., Yamaha, Mercury, Kodiak">
+          <div class="msg"></div>
+        </div>
+        <div class="field">
+          <label class="lbl" for="engine_model">Engine model</label>
+          <input type="text" id="engine_model" name="engine_model" placeholder="e.g., F150XB">
+        </div>
+      </div>
+      <div class="row r3">
+        <div class="field">
+          <label class="lbl" for="engine_year">Engine year</label>
+          <input type="number" id="engine_year" name="engine_year" min="1940" max="2027">
+        </div>
+        <div class="field">
+          <label class="lbl" for="engine_hp">Horsepower</label>
+          <input type="number" id="engine_hp" name="engine_hp" min="1" max="2000">
+        </div>
+        <div class="field" data-f="engine_hours">
+          <label class="lbl req" for="engine_hours">Hours</label>
+          <input type="number" id="engine_hours" name="engine_hours" min="0" max="50000" placeholder="Approximate is fine">
+          <div class="msg"></div>
+        </div>
+      </div>
+      <div class="row r2">
+        <div class="field">
+          <label class="lbl">Fuel</label>
+          <div class="pills">
+            <label class="pill"><input type="radio" name="fuel" value="Gas"><span>Gas</span></label>
+            <label class="pill"><input type="radio" name="fuel" value="Diesel"><span>Diesel</span></label>
+          </div>
+        </div>
+        <div class="field" data-f="engine_cond">
+          <label class="lbl req">Engine / propulsion condition</label>
+          <div class="pills">
+            <label class="pill"><input type="radio" name="engine_cond" value="Excellent"><span>Excellent</span></label>
+            <label class="pill"><input type="radio" name="engine_cond" value="Good"><span>Good</span></label>
+            <label class="pill"><input type="radio" name="engine_cond" value="Fair"><span>Fair</span></label>
+            <label class="pill"><input type="radio" name="engine_cond" value="Needs attention"><span>Needs attention</span></label>
+          </div>
+          <div class="msg"></div>
+        </div>
+      </div>
+      <div class="row r2">
+        <div class="field">
+          <label class="lbl" for="last_service">Most recent engine / jet service</label>
+          <input type="text" id="last_service" name="last_service" placeholder="e.g., 100-hr service, spring 2026">
+        </div>
+        <div class="field">
+          <label class="lbl">Any transferable warranty left?</label>
+          <div class="pills">
+            <label class="pill"><input type="radio" name="warranty" value="No"><span>No</span></label>
+            <label class="pill"><input type="radio" name="warranty" value="Not sure"><span>Not sure</span></label>
+            <label class="pill"><input type="radio" name="warranty" value="Yes"><span>Yes</span></label>
+          </div>
+        </div>
+      </div>
+      <div class="reveal hidden" data-reveal-if="warranty=Yes">
+        <div class="field">
+          <label class="lbl" for="warranty_detail">Warranty details</label>
+          <input type="text" id="warranty_detail" name="warranty_detail" placeholder="e.g., Yamaha extended through 2028">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label class="lbl">Kicker / auxiliary engine?</label>
+          <div class="pills">
+            <label class="pill"><input type="radio" name="kicker" value="No"><span>No</span></label>
+            <label class="pill"><input type="radio" name="kicker" value="Yes"><span>Yes</span></label>
+          </div>
+        </div>
+      </div>
+      <div class="reveal hidden" data-reveal-if="kicker=Yes">
+        <div class="row r3">
+          <div class="field">
+            <label class="lbl" for="kicker_makemodel">Kicker make / model</label>
+            <input type="text" id="kicker_makemodel" name="kicker_makemodel" placeholder="e.g., Yamaha T9.9">
+          </div>
+          <div class="field">
+            <label class="lbl" for="kicker_hp">Kicker HP</label>
+            <input type="number" id="kicker_hp" name="kicker_hp" min="1" max="300">
+          </div>
+          <div class="field">
+            <label class="lbl" for="kicker_hours">Kicker hours</label>
+            <input type="number" id="kicker_hours" name="kicker_hours" min="0" max="50000">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4 TRAILER -->
+    <div class="card">
+      <div class="sec"><div class="secnum">4</div><h2>TRAILER</h2></div>
+      <div class="row">
+        <div class="field" data-f="trailer">
+          <label class="lbl req">Is a trailer included?</label>
+          <div class="pills">
+            <label class="pill"><input type="radio" name="trailer" value="Yes"><span>Yes</span></label>
+            <label class="pill"><input type="radio" name="trailer" value="No"><span>No</span></label>
+          </div>
+          <div class="msg"></div>
+        </div>
+      </div>
+      <div class="reveal hidden" data-reveal-if="trailer=Yes">
+        <div class="row r2">
+          <div class="field">
+            <label class="lbl" for="trailer_make">Trailer make</label>
+            <input type="text" id="trailer_make" name="trailer_make" placeholder="e.g., EZ Loader">
+          </div>
+          <div class="field">
+            <label class="lbl" for="trailer_year">Trailer year</label>
+            <input type="number" id="trailer_year" name="trailer_year" min="1940" max="2027">
+          </div>
+        </div>
+        <div class="row r3">
+          <div class="field">
+            <label class="lbl">Axles</label>
+            <div class="pills">
+              <label class="pill"><input type="radio" name="axles" value="Single"><span>Single</span></label>
+              <label class="pill"><input type="radio" name="axles" value="Tandem"><span>Tandem</span></label>
+              <label class="pill"><input type="radio" name="axles" value="Triple"><span>Triple</span></label>
+            </div>
+          </div>
+          <div class="field">
+            <label class="lbl">Brakes</label>
+            <div class="pills">
+              <label class="pill"><input type="radio" name="brakes" value="Yes"><span>Yes</span></label>
+              <label class="pill"><input type="radio" name="brakes" value="No"><span>No</span></label>
+            </div>
+          </div>
+          <div class="field">
+            <label class="lbl">Trailer condition</label>
+            <div class="pills">
+              <label class="pill"><input type="radio" name="trailer_cond" value="Excellent"><span>Excellent</span></label>
+              <label class="pill"><input type="radio" name="trailer_cond" value="Good"><span>Good</span></label>
+              <label class="pill"><input type="radio" name="trailer_cond" value="Fair"><span>Fair</span></label>
+              <label class="pill"><input type="radio" name="trailer_cond" value="Needs attention"><span>Needs attention</span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5 EQUIPMENT -->
+    <div class="card">
+      <div class="sec"><div class="secnum">5</div><h2>EQUIPMENT &amp; ELECTRONICS</h2></div>
+      <p class="sechint">Check what's included — add make / model where you know it. Good equipment sells boats.</p>
+      <div class="eq-grid">
+        <div class="eq-item">
+          <label class="eq-check"><input type="checkbox" name="equipment" value="GPS / Chartplotter">GPS / Chartplotter</label>
+          <input type="text" class="eq-detail hidden" name="eq_gps" placeholder="Make / model">
+        </div>
+        <div class="eq-item">
+          <label class="eq-check"><input type="checkbox" name="equipment" value="Fish finder / Sonar">Fish finder / Sonar</label>
+          <input type="text" class="eq-detail hidden" name="eq_sonar" placeholder="Make / model">
+        </div>
+        <div class="eq-item">
+          <label class="eq-check"><input type="checkbox" name="equipment" value="Radar">Radar</label>
+          <input type="text" class="eq-detail hidden" name="eq_radar" placeholder="Make / model">
+        </div>
+        <div class="eq-item">
+          <label class="eq-check"><input type="checkbox" name="equipment" value="VHF radio">VHF radio</label>
+          <input type="text" class="eq-detail hidden" name="eq_vhf" placeholder="Make / model">
+        </div>
+        <div class="eq-item">
+          <label class="eq-check"><input type="checkbox" name="equipment" value="Autopilot">Autopilot</label>
+          <input type="text" class="eq-detail hidden" name="eq_autopilot" placeholder="Make / model">
+        </div>
+        <div class="eq-item">
+          <label class="eq-check"><input type="checkbox" name="equipment" value="Trolling motor">Trolling motor</label>
+          <input type="text" class="eq-detail hidden" name="eq_trolling" placeholder="Make / model">
+        </div>
+        <div class="eq-item">
+          <label class="eq-check"><input type="checkbox" name="equipment" value="Downriggers">Downriggers</label>
+          <input type="text" class="eq-detail hidden" name="eq_downriggers" placeholder="Make / how many">
+        </div>
+        <div class="eq-item">
+          <label class="eq-check"><input type="checkbox" name="equipment" value="Pot puller">Pot puller</label>
+          <input type="text" class="eq-detail hidden" name="eq_potpuller" placeholder="Make / model">
+        </div>
+        <div class="eq-item">
+          <label class="eq-check"><input type="checkbox" name="equipment" value="Heater">Heater</label>
+          <input type="text" class="eq-detail hidden" name="eq_heater" placeholder="Make / type">
+        </div>
+        <div class="eq-item">
+          <label class="eq-check"><input type="checkbox" name="equipment" value="Cabin / Enclosure">Cabin / Enclosure</label>
+          <input type="text" class="eq-detail hidden" name="eq_enclosure" placeholder="Canvas, hardtop…">
+        </div>
+        <div class="eq-item">
+          <label class="eq-check"><input type="checkbox" name="equipment" value="Stereo">Stereo</label>
+          <input type="text" class="eq-detail hidden" name="eq_stereo" placeholder="Make / model">
+        </div>
+        <div class="eq-item">
+          <label class="eq-check"><input type="checkbox" name="equipment" value="Washdown">Washdown</label>
+          <input type="text" class="eq-detail hidden" name="eq_washdown" placeholder="Raw water / fresh">
+        </div>
+        <div class="eq-item">
+          <label class="eq-check"><input type="checkbox" name="equipment" value="Anchor system / Windlass">Anchor system / Windlass</label>
+          <input type="text" class="eq-detail hidden" name="eq_anchor" placeholder="Make / model">
+        </div>
+        <div class="eq-item">
+          <label class="eq-check"><input type="checkbox" name="equipment" value="Livewell / Bait tank">Livewell / Bait tank</label>
+          <input type="text" class="eq-detail hidden" name="eq_livewell" placeholder="Details">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label class="lbl" for="equip_other">Other equipment or upgrades worth mentioning</label>
+          <textarea id="equip_other" name="equip_other" placeholder="Bow mount bracket, custom rod holders, extra fuel tank, batteries, covers…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6 CONDITION & HISTORY -->
+    <div class="card">
+      <div class="sec"><div class="secnum">6</div><h2>CONDITION &amp; HISTORY</h2></div>
+      <p class="sechint">Straight answers here make the sale smoother — buyers trust honest listings, and so do we.</p>
+      <div class="row">
+        <div class="field" data-f="overall_cond">
+          <label class="lbl req">Overall condition</label>
+          <div class="pills">
+            <label class="pill"><input type="radio" name="overall_cond" value="Excellent"><span>Excellent</span></label>
+            <label class="pill"><input type="radio" name="overall_cond" value="Very good"><span>Very good</span></label>
+            <label class="pill"><input type="radio" name="overall_cond" value="Good"><span>Good</span></label>
+            <label class="pill"><input type="radio" name="overall_cond" value="Fair"><span>Fair</span></label>
+          </div>
+          <div class="msg"></div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field" data-f="issues">
+          <label class="lbl req">Any known mechanical, electrical, structural, or cosmetic issues?</label>
+          <div class="pills">
+            <label class="pill"><input type="radio" name="issues" value="No known issues"><span>No known issues</span></label>
+            <label class="pill"><input type="radio" name="issues" value="Yes"><span>Yes</span></label>
+          </div>
+          <div class="msg"></div>
+        </div>
+      </div>
+      <div class="reveal hidden" data-reveal-if="issues=Yes">
+        <div class="field" data-f="issues_detail">
+          <label class="lbl req" for="issues_detail">Describe the issues</label>
+          <textarea id="issues_detail" name="issues_detail"></textarea>
+          <div class="msg"></div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field" data-f="damage">
+          <label class="lbl req">Ever been in an accident, grounding, or had major repair / damage?</label>
+          <div class="pills">
+            <label class="pill"><input type="radio" name="damage" value="No"><span>No</span></label>
+            <label class="pill"><input type="radio" name="damage" value="Yes"><span>Yes</span></label>
+          </div>
+          <div class="msg"></div>
+        </div>
+      </div>
+      <div class="reveal hidden" data-reveal-if="damage=Yes">
+        <div class="field" data-f="damage_detail">
+          <label class="lbl req" for="damage_detail">What happened, and how was it repaired?</label>
+          <textarea id="damage_detail" name="damage_detail"></textarea>
+          <div class="msg"></div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label class="lbl">Is everything on board currently working?</label>
+          <div class="pills">
+            <label class="pill"><input type="radio" name="equip_func" value="Yes"><span>Yes</span></label>
+            <label class="pill"><input type="radio" name="equip_func" value="No"><span>No</span></label>
+          </div>
+        </div>
+      </div>
+      <div class="reveal hidden" data-reveal-if="equip_func=No">
+        <div class="field" data-f="equip_func_detail">
+          <label class="lbl req" for="equip_func_detail">What isn't working?</label>
+          <textarea id="equip_func_detail" name="equip_func_detail"></textarea>
+          <div class="msg"></div>
+        </div>
+      </div>
+      <div class="row r2">
+        <div class="field">
+          <label class="lbl" for="maintenance">Major recent maintenance, repairs, or upgrades</label>
+          <textarea id="maintenance" name="maintenance" placeholder="New impeller 2026, bottom paint 2025…"></textarea>
+        </div>
+        <div class="field">
+          <label class="lbl">Service records / receipts available?</label>
+          <div class="pills">
+            <label class="pill"><input type="radio" name="records" value="Yes"><span>Yes</span></label>
+            <label class="pill"><input type="radio" name="records" value="Partial"><span>Partial</span></label>
+            <label class="pill"><input type="radio" name="records" value="No"><span>No</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7 TELL US ABOUT IT -->
+    <div class="card">
+      <div class="sec"><div class="secnum">7</div><h2>TELL US ABOUT IT</h2></div>
+      <p class="sechint">This is what we'll build the listing description from — brag a little.</p>
+      <div class="row">
+        <div class="field" data-f="description">
+          <label class="lbl req" for="description">In a few sentences, what makes this a great boat?</label>
+          <textarea id="description" name="description" style="min-height:110px"
+            placeholder="How it's rigged, what water it's run, what it does best, what you'll miss about it…"></textarea>
+          <div class="msg"></div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label class="lbl" for="why_selling">Why are you selling?</label>
+          <input type="text" id="why_selling" name="why_selling" placeholder="Optional — upgrading, not using it enough…">
+        </div>
+      </div>
+    </div>
+
+    <!-- 8 PHOTOS -->
+    <div class="card">
+      <div class="sec"><div class="secnum">8</div><h2>PHOTOS</h2></div>
+      <p class="sechint">Good photos are what sell the boat. When you're ready, we'll want: exterior from all sides,
+         helm and electronics (powered on), interior, engine(s), trailer, and honest shots of any dings or wear.</p>
+      <div class="row r2">
+        <div class="field">
+          <label class="lbl">Do you have current photos?</label>
+          <div class="pills">
+            <label class="pill"><input type="radio" name="photos_ready" value="Ready now"><span>Ready now</span></label>
+            <label class="pill"><input type="radio" name="photos_ready" value="I'll take some this week"><span>I'll take some this week</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label class="lbl" for="photo_link">Link to a photo album (optional)</label>
+          <input type="text" id="photo_link" name="photo_link" placeholder="Google Photos, Dropbox, iCloud share link…">
+          <div class="hint">No link handy? No problem — after you submit, we'll reach out with an easy way to send them.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9 SHOWINGS & WHAT'S NEXT -->
+    <div class="card">
+      <div class="sec"><div class="secnum">9</div><h2>SHOWINGS &amp; WHAT'S NEXT</h2></div>
+      <div class="row r2">
+        <div class="field">
+          <label class="lbl">Can buyers come see the boat?</label>
+          <div class="pills">
+            <label class="pill"><input type="radio" name="viewing" value="Yes"><span>Yes</span></label>
+            <label class="pill"><input type="radio" name="viewing" value="By appointment"><span>By appointment</span></label>
+            <label class="pill"><input type="radio" name="viewing" value="Not currently"><span>Not currently</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label class="lbl">Open to a water test for a serious buyer?</label>
+          <div class="pills">
+            <label class="pill"><input type="radio" name="water_test" value="Yes"><span>Yes</span></label>
+            <label class="pill"><input type="radio" name="water_test" value="Possibly"><span>Possibly</span></label>
+            <label class="pill"><input type="radio" name="water_test" value="No"><span>No</span></label>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label class="lbl">Interested in putting this toward a new Wooldridge?</label>
+          <div class="pills">
+            <label class="pill"><input type="radio" name="trade_in" value="Yes — tell me more"><span>Yes — tell me more</span></label>
+            <label class="pill"><input type="radio" name="trade_in" value="Open to it"><span>Open to it</span></label>
+            <label class="pill"><input type="radio" name="trade_in" value="No — just selling"><span>No — just selling</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10 CONFIRM & SUBMIT -->
+    <div class="card">
+      <div class="sec"><div class="secnum">10</div><h2>CONFIRM &amp; SUBMIT</h2></div>
+      <div class="field" data-f="cert_agree">
+        <div class="cert">
+          <input type="checkbox" id="cert_agree" name="cert_agree" value="Agreed">
+          <label for="cert_agree">I certify that I am the legal owner of this boat (or authorized to sell it),
+            and that the information above is accurate to the best of my knowledge. I understand
+            Wooldridge Boats will use it to prepare and advertise a pre-owned listing.</label>
+        </div>
+        <div class="msg"></div>
+      </div>
+      <div class="row r2">
+        <div class="field" data-f="cert_name">
+          <label class="lbl req" for="cert_name">Type your full name as your signature</label>
+          <input type="text" id="cert_name" name="cert_name" autocomplete="off">
+          <div class="msg"></div>
+        </div>
+        <div class="field">
+          <label class="lbl">Date</label>
+          <input type="text" id="cert_date" disabled>
+        </div>
+      </div>
+      <div class="submitrow">
+        <button type="submit" class="btn btn-primary">SUBMIT MY BOAT</button>
+        <span class="fineprint" style="margin-top:0">Fields marked <span style="color:var(--blue);font-weight:700">*</span> are required.</span>
+      </div>
+      <p class="fineprint">We only use your information to handle your listing — it's never sold, shared, or spammed.</p>
+    </div>
+  </form>
+
+  <!-- SUCCESS: endpoint mode -->
+  <div class="card hidden" id="sentPanel">
+    <span class="done-badge">SUBMITTED</span>
+    <h2 class="rockwell">GOT IT — THANKS!</h2>
+    <p style="color:var(--ink2)">Your boat's info is in our hands. Here's what happens next:</p>
+    <ol class="steps">
+      <li>We review your submission and verify the basics.</li>
+      <li>We reach out (your preferred way) to talk pricing, photos, and paperwork.</li>
+      <li>Your boat goes live on our Used Boats page.</li>
+    </ol>
+    <div class="submitrow" style="margin-top:14px">
+      <a class="btn btn-ghost" href="/pre-owned/">Back to Pre-Owned Boats</a>
+    </div>
+  </div>
+
+  <!-- SUCCESS: fallback (no endpoint wired) -->
+  <div class="card hidden" id="donePanel">
+    <span class="done-badge">READY TO SEND</span>
+    <h2 class="rockwell">ONE LAST STEP — SEND IT OUR WAY</h2>
+    <p style="color:var(--ink2)">Your info is packaged below. Copy it, then paste it into an
+       email to <strong id="emailShow"></strong> — the button opens a pre-addressed draft for you.</p>
+    <div class="submitrow" style="margin-top:14px">
+      <button type="button" class="btn btn-primary" id="copyBtn">COPY MY LISTING INFO</button>
+      <a class="btn btn-ghost" id="mailtoBtn" href="#">Open email draft</a>
+      <button type="button" class="btn btn-ghost" id="backBtn">← Go back and edit</button>
+    </div>
+    <div id="copyStatus"></div>
+    <div class="row"><textarea id="summaryBox" readonly spellcheck="false"></textarea></div>
+    <p class="fineprint">Your answers also stay saved on this device until you
+       <a href="#" id="freshLink2">start a new form</a>.</p>
+  </div>
+
+  <footer><a href="/">WOOLDRIDGE BOATS</a> — Since 1915 · Seattle, WA</footer>
+</div>
+
+<div id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+  /* endpoint is RELATIVE on purpose — the same page works on dev and
+     production without an edit. The handler archives to disk before it
+     emails and only returns 200 when one of those genuinely succeeded,
+     so the copy-and-email fallback below stays the safety net. */
+  var CONFIG = {
+    endpoint: "/forms/sell-your-boat.php",
+    fallbackEmail: "data@wooldridgeboats.com"
+  };
+  var DRAFT_KEY = "wb_used_boat_intake_draft";
+
+  function $(s,r){ return (r||document).querySelector(s); }
+  function $all(s,r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); }
+  var form = $("#intake");
+
+  document.getElementById("cert_date").value = new Date().toLocaleDateString();
+  document.getElementById("emailShow").textContent = CONFIG.fallbackEmail;
+
+  function radioVal(name){
+    var el = form.querySelector('input[name="'+name+'"]:checked');
+    return el ? el.value : "";
+  }
+  function textVal(name){
+    var el = form.querySelector('[name="'+name+'"]');
+    return el ? el.value.trim() : "";
+  }
+  function checkVals(name){
+    return $all('input[name="'+name+'"]:checked', form).map(function(e){ return e.value; });
+  }
+
+  function updateReveals(){
+    $all("[data-reveal-if]").forEach(function(el){
+      var spec = el.getAttribute("data-reveal-if").split("=");
+      el.classList.toggle("hidden", radioVal(spec[0]) !== spec[1]);
+    });
+  }
+
+  $all(".eq-item .eq-check input", form).forEach(function(cb){
+    cb.addEventListener("change", function(){
+      var d = cb.closest(".eq-item").querySelector(".eq-detail");
+      if(d) d.classList.toggle("hidden", !cb.checked);
+    });
+  });
+  var useOther = $("#use_other_cb");
+  useOther.addEventListener("change", function(){
+    $("#use_other_detail").classList.toggle("hidden", !useOther.checked);
+  });
+
+  var REQ = [
+    ["seller_name","Please give us your name."],
+    ["seller_phone","A phone number helps us reach you fast."],
+    ["seller_email","Enter a valid email address.","email"],
+    ["seller_city","Required."],
+    ["seller_state","Required."],
+    ["legal_owner","Please pick one.","radio"],
+    ["legal_owner_note","Tell us a bit about the situation."],
+    ["lien","Please pick one.","radio"],
+    ["year","Enter a model year between 1940 and 2027.","year"],
+    ["manufacturer","Required."],
+    ["model","Required."],
+    ["length","Enter the length in feet.","num"],
+    ["boat_location","Where is the boat right now?"],
+    ["price","Enter your asking price.","price"],
+    ["drive","Please pick one.","radio"],
+    ["drive_other","Tell us the drive type."],
+    ["engine_make","Required."],
+    ["engine_hours","Approximate hours are fine.","num0"],
+    ["engine_cond","Please pick one.","radio"],
+    ["trailer","Please pick one.","radio"],
+    ["overall_cond","Please pick one.","radio"],
+    ["issues","Please pick one.","radio"],
+    ["issues_detail","Please describe the issues."],
+    ["damage","Please pick one.","radio"],
+    ["damage_detail","Please tell us what happened."],
+    ["equip_func_detail","Please tell us what isn't working."],
+    ["description","A few sentences is perfect."],
+    ["cert_agree","Please confirm before submitting.","check"],
+    ["cert_name","Type your full name."]
+  ];
+
+  function fieldBox(name){ return form.querySelector('.field[data-f="'+name+'"]'); }
+  function isHiddenAway(name){
+    var box = fieldBox(name);
+    if(!box) return true;
+    var rev = box.closest(".reveal");
+    return !!(rev && rev.classList.contains("hidden"));
+  }
+  function setErr(name, msg){
+    var box = fieldBox(name);
+    if(!box) return;
+    box.classList.add("err");
+    var m = box.querySelector(".msg");
+    if(m) m.textContent = msg;
+  }
+  function clearErr(box){
+    box.classList.remove("err");
+  }
+  form.addEventListener("input", function(e){
+    var box = e.target.closest(".field");
+    if(box) clearErr(box);
+  });
+  form.addEventListener("change", function(e){
+    var box = e.target.closest(".field");
+    if(box) clearErr(box);
+  });
+
+  function validate(){
+    var firstBad = null;
+    REQ.forEach(function(r){
+      var name = r[0], msg = r[1], kind = r[2] || "text";
+      if(isHiddenAway(name)) return;
+      var ok = true, v;
+      if(kind === "radio"){ ok = !!radioVal(name); }
+      else if(kind === "check"){ ok = !!form.querySelector('input[name="'+name+'"]:checked'); }
+      else {
+        v = textVal(name);
+        ok = v.length > 0;
+        if(ok && kind === "email"){ ok = form.querySelector('[name="'+name+'"]').checkValidity(); }
+        if(ok && kind === "year"){ var y = parseFloat(v); ok = y >= 1940 && y <= 2027; }
+        if(ok && kind === "num"){ ok = parseFloat(v) > 0; }
+        if(ok && kind === "num0"){ ok = parseFloat(v) >= 0; }
+        if(ok && kind === "price"){ ok = /\d/.test(v); }
+      }
+      if(!ok){
+        setErr(name, msg);
+        if(!firstBad) firstBad = fieldBox(name);
+      }
+    });
+    return firstBad;
+  }
+
+  function line(label, v){ return v ? ("  " + label + ": " + v + "\n") : ""; }
+  function buildSummary(){
+    var s = "";
+    s += "WOOLDRIDGE BOATS - USED BOAT LISTING SUBMISSION\n";
+    s += "Submitted: " + new Date().toLocaleString() + "\n";
+    s += "\n--- SELLER ---\n";
+    s += line("Name", textVal("seller_name"));
+    s += line("Phone", textVal("seller_phone"));
+    s += line("Email", textVal("seller_email"));
+    s += line("City / State", [textVal("seller_city"), textVal("seller_state")].filter(Boolean).join(", "));
+    s += line("Best contact", radioVal("contact_pref"));
+    s += line("Legal owner", radioVal("legal_owner"));
+    s += line("Ownership note", textVal("legal_owner_note"));
+    s += line("Loan / lien", radioVal("lien"));
+    s += "\n--- BOAT ---\n";
+    s += line("Boat", [textVal("year"), textVal("manufacturer"), textVal("model")].filter(Boolean).join(" "));
+    s += line("Length", textVal("length") ? textVal("length") + " ft" : "");
+    s += line("Hull material", textVal("hull_material"));
+    s += line("HIN", textVal("hin"));
+    s += line("Location", textVal("boat_location"));
+    s += line("Asking price", textVal("price") ? "$" + textVal("price") + (radioVal("price_flex") ? " (" + radioVal("price_flex") + ")" : "") : "");
+    s += line("Owned for", textVal("owned_length"));
+    var uses = checkVals("primary_use");
+    if(uses.indexOf("Other") >= 0 && textVal("use_other_detail")){
+      uses[uses.indexOf("Other")] = "Other: " + textVal("use_other_detail");
+    }
+    s += line("Primary use", uses.join(", "));
+    s += line("Saltwater", radioVal("saltwater"));
+    s += "\n--- ENGINE / PROPULSION ---\n";
+    var drive = radioVal("drive");
+    if(drive === "Other" && textVal("drive_other")) drive = "Other: " + textVal("drive_other");
+    s += line("Drive", drive);
+    s += line("Main engine", [textVal("engine_year"), textVal("engine_make"), textVal("engine_model")].filter(Boolean).join(" "));
+    s += line("Horsepower", textVal("engine_hp"));
+    s += line("Hours", textVal("engine_hours"));
+    s += line("Fuel", radioVal("fuel"));
+    s += line("Engine condition", radioVal("engine_cond"));
+    s += line("Last service", textVal("last_service"));
+    s += line("Warranty", radioVal("warranty") === "Yes" ? (textVal("warranty_detail") || "Yes") : radioVal("warranty"));
+    if(radioVal("kicker") === "Yes"){
+      s += line("Kicker", [textVal("kicker_makemodel"), textVal("kicker_hp") ? textVal("kicker_hp") + " hp" : "", textVal("kicker_hours") ? textVal("kicker_hours") + " hrs" : ""].filter(Boolean).join(", ") || "Yes");
+    } else {
+      s += line("Kicker", radioVal("kicker"));
+    }
+    s += "\n--- TRAILER ---\n";
+    s += line("Included", radioVal("trailer"));
+    if(radioVal("trailer") === "Yes"){
+      s += line("Trailer", [textVal("trailer_year"), textVal("trailer_make")].filter(Boolean).join(" "));
+      s += line("Axles", radioVal("axles"));
+      s += line("Brakes", radioVal("brakes"));
+      s += line("Trailer condition", radioVal("trailer_cond"));
+    }
+    var eq = "";
+    var eqmap = [
+      ["GPS / Chartplotter","eq_gps"],["Fish finder / Sonar","eq_sonar"],["Radar","eq_radar"],
+      ["VHF radio","eq_vhf"],["Autopilot","eq_autopilot"],["Trolling motor","eq_trolling"],
+      ["Downriggers","eq_downriggers"],["Pot puller","eq_potpuller"],["Heater","eq_heater"],
+      ["Cabin / Enclosure","eq_enclosure"],["Stereo","eq_stereo"],["Washdown","eq_washdown"],
+      ["Anchor system / Windlass","eq_anchor"],["Livewell / Bait tank","eq_livewell"]
+    ];
+    var checked = checkVals("equipment");
+    eqmap.forEach(function(pair){
+      if(checked.indexOf(pair[0]) >= 0){
+        var d = textVal(pair[1]);
+        eq += "  - " + pair[0] + (d ? " (" + d + ")" : "") + "\n";
+      }
+    });
+    if(eq || textVal("equip_other")){
+      s += "\n--- EQUIPMENT ---\n" + eq;
+      if(textVal("equip_other")) s += "  Other: " + textVal("equip_other") + "\n";
+    }
+    s += "\n--- CONDITION & HISTORY ---\n";
+    s += line("Overall condition", radioVal("overall_cond"));
+    s += line("Known issues", radioVal("issues") === "Yes" ? textVal("issues_detail") : radioVal("issues"));
+    s += line("Accident / major damage", radioVal("damage") === "Yes" ? textVal("damage_detail") : radioVal("damage"));
+    s += line("Everything working", radioVal("equip_func") === "No" ? "No - " + textVal("equip_func_detail") : radioVal("equip_func"));
+    s += line("Recent maintenance", textVal("maintenance"));
+    s += line("Service records", radioVal("records"));
+    s += "\n--- ABOUT THE BOAT ---\n";
+    s += line("Description", textVal("description"));
+    s += line("Why selling", textVal("why_selling"));
+    s += "\n--- PHOTOS & SHOWINGS ---\n";
+    s += line("Photos", radioVal("photos_ready"));
+    s += line("Photo album link", textVal("photo_link"));
+    s += line("Viewings", radioVal("viewing"));
+    s += line("Water test", radioVal("water_test"));
+    s += line("Trade-in interest", radioVal("trade_in"));
+    s += "\n--- CERTIFICATION ---\n";
+    s += line("Certified accurate by", textVal("cert_name"));
+    s += line("Date", document.getElementById("cert_date").value);
+    return s;
+  }
+
+  function serialize(){
+    var o = {};
+    $all("[name]", form).forEach(function(el){
+      if(el.name === "company_website") return;
+      if(el.type === "radio"){ if(el.checked) o[el.name] = el.value; return; }
+      if(el.type === "checkbox"){
+        if(!o["__cb_" + el.name]) o["__cb_" + el.name] = [];
+        if(el.checked) o["__cb_" + el.name].push(el.value);
+        return;
+      }
+      if(el.value) o[el.name] = el.value;
+    });
+    return o;
+  }
+  function restore(o){
+    $all("[name]", form).forEach(function(el){
+      if(el.type === "radio"){ if(o[el.name] === el.value) el.checked = true; return; }
+      if(el.type === "checkbox"){
+        var a = o["__cb_" + el.name] || [];
+        el.checked = a.indexOf(el.value) >= 0;
+        return;
+      }
+      if(o[el.name] !== undefined) el.value = o[el.name];
+    });
+    $all(".eq-item .eq-check input", form).forEach(function(cb){
+      var d = cb.closest(".eq-item").querySelector(".eq-detail");
+      if(d) d.classList.toggle("hidden", !cb.checked);
+    });
+    $("#use_other_detail").classList.toggle("hidden", !useOther.checked);
+    updateReveals();
+  }
+
+  var saveTimer = null;
+  function saveDraft(){
+    try{ localStorage.setItem(DRAFT_KEY, JSON.stringify(serialize())); }catch(e){}
+  }
+  function saveDraftSoon(){
+    if(saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveDraft, 600);
+  }
+  form.addEventListener("input", saveDraftSoon);
+  form.addEventListener("change", function(){ updateReveals(); saveDraft(); });
+  document.addEventListener("visibilitychange", function(){
+    if(document.visibilityState === "hidden") saveDraft();
+  });
+
+  function clearDraft(){
+    try{ localStorage.removeItem(DRAFT_KEY); }catch(e){}
+  }
+  function startFresh(ev){
+    ev.preventDefault();
+    clearDraft();
+    location.reload();
+  }
+  document.getElementById("freshLink").addEventListener("click", startFresh);
+  document.getElementById("freshLink2").addEventListener("click", startFresh);
+
+  try{
+    var saved = localStorage.getItem(DRAFT_KEY);
+    if(saved){
+      var data = JSON.parse(saved);
+      if(data && Object.keys(data).length){
+        restore(data);
+        document.getElementById("draftNotice").style.display = "block";
+      }
+    }
+  }catch(e){}
+  updateReveals();
+
+  function toast(msg){
+    var t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(function(){ t.classList.remove("show"); }, 2800);
+  }
+
+  function copyStatus(cls, msg){
+    var el = document.getElementById("copyStatus");
+    el.className = cls;
+    el.textContent = msg;
+  }
+  document.getElementById("copyBtn").addEventListener("click", function(){
+    var box = document.getElementById("summaryBox");
+    var t = box.value;
+    function selectAll(){ box.focus(); box.select(); box.setSelectionRange(0, t.length); }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(t).then(function(){
+        if(navigator.clipboard.readText){
+          navigator.clipboard.readText().then(function(back){
+            if(back === t){ copyStatus("ok", "Copied and verified - all " + t.length + " characters made it."); }
+            else { selectAll(); copyStatus("warn", "Copy may be incomplete - the text is selected below, press Ctrl+C to be sure."); }
+          }, function(){
+            selectAll(); copyStatus("warn", "Copied, but this browser would not let us verify it - the text is selected below, press Ctrl+C to be sure.");
+          });
+        } else {
+          selectAll(); copyStatus("warn", "Copied, but this browser would not let us verify it - the text is selected below, press Ctrl+C to be sure.");
+        }
+      }, function(){
+        selectAll();
+        var ok = false;
+        try{ ok = document.execCommand("copy"); }catch(e){}
+        if(ok){ copyStatus("warn", "Copied via fallback - the text is selected below, press Ctrl+C if you want to be certain."); }
+        else { copyStatus("errst", "Copy failed. The text is selected below - press Ctrl+C."); }
+      });
+    } else {
+      selectAll();
+      var ok2 = false;
+      try{ ok2 = document.execCommand("copy"); }catch(e){}
+      if(ok2){ copyStatus("warn", "Copied via fallback - the text is selected below, press Ctrl+C if you want to be certain."); }
+      else { copyStatus("errst", "Copy failed. The text is selected below - press Ctrl+C."); }
+    }
+  });
+
+  document.getElementById("backBtn").addEventListener("click", function(){
+    document.getElementById("donePanel").classList.add("hidden");
+    form.classList.remove("hidden");
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+
+  function showFallback(){
+    var summary = buildSummary();
+    document.getElementById("summaryBox").value = summary;
+    var subject = "Used boat listing - " + [textVal("year"), textVal("manufacturer"), textVal("model")].filter(Boolean).join(" ");
+    document.getElementById("mailtoBtn").href =
+      "mailto:" + CONFIG.fallbackEmail + "?subject=" + encodeURIComponent(subject);
+    form.classList.add("hidden");
+    document.getElementById("donePanel").classList.remove("hidden");
+    document.getElementById("copyStatus").className = "";
+    document.getElementById("copyStatus").textContent = "";
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+    if(textVal("company_website")){
+      form.classList.add("hidden");
+      document.getElementById("sentPanel").classList.remove("hidden");
+      return;
+    }
+    var bad = validate();
+    if(bad){
+      bad.scrollIntoView({behavior:"smooth", block:"center"});
+      toast("A few fields still need attention");
+      return;
+    }
+    saveDraft();
+    if(CONFIG.endpoint){
+      var payload = serialize();
+      payload.__summary = buildSummary();
+      payload.__submitted_at = new Date().toISOString();
+      payload.__source = "website-used-boats";
+      fetch(CONFIG.endpoint, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(payload)
+      }).then(function(res){
+        if(!res.ok) throw new Error("HTTP " + res.status);
+        clearDraft();
+        form.classList.add("hidden");
+        document.getElementById("sentPanel").classList.remove("hidden");
+        window.scrollTo({top:0, behavior:"smooth"});
+      }).catch(function(){
+        /* .catch, NOT a second .then argument: the HTTP-status throw above
+           happens INSIDE the fulfilled handler, which a second argument can
+           never catch. Verified by effect 2026-08-18 - as a second argument,
+           a 500 from the server left the page sitting silent instead of
+           showing the copy-and-email fallback. The server returns 5xx
+           precisely so this fallback fires; do not "simplify" it back. */
+        showFallback();
+      });
+    } else {
+      showFallback();
+    }
+  });
+})();
+</script>
+</body>
+</html>

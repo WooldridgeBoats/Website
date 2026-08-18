@@ -1,2 +1,8 @@
 .DS_Store
 **/.DS_Store
+
+# sell-your-boat archives: only .htaccess and index.html are tracked in this
+# folder. Archived submissions carry seller PII and exist on the HOST only
+# (normally outside the webroot entirely) - never commit one.
+forms/_submissions/ub-*
+forms/_submissions/*.log
