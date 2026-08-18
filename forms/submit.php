@@ -61,19 +61,46 @@
    found by walking up from the document root, so dev and production
    both work with one file. Expected shape — a PHP file that RETURNS an
    array, so that even if it were ever moved inside the web root the
-   server would execute it rather than serve the password as text:
+   server would execute it rather than serve the secrets as text:
 
        <?php
        return array(
+         // which way out of the building. 'smtp' when the key is absent
+         // (the legacy default); 'graph' = Microsoft Graph over HTTPS,
+         // the only transport THIS host can deliver (GoDaddy blocks
+         // outbound 25/465/587 - confirmed in writing 18 Aug 2026, see
+         // TRANSPORT VERDICT below). Any other value is a loud config
+         // error, never a silent fallback onto a transport nobody chose.
+         'transport' => 'graph',
+
+         // graph transport (forms/lib/wb-graph.php) - all three required
+         // when transport is 'graph':
+         'tenant_id'     => '<Entra tenant GUID>',
+         'client_id'     => '<app registration Application (client) ID>',
+         'client_secret' => '<client secret VALUE>',
+
+         // smtp transport (forms/lib/wb-smtp.php) - kept for a future
+         // host with open ports; ignored while transport is 'graph':
          'host' => 'smtp.office365.com',
          'port' => 587,
          'user' => 'website@wooldridgeboats.com',
          'pass' => '<its password / app password>',
+
+         // both transports send as this mailbox:
          'from' => 'website@wooldridgeboats.com',
        );
 
-   If that file is missing, unreadable, or 'user'/'pass' is empty, this
-   handler LOGS the reason and returns ok:false. It never claims success.
+   If that file is missing or unreadable, or the selected transport's
+   credentials are blank, this handler LOGS the reason and returns
+   ok:false. It never claims success. The response `error` strings are
+   a fixed contract (the go-live briefing's decoder table reads them):
+   503 'mail config missing' / 'mail config unreadable' /
+   'mail credentials not set' (smtp keys blank) / 'mail config
+   incomplete' (graph keys blank, or an unknown transport value); a
+   genuine refusal by the mail service itself is 502 with THE one
+   transport-neutral send-failure string, 'mail send failed'
+   (which replaced 'smtp send failed' when the graph transport landed,
+   18 Aug 2026 - one string whichever transport is configured).
 
    'user' and 'from' are kept as SEPARATE config keys but are expected to be
    the SAME address now that the sender is a dedicated mailbox — it
@@ -84,15 +111,27 @@
    password on a web server was too much exposure. The two keys stayed
    separate in case a future mailbox change repeats that situation.)
 
-   PENDING, and nothing here can work until it is done: Authenticated SMTP
-   (SMTP AUTH) must be ENABLED on that mailbox in Microsoft 365 — Richard's
-   side. Microsoft disables it by default per-mailbox and many tenants also
-   block basic auth for SMTP tenant-wide. If the tenant requires OAuth2,
-   AUTH LOGIN here will fail with 535 5.7.139 and this file needs XOAUTH2
-   instead — that is a known open question, not a bug to guess at.
+   TRANSPORT VERDICT, 18 Aug 2026 - why 'graph' exists and smtp stays:
+   the SMTP AUTH question above went MOOT on this host before it was
+   ever answered. Stephen port-tested from the cPanel Terminal: outbound
+   25, 465 AND 587 are all blocked, and GoDaddy support confirmed in
+   writing the same day that opening them is not possible on shared
+   hosting. Every wb-smtp send died as a connect-timeout before one
+   SMTP byte moved. Outbound 443 works (the cPanel git deploy pulls
+   GitHub over it), so transport 'graph' sends the same mail as the
+   same website@ mailbox through Microsoft Graph sendMail instead
+   (forms/lib/wb-graph.php: client-credentials token, then
+   POST /users/website@.../sendMail, saveToSentItems on).
+   Dependencies for graph: an Entra app registration holding the
+   Mail.Send APPLICATION permission with admin consent granted
+   (Richard), and its Application (client) ID + client secret VALUE
+   pasted into .mailsecret.php (Stephen). The tenant GUID is public and
+   already baked into the go-live briefing. The smtp branch is kept
+   intact and byte-equivalent for a future host with open ports.
    ═══════════════════════════════════════════════════════════════════ */
 
 require_once dirname(__FILE__) . '/lib/wb-smtp.php';
+require_once dirname(__FILE__) . '/lib/wb-graph.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -249,8 +288,33 @@ $MAIL = array_merge(array(
   'user' => '',
   'pass' => '',
   'from' => 'website@wooldridgeboats.com',
+  'transport'     => 'smtp',
+  'tenant_id'     => '',
+  'client_id'     => '',
+  'client_secret' => '',
 ), $MAIL);
-if (trim((string)$MAIL['user']) === '' || trim((string)$MAIL['pass']) === ''){
+
+/* Which way out of the building. Absent/'smtp' = the legacy SMTP leg,
+   kept byte-equivalent to the 3 Aug behavior; 'graph' = Microsoft Graph
+   over HTTPS, the only transport THIS host can deliver (see the header).
+   Anything else is a typo and gets a loud config error - never a silent
+   fallback onto a transport nobody chose. */
+$TRANSPORT = strtolower(trim((string)$MAIL['transport']));
+if ($TRANSPORT === '') $TRANSPORT = 'smtp';
+if ($TRANSPORT !== 'smtp' && $TRANSPORT !== 'graph'){
+  wb_log('ABORT ' . $form . ": unknown 'transport' value '" . $MAIL['transport'] . "' in " . $cfgPath
+    . " - use 'smtp' or 'graph'");
+  fail(503, 'mail config incomplete');
+}
+if ($TRANSPORT === 'graph'){
+  foreach (array('tenant_id', 'client_id', 'client_secret') as $gk){
+    if (trim((string)$MAIL[$gk]) === ''){
+      wb_log('ABORT ' . $form . ": transport is 'graph' but '" . $gk . "' is missing or blank in " . $cfgPath
+        . ' - the app registration values come from Richard; see FORM MAIL - GO LIVE BRIEFING');
+      fail(503, 'mail config incomplete');
+    }
+  }
+} else if (trim((string)$MAIL['user']) === '' || trim((string)$MAIL['pass']) === ''){
   wb_log('ABORT ' . $form . ": 'user' or 'pass' is empty in " . $cfgPath
     . ' — pending SMTP AUTH being enabled on the data@ mailbox (Richard) and the password being put in the file (Stephen)');
   fail(503, 'mail credentials not set');
@@ -260,10 +324,89 @@ if (trim((string)$MAIL['user']) === '' || trim((string)$MAIL['pass']) === ''){
 $FROM = ($MAIL['from'] !== '') ? $MAIL['from'] : $MAIL['user'];
 $fromDomain = (strpos($FROM, '@') !== false) ? substr($FROM, strpos($FROM, '@') + 1) : 'wooldridgeboats.com';
 
-/* ─── assemble the shop mail ──────────────────────────────────────── */
+/* shared by both transports: who this goes to, and the auto-response
+   text - built once so the two transports can never drift on wording */
 $to      = $route['to'];
 $envRcpt = array_merge(wb_addr_list($to), wb_addr_list($route['cc']));
 
+$ar_b = "Thank you for your inquiry — this is an automatic confirmation that it reached us.\n\n"
+      . "A real person will be in contact with you within 2-3 business days.\n\n"
+      . "If it's time-sensitive, call the shop directly: (206) 722-8998, Mon-Thu 6:00am-4:30pm Pacific.\n\n"
+      . "Wooldridge Boats - 1303 S 96th St, Seattle, WA 98108\nFamily built since 1915.\n\n"
+      . "----------------------------------------\n"
+      . "A copy of what you sent us:\n\n"
+      . $body;
+if ($parts) $ar_b .= "\n(Your attached file" . (count($parts) > 1 ? "s" : "") . " reached us too, but "
+      . (count($parts) > 1 ? "they aren't" : "it isn't") . " included in this copy.)\n";
+$ar_subject = 'We received your ' . ($form === 'careers' ? 'application' : 'inquiry') . ' — Wooldridge Boats';
+
+/* ─── transport 'graph': two HTTPS round trips, then the truth ────── */
+if ($TRANSPORT === 'graph'){
+  $graph = new WBGraph(array(
+    'tenant_id'     => $MAIL['tenant_id'],
+    'client_id'     => $MAIL['client_id'],
+    'client_secret' => $MAIL['client_secret'],
+    'timeout'       => 15,
+  ));
+
+  $gm = array(
+    'subject'      => $subject,
+    'body'         => array('contentType' => 'Text', 'content' => $body . $meta),
+    'from'         => array('emailAddress' => array('address' => $FROM, 'name' => $FROM_NAME)),
+    'toRecipients' => wb_graph_rcpt(wb_addr_list($to)),
+    /* Graph only carries custom x- headers; X-WB-Form matches the smtp leg */
+    'internetMessageHeaders' => array(array('name' => 'X-WB-Form', 'value' => $form)),
+  );
+  $ccList = wb_addr_list($route['cc']);
+  if ($ccList) $gm['ccRecipients'] = wb_graph_rcpt($ccList);
+  /* Reply-To is what makes hitting Reply reach the CUSTOMER even though
+     the message legitimately comes from our own authenticated mailbox */
+  if ($email !== '') $gm['replyTo'] = array(array('emailAddress' => array('address' => $email, 'name' => $name)));
+  if ($parts){
+    $gm['attachments'] = array();
+    foreach ($parts as $p){
+      $gm['attachments'][] = array(
+        '@odata.type'  => '#microsoft.graph.fileAttachment',
+        'name'         => $p['name'],
+        'contentType'  => 'application/octet-stream',
+        'contentBytes' => base64_encode($p['data']),
+      );
+    }
+  }
+
+  try {
+    $graph->send($FROM, $gm);
+  } catch (WBGraphError $e){
+    wb_log('FAILED ' . $form . ' -> ' . implode(', ', $envRcpt) . ' via graph : ' . $e->getMessage()
+      . ' | trace: ' . implode(' / ', $graph->trace));
+    fail(502, 'mail send failed');
+  }
+  wb_log('SENT ' . $form . ' -> ' . implode(', ', $envRcpt) . ' via graph'
+    . ($parts ? ' (' . count($parts) . ' attachment' . (count($parts) > 1 ? 's' : '') . ')' : ''));
+
+  /* customer auto-response — same rule as the smtp leg: a failed
+     auto-response is NOT a failed submission; log it and still say yes */
+  if ($AUTO_REPLY && $email !== ''){
+    try {
+      $graph->send($FROM, array(
+        'subject'      => $ar_subject,
+        'body'         => array('contentType' => 'Text', 'content' => $ar_b),
+        'from'         => array('emailAddress' => array('address' => $FROM, 'name' => 'Wooldridge Boats')),
+        'toRecipients' => array(array('emailAddress' => array('address' => $email, 'name' => $name))),
+        'replyTo'      => array(array('emailAddress' => array('address' => 'sales@wooldridgeboats.com'))),
+        /* Auto-Submitted cannot ride Graph (custom headers must be x-);
+           X-Auto-Response-Suppress is the one Exchange honors anyway */
+        'internetMessageHeaders' => array(array('name' => 'X-Auto-Response-Suppress', 'value' => 'All')),
+      ));
+    } catch (WBGraphError $e){
+      wb_log('auto-response to the submitter failed (submission itself DID send): ' . $e->getMessage());
+    }
+  }
+  echo json_encode(array('ok' => true));
+  exit;
+}
+
+/* ─── transport 'smtp': assemble the shop mail ────────────────────── */
 $hdrs = array();
 $hdrs[] = 'Date: ' . date('r');
 $hdrs[] = 'Message-ID: <' . md5(uniqid('wb', true)) . '@' . $fromDomain . '>';
@@ -307,12 +450,12 @@ try {
   $smtp->connect();
   $smtp->send($FROM, $envRcpt, $shopMessage);
 } catch (WBSmtpError $e){
-  wb_log('FAILED ' . $form . ' -> ' . implode(', ', $envRcpt) . ' : ' . $e->getMessage()
+  wb_log('FAILED ' . $form . ' -> ' . implode(', ', $envRcpt) . ' via smtp : ' . $e->getMessage()
     . ' | trace: ' . implode(' / ', $smtp->trace));
   $smtp->quit();
-  fail(502, 'smtp send failed');
+  fail(502, 'mail send failed');
 }
-wb_log('SENT ' . $form . ' -> ' . implode(', ', $envRcpt)
+wb_log('SENT ' . $form . ' -> ' . implode(', ', $envRcpt) . ' via smtp'
   . ($parts ? ' (' . count($parts) . ' attachment' . (count($parts) > 1 ? 's' : '') . ')' : ''));
 
 /* customer auto-response (WEB-F-06 wording — business days, on purpose),
@@ -320,23 +463,13 @@ wb_log('SENT ' . $form . ' -> ' . implode(', ', $envRcpt)
    A failed auto-response is NOT a failed submission: the shop already has
    it, so log it and still tell the visitor yes. */
 if ($AUTO_REPLY && $email !== ''){
-  $ar_b = "Thank you for your inquiry — this is an automatic confirmation that it reached us.\n\n"
-        . "A real person will be in contact with you within 2-3 business days.\n\n"
-        . "If it's time-sensitive, call the shop directly: (206) 722-8998, Mon-Thu 6:00am-4:30pm Pacific.\n\n"
-        . "Wooldridge Boats - 1303 S 96th St, Seattle, WA 98108\nFamily built since 1915.\n\n"
-        . "----------------------------------------\n"
-        . "A copy of what you sent us:\n\n"
-        . $body;
-  if ($parts) $ar_b .= "\n(Your attached file" . (count($parts) > 1 ? "s" : "") . " reached us too, but "
-        . (count($parts) > 1 ? "they aren't" : "it isn't") . " included in this copy.)\n";
-
   $ar_h = array();
   $ar_h[] = 'Date: ' . date('r');
   $ar_h[] = 'Message-ID: <' . md5(uniqid('ar', true)) . '@' . $fromDomain . '>';
   $ar_h[] = 'From: ' . wb_addr($FROM, 'Wooldridge Boats');
   $ar_h[] = 'To: ' . wb_addr($email, $name);
   $ar_h[] = 'Reply-To: sales@wooldridgeboats.com';
-  $ar_h[] = 'Subject: ' . wb_hdr('We received your ' . ($form === 'careers' ? 'application' : 'inquiry') . ' — Wooldridge Boats');
+  $ar_h[] = 'Subject: ' . wb_hdr($ar_subject);
   $ar_h[] = 'Auto-Submitted: auto-replied';
   $ar_h[] = 'X-Auto-Response-Suppress: All';
   $ar_h[] = 'MIME-Version: 1.0';

@@ -23,19 +23,25 @@
    Recipients (Stephen, Aug 2026): data@ (To), stephen@ + carrie@ (Cc).
    Change them in $ROUTE below - nothing else needs editing.
 
-   MAIL TRANSPORT is the house convention: authenticated SMTP to
-   Microsoft 365 via forms/lib/wb-smtp.php, sending as the dedicated
-   website@ mailbox whose credentials live in `.mailsecret.php` in the
-   hosting account home directory (found by walking up from the document
-   root - same file forms/submit.php uses). READ THE COMMENT BLOCK AT
-   THE TOP OF forms/submit.php BEFORE CHANGING ANY OF THAT: PHP mail()
-   was tried there and every message was silently discarded (SPF
-   authorises only M365, DMARC is p=reject), which is exactly why this
-   handler archives BEFORE it sends. Because the send goes straight to
-   smtp.office365.com, the cPanel "local mail exchanger" trap (a cPanel
-   box that thinks it hosts wooldridgeboats.com mail swallowing anything
-   addressed to the domain) does not apply to this path - but the live
-   test must still prove all three inboxes receive a submission.
+   MAIL TRANSPORT is the house convention, selected by 'transport' in
+   `.mailsecret.php` in the hosting account home directory (found by
+   walking up from the document root - same file forms/submit.php uses):
+   'graph' = Microsoft Graph sendMail over HTTPS via
+   forms/lib/wb-graph.php, the only transport THIS host can deliver
+   (GoDaddy blocks outbound 25/465/587 - confirmed in writing 18 Aug
+   2026); 'smtp' (the default when the key is absent) = authenticated
+   SMTP via forms/lib/wb-smtp.php, kept byte-equivalent for a future
+   host with open ports. Both send as the dedicated website@ mailbox.
+   READ THE COMMENT BLOCK AT THE TOP OF forms/submit.php BEFORE
+   CHANGING ANY OF THAT - it holds the full contract and the transport
+   history: PHP mail() was tried there and every message was silently
+   discarded (SPF authorises only M365, DMARC is p=reject), which is
+   exactly why this handler archives BEFORE it sends. Because the send
+   goes straight to Microsoft either way, the cPanel "local mail
+   exchanger" trap (a cPanel box that thinks it hosts wooldridgeboats.com
+   mail swallowing anything addressed to the domain) does not apply to
+   this path - but the live test must still prove all three inboxes
+   receive a submission.
 
    THE ARCHIVE lives at <account home>/wb-used-boat-submissions/ :
      ub-<stamp>-<boat>-<random>.json   the raw request body, verbatim
@@ -54,6 +60,7 @@
    ===================================================================== */
 
 require_once dirname(__FILE__) . '/lib/wb-smtp.php';
+require_once dirname(__FILE__) . '/lib/wb-graph.php';
 
 header('Content-Type: application/json; charset=utf-8');
 @set_time_limit(90);
@@ -219,7 +226,7 @@ if ($archived){
 }
 
 /* ---- STEP 2: email the shop ------------------------------------------ */
-$mail_ok = false; $mail_err = '';
+$mail_ok = false; $mail_err = ''; $TRANSPORT = 'smtp';   /* the contract default until the config says otherwise */
 if ($cfgPath === null){
   $mail_err = 'no .mailsecret.php found walking up from '
     . (isset($_SERVER['DOCUMENT_ROOT']) ? $_SERVER['DOCUMENT_ROOT'] : '?');
@@ -234,9 +241,33 @@ if ($cfgPath === null){
       'user' => '',
       'pass' => '',
       'from' => 'website@wooldridgeboats.com',
+      'transport'     => 'smtp',
+      'tenant_id'     => '',
+      'client_id'     => '',
+      'client_secret' => '',
     ), $MAIL);
-    if (trim((string)$MAIL['user']) === '' || trim((string)$MAIL['pass']) === ''){
-      $mail_err = "'user' or 'pass' is empty in " . $cfgPath;
+    /* transport dispatch - same contract as submit.php ('smtp' when the
+       key is absent; 'graph' = Graph over HTTPS; anything else is a loud
+       config error). A config gap here never changes the HTTP answer by
+       itself: the archive already ran, and STEP 3 below tells the truth
+       from archive-or-mail exactly as before. */
+    $TRANSPORT = strtolower(trim((string)$MAIL['transport']));
+    if ($TRANSPORT === '') $TRANSPORT = 'smtp';
+    $cfgGap = '';
+    if ($TRANSPORT !== 'smtp' && $TRANSPORT !== 'graph'){
+      $cfgGap = "unknown 'transport' value '" . $MAIL['transport'] . "' (mail config incomplete - use 'smtp' or 'graph')";
+    } else if ($TRANSPORT === 'graph'){
+      foreach (array('tenant_id', 'client_id', 'client_secret') as $gk){
+        if (trim((string)$MAIL[$gk]) === ''){
+          $cfgGap = "transport is 'graph' but '" . $gk . "' is missing or blank (mail config incomplete)";
+          break;
+        }
+      }
+    } else if (trim((string)$MAIL['user']) === '' || trim((string)$MAIL['pass']) === ''){
+      $cfgGap = "'user' or 'pass' is empty";
+    }
+    if ($cfgGap !== ''){
+      $mail_err = $cfgGap . ' in ' . $cfgPath;
     } else {
       $FROM = ($MAIL['from'] !== '') ? $MAIL['from'] : $MAIL['user'];
       $fromDomain = (strpos($FROM, '@') !== false) ? substr($FROM, strpos($FROM, '@') + 1) : 'wooldridgeboats.com';
@@ -254,47 +285,79 @@ if ($cfgPath === null){
 
       $envRcpt = array_merge(wb_addr_list($ROUTE['to']), wb_addr_list($ROUTE['cc']));
 
-      $hdrs = array();
-      $hdrs[] = 'Date: ' . date('r');
-      $hdrs[] = 'Message-ID: <' . md5(uniqid('wb', true)) . '@' . $fromDomain . '>';
-      $hdrs[] = 'From: ' . wb_addr($FROM, $FROM_NAME);
-      $hdrs[] = 'To: ' . $ROUTE['to'];
-      if ($ROUTE['cc'] !== '') $hdrs[] = 'Cc: ' . $ROUTE['cc'];
-      /* Reply-To makes hitting Reply reach the SELLER even though the message
-         legitimately comes from our own authenticated mailbox. Validated and
-         header-cleaned - never trusted into a header raw. */
-      $replyTo = clean_header($semail);
-      if ($replyTo !== '' && filter_var($replyTo, FILTER_VALIDATE_EMAIL)){
-        $hdrs[] = 'Reply-To: ' . wb_addr($replyTo, clean_header($sname));
-      }
-      $hdrs[] = 'Subject: ' . wb_hdr($subject);
-      $hdrs[] = 'X-WB-Form: used-boat';
-      $hdrs[] = 'MIME-Version: 1.0';
-      $hdrs[] = 'Content-Type: text/plain; charset=utf-8';
-      $message = implode("\r\n", $hdrs) . "\r\n\r\n" . $summary . $meta;
+      /* Reply-To makes hitting Reply reach the SELLER even though the
+         message legitimately comes from our own authenticated mailbox.
+         Validated and header-cleaned - never trusted into a header (or
+         into transport JSON) raw. Shared by both transports. */
+      $replyTo   = clean_header($semail);
+      $replyToOk = ($replyTo !== '' && filter_var($replyTo, FILTER_VALIDATE_EMAIL));
 
-      $smtp = new WBSmtp(array(
-        'host'    => $MAIL['host'],
-        'port'    => $MAIL['port'],
-        'user'    => $MAIL['user'],
-        'pass'    => $MAIL['pass'],
-        'ehlo'    => $fromDomain,
-        'timeout' => 20,
-      ));
-      try {
-        $smtp->connect();
-        $smtp->send($FROM, $envRcpt, $message);
-        $mail_ok = true;
-        wb_log('SENT used-boat -> ' . implode(', ', $envRcpt));
-      } catch (WBSmtpError $e){
-        $mail_err = $e->getMessage() . ' | trace: ' . implode(' / ', $smtp->trace);
+      if ($TRANSPORT === 'graph'){
+        /* HTTPS transport - token + sendMail via forms/lib/wb-graph.php */
+        $gm = array(
+          'subject'      => $subject,
+          'body'         => array('contentType' => 'Text', 'content' => $summary . $meta),
+          'from'         => array('emailAddress' => array('address' => $FROM, 'name' => $FROM_NAME)),
+          'toRecipients' => wb_graph_rcpt(wb_addr_list($ROUTE['to'])),
+          /* Graph only carries custom x- headers; matches the smtp leg */
+          'internetMessageHeaders' => array(array('name' => 'X-WB-Form', 'value' => 'used-boat')),
+        );
+        $ccList = wb_addr_list($ROUTE['cc']);
+        if ($ccList) $gm['ccRecipients'] = wb_graph_rcpt($ccList);
+        if ($replyToOk) $gm['replyTo'] = array(array('emailAddress' => array('address' => $replyTo, 'name' => clean_header($sname))));
+
+        $graph = new WBGraph(array(
+          'tenant_id'     => $MAIL['tenant_id'],
+          'client_id'     => $MAIL['client_id'],
+          'client_secret' => $MAIL['client_secret'],
+          'timeout'       => 15,
+        ));
+        try {
+          $graph->send($FROM, $gm);
+          $mail_ok = true;
+          wb_log('SENT used-boat -> ' . implode(', ', $envRcpt) . ' via graph');
+        } catch (WBGraphError $e){
+          $mail_err = $e->getMessage() . ' | trace: ' . implode(' / ', $graph->trace);
+        }
+      } else {
+        $hdrs = array();
+        $hdrs[] = 'Date: ' . date('r');
+        $hdrs[] = 'Message-ID: <' . md5(uniqid('wb', true)) . '@' . $fromDomain . '>';
+        $hdrs[] = 'From: ' . wb_addr($FROM, $FROM_NAME);
+        $hdrs[] = 'To: ' . $ROUTE['to'];
+        if ($ROUTE['cc'] !== '') $hdrs[] = 'Cc: ' . $ROUTE['cc'];
+        if ($replyToOk){
+          $hdrs[] = 'Reply-To: ' . wb_addr($replyTo, clean_header($sname));
+        }
+        $hdrs[] = 'Subject: ' . wb_hdr($subject);
+        $hdrs[] = 'X-WB-Form: used-boat';
+        $hdrs[] = 'MIME-Version: 1.0';
+        $hdrs[] = 'Content-Type: text/plain; charset=utf-8';
+        $message = implode("\r\n", $hdrs) . "\r\n\r\n" . $summary . $meta;
+
+        $smtp = new WBSmtp(array(
+          'host'    => $MAIL['host'],
+          'port'    => $MAIL['port'],
+          'user'    => $MAIL['user'],
+          'pass'    => $MAIL['pass'],
+          'ehlo'    => $fromDomain,
+          'timeout' => 20,
+        ));
+        try {
+          $smtp->connect();
+          $smtp->send($FROM, $envRcpt, $message);
+          $mail_ok = true;
+          wb_log('SENT used-boat -> ' . implode(', ', $envRcpt) . ' via smtp');
+        } catch (WBSmtpError $e){
+          $mail_err = $e->getMessage() . ' | trace: ' . implode(' / ', $smtp->trace);
+        }
+        $smtp->quit();
       }
-      $smtp->quit();
     }
   }
 }
 if (!$mail_ok){
-  wb_log('EMAIL LEG FAILED: ' . $mail_err
+  wb_log('EMAIL LEG FAILED via ' . $TRANSPORT . ': ' . $mail_err
     . ($archived ? ' (submission IS safe on disk: ' . $archiveFile . ')' : ' (AND NO DISK COPY - submission not captured)'));
 }
 
