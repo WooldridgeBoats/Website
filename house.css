@@ -323,14 +323,13 @@ section{ padding:64px 0; }
 .tagband h1.slogan::before,
 .tagband h1.slogan::after{
   /* Height was tuned to the black border's visible weight (.08em was about
-     2.5px at the old 31px slogan). Rev 10 (2026-08-05) removed that border and
-     grew the punch to 1.5x "Explore by Power, Purpose & Water", so the em basis
-     nearly doubled. The bars are HELD at their existing ~2.5px by re-deriving
-     the em against the new scale: .0413em x 60px = 2.48px, the same figure
-     .08em x 31px produced. Deliberate - Stephen asked for three things and bar
-     weight was not one of them. If the bars should instead grow with the type,
-     this height is the one knob to turn. Taper to transparent unchanged. */
-  content:""; height:max(1px,.0413em); min-width:0;
+     2.5px at the old 31px slogan). The bars are HELD at that ~2.5px through
+     every re-size since - Stephen has only ever asked about type size, never
+     bar weight - so each re-peg re-derives the em against the new max size:
+     rev 10 .0413em x 60px = 2.48px, rev 11 .0577em x 43px = 2.48px, the same
+     figure .08em x 31px produced. If the bars should instead grow with the
+     type, this height is the one knob to turn. Taper to transparent unchanged. */
+  content:""; height:max(1px,.0577em); min-width:0;
   flex:0 1 clamp(34px,8.5vw,124px);
   /* sized in the SLOGAN's type scale, not the h1's - the h1 still carries the
      old 52px .tagband sizing, so an em here would be measured against that.
@@ -338,7 +337,7 @@ section{ padding:64px 0; }
      current value and the sizing rationale; kept as two declarations rather
      than a shared variable because these rules predate that need and a custom
      property here would be the only one in this whole section. */
-  font-size:clamp(39px,5.1vw,60px);
+  font-size:clamp(28px,3.66vw,43px);
   background:linear-gradient(90deg,transparent,rgba(0,0,0,.75));
   /* Nudge to the optical centre of the CAPS rather than the line box, derived
      from Rockwell's real metrics rather than guessed: ascent 34 / descent 8 at
@@ -354,27 +353,28 @@ section{ padding:64px 0; }
   background:linear-gradient(90deg,rgba(0,0,0,.75),transparent);
 }
 .tagband h1.slogan .punch{
-  /* REV 10 - 2026-08-05, Stephen's direction. Three asks, in his words: the
-     black border "REMOVED entirely"; the text to "MIRROR" the styling of
-     "Explore by Power, Purpose & Water" (.sechead h2); font-size at 1.5x that
-     heading's ("1/2 font size bigger").
+  /* REV 11 - 2026-08-18, Stephen's direction: rev 10's 1.5x peg read
+     "jarringly large" at the top of the dev site, so the size comes down to
+     5-10% bigger than "Explore by Power, Purpose & Water" (.sechead h2).
+     Sized at the midpoint of his range, 1.075x term-by-term off that
+     heading's clamp(26px,3.4vw,40px) -> clamp(28px,3.66vw,43px) (floor
+     rounds 27.95 up to 28). The peg is the rule: if .sechead h2 ever
+     resizes, re-derive this from it.
 
-     What mirroring actually meant. .sechead h2 resolves through the global
-     h1,h2,h3 rule to font-family var(--serif) (Rockwell), color var(--blue),
-     font-weight 700, and adds letter-spacing:.01em. Family, colour and weight
-     ALREADY matched, so the only mirrored value that moved is the tracking
-     (.055em -> .01em). font-family is now stated explicitly instead of
-     inherited from .tagband h1, so a future change there cannot silently
-     break the mirror.
+     History of the size peg, so nobody "restores" an older rev off a stale
+     note: rev 8 was told to drop the Explore relationship outright ("SMALLER
+     I SAID", 31 Jul) while the mark still wore its fat black border, which
+     read far louder than its number; rev 10 (2026-08-05) removed the border
+     and re-pegged to 1.5x; rev 11 is Stephen dialling that same peg down,
+     not a new idea.
 
-     Size is 1.5x term-by-term off .sechead h2's clamp(26px,3.4vw,40px) ->
-     clamp(39px,5.1vw,60px). This DELIBERATELY reinstates the "Explore by
-     Power" relationship rev 8 was told to drop ("SMALLER I SAID", 31 Jul).
-     It is not a regression: that retraction was made while the mark still wore
-     the fat black border, which made it read far louder than its number. With
-     the border gone the mark reads light, and Stephen re-pegged it to the
-     heading himself on 2026-08-05. Do not "restore" rev 9 on the strength of
-     the older comment above.
+     The rest is rev 10 and still holds. Mirroring: .sechead h2 resolves
+     through the global h1,h2,h3 rule to font-family var(--serif) (Rockwell),
+     color var(--blue), font-weight 700, and adds letter-spacing:.01em -
+     family, colour and weight already matched, so the only mirrored value
+     that moved was the tracking (.055em -> .01em). font-family is stated
+     explicitly instead of inherited from .tagband h1, so a future change
+     there cannot silently break the mirror.
 
      Gone with the border: the ::before back-copy that drew it, its text-shadow,
      and the position/z-index sandwich that existed only to stack that copy
@@ -386,15 +386,15 @@ section{ padding:64px 0; }
      be exactly -1 x letter-spacing. */
   color:var(--blue);
   font-family:var(--serif);
-  font-size:clamp(39px,5.1vw,60px); font-weight:700; letter-spacing:.01em;
+  font-size:clamp(28px,3.66vw,43px); font-weight:700; letter-spacing:.01em;
   text-transform:uppercase;
   /* Found while measuring rev 7: rev 6's "the 22px floor just fits" was wrong -
      at 375px the mark wrapped NOT FOR / PRACTICE (the flanking rules' 34px
      basis plus gaps ate the difference). nowrap makes the text the immovable
      object; the rules are flex 0 1 with min-width:0, so THEY compress toward
-     zero instead. Still true at rev 10, but see the phone block further down:
-     at a 39px floor the text alone is wider than a 360px screen, so nowrap on
-     its own is no longer enough. */
+     zero instead. Still true at rev 11, but see the phone block further down:
+     at a 28px floor the text alone runs ~297px, which starves the rules and
+     gaps on small phones, so nowrap on its own is still not enough. */
   white-space:nowrap;
   /* letter-spacing hangs a phantom space off the last letter. As a centred flex
      item that would push the right-hand rule .01em further out than the left,
@@ -422,16 +422,16 @@ section{ padding:64px 0; }
    the block is gone and the rules survive at every width again. If the mark
    is ever enlarged past roughly a 24px floor, re-measure that — the rules
    vanish quietly rather than overflowing, so nothing will fail loudly. */
-/* REV 10 PHONE FIT - 2026-08-05, and this is the one place the 1.5x ratio is
-   NOT honoured. Written up for Stephen; do not delete it quietly.
+/* PHONE FIT - method and measurement are rev 10's (2026-08-05); re-solved at
+   rev 11 (2026-08-18) for the 1.075x re-peg. This is the one place the
+   desktop ratio is NOT honoured. Do not delete it quietly.
 
-   Rev 10 took the punch to a 39px floor (1.5x .sechead h2's 26px floor). The
-   warning directly above came true, and worse than it predicted: MEASURED at
-   375px, "NOT FOR PRACTICE" rendered 413.17px wide against 327px of available
-   content, so with white-space:nowrap the mark hung 19px off BOTH edges and
-   gave the whole document 19px of horizontal overflow. The flanking rules were
-   already at 0. A hero that bleeds off a phone is not "front and centre", so
-   the size has to give somewhere below the desktop band.
+   Rev 10 (then a 39px floor) MEASURED at 375px: "NOT FOR PRACTICE" rendered
+   413.17px wide against 327px of available content, so with
+   white-space:nowrap the mark hung 19px off BOTH edges and gave the whole
+   document 19px of horizontal overflow. The flanking rules were already at 0.
+   A hero that bleeds off a phone is not "front and centre", so the size has
+   to give somewhere below the desktop band.
 
    Which of the three constraints to break was decided by the record, not by
    taste: Stephen personally caught and rejected "NOT FOR / PRACTICE" wrapping
@@ -442,20 +442,21 @@ section{ padding:64px 0; }
    PRACTICE" at .01em tracking costs 10.5941px of width per 1px of font-size
    (413.17 / 39). Reserving 2 x 34px minimum rule + 2 x 12px minimum gap = 92px,
    the largest size that fits at viewport V is (V - 48 - 92) / 10.5941, which is
-   9.44vw - 13.2px. Solving that against the 39px floor gives V = 553px - so
-   above 553px the 1.5x floor fits on its own and this block must not apply.
-   Hence the 552.98px cut, and the 39px ceiling in the clamp makes the two
-   states meet exactly at the crossover instead of stepping.
+   9.44vw - 13.2px. Solving that against the rev-11 28px floor gives V =
+   436.44px - above that the desktop floor fits on its own and this block must
+   not apply. Hence the 436.44px cut, and the 28px ceiling in the clamp makes
+   the two states meet exactly at the crossover instead of stepping. (Under
+   rev 10's 39px floor the same solve gave the old 552.98px cut.)
 
-   At 375px this yields ~22.2px (near rev 7's accepted 22px floor, and ABOVE
-   rev 9's 19px), with ~40px left for each flanking rule. The 19px floor stops
-   it collapsing on a 320px screen. The rules track it via the same font-size,
-   per the sync rule above; their height:max(1px,.0413em) keeps them from
-   dropping under a rendered pixel at these sizes. */
-@media (max-width:552.98px){
+   At 375px this still yields ~22.2px (rev 7's accepted floor was 22px, and
+   this sits ABOVE rev 9's 19px), with ~40px left for each flanking rule. The
+   19px floor stops it collapsing on a 320px screen. The rules track it via
+   the same font-size, per the sync rule above; their height:max(1px,.0577em)
+   keeps them from dropping under a rendered pixel at these sizes. */
+@media (max-width:436.44px){
   .tagband h1.slogan .punch,
   .tagband h1.slogan::before,
-  .tagband h1.slogan::after{ font-size:clamp(19px,9.44vw - 13.2px,39px); }
+  .tagband h1.slogan::after{ font-size:clamp(19px,9.44vw - 13.2px,28px); }
 }
 .tagband .blurb{
   max-width:960px; margin:20px auto 0; font-weight:400;
