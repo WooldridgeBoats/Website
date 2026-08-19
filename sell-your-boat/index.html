@@ -34,6 +34,12 @@
         color:#7a5c14;border-radius:10px;padding:10px 14px;font-size:13.5px}
   #draftNotice a{color:#7a5c14;font-weight:700}
 
+  .syb .howlist{margin:12px 0 0;padding-left:20px;color:var(--body);font-size:14.5px}
+  .syb .howlist li{margin:8px 0}
+  .syb .howlist b{font-weight:600;color:var(--ink)}
+  .syb .howhelp{font-size:13.5px;color:var(--muted);margin:14px 0 0;
+        border-top:1px solid var(--line);padding-top:12px}
+
   .syb .sec{display:flex;align-items:center;gap:12px;margin:0}
   .syb .secnum{flex:0 0 auto;width:34px;height:34px;border-radius:10px;background:var(--blue);color:#fff;
           display:flex;align-items:center;justify-content:center;
@@ -228,7 +234,7 @@
   <div class="card intro">
     <p>Thinking about selling? Tell us about your boat below and we'll put together a
        listing for our Used Boats page. We review every submission and follow up with
-       next steps — usually a quick conversation about pricing, photos, and paperwork.</p>
+       next steps.</p>
     <div class="syb-chips">
       <span class="syb-chip">Takes about 8–10 minutes</span>
       <span class="syb-chip">Progress saves on this device</span>
@@ -236,6 +242,23 @@
     </div>
     <div id="draftNotice">We restored the draft you started earlier — pick up where you left off,
       or <a href="#" id="freshLink">start fresh</a>.</div>
+  </div>
+
+  <!-- Carrie's explainer, 19 Aug 2026: the ad terms up front, plain voice.
+       Wooldridge posts the ad; the sale itself is between seller and buyer. -->
+  <div class="card how">
+    <h2>HOW THIS WORKS</h2>
+    <ul class="howlist">
+      <li><b>Your ad connects you with buyers.</b> Your contact info is posted right in the ad,
+          so buyers reach you directly — Wooldridge doesn't manage the sale.</li>
+      <li><b>The ad is a flat $250 and has no expiration date.</b> It runs until your boat sells.</li>
+      <li><b>A 1% service fee is due when your boat sells.</b></li>
+      <li><b>This form doesn't take payment.</b> After you submit, we'll contact you to collect
+          the $250 ad fee, and your ad goes live once payment is received.</li>
+    </ul>
+    <p class="howhelp">Selling a motor, a trailer, or anything that isn't a boat? This form won't fit it —
+       call <a href="tel:+12067228998">(206) 722-8998</a> or email
+       <a href="mailto:data@wooldridgeboats.com">data@wooldridgeboats.com</a> and we'll help you place that ad.</p>
   </div>
 
   <form id="intake" novalidate>
@@ -247,7 +270,7 @@
     <!-- 1 ABOUT YOU -->
     <div class="card">
       <div class="sec"><div class="secnum">1</div><h2>ABOUT YOU</h2></div>
-      <p class="sechint">How we reach you. This stays between you and us — it's never published with the listing.</p>
+      <p class="sechint">How we reach you — and how buyers reach you. Your contact info is published in the ad so buyers can contact you directly.</p>
       <div class="row r2">
         <div class="field" data-f="seller_name">
           <label class="lbl req" for="seller_name">Full name</label>
@@ -287,22 +310,17 @@
           <div class="msg"></div>
         </div>
       </div>
-      <div class="row r2">
+      <!-- The loan/lien question was REMOVED 19 Aug 2026 on Carrie's review:
+           Wooldridge doesn't manage the sale, so payoff details aren't ours
+           to ask. The handler never referenced the field (verified: zero
+           word-boundary 'lien' matches in forms/sell-your-boat.php). -->
+      <div class="row">
         <div class="field" data-f="legal_owner">
           <label class="lbl req">Are you the legal owner?</label>
           <div class="pills">
             <label class="pill"><input type="radio" name="legal_owner" value="Yes"><span>Yes</span></label>
             <label class="pill"><input type="radio" name="legal_owner" value="No"><span>No</span></label>
           </div>
-          <div class="msg"></div>
-        </div>
-        <div class="field" data-f="lien">
-          <label class="lbl req">Any loan or lien on the boat?</label>
-          <div class="pills">
-            <label class="pill"><input type="radio" name="lien" value="No"><span>No</span></label>
-            <label class="pill"><input type="radio" name="lien" value="Yes"><span>Yes</span></label>
-          </div>
-          <div class="hint">A loan is no problem — we'll just walk through the payoff details together.</div>
           <div class="msg"></div>
         </div>
       </div>
@@ -347,7 +365,7 @@
           <select id="hull_material" name="hull_material">
             <option value="">Select…</option>
             <option>Aluminum</option>
-            <option>Fiberglass</option>
+            <option>HDPE</option>
             <option>Other</option>
           </select>
         </div>
@@ -461,7 +479,7 @@
         </div>
         <div class="field" data-f="engine_hours">
           <label class="lbl req" for="engine_hours">Hours</label>
-          <input type="number" id="engine_hours" name="engine_hours" min="0" max="50000" placeholder="Approximate is fine">
+          <input type="text" id="engine_hours" name="engine_hours" placeholder="e.g. 350 — or &quot;unknown&quot;">
           <div class="msg"></div>
         </div>
       </div>
@@ -525,7 +543,7 @@
           </div>
           <div class="field">
             <label class="lbl" for="kicker_hours">Kicker hours</label>
-            <input type="number" id="kicker_hours" name="kicker_hours" min="0" max="50000">
+            <input type="text" id="kicker_hours" name="kicker_hours">
           </div>
         </div>
       </div>
@@ -818,7 +836,10 @@
           <input type="checkbox" id="cert_agree" name="cert_agree" value="Agreed">
           <label for="cert_agree">I certify that I am the legal owner of this boat (or authorized to sell it),
             and that the information above is accurate to the best of my knowledge. I understand
-            Wooldridge Boats will use it to prepare and advertise a pre-owned listing.</label>
+            Wooldridge Boats will use it to prepare and advertise a pre-owned listing, and that my
+            contact information will be published in the ad so buyers can reach me directly. I agree
+            to the $250 ad fee, collected before the ad goes live, and to a 1% service fee due when
+            the boat sells.</label>
         </div>
         <div class="msg"></div>
       </div>
@@ -837,7 +858,7 @@
         <button type="submit" class="btn btn-primary">SUBMIT MY BOAT</button>
         <span class="fine" style="margin-top:0">Fields marked <span style="color:var(--blue);font-weight:700">*</span> are required.</span>
       </div>
-      <p class="fine">We only use your information to handle your listing — it's never sold, shared, or spammed.</p>
+      <p class="fine">Your contact details appear in your ad so buyers can reach you — beyond that, your information is never sold, shared, or spammed.</p>
     </div>
   </form>
 
@@ -848,8 +869,8 @@
     <p style="color:var(--ink2)">Your boat's info is in our hands. Here's what happens next:</p>
     <ol class="steps">
       <li>We review your submission and verify the basics.</li>
-      <li>We reach out (your preferred way) to talk pricing, photos, and paperwork.</li>
-      <li>Your boat goes live on our Used Boats page.</li>
+      <li>We contact you (your preferred way) to collect the $250 ad fee — this form doesn't take payment.</li>
+      <li>Once payment is received, your ad goes live on our Used Boats page.</li>
     </ol>
     <div class="submitrow" style="margin-top:14px">
       <a class="btn btn-ghost" href="/pre-owned/">Back to Pre-Owned Boats</a>
@@ -985,7 +1006,6 @@
     ["seller_state","Required."],
     ["legal_owner","Please pick one.","radio"],
     ["legal_owner_note","Tell us a bit about the situation."],
-    ["lien","Please pick one.","radio"],
     ["year","Enter a model year between 1940 and 2027.","year"],
     ["manufacturer","Required."],
     ["model","Required."],
@@ -995,7 +1015,7 @@
     ["drive","Please pick one.","radio"],
     ["drive_other","Tell us the drive type."],
     ["engine_make","Required."],
-    ["engine_hours","Approximate hours are fine.","num0"],
+    ["engine_hours","Approximate hours are fine."],
     ["engine_cond","Please pick one.","radio"],
     ["trailer","Please pick one.","radio"],
     ["overall_cond","Please pick one.","radio"],
@@ -1073,7 +1093,6 @@
     s += line("Best contact", radioVal("contact_pref"));
     s += line("Legal owner", radioVal("legal_owner"));
     s += line("Ownership note", textVal("legal_owner_note"));
-    s += line("Loan / lien", radioVal("lien"));
     s += "\n--- BOAT ---\n";
     s += line("Boat", [textVal("year"), textVal("manufacturer"), textVal("model")].filter(Boolean).join(" "));
     s += line("Length", textVal("length") ? textVal("length") + " ft" : "");
@@ -1204,8 +1223,33 @@
   }
   function startFresh(ev){
     ev.preventDefault();
+    /* Fixed 19 Aug 2026 — the old body was clearDraft() + location.reload(),
+       and it undid itself: leaving the page fires the visibilitychange
+       autosave above, which re-saved the full draft AFTER the clear, and the
+       loader restored it — so the button appeared to do nothing (browsers
+       also restore typed values across a same-page reload). No reload:
+       clear the draft and the DOM in place. */
+    if(saveTimer) clearTimeout(saveTimer);
     clearDraft();
-    location.reload();
+    form.reset();
+    document.getElementById("cert_date").value = new Date().toLocaleDateString();
+    $all(".eq-item .eq-check input", form).forEach(function(cb){
+      var d = cb.closest(".eq-item").querySelector(".eq-detail");
+      if(d) d.classList.add("hidden");
+    });
+    $("#use_other_detail").classList.add("hidden");
+    updateReveals();
+    $all(".field.err", form).forEach(function(box){ box.classList.remove("err"); });
+    document.getElementById("draftNotice").style.display = "none";
+    document.getElementById("donePanel").classList.add("hidden");
+    document.getElementById("sentPanel").classList.add("hidden");
+    form.classList.remove("hidden");
+    document.getElementById("summaryBox").value = "";
+    var cs = document.getElementById("copyStatus");
+    cs.className = "";
+    cs.textContent = "";
+    window.scrollTo({top:0, behavior:"smooth"});
+    toast("Form cleared — starting fresh");
   }
   document.getElementById("freshLink").addEventListener("click", startFresh);
   document.getElementById("freshLink2").addEventListener("click", startFresh);
@@ -1214,7 +1258,17 @@
     var saved = localStorage.getItem(DRAFT_KEY);
     if(saved){
       var data = JSON.parse(saved);
-      if(data && Object.keys(data).length){
+      /* only restore a draft that actually says something — an all-empty
+         save (e.g. the tab-hidden autosave firing on a just-cleared form)
+         must not resurrect the "we restored your draft" notice */
+      var hasContent = false;
+      if(data){
+        Object.keys(data).forEach(function(k){
+          var v = data[k];
+          if(v && v.length){ hasContent = true; }
+        });
+      }
+      if(hasContent){
         restore(data);
         document.getElementById("draftNotice").style.display = "block";
       }
