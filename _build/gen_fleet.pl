@@ -43,7 +43,7 @@ my $J = JSON::PP->new->canonical->ascii;
 
 # ── presentation: fields no catalogue knows (photo, home blurb, page URL) ──
 my %PRESENTATION = (
-  lt        => { ph=>'assets/photos/alaskan-lt/thumbs/2026-18-ws-3.jpg',                          tag=>'Light utility jet sled. The easiest way into a real Wooldridge.',            url=>'models/alaskan-lt/' },
+  lt        => { ph=>'assets/photos/alaskan-lt/thumbs/2026-18-ws-003.jpg',                        tag=>'Light utility jet sled. The easiest way into a real Wooldridge.',            url=>'models/alaskan-lt/' },
   ak        => { ph=>'assets/photos/alaskan/thumbs/4459-product-18-ws-ak-1.jpg',                  tag=>'The classic Wooldridge sled — the boat that built the name.',                 url=>'models/alaskan/' },
   xlt       => { ph=>'assets/photos/alaskan-xlt/thumbs/5053-product-1.jpg',                       tag=>'Extra-wide tiller and console sled for load and stability.',                  url=>'models/xlt/' },
   xl        => { ph=>'assets/photos/alaskanxl/thumbs/5226-product-1.jpg',                         tag=>'Big-water 20-foot heavy hauler.',                                             url=>'models/alaskanxl/' },
