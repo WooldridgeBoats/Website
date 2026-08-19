@@ -1,137 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sell Your Boat — Wooldridge Boats</title>
 <meta name="description" content="Thinking about selling? Tell us about your boat and we'll put together a listing for our Used Boats page.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../house.css?v=0a1cdea4">
 <style>
-  /* Rockwell rides in the repo (assets/fonts/) — the same two faces house.css
-     declares. Repeated here because this page is deliberately standalone (no
-     house.css, same pattern as /request-a-quote/); without them, visitors who
-     don't have Rockwell installed fall back to Georgia and lose the approved
-     look. */
-  @font-face{
-    font-family:"Rockwell";
-    src:url("/assets/fonts/Rockwell.otf") format("opentype");
-    font-weight:400; font-style:normal; font-display:swap;
-  }
-  @font-face{
-    font-family:"Rockwell";
-    src:url("/assets/fonts/Rockwell-bold.otf") format("opentype");
-    font-weight:700; font-style:normal; font-display:swap;
-  }
-  :root{
-    --blue:#1b75bb; --blue-dark:#135a92;
-    --ink:#23282d; --ink2:#3c4247; --ink3:#71787e;
-    --line:#dcdfe2; --line2:#c9cdd1;
-    --ground:#F2F2F2;
-    --shadow:0 1px 2px rgba(20,30,40,.06), 0 6px 22px rgba(20,30,40,.08);
-    --danger:#a8422f;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;padding:0}
-  body{background:var(--ground);color:var(--ink);
-       font:15px/1.55 "Segoe UI",system-ui,-apple-system,Arial,sans-serif;}
-  .wrap{max-width:880px;margin:0 auto;padding:26px 16px 90px}
+  /* Page-local styles only — house.css owns the reset, Inter body type,
+     Rockwell blue headings, tokens, and all site chrome. Absorbed into the
+     site 19 Aug 2026 on the /careers/ pattern (was standalone on the
+     /request-a-quote/ pattern; Stephen asked for full site chrome).
+     Class names were checked against house.css: the page's old .wrap/.hero/
+     .chip/.eyebrow/.fineprint collided and were renamed (.syb/.intro/
+     .syb-chip/—/.fine); everything else is page-local. The form markup, all
+     field names and the submit script are FROZEN — the handler leg
+     (forms/sell-your-boat.php, commit b40afa1) depends on them. */
+  .syb{max-width:880px;margin:0 auto;--danger:#a8422f}
 
-  h1,h2,.rockwell{font-family:Rockwell,"Rockwell Nova","Roboto Slab",Georgia,serif}
-
-  .card{background:#fff;border:1px solid #e6e9ec;border-radius:16px;
+  .syb .card{background:var(--card);border:1px solid #e6e9ec;border-radius:16px;
         padding:26px 28px;margin-top:18px;box-shadow:var(--shadow)}
-  @media (max-width:640px){.card{padding:20px 16px}}
+  @media (max-width:640px){.syb .card{padding:20px 16px}}
 
-  .hero{border-top:4px solid var(--blue);margin-top:0}
-  .eyebrow{color:var(--blue);font-weight:700;font-size:12.5px;letter-spacing:.14em;margin:0 0 6px}
-  h1{font-size:30px;margin:0 0 10px;letter-spacing:.02em}
-  .hero p{color:var(--ink2);margin:0;max-width:64ch}
-  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
-  .chip{background:#eef5fb;color:var(--blue-dark);border:1px solid #d3e5f4;
+  .syb .intro{border-top:4px solid var(--blue);margin-top:0}
+  .syb .intro p{color:var(--body);margin:0;max-width:64ch}
+  .syb-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .syb-chip{background:#eef5fb;color:var(--blue-dark);border:1px solid #d3e5f4;
         border-radius:999px;padding:5px 13px;font-size:12.5px;font-weight:600}
   #draftNotice{display:none;margin-top:16px;background:#fdf6e7;border:1px solid #efdcae;
         color:#7a5c14;border-radius:10px;padding:10px 14px;font-size:13.5px}
   #draftNotice a{color:#7a5c14;font-weight:700}
 
-  .sec{display:flex;align-items:center;gap:12px;margin:0}
-  .secnum{flex:0 0 auto;width:34px;height:34px;border-radius:10px;background:var(--blue);color:#fff;
+  .syb .sec{display:flex;align-items:center;gap:12px;margin:0}
+  .syb .secnum{flex:0 0 auto;width:34px;height:34px;border-radius:10px;background:var(--blue);color:#fff;
           display:flex;align-items:center;justify-content:center;
-          font-family:Rockwell,Georgia,serif;font-weight:700;font-size:16px}
-  h2{font-size:19px;margin:0;letter-spacing:.03em}
-  .sechint{color:var(--ink3);font-size:13.5px;margin:6px 0 4px 46px}
-  @media (max-width:640px){.sechint{margin-left:0}}
+          font-family:var(--serif);font-weight:700;font-size:16px}
+  .syb h2{font-size:19px;margin:0;letter-spacing:.04em}
+  .syb .sechint{color:var(--muted);font-size:13.5px;margin:6px 0 4px 46px}
+  @media (max-width:640px){.syb .sechint{margin-left:0}}
 
-  .row{display:grid;gap:14px 16px;margin-top:16px}
-  .r2{grid-template-columns:1fr 1fr}
-  .r3{grid-template-columns:1fr 1fr 1fr}
-  @media (max-width:640px){.r2,.r3{grid-template-columns:1fr}}
+  .syb .row{display:grid;gap:14px 16px;margin-top:16px}
+  .syb .r2{grid-template-columns:1fr 1fr}
+  .syb .r3{grid-template-columns:1fr 1fr 1fr}
+  @media (max-width:640px){.syb .r2,.syb .r3{grid-template-columns:1fr}}
 
-  .field label.lbl{display:block;font-weight:600;font-size:13.5px;color:var(--ink2);margin:0 0 6px}
-  .req::after{content:" *";color:var(--blue);font-weight:700}
-  .hint{font-size:12.5px;color:var(--ink3);margin-top:5px}
+  .syb .field label.lbl{display:block;font-weight:600;font-size:13.5px;color:var(--body);margin:0 0 6px}
+  .syb .req::after{content:" *";color:var(--blue);font-weight:700}
+  .syb .hint{font-size:12.5px;color:var(--muted);margin-top:5px}
 
-  input[type=text],input[type=tel],input[type=email],input[type=number],select,textarea{
-    width:100%;padding:11px 12px;border:1.5px solid var(--line2);border-radius:10px;
-    font:15px "Segoe UI",system-ui,Arial,sans-serif;color:var(--ink);background:#fff;
+  .syb input[type=text],.syb input[type=tel],.syb input[type=email],.syb input[type=number],.syb select,.syb textarea{
+    width:100%;padding:11px 12px;border:1.5px solid var(--rule);border-radius:10px;
+    font-family:var(--sans);font-size:15px;line-height:1.4;color:var(--ink);background:#fff;
     transition:border-color .15s, box-shadow .15s}
-  textarea{resize:vertical;min-height:88px}
-  input:focus,select:focus,textarea:focus{
+  .syb textarea{resize:vertical;min-height:88px}
+  .syb input:focus,.syb select:focus,.syb textarea:focus{
     outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(27,117,187,.16)}
-  ::placeholder{color:#9aa1a8}
+  .syb ::placeholder{color:#9aa1a8}
 
-  .money{position:relative}
-  .money input{padding-left:26px}
-  .money::before{content:"$";position:absolute;left:12px;top:50%;transform:translateY(-50%);
-                 color:var(--ink3);font-weight:600}
+  .syb .money{position:relative}
+  .syb .money input{padding-left:26px}
+  .syb .money::before{content:"$";position:absolute;left:12px;top:50%;transform:translateY(-50%);
+                 color:var(--muted);font-weight:600}
 
-  .pills{display:flex;flex-wrap:wrap;gap:8px}
-  .pill{position:relative;cursor:pointer}
-  .pill input{position:absolute;opacity:0;pointer-events:none}
-  .pill span{display:inline-block;padding:9px 16px;border:1.5px solid var(--line2);border-radius:999px;
-             background:#fff;color:var(--ink2);font-weight:600;font-size:14px;
+  .syb .pills{display:flex;flex-wrap:wrap;gap:8px}
+  .syb .pill{position:relative;cursor:pointer}
+  .syb .pill input{position:absolute;opacity:0;pointer-events:none}
+  .syb .pill span{display:inline-block;padding:9px 16px;border:1.5px solid var(--rule);border-radius:999px;
+             background:#fff;color:var(--body);font-weight:600;font-size:14px;
              transition:all .15s;user-select:none}
-  .pill:hover span{border-color:var(--blue)}
-  .pill input:checked + span{background:var(--blue);border-color:var(--blue);color:#fff}
-  .pill input:focus-visible + span{outline:3px solid rgba(27,117,187,.35);outline-offset:2px}
+  .syb .pill:hover span{border-color:var(--blue)}
+  .syb .pill input:checked + span{background:var(--blue);border-color:var(--blue);color:#fff}
+  .syb .pill input:focus-visible + span{outline:3px solid rgba(27,117,187,.35);outline-offset:2px}
 
-  .eq-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px 18px;margin-top:16px}
-  .eq-item{min-width:0}
-  .eq-check{display:flex;align-items:center;gap:9px;cursor:pointer;font-size:14.5px;color:var(--ink2);font-weight:600}
-  .eq-check input{width:17px;height:17px;accent-color:var(--blue);flex:0 0 auto;cursor:pointer}
-  .eq-detail{margin-top:7px;padding:8px 10px !important;font-size:13.5px !important}
+  .syb .eq-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px 18px;margin-top:16px}
+  .syb .eq-item{min-width:0}
+  .syb .eq-check{display:flex;align-items:center;gap:9px;cursor:pointer;font-size:14.5px;color:var(--body);font-weight:600}
+  .syb .eq-check input{width:17px;height:17px;accent-color:var(--blue);flex:0 0 auto;cursor:pointer}
+  .syb .eq-detail{margin-top:7px;padding:8px 10px !important;font-size:13.5px !important}
 
-  .reveal{margin-top:14px}
+  .syb .reveal{margin-top:14px}
   .hidden{display:none !important}
 
-  .field.err input,.field.err select,.field.err textarea{
+  .syb .field.err input,.syb .field.err select,.syb .field.err textarea{
     border-color:var(--danger);box-shadow:0 0 0 3px rgba(168,66,47,.12)}
-  .field .msg{display:none;color:var(--danger);font-size:13px;font-weight:600;margin-top:6px}
-  .field.err .msg{display:block}
-  .field.err .pill span{border-color:var(--danger)}
+  .syb .field .msg{display:none;color:var(--danger);font-size:13px;font-weight:600;margin-top:6px}
+  .syb .field.err .msg{display:block}
+  .syb .field.err .pill span{border-color:var(--danger)}
 
-  .cert{display:flex;gap:11px;align-items:flex-start;background:#f7f9fb;border:1px solid var(--line);
+  .syb .cert{display:flex;gap:11px;align-items:flex-start;background:#f7f9fb;border:1px solid var(--line);
         border-radius:12px;padding:14px 16px;margin-top:16px}
-  .cert input{width:18px;height:18px;accent-color:var(--blue);margin-top:2px;flex:0 0 auto;cursor:pointer}
-  .cert label{font-size:13.5px;color:var(--ink2);cursor:pointer}
+  .syb .cert input{width:18px;height:18px;accent-color:var(--blue);margin-top:2px;flex:0 0 auto;cursor:pointer}
+  .syb .cert label{font-size:13.5px;color:var(--body);cursor:pointer}
 
-  .btn{display:inline-block;border:0;border-radius:12px;padding:14px 30px;cursor:pointer;
-       font:700 16px Rockwell,Georgia,serif;letter-spacing:.03em;transition:all .15s}
-  .btn-primary{background:var(--blue);color:#fff;box-shadow:var(--shadow)}
-  .btn-primary:hover{background:var(--blue-dark)}
-  .btn-ghost{background:#fff;color:var(--blue-dark);border:1.5px solid var(--line2);font-size:14px;padding:11px 20px}
-  .btn-ghost:hover{border-color:var(--blue)}
-  .submitrow{margin-top:20px;display:flex;flex-wrap:wrap;gap:14px;align-items:center}
-  .fineprint{font-size:12.5px;color:var(--ink3);margin-top:14px}
+  .syb .btn{display:inline-block;border:0;border-radius:12px;padding:14px 30px;cursor:pointer;
+       font-family:var(--serif);font-weight:700;font-size:16px;letter-spacing:.03em;transition:all .15s}
+  .syb .btn-primary{background:var(--blue);color:#fff;box-shadow:var(--shadow)}
+  .syb .btn-primary:hover{background:var(--blue-dark)}
+  .syb .btn-ghost{background:#fff;color:var(--blue-dark);border:1.5px solid var(--rule);font-size:14px;padding:11px 20px}
+  .syb .btn-ghost:hover{border-color:var(--blue)}
+  .syb .submitrow{margin-top:20px;display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+  .syb .fine{font-size:12.5px;color:var(--muted);margin-top:14px}
 
   #donePanel h2,#sentPanel h2{font-size:22px}
-  .done-badge{display:inline-block;background:#e8f4ea;color:#2e6b39;border:1px solid #cbe5d0;
+  .syb .done-badge{display:inline-block;background:#e8f4ea;color:#2e6b39;border:1px solid #cbe5d0;
               border-radius:999px;padding:5px 14px;font-size:12.5px;font-weight:700;margin-bottom:12px}
   #summaryBox{font:13px/1.5 Consolas,Menlo,monospace;min-height:320px;white-space:pre;overflow:auto}
   #copyStatus{font-size:13.5px;font-weight:600;margin-top:8px;display:none}
   #copyStatus.ok{display:block;color:#2e6b39}
   #copyStatus.warn{display:block;color:#7a5c14}
   #copyStatus.errst{display:block;color:var(--danger)}
-  .steps{color:var(--ink2);font-size:14.5px;padding-left:20px;margin:10px 0}
-  .steps li{margin:6px 0}
+  .syb .steps{color:var(--body);font-size:14.5px;padding-left:20px;margin:10px 0}
+  .syb .steps li{margin:6px 0}
 
   .hp{position:absolute;left:-9999px;top:-9999px;height:1px;width:1px;overflow:hidden}
 
@@ -139,28 +121,118 @@
          background:var(--ink);color:#fff;border-radius:999px;padding:10px 20px;font-size:14px;
          font-weight:600;opacity:0;transition:all .3s;pointer-events:none;box-shadow:var(--shadow);z-index:50}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-  footer{margin-top:26px;text-align:center;color:var(--ink3);font-size:12.5px}
-
-  /* escape links — same reasoning as /request-a-quote/: a standalone page with
-     no site header traps visitors without them (governance doc, 2 Aug 2026) */
-  .eyebrow a,footer a{color:inherit;text-decoration:none}
-  .eyebrow a:hover,footer a:hover{text-decoration:underline}
 </style>
 </head>
 <body>
-<div class="wrap">
+<!-- PARTIAL:header -->
+<div class="topstrip">
+  <div class="wrap">
+    <div>FACTORY &amp; SHOWROOM — 1303 S 96TH ST, SEATTLE, WA 98108 &nbsp;·&nbsp; <a href="tel:+12067228998">(206) 722-8998</a> &nbsp;·&nbsp; MON–THU 6:00AM–4:30PM</div>
+    <div class="soc"><a href="https://www.instagram.com/wooldridgeboats/">Instagram</a><a href="https://www.facebook.com/WooldridgeBoats/">Facebook</a><a href="https://www.youtube.com/channel/UC-hVTJ7HySkqCjUENQY5CCQ">YouTube</a></div>
+  </div>
+</div>
+<nav class="nav" aria-label="Primary">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Wooldridge Boats &#8212; Home">
+      <img src="/assets/brand/logo-wing-dark.png" alt="Wooldridge Boats 1915">
+    </a>
+    <span class="hasmega">
+      <a href="/#fleet">Our Boats</a>
+      <div class="mega" role="menu">
+        <div class="mega-in">
+          <div>
+            <h5>Inboard</h5>
+            <ul>
+              <li><a href="/models/alaskan-xl-inboard/">Alaskan XL Inboard</a></li>
+              <li><a href="/models/scout/">Scout</a></li>
+              <li><a href="/models/scout-widebody/">Scout Widebody</a></li>
+              <li><a href="/models/skagit-inboard/">Skagit Inboard</a></li>
+              <li><a href="/models/skagit-x/">Skagit-X</a></li>
+              <li><a href="/models/sportinboard/">Sport Inboard</a></li>
+              <li><a href="/models/supersportdrifterinboard/">Super Sport Drifter Inboard</a></li>
+            </ul>
+          </div>
+          <div>
+            <h5>Outboard</h5>
+            <ul>
+              <li><a href="/models/alaskan/">Alaskan</a></li>
+              <li><a href="/models/alaskan-lt/">Alaskan LT</a></li>
+              <li><a href="/models/alaskanxl/">Alaskan XL</a></li>
+              <li><a href="/models/xlt/">Alaskan XLT</a></li>
+              <li><a href="/models/rogue/">Rogue</a></li>
+              <li><a href="/models/skagit/">Skagit</a></li>
+              <li><a href="/models/sport/">Sport</a></li>
+              <li><a href="/models/sportster/">Sportster</a></li>
+              <li><a href="/models/supersportdrifter/">Super Sport Drifter</a></li>
+            </ul>
+          </div>
+          <div>
+            <h5>Offshore</h5>
+            <ul>
+              <li><a href="/models/sportoffshore/">Sport Offshore</a></li>
+              <li><a href="/models/super-sport-offshore/">Super Sport Offshore</a></li>
+            </ul>
+          </div>
+          <div>
+            <h5>Custom Builds</h5>
+            <ul>
+              <li><a href="/models/canyon/">Canyon</a></li>
+              <li><a href="/models/riverrat-diy-kit/">River Rat DIY Kit</a></li>
+              <li><a href="/models/landing-craft/">Landing Craft</a></li>
+              <li><a href="/models/deepwater/">Deepwater Series</a></li>
+              <li><a href="/models/pybus-offshore/">Pybus Offshore</a></li>
+              <li><a href="/models/angler/">SSO Angler</a></li>
+              <li><a href="/models/supersportoffshorepilothouse/">SSO Pilothouse</a></li>
+              <li><a href="/custom-agency-builds/">Agency &amp; Government Builds</a></li>
+            </ul>
+          </div>
+          <!-- Q-C-9 / WEB-N-03: titled like the model columns, duplicates of the
+               main nav bar (New Boats / Pre-Owned / Custom Builds) removed -->
+          <div class="megaside">
+            <h5>Tools</h5>
+            <a href="/build-and-price/">Build &amp; Price</a>
+            <a href="/which-wooldridge/">Which Wooldridge Quiz</a>
+            <a href="/request-a-quote/">Request a Quote</a>
+            <a href="/compare/">Compare Models</a>
+            <a href="/option-guide/">Options &amp; Terms, Explained</a>
+          </div>
+        </div>
+      </div>
+    </span>
+    <a href="/pre-owned/">Pre-Owned</a>
+    <a href="/custom-agency-builds/">Custom Builds</a>
+    <a href="/our-history/">About | History</a>
+    <a href="/#whats-happening">What&rsquo;s Happening</a>
+    <a href="/dealers/">Dealers</a>
+    <a href="https://store.wooldridgeboats.com/">Store</a>
+    <a href="/contact/">Contact</a>
+    <a class="nav-cta" href="/build-and-price/">Build &amp; Price</a>
+    <span class="navsoc">
+      <a href="https://www.instagram.com/wooldridgeboats/" aria-label="Instagram"><img src="/assets/brand/ic-instagram.png" alt="Instagram"></a>
+      <a href="https://www.facebook.com/WooldridgeBoats/" aria-label="Facebook"><img src="/assets/brand/ic-facebook.png" alt="Facebook"></a>
+      <a href="https://www.youtube.com/channel/UC-hVTJ7HySkqCjUENQY5CCQ" aria-label="YouTube"><img src="/assets/brand/ic-youtube.png" alt="YouTube"></a>
+    </span>
+  </div>
+</nav>
+<!-- /PARTIAL:header -->
+<main>
+<header class="pagemast"><div class="wrap">
+  <div class="co">Wooldridge Boats &nbsp;·&nbsp; Seattle, Washington</div>
+  <div class="crumb"><a href="../">HOME</a> / <a href="../pre-owned/">PRE-OWNED</a> / SELL YOUR BOAT</div>
+  <h1>Sell Your Boat</h1><div class="kick">TELL US ABOUT YOUR BOAT &mdash; WE&rsquo;LL PUT TOGETHER A LISTING FOR OUR USED BOATS PAGE</div>
+  <div class="dbl mastrule"></div>
+</div></header>
+<section class="pagebody"><div class="wrap">
+<div class="syb">
 
-  <div class="card hero">
-    <p class="eyebrow"><a href="/pre-owned/">WOOLDRIDGE BOATS — PRE-OWNED</a></p>
-    <h1>SELL YOUR BOAT</h1>
+  <div class="card intro">
     <p>Thinking about selling? Tell us about your boat below and we'll put together a
        listing for our Used Boats page. We review every submission and follow up with
        next steps — usually a quick conversation about pricing, photos, and paperwork.</p>
-    <div class="chips">
-      <span class="chip">Takes about 8–10 minutes</span>
-      <span class="chip">Progress saves on this device</span>
-      <span class="chip">No account needed</span>
+    <div class="syb-chips">
+      <span class="syb-chip">Takes about 8–10 minutes</span>
+      <span class="syb-chip">Progress saves on this device</span>
+      <span class="syb-chip">No account needed</span>
     </div>
     <div id="draftNotice">We restored the draft you started earlier — pick up where you left off,
       or <a href="#" id="freshLink">start fresh</a>.</div>
@@ -763,9 +835,9 @@
       </div>
       <div class="submitrow">
         <button type="submit" class="btn btn-primary">SUBMIT MY BOAT</button>
-        <span class="fineprint" style="margin-top:0">Fields marked <span style="color:var(--blue);font-weight:700">*</span> are required.</span>
+        <span class="fine" style="margin-top:0">Fields marked <span style="color:var(--blue);font-weight:700">*</span> are required.</span>
       </div>
-      <p class="fineprint">We only use your information to handle your listing — it's never sold, shared, or spammed.</p>
+      <p class="fine">We only use your information to handle your listing — it's never sold, shared, or spammed.</p>
     </div>
   </form>
 
@@ -797,12 +869,61 @@
     </div>
     <div id="copyStatus"></div>
     <div class="row"><textarea id="summaryBox" readonly spellcheck="false"></textarea></div>
-    <p class="fineprint">Your answers also stay saved on this device until you
+    <p class="fine">Your answers also stay saved on this device until you
        <a href="#" id="freshLink2">start a new form</a>.</p>
   </div>
 
-  <footer><a href="/">WOOLDRIDGE BOATS</a> — Since 1915 · Seattle, WA</footer>
-</div>
+</div><!-- /.syb -->
+</div></section>
+</main>
+<!-- PARTIAL:footer -->
+<footer>
+  <div class="wrap">
+    <div class="flogo"><img src="/assets/brand/logo-wing-dark.png" alt="Wooldridge Boats 1915"></div>
+    <div class="fcontact">
+      <a href="tel:+12067228998">206.722.8998</a><span class="sep">|</span><a href="mailto:data@wooldridgeboats.com">data@wooldridgeboats.com</a>
+    </div>
+    <div class="faddr">Factory | Showroom<br>1303 S 96th St.<br>Seattle, WA 98108-5011</div>
+    <div class="fhours">Monday &ndash; Thursday 6:00AM &ndash; 4:30PM</div>
+    <div class="fsoc">
+      <a href="https://www.instagram.com/wooldridgeboats/" aria-label="Instagram"><img src="/assets/brand/ic-instagram.png" alt="Instagram"></a>
+      <a href="https://www.facebook.com/WooldridgeBoats/" aria-label="Facebook"><img src="/assets/brand/ic-facebook.png" alt="Facebook"></a>
+      <a href="https://www.youtube.com/channel/UC-hVTJ7HySkqCjUENQY5CCQ" aria-label="YouTube"><img src="/assets/brand/ic-youtube.png" alt="YouTube"></a>
+    </div>
+    <div class="frow">
+      <a href="/#fleet">Our Boats</a>
+      <a href="/pre-owned/">Pre-Owned</a>
+      <a href="/new-inventory/">New Boats</a>
+      <a href="/dealers/">Dealers</a>
+      <a href="/our-history/">About | History</a>
+      <a href="/faq/">FAQ</a>
+      <a href="https://store.wooldridgeboats.com/">Store</a>
+      <a href="/contact/">Contact</a>
+    </div>
+    <div class="frow frow2">
+      <a href="/build-and-price/">Build &amp; Price</a>
+      <a href="/which-wooldridge/">Which Wooldridge Quiz</a>
+      <a href="/compare/">Compare Models</a>
+      <a href="/request-a-quote/">Request a Quote</a>
+      <a href="/option-guide/">Options &amp; Terms, Explained</a>
+      <a href="/photos/">Photos</a>
+      <a href="/dealer-resources/">Dealer Resources</a>
+      <a href="/careers/">Careers</a>
+      <a href="/privacy-policy/">Privacy Policy</a>
+      <a href="/return-policy/">Returns</a>
+    </div>
+  </div>
+  <div class="legal">
+    <div class="wrap">
+      <span class="fineprint">&copy; 2026 WOOLDRIDGE BOATS. ALL RIGHTS RESERVED.</span>
+      <span class="fineprint">ALL HULLS 5052 &amp; 5086 MARINE-GRADE ALUMINUM, WELDED BY HAND IN SEATTLE, WA.</span>
+      <span class="fineprint">PRICES SUBJECT TO CHANGE &#8212; CONTACT WOOLDRIDGE BOATS DIRECTLY FOR AN OFFICIAL QUOTE.</span>
+      <span class="fineprint">FAMILY BUILT SINCE 1915.</span>
+    </div>
+  </div>
+<script defer src="/assets/media-provenance.js?v=0e298cc0"></script><script defer src="/assets/media-fade.js?v=b9e3e85e"></script><script defer src="/assets/tool-nudge.js?v=87ce227e"></script>
+</footer>
+<!-- /PARTIAL:footer -->
 
 <div id="toast"></div>
 
@@ -1208,5 +1329,6 @@
   });
 })();
 </script>
+<script src="../assets/shop.js?v=c3faf481"></script>
 </body>
 </html>
