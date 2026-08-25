@@ -24,6 +24,7 @@ my %APPROVED = map { $_ => 1 } qw(
   Q-E-4
   AUD-TYPO-01
   AUD-TYPO-02
+  Q-CFG-13
 );
 # ───────────────────────────────────────────────────────
 
@@ -270,6 +271,10 @@ my @BLOCKS = (
       map { { m => $_, id => 'occ', nm => 'Center Console', copyHullsFrom => 'ws' } }
         qw(xlib scout skagitib sportib ssdib)
     ] } },
+  { q => 'Q-CFG-13', t => q{Console powder coat is a center-console option only. Stephen (24 Aug 2026): "if a boat has a windshield, it will never need the option for powder coating of a center console." Tags the five ids the name-tagger missed: four models whose console style is overlay-added by Q-CFG-12 (the tagger saw them as single-style and skipped them) plus skagitx.},
+    live => { styleTags => { map { ($_ . '_powdercoat_0_1' => 'occ') }
+        qw(xlib skagitib sportib ssdib skagitx)
+    } } },
 );
 
 # ── merge approved blocks into the live keys ──
