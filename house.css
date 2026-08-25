@@ -1803,8 +1803,21 @@ html.blueprint{ background:#10181f; }
 html.blueprint body{ background:transparent; }
 
 /* --------------------------------------------------------------------------
-   PLACEHOLDER MEDIA FADE (2026-07-31, Stephen's decision)
+   PLACEHOLDER MEDIA FADE - RETIRED FROM VIEW 2026-08-25 (Stephen's decision)
    --------------------------------------------------------------------------
+   NOTHING BELOW PAINTS FOR A VISITOR. Tyler and Grant approved launching on
+   the photos we have, so the customer-facing split between vetted and
+   placeholder media is off: a shopper seeing faded galleries reads a broken
+   site, not a to-do list. Every rule here is scoped under .wb-ph-show, which
+   media-fade.js puts on <html> ONLY when someone opts in with ?wbph=1. That
+   is the internal view - it sticks across pages and clears with ?wbph=0 - and
+   it is the whole contingency: turning the delineation back on is a URL, not
+   a deploy.
+   The tracking never lived here. media-fade.js still tags every placeholder
+   as data-wb-ph="1", and the ledger of record is still
+   assets/photos/_media-manifest.json + _build/media_census.ps1.
+   --------------------------------------------------------------------------
+   ORIGINAL NOTE (2026-07-31), still true of the internal view:
    Photos under assets/photos/ that did NOT come from Tyler's SALES TOOLS
    library render slightly faded until vetted media replaces them, model by
    model. The class is applied by assets/media-fade.js from the vetted set in
@@ -1812,7 +1825,7 @@ html.blueprint body{ background:transparent; }
    re-run the sync, never hand-edit). Live-build carousels (shop-*) are
    exempt: current shop-floor shots are not placeholders.
    -------------------------------------------------------------------------- */
-img.wb-ph{
+.wb-ph-show img.wb-ph{
   filter:saturate(.5) opacity(.6);
   transition:filter .35s ease;
 }
@@ -1821,8 +1834,8 @@ img.wb-ph{
    Lives on the placeholder image's immediate wrapper (imgs can't carry
    pseudo-elements); media-fade.js adds/removes .wb-ph-wrap in step with
    .wb-ph, so the tab and the fade can never disagree. */
-.wb-ph-wrap{ position:relative; }
-.wb-ph-wrap::after{
+.wb-ph-show .wb-ph-wrap{ position:relative; }
+.wb-ph-show .wb-ph-wrap::after{
   content:""; position:absolute; top:0; right:0; width:0; height:0;
   border-style:solid; border-width:0 22px 22px 0;
   border-color:transparent rgba(35,40,45,.55) transparent transparent;
@@ -1830,7 +1843,7 @@ img.wb-ph{
 }
 
 /* the one-time explainer pill, bottom-left, dismissible */
-.wb-phnote{
+.wb-ph-show .wb-phnote{
   position:fixed; left:16px; bottom:16px; z-index:9000;
   display:flex; align-items:center; gap:10px;
   max-width:min(420px, calc(100vw - 32px));
@@ -1840,11 +1853,11 @@ img.wb-ph{
   font:400 12.5px/1.45 "Inter", system-ui, sans-serif;
   padding:10px 12px;
 }
-.wb-phnote button{
+.wb-ph-show .wb-phnote button{
   flex:0 0 auto; border:0; background:none; cursor:pointer;
   color:#71787e; font-size:16px; line-height:1; padding:2px 4px;
 }
-.wb-phnote button:hover{ color:#23282d; }
+.wb-ph-show .wb-phnote button:hover{ color:#23282d; }
 
 /* ── corner widgets (bottom right) ──────────────────────────────────────────
    Built by tool-nudge.js: a fixed stack holding the tool nudge ("Not sure
@@ -1920,3 +1933,100 @@ img.wb-ph{
 @media print{
   .wb-corner,.wb-phnote{ display:none !important; }
 }
+
+/* ---- forms: contact + careers (added 2026-08-25) -------------------------
+   WHY THIS EXISTS. `.form`, `.contactgrid`, `.infocard` and `.emptystate`
+   were written into contact/index.html and careers/index.html but the CSS was
+   never added to this file — verified by `git log -S"contactgrid"`, which
+   returns nothing: these rules have never existed. So both forms rendered as
+   raw user-agent HTML, labels and fields flowing inline on shared rows and
+   textareas at the browser default 2 rows. It looked wrong at every width,
+   not just narrow ones.
+
+   ONE FIELD PER ROW, everywhere. Label above its field, field full width.
+   That is deliberate and is the answer to "should each field be on its own
+   row?" — yes. A form that never puts two fields side by side has no
+   proportion to lose when the column width changes, so it reads the same on a
+   phone and on a 1440px desktop. The pattern below is the shipped `.gate`
+   idiom (dealer-resources) scaled up: same hairline, same radius, same blue
+   focus ring, so these forms match type the site already uses.
+   ------------------------------------------------------------------------ */
+.form{ max-width:640px; }
+.form label{
+  display:block; font-weight:500; font-size:11.5px; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--muted); margin:20px 0 6px;
+}
+.form label:first-of-type{ margin-top:0; }
+.form .reqstar{ color:#c0392b; }
+.form input,.form select,.form textarea{
+  display:block; width:100%; box-sizing:border-box;
+  border:1px solid var(--line); border-radius:7px; padding:11px 13px;
+  font-family:var(--sans); font-weight:400; font-size:15px;
+  color:var(--ink); background:#fff;
+  transition:border-color .2s ease, box-shadow .2s ease;
+}
+.form input:focus,.form select:focus,.form textarea:focus{
+  outline:none; border-color:var(--blue); box-shadow:0 0 0 3px rgba(27,117,187,.15);
+}
+.form ::placeholder{ color:#8b9299; opacity:1; }
+/* select keeps its native arrow — appearance:none would need a hand-drawn one
+   and they never match across browsers. Height is matched by the padding. */
+.form select{ height:auto; cursor:pointer; }
+/* Blocks of prose get room to write in. The browser default is 2 rows, which
+   is what made "How can we help?" and "Tell us about your experience" look
+   like afterthoughts. Drag-resize stays on, vertically only, so it can never
+   be widened out of the column. */
+.form textarea{ min-height:180px; line-height:1.6; resize:vertical; }
+.form input[type=file]{
+  padding:10px 12px; border-style:dashed; background:#fbfcfc;
+  font-size:13.5px; color:var(--muted); cursor:pointer;
+}
+.form input[type=file]::file-selector-button{
+  font-family:var(--sans); font-weight:500; font-size:12px; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--blue); background:rgba(27,117,187,.08);
+  border:1px solid rgba(27,117,187,.35); border-radius:5px;
+  padding:7px 12px; margin-right:12px; cursor:pointer;
+}
+.form input[type=file]:hover{ border-color:var(--rule); }
+/* The spam honeypot keeps its inline off-screen positioning (left:-9999px) rather
+   than display:none — a naive bot skips display:none and still fills an
+   off-screen field, which is the whole point of it. It is out of flow, so the
+   width:100% above costs nothing and creates no overflow. */
+.form input[name=website]{ height:1px; }
+.form button.plate{
+  -webkit-appearance:none; appearance:none; border:0; cursor:pointer;
+  margin-top:26px; font-size:16px;
+}
+
+/* ---- contact page: form beside the details, not stacked above them ------- */
+.contactgrid{
+  display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);
+  gap:34px; align-items:start;
+}
+.contactgrid .form{ max-width:none; }
+.infocard{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--rad);
+  box-shadow:var(--shadow); padding:22px 24px;
+}
+.infocard + .infocard{ margin-top:18px; }
+.infocard h3{ font-size:17px; letter-spacing:.02em; margin-bottom:4px; }
+.infocard .mono{
+  font-weight:400; font-size:12.5px; letter-spacing:.06em; line-height:1.85;
+  color:var(--body);
+}
+@media (max-width:900px){
+  .contactgrid{ grid-template-columns:1fr; gap:26px; }
+  .contactgrid .form{ max-width:640px; }
+}
+
+/* ---- "prefer email / nothing here yet" panel (careers, dealers, faq) ----- */
+.emptystate{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--rad);
+  box-shadow:var(--shadow); padding:26px 28px; text-align:center;
+}
+.emptystate .t{
+  font-family:var(--serif); font-weight:700; font-size:18px; color:var(--blue);
+  margin-bottom:6px;
+}
+.emptystate p{ font-size:14.5px; color:var(--muted); max-width:520px; margin:0 auto; }
+.emptystate .modelctas{ margin-top:18px; }
