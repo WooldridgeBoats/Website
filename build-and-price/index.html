@@ -2360,7 +2360,7 @@ $('#btnPrint').addEventListener('click', () => {
 
 /* ════════ EMAIL + PDF BUILD SHEET ════════ */
 const DEALER_EMAIL = 'data@wooldridgeboats.com';   /* lead recipient - data@, per the 1 Aug 2026 info@ retirement (Q-D-1 originally named info@) */
-const CC_EMAIL = 'stephen@wooldridgeboats.com,data@wooldridgeboats.com';   /* cc'd on every outbound email trigger - RFC 6068: comma-separated, semicolons silently drop the cc in Gmail/Apple Mail */
+const CC_EMAIL = 'data@wooldridgeboats.com';   /* ONE address, deliberately: no mailto cc separator works everywhere. Commas are RFC 6068 but classic Outlook treats the pair as one bad address and drops the cc outright (proved 2026-08-25 - a real build sheet reached stephen@ with no data@ recipient at all, so the inquiry never reached the Hub); semicolons invert the same breakage onto Gmail and Apple Mail. A single address cannot be mis-split. Nothing is lost: data@ is an alias on stephen@, so this still lands in the same inbox, and it is what the inquiries flow's addressed-to-data@ trigger condition requires. */
 
 function sheetSummary(){
   /* shared text model for the email body and the PDF */
