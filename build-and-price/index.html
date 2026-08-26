@@ -2394,6 +2394,12 @@ function wbInquiryBlock(type){
   /* CHAIN-01: the trailer used to vanish here — the parsed block carried no
      trailer line, so it never survived into the Inquiries Hub or the SO */
   if (state.trailer) L.push('Trailer: ' + state.trailer.name + ' — ' + fmt(state.trailer.retail));
+  /* CHAIN-02: the option list vanished exactly the way the trailer used to - the block carried
+     no Options line, so the Hub had to scrape it back out of the YOUR BUILD body text. One line
+     (the block is parsed line-by-line), items pipe-separated, sub-note in parens, mirroring
+     YOUR BUILD exactly - trailer row included - so both paths agree on what the spec is. */
+  if (s2.rows && s2.rows.length) L.push('Options: ' + s2.rows.map(function(r){
+    return r.l1 + ' — ' + fmt(r.p) + (r.l2 ? ' (' + r.l2 + ')' : ''); }).join(' | '));
   if (s2.total) L.push('Total: ' + fmt(s2.total));
   if (s2.name) L.push('Name: ' + s2.name);
   if (c2.email.trim()) L.push('Email: ' + c2.email.trim());
