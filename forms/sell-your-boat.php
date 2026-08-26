@@ -20,7 +20,8 @@
    make the filesystem reject the write - the data itself is stored in
    full inside the file.)
 
-   Recipients (Stephen, Aug 2026): data@ (To), stephen@ + carrie@ (Cc).
+   Recipients (Stephen, 26 Aug 2026): carrie@ (To), rachel@ (Cc). data@
+   is deliberately absent - used-boat listings are not wanted in the Hub.
    Change them in $ROUTE below - nothing else needs editing.
 
    MAIL TRANSPORT is the house convention, selected by 'transport' in
@@ -40,8 +41,8 @@
    goes straight to Microsoft either way, the cPanel "local mail
    exchanger" trap (a cPanel box that thinks it hosts wooldridgeboats.com
    mail swallowing anything addressed to the domain) does not apply to
-   this path - but the live test must still prove all three inboxes
-   receive a submission.
+   this path - but the live test must still prove every recipient inbox
+   receives a submission.
 
    THE ARCHIVE lives at <account home>/wb-used-boat-submissions/ :
      ub-<stamp>-<boat>-<random>.json   the raw request body, verbatim
@@ -66,8 +67,8 @@ header('Content-Type: application/json; charset=utf-8');
 @set_time_limit(90);
 
 $ROUTE = array(
-  'to' => 'data@wooldridgeboats.com',
-  'cc' => 'stephen@wooldridgeboats.com, carrie@wooldridgeboats.com',
+  'to' => 'carrie@wooldridgeboats.com',
+  'cc' => 'rachel@wooldridgeboats.com',
 );
 $FROM_NAME = 'Wooldridge Website';
 

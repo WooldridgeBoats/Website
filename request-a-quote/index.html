@@ -119,7 +119,7 @@ footer{padding:10px 20px 24px;}
   <!-- WEB-N-02 (Stephen 2 Aug 2026): this page is self-contained by design — no
        site header — which trapped visitors here. One plain way back, top left. -->
   <div style="margin-bottom:10px;"><a href="/" style="color:inherit; font-size:13px; text-decoration:underline; text-underline-offset:3px;">&larr; Back to wooldridgeboats.com</a></div>
-  <div class="addr">WOOLDRIDGE BOATS &middot; SEATTLE, WASHINGTON &middot; SINCE 1915 &middot; <a href="tel:+12067228998" style="color:inherit;">(206) 722-8998</a> &middot; <a href="mailto:sales@wooldridgeboats.com" style="color:inherit;">SALES@WOOLDRIDGEBOATS.COM</a></div>
+  <div class="addr">WOOLDRIDGE BOATS &middot; SEATTLE, WASHINGTON &middot; SINCE 1915 &middot; <a href="tel:+12067228998" style="color:inherit;">(206) 722-8998</a> &middot; <a href="mailto:sales@wooldridgeboats.com?cc=danny@wooldridgeboats.com" style="color:inherit;">SALES@WOOLDRIDGEBOATS.COM</a></div>
   <div class="k">Request a Quote</div>
   <h1>Tell us about your water.<br>We’ll come back with a real number.</h1>
   <p>Five minutes here saves three phone calls later. The more we know about how you’ll actually use the boat, the better the first quote — and the first conversation — will be.</p>
@@ -331,8 +331,8 @@ footer{padding:10px 20px 24px;}
 /* ─────────────────────────────────────────────
    CONFIG — integration settings (edit these)
    ───────────────────────────────────────────── */
-const DEALER_EMAIL = 'sales@wooldridgeboats.com';   /* lead recipient (Stephen 2 Aug 2026 — a quote is a sales lead; supersedes the Q-D-1 info@ scheme) */
-const CC_EMAIL = 'data@wooldridgeboats.com';     /* cc'd on every lead - RFC 6068: comma-separated, semicolons silently drop the cc in Gmail/Apple Mail */
+const DEALER_EMAIL = 'sales@wooldridgeboats.com';   /* lead recipient (Stephen 2 Aug 2026 — a quote is a sales lead; this route uses sales@ rather than the old Q-D-1 info@ scheme. Scope: THIS route only - info@ is back in active use on the general-contact surfaces as of 26 Aug 2026, so this is NOT authority to strip info@ elsewhere.) */
+const CC_EMAIL = 'data@wooldridgeboats.com';     /* cc'd on every lead - ONE address only. A comma-separated mailto cc is dropped outright by classic Outlook (proved 2026-08-25) and semicolons drop it in Gmail/Apple Mail, so multi-address mailto ccs are never safe. Site-wide policy as of 26 Aug 2026: one cc per mailto, with any fan-out done in Exchange behind a single distribution-list address. */
 const FORM_ENDPOINT = '/forms/submit.php';   /* FORM-01: our own cPanel handler.
                                Submits FormData incl. photos; the mailto
                                draft remains the automatic fallback if the

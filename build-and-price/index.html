@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/house.css?v=072cd38f">
+<link rel="stylesheet" href="/house.css?v=faa291a0">
 <style>
   :root{
     --paper:#F2F2F2;       /* eggshell / cream — page base */
@@ -2360,8 +2360,7 @@ $('#btnPrint').addEventListener('click', () => {
 });
 
 /* ════════ EMAIL + PDF BUILD SHEET ════════ */
-const DEALER_EMAIL = 'data@wooldridgeboats.com';   /* lead recipient - data@, per the 1 Aug 2026 info@ retirement (Q-D-1 originally named info@) */
-const CC_EMAIL = 'data@wooldridgeboats.com';   /* ONE address, deliberately: no mailto cc separator works everywhere. Commas are RFC 6068 but classic Outlook treats the pair as one bad address and drops the cc outright (proved 2026-08-25 - a real build sheet reached stephen@ with no data@ recipient at all, so the inquiry never reached the Hub); semicolons invert the same breakage onto Gmail and Apple Mail. A single address cannot be mis-split. Nothing is lost: data@ is an alias on stephen@, so this still lands in the same inbox, and it is what the inquiries flow's addressed-to-data@ trigger condition requires. */
+const CC_EMAIL = 'data@wooldridgeboats.com';   /* ONE address, deliberately: no mailto cc separator works everywhere. Commas are RFC 6068 but classic Outlook treats the pair as one bad address and drops the cc outright (proved 2026-08-25 - a real build sheet reached stephen@ with no data@ recipient at all, so the inquiry never reached the Hub); semicolons invert the same breakage onto Gmail and Apple Mail. A single address cannot be mis-split. Adopted site-wide as policy by Stephen on 26 Aug 2026: ONE cc per mailto anywhere on the site, and where several people need a copy the fan-out happens behind a single Exchange distribution list, never as extra mailto cc addresses. Nothing is lost: data@ is an alias on stephen@, so this still lands in the same inbox, and it is what the inquiries flow's addressed-to-data@ trigger condition requires. */
 
 function sheetSummary(){
   /* shared text model for the email body and the PDF */
@@ -2547,7 +2546,7 @@ function makeBuildPDF(){
   }
   if (s.total > 0){
     need(16);
-    text(L, 'Reserve this build: a ' + depositInfo(s.total).pct + ' deposit (' + fmt(depositInfo(s.total).amt) + ') holds your build slot — Carrie@wooldridgeboats.com · (206) 722-8998', 'F1', 8, {gray:0.3});
+    text(L, 'Reserve this build: a ' + depositInfo(s.total).pct + ' deposit (' + fmt(depositInfo(s.total).amt) + ') holds your build slot — (206) 722-8998', 'F1', 8, {gray:0.3});
     y -= 14;
   }
   y -= 6;
@@ -2603,7 +2602,7 @@ function emailBuildSheet(){
   /* 2. open a pre-addressed email to the customer + dealership */
   const subject = 'Wooldridge Boats Build Sheet \u2014 ' + name;
   const mailto = 'mailto:' + encodeURIComponent(c.email.trim())
-    + '?cc=' + encodeURIComponent(CC_EMAIL) /* CC_EMAIL already contains data@ - concatenating DEALER_EMAIL doubled it in the customer's CC line (audit 2026-08-03) */
+    + '?cc=' + encodeURIComponent(CC_EMAIL) /* CC_EMAIL already contains data@ - concatenating the old DEALER_EMAIL constant (deleted 26 Aug 2026) doubled it in the customer's CC line (audit 2026-08-03) */
     + '&subject=' + encodeURIComponent(subject)
     + '&body=' + encodeURIComponent(emailBodyText());
   toast('Build sheet PDF downloaded \u2014 attach it to the email that opens.');
@@ -3263,7 +3262,7 @@ body{margin:0; border:none; outline:none;}
   <div class="wrap">
     <div class="flogo"><img src="/assets/brand/logo-wing-dark.png" alt="Wooldridge Boats 1915"></div>
     <div class="fcontact">
-      <a href="tel:+12067228998">206.722.8998</a><span class="sep">|</span><a href="mailto:data@wooldridgeboats.com">data@wooldridgeboats.com</a>
+      <a href="tel:+12067228998">206.722.8998</a><span class="sep">|</span><a href="mailto:data@wooldridgeboats.com?cc=info@wooldridgeboats.com">data@wooldridgeboats.com</a>
     </div>
     <div class="faddr">Factory | Showroom<br>1303 S 96th St.<br>Seattle, WA 98108-5011</div>
     <div class="fhours">Monday &ndash; Thursday 6:00AM &ndash; 4:30PM</div>
@@ -3303,10 +3302,10 @@ body{margin:0; border:none; outline:none;}
       <span class="fineprint">FAMILY BUILT SINCE 1915.</span>
     </div>
   </div>
-<script defer src="/assets/media-provenance.js?v=0e298cc0"></script><script defer src="/assets/media-fade.js?v=a48a467c"></script><script defer src="/assets/tool-nudge.js?v=87ce227e"></script>
+<script defer src="/assets/media-provenance.js?v=0e298cc0"></script><script defer src="/assets/media-fade.js?v=a48a467c"></script><script defer src="/assets/tool-nudge.js?v=2c8e476f"></script>
 </footer>
 <!-- /PARTIAL:footer --></div>
 <script>if(window.self!==window.top){var e=document.getElementById('siteFooterWrap'); if(e) e.style.display='none';}</script>
-<script src="/assets/shop.js?v=c3faf481"></script>
+<script src="/assets/shop.js?v=bdbad1e0"></script>
 </body>
 </html>

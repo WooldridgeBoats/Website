@@ -16,7 +16,7 @@
     console.log(
       "%cEverything on this page was cut, welded, and floated by hand.\n" +
       "So was the website. If you read source for fun, you'd fit in here:\n" +
-      "  jobs@wooldridgeboats.com\n\n" +
+      "  wooldridgeboats.com/careers/\n\n" +
       "psst - the old ritual still works. up up down down left right left right B A.",
       slate
     );

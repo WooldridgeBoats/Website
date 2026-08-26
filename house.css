@@ -1861,10 +1861,11 @@ html.blueprint body{ background:transparent; }
 
 /* ── corner widgets (bottom right) ──────────────────────────────────────────
    Built by tool-nudge.js: a fixed stack holding the tool nudge ("Not sure
-   which boat?") and, below it, the email-Danny pill. Each is a blue pill that
-   clicking swaps for a white card. Bottom RIGHT deliberately — the placeholder
-   pill above owns bottom left, and the two can be on screen at once. Both sit
-   at z-index 9000, but they never overlap. */
+   which boat?") — a blue pill that clicking swaps for a white card. (The
+   email-Danny pill that sat below it was removed 26 Aug 2026; do not re-add
+   it.) Bottom RIGHT deliberately — the placeholder pill above owns bottom
+   left, and the two can be on screen at once. Both sit at z-index 9000, but
+   they never overlap. */
 .wb-corner{
   position:fixed; right:16px; bottom:16px; z-index:9000;
   display:flex; flex-direction:column; align-items:flex-end; gap:10px;
@@ -1888,8 +1889,7 @@ html.blueprint body{ background:transparent; }
 .wb-nudge-tab:hover{ background:var(--blue-dark); }
 .wb-nudge-panel{
   display:none;
-  /* wrap: the Danny card's email + Copy + x can overrun a 320px phone; the
-     Copy button dropping to a second row beats the address truncating */
+  /* wrap: on a narrow phone the x can need to drop to a second row */
   align-items:flex-start; gap:10px; flex-wrap:wrap;
   background:#fff; color:#23282d;
   border:1px solid #dcdfe2; border-radius:12px;
@@ -1919,14 +1919,6 @@ html.blueprint body{ background:transparent; }
   color:#71787e; font-size:16px; line-height:1; padding:2px 4px;
 }
 .wb-nudge-x:hover{ color:#23282d; }
-/* the copy-email button inside the Danny card */
-.wb-copy{
-  flex:0 0 auto; cursor:pointer;
-  background:var(--blue); color:#fff; border:0; border-radius:6px;
-  font:700 12px/1 "Inter", system-ui, sans-serif;
-  padding:7px 10px;
-}
-.wb-copy:hover{ background:var(--blue-dark); }
 @media (prefers-reduced-motion:reduce){
   .wb-corner{ transition:none; }
 }

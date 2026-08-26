@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../house.css?v=072cd38f">
+<link rel="stylesheet" href="../house.css?v=faa291a0">
 <style>
   /* Page-local styles only — house.css owns the reset, Inter body type,
      Rockwell blue headings, tokens, and all site chrome. Absorbed into the
@@ -259,7 +259,7 @@
     </ul>
     <p class="howhelp">Selling a motor, a trailer, or anything that isn't a boat? This form won't fit it —
        call <a href="tel:+12067228998">(206) 722-8998</a> or email
-       <a href="mailto:data@wooldridgeboats.com">data@wooldridgeboats.com</a> and we'll help you place that ad.</p>
+       <a href="mailto:carrie@wooldridgeboats.com?cc=rachel@wooldridgeboats.com">carrie@wooldridgeboats.com</a> and we'll help you place that ad.</p>
   </div>
 
   <form id="intake" novalidate>
@@ -903,7 +903,7 @@
   <div class="wrap">
     <div class="flogo"><img src="/assets/brand/logo-wing-dark.png" alt="Wooldridge Boats 1915"></div>
     <div class="fcontact">
-      <a href="tel:+12067228998">206.722.8998</a><span class="sep">|</span><a href="mailto:data@wooldridgeboats.com">data@wooldridgeboats.com</a>
+      <a href="tel:+12067228998">206.722.8998</a><span class="sep">|</span><a href="mailto:data@wooldridgeboats.com?cc=info@wooldridgeboats.com">data@wooldridgeboats.com</a>
     </div>
     <div class="faddr">Factory | Showroom<br>1303 S 96th St.<br>Seattle, WA 98108-5011</div>
     <div class="fhours">Monday &ndash; Thursday 6:00AM &ndash; 4:30PM</div>
@@ -943,7 +943,7 @@
       <span class="fineprint">FAMILY BUILT SINCE 1915.</span>
     </div>
   </div>
-<script defer src="/assets/media-provenance.js?v=0e298cc0"></script><script defer src="/assets/media-fade.js?v=a48a467c"></script><script defer src="/assets/tool-nudge.js?v=87ce227e"></script>
+<script defer src="/assets/media-provenance.js?v=0e298cc0"></script><script defer src="/assets/media-fade.js?v=a48a467c"></script><script defer src="/assets/tool-nudge.js?v=2c8e476f"></script>
 </footer>
 <!-- /PARTIAL:footer -->
 
@@ -958,7 +958,8 @@
      so the copy-and-email fallback below stays the safety net. */
   var CONFIG = {
     endpoint: "/forms/sell-your-boat.php",
-    fallbackEmail: "data@wooldridgeboats.com"
+    fallbackEmail: "carrie@wooldridgeboats.com",
+    fallbackCc: "rachel@wooldridgeboats.com"
   };
   var DRAFT_KEY = "wb_used_boat_intake_draft";
 
@@ -1332,7 +1333,7 @@
     document.getElementById("summaryBox").value = summary;
     var subject = "Used boat listing - " + [textVal("year"), textVal("manufacturer"), textVal("model")].filter(Boolean).join(" ");
     document.getElementById("mailtoBtn").href =
-      "mailto:" + CONFIG.fallbackEmail + "?subject=" + encodeURIComponent(subject);
+      "mailto:" + CONFIG.fallbackEmail + "?cc=" + CONFIG.fallbackCc + "&subject=" + encodeURIComponent(subject);
     form.classList.add("hidden");
     document.getElementById("donePanel").classList.remove("hidden");
     document.getElementById("copyStatus").className = "";
@@ -1393,6 +1394,6 @@
   });
 })();
 </script>
-<script src="../assets/shop.js?v=c3faf481"></script>
+<script src="../assets/shop.js?v=bdbad1e0"></script>
 </body>
 </html>

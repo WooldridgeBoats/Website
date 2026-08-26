@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../house.css?v=072cd38f">
+<link rel="stylesheet" href="../house.css?v=faa291a0">
 <link rel="canonical" href="https://www.wooldridgeboats.com/contact/">
 </head>
 <body>
@@ -121,6 +121,7 @@
       <!-- FORM-01: posts to /forms/submit.php, which sends by authenticated M365 SMTP.
            On failure it shows #contactFail (the mailto redirect fallback was removed 3 Aug 2026). -->
       <form class="form" id="contactForm" action="/forms/submit.php" method="post">
+        <input type="hidden" name="form" value="contact">
         <label for="f-nm">Name <span class="reqstar" style="color:#c0392b;">*</span></label><input id="f-nm" name="nm" required autocomplete="name">
         <label for="f-em">Email <span class="reqstar" style="color:#c0392b;">*</span></label><input id="f-em" name="em" type="email" required autocomplete="email">
         <label for="f-ph">Phone (optional)</label><input id="f-ph" name="ph" autocomplete="tel">
@@ -133,7 +134,7 @@
         <!-- FORM-01 honesty (3 Aug 2026): the handler now sends by authenticated
              SMTP and knows whether the message was accepted, so a failure says so
              instead of showing a thank-you nobody received. -->
-        <p id="contactFail" style="display:none; font-size:15px; line-height:1.6; margin-top:14px; padding:12px 14px; border-left:3px solid #c0392b; background:#fdf3f2;"><b>We couldn't send that.</b> Please email <a href="mailto:sales@wooldridgeboats.com">sales@wooldridgeboats.com</a> or call <a href="tel:+12067228998">(206) 722-8998</a> and we'll pick it up from there.</p>
+        <p id="contactFail" style="display:none; font-size:15px; line-height:1.6; margin-top:14px; padding:12px 14px; border-left:3px solid #c0392b; background:#fdf3f2;"><b>We couldn't send that.</b> Please email <a href="mailto:info@wooldridgeboats.com?cc=data@wooldridgeboats.com">info@wooldridgeboats.com</a> or call <a href="tel:+12067228998">(206) 722-8998</a> and we'll pick it up from there.</p>
       </form>
       <script>
       (function(){
@@ -177,7 +178,7 @@
     </div>
     <div>
       <div class="infocard"><h3>Factory / Showroom</h3><div class="mono">1303 S 96TH ST<br>SEATTLE, WA 98108-5011<br><br>
-        <a href="tel:+12067228998">(206) 722-8998</a><br><a href="mailto:sales@wooldridgeboats.com">SALES@WOOLDRIDGEBOATS.COM</a><br><br>MONDAY – THURSDAY, 6:00AM – 4:30PM</div></div>
+        <a href="tel:+12067228998">(206) 722-8998</a><br><a href="mailto:info@wooldridgeboats.com?cc=data@wooldridgeboats.com">INFO@WOOLDRIDGEBOATS.COM</a><br><br>MONDAY – THURSDAY, 6:00AM – 4:30PM</div></div>
       <div class="infocard"><h3>Visit</h3><div class="mono">FACTORY TOURS BY APPOINTMENT.<br>CALL AHEAD — WE'LL SHOW YOU AROUND.</div></div>
       <div class="infocard"><h3>Follow</h3><div class="mono">
         <a href="https://www.instagram.com/wooldridgeboats/">INSTAGRAM ↗</a><br><a href="https://www.facebook.com/WooldridgeBoats/">FACEBOOK ↗</a><br><a href="https://www.youtube.com/channel/UC-hVTJ7HySkqCjUENQY5CCQ">YOUTUBE ↗</a></div></div>
@@ -190,7 +191,7 @@
   <div class="wrap">
     <div class="flogo"><img src="/assets/brand/logo-wing-dark.png" alt="Wooldridge Boats 1915"></div>
     <div class="fcontact">
-      <a href="tel:+12067228998">206.722.8998</a><span class="sep">|</span><a href="mailto:data@wooldridgeboats.com">data@wooldridgeboats.com</a>
+      <a href="tel:+12067228998">206.722.8998</a><span class="sep">|</span><a href="mailto:data@wooldridgeboats.com?cc=info@wooldridgeboats.com">data@wooldridgeboats.com</a>
     </div>
     <div class="faddr">Factory | Showroom<br>1303 S 96th St.<br>Seattle, WA 98108-5011</div>
     <div class="fhours">Monday &ndash; Thursday 6:00AM &ndash; 4:30PM</div>
@@ -230,9 +231,9 @@
       <span class="fineprint">FAMILY BUILT SINCE 1915.</span>
     </div>
   </div>
-<script defer src="/assets/media-provenance.js?v=0e298cc0"></script><script defer src="/assets/media-fade.js?v=a48a467c"></script><script defer src="/assets/tool-nudge.js?v=87ce227e"></script>
+<script defer src="/assets/media-provenance.js?v=0e298cc0"></script><script defer src="/assets/media-fade.js?v=a48a467c"></script><script defer src="/assets/tool-nudge.js?v=2c8e476f"></script>
 </footer>
 <!-- /PARTIAL:footer -->
-<script src="../assets/shop.js?v=c3faf481"></script>
+<script src="../assets/shop.js?v=bdbad1e0"></script>
 </body>
 </html>

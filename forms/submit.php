@@ -7,11 +7,21 @@
    never taken from the request. Sends the shop the submission and the
    customer an auto-response (WEB-F-01 / WEB-F-06).
 
-   Forms served (Stephen 2 Aug 2026, superseding the 28 Jul info@ scheme
-   — info@ is dead, see the governance doc's mail-routing section):
-     contact  -> sales@  cc data@
-     quote    -> sales@  cc data@   (a quote IS a sales lead; same lane)
-     careers  -> data@   cc stephen@, parts@
+   Forms served (Stephen 26 Aug 2026, revising the 2 Aug scheme):
+     contact  -> info@   cc data@   (auto-response Reply-To: info@)
+     quote    -> sales@  cc data@   (a quote IS a sales lead; same
+                 lane. Auto-response Reply-To: sales@)
+     careers  -> data@   cc parts@, luke@, grant@
+                 (auto-response Reply-To: data@. stephen@ is off this
+                 Cc deliberately - data@ is an alias on his mailbox
+                 and sits on the To, so he still gets it)
+   info@ was VACATED in July - that reasoning stands as history and is
+   in the governance doc's mail-routing section - but it is a real
+   shared mailbox, read again as of 26 Aug 2026 (Stephen's ruling), so
+   general contact goes back to it.
+   The 'reply' key on each route is the Reply-To on the CUSTOMER's
+   auto-response, so a reply lands in the lane that owns the form.
+   Both transports read that one key, so they cannot drift.
 
    The customer auto-response includes a full copy of what they sent
    (Stephen 2 Aug 2026) — text only; uploaded files don't ride back.
@@ -141,9 +151,9 @@ header('Content-Type: application/json; charset=utf-8');
 @set_time_limit(90);
 
 $ROUTES = array(
-  'contact' => array('to' => 'sales@wooldridgeboats.com', 'cc' => 'data@wooldridgeboats.com'),
-  'quote'   => array('to' => 'sales@wooldridgeboats.com', 'cc' => 'data@wooldridgeboats.com'),
-  'careers' => array('to' => 'data@wooldridgeboats.com', 'cc' => 'stephen@wooldridgeboats.com, parts@wooldridgeboats.com'),
+  'contact' => array('to' => 'info@wooldridgeboats.com', 'cc' => 'data@wooldridgeboats.com', 'reply' => 'info@wooldridgeboats.com'),
+  'quote'   => array('to' => 'sales@wooldridgeboats.com', 'cc' => 'data@wooldridgeboats.com', 'reply' => 'sales@wooldridgeboats.com'),
+  'careers' => array('to' => 'data@wooldridgeboats.com', 'cc' => 'parts@wooldridgeboats.com, luke@wooldridgeboats.com, grant@wooldridgeboats.com', 'reply' => 'data@wooldridgeboats.com'),
 );
 $FROM_NAME   = 'Wooldridge Website';
 $AUTO_REPLY  = true;
@@ -152,7 +162,7 @@ $ALLOWED_EXT = array('pdf','doc','docx','jpg','jpeg','png','heic','webp');
 
 /* the one sentence a visitor sees when the send genuinely fails. Plain,
    non-technical, and it hands them a working way through. */
-$USER_FAIL_MSG = 'We couldn\'t send that. Please email sales@wooldridgeboats.com or call (206) 722-8998.';
+$USER_FAIL_MSG = 'We couldn\'t send that. Please email info@wooldridgeboats.com or call (206) 722-8998.';
 
 /* ─── logging ─────────────────────────────────────────────────────────
    Two destinations on purpose: the PHP error log (always exists, hard to
@@ -393,7 +403,7 @@ if ($TRANSPORT === 'graph'){
         'body'         => array('contentType' => 'Text', 'content' => $ar_b),
         'from'         => array('emailAddress' => array('address' => $FROM, 'name' => 'Wooldridge Boats')),
         'toRecipients' => array(array('emailAddress' => array('address' => $email, 'name' => $name))),
-        'replyTo'      => array(array('emailAddress' => array('address' => 'sales@wooldridgeboats.com'))),
+        'replyTo'      => array(array('emailAddress' => array('address' => $route['reply']))),
         /* Auto-Submitted cannot ride Graph (custom headers must be x-);
            X-Auto-Response-Suppress is the one Exchange honors anyway */
         'internetMessageHeaders' => array(array('name' => 'X-Auto-Response-Suppress', 'value' => 'All')),
@@ -468,7 +478,7 @@ if ($AUTO_REPLY && $email !== ''){
   $ar_h[] = 'Message-ID: <' . md5(uniqid('ar', true)) . '@' . $fromDomain . '>';
   $ar_h[] = 'From: ' . wb_addr($FROM, 'Wooldridge Boats');
   $ar_h[] = 'To: ' . wb_addr($email, $name);
-  $ar_h[] = 'Reply-To: sales@wooldridgeboats.com';
+  $ar_h[] = 'Reply-To: ' . $route['reply'];
   $ar_h[] = 'Subject: ' . wb_hdr($ar_subject);
   $ar_h[] = 'Auto-Submitted: auto-replied';
   $ar_h[] = 'X-Auto-Response-Suppress: All';

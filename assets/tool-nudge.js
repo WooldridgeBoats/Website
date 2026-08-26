@@ -1,45 +1,40 @@
-/* tool-nudge.js — the bottom-right corner widgets (hand-written; not generator
+/* tool-nudge.js — the bottom-right corner widget (hand-written; not generator
  * output).
  *
- * A fixed stack sits in the bottom-right corner holding two blue pills:
+ * A fixed stack sits in the bottom-right corner holding one blue pill:
+ * "Not sure which boat?" — clicking opens a card offering the two front-door
+ * tools: the Which Wooldridge quiz and the model comparison. The point is
+ * discovery — the tools are in the nav and the footer, but a visitor reading a
+ * model page has no reason to look there.
  *
- *   1. "Not sure which boat?" — clicking opens a card offering the two
- *      front-door tools: the Which Wooldridge quiz and the model comparison.
- *      The point is discovery — the tools are in the nav and the footer, but a
- *      visitor reading a model page has no reason to look there.
- *   2. "Click here to Email Danny!" — clicking opens a card with Danny's
- *      address as a mailto link plus a copy button.
+ * A second pill, "Click here to Email Danny!", was REMOVED 26 Aug 2026 on
+ * Stephen's ruling. Do not re-add it.
  *
- * Both pills wear the wing logo's blue-in-black livery (see .wb-nudge-tab in
+ * The pill wears the wing logo's blue-in-black livery (see .wb-nudge-tab in
  * house.css) — Stephen's 2026-08-02 direction: logo, slogan, BUILD & PRICE and
- * these pills share the treatment so the eye groups them.
+ * this pill share the treatment so the eye groups them.
  *
  * Corner choice matters: media-fade.js's placeholder pill is bottom-LEFT, so
  * the stacks never collide.
  *
  * The quiz nudge is not shown on the tool pages themselves (see SKIP) —
- * offering the quiz to someone already taking the quiz is noise. The Danny
- * pill shows everywhere: it is a line to a human, not a nudge.
+ * offering the quiz to someone already taking the quiz is noise.
  *
- * Lifecycle, per Stephen 2026-08-02, both pills identical: present on every
- * page load; the x (inside the opened card) removes that pill for the CURRENT
- * PAGE VIEW ONLY. Nothing is persisted — navigate anywhere and back, or
- * return to the site next week, and both pills are there again. This
- * deliberately replaced the earlier 14-day localStorage snooze (old visitors
- * may still carry the dead 'wbToolNudge' key; nothing reads it now). Clicking
- * outside an open card, or Escape, merely collapses it back to a pill.
+ * Lifecycle, per Stephen 2026-08-02: present on every page load; the x (inside
+ * the opened card) removes the pill for the CURRENT PAGE VIEW ONLY. Nothing is
+ * persisted — navigate anywhere and back, or return to the site next week, and
+ * the pill is there again. This deliberately replaced the earlier 14-day
+ * localStorage snooze (old visitors may still carry the dead 'wbToolNudge'
+ * key; nothing reads it now). Clicking outside an open card, or Escape, merely
+ * collapses it back to a pill.
  */
 (function () {
   'use strict';
 
   var DELAY = 1200;   // let the page settle first; an instant pill reads as a popup ad
 
-  // Capital D on purpose — Stephen wrote it that way and mail routing is
-  // case-insensitive, so the friendlier form costs nothing.
-  var DANNY = 'Danny@wooldridgeboats.com';
-
-  // Pages where the QUIZ nudge has nothing useful to offer (the Danny pill
-  // still shows on all of these). Matched as path prefixes.
+  // Pages where the QUIZ nudge has nothing useful to offer. Matched as
+  // path prefixes.
   var SKIP = [
     '/which-wooldridge/',   // it links here
     '/compare/',            // it links here
@@ -128,41 +123,11 @@
     return root;
   }
 
-  function copyEmail(btn) {
-    function done() {
-      var was = btn.textContent;
-      btn.textContent = 'Copied!';
-      btn.disabled = true;
-      window.setTimeout(function () {
-        btn.textContent = was;
-        btn.disabled = false;
-      }, 1600);
-    }
-    // execCommand fallback: the clipboard API needs a secure context, and this
-    // must also work off a plain-http preview or an emailed copy of a page.
-    function fallback() {
-      var ta = document.createElement('textarea');
-      ta.value = DANNY;
-      ta.setAttribute('readonly', '');
-      ta.style.position = 'fixed';
-      ta.style.opacity = '0';
-      document.body.appendChild(ta);
-      ta.select();
-      try { document.execCommand('copy'); done(); } catch (e) {}
-      document.body.removeChild(ta);
-    }
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(DANNY).then(done, fallback);
-    } else {
-      fallback();
-    }
-  }
-
   function build() {
     var corner = el('div', 'wb-corner');
     corner.id = 'wb-corner';
 
-    // 1. the quiz/compare discovery nudge (skips the tool pages)
+    // the quiz/compare discovery nudge (skips the tool pages)
     if (!skipped()) {
       corner.appendChild(widget('wb-nudge', 'Not sure which boat?', function (panel) {
         // Stephen's copy, verbatim: the two phrases are the two destinations.
@@ -175,20 +140,6 @@
         panel.appendChild(msg);
       }));
     }
-
-    // 2. the email-Danny pill (always)
-    corner.appendChild(widget('wb-danny', 'Click here to Email Danny!', function (panel) {
-      var msg = el('p', 'wb-nudge-msg');
-      msg.appendChild(link('mailto:' + DANNY, DANNY));
-      panel.appendChild(msg);
-
-      var copy = document.createElement('button');
-      copy.type = 'button';
-      copy.className = 'wb-copy';
-      copy.textContent = 'Copy';
-      copy.addEventListener('click', function () { copyEmail(copy); });
-      panel.appendChild(copy);
-    }));
 
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Escape') return;

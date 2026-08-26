@@ -27,6 +27,12 @@
 
   All model prices/facts are from the 2026 build data. Prices subject to
   change â€” confirm with the factory.
+  ----------------------------------------------------------------------------
+  CONTACT ROUTING - 2026-08-26, per Stephen ("override lp"): the standing
+  "leave lp/ alone" rule is overridden for contact addresses ONLY. data@ stays
+  as the displayed / To address; info@wooldridgeboats.com is added as the
+  SINGLE mailto cc, and is printed alongside data@ in the dealers panels
+  (a bare printed address cannot carry a cc). One cc per mailto, always.
   ============================================================================
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -325,7 +331,7 @@ const PAGES = {
   configs:[
     {nm:'The Tributary Rig', note:'Fall and winter river work', items:['Canvas top + side curtains on stainless bows','Second windshield wiper','Rod grippers + top tray extensions','River anchor system','Bow fish box / lockable storage']},
     {nm:'The River-Mouth Rig', note:'Where the river meets the big lake', items:['Kicker motor, installed â€” trolling + backup','Downrigger rigging','Garmin chartplotter / sonar package','AGM battery system','Washdown pump']}],
-  dealers:{t:'Buying from Michigan', d:'Wooldridge sells factory-direct nationwide â€” spec and price by phone with Seattle, and weâ€™ll walk you through freight and delivery. (206) 722-8998 Â· data@wooldridgeboats.com'},
+  dealers:{t:'Buying from Michigan', d:'Wooldridge sells factory-direct nationwide â€” spec and price by phone with Seattle, and weâ€™ll walk you through freight and delivery. (206) 722-8998 Â· data@wooldridgeboats.com or info@wooldridgeboats.com'},
   finalH:'Be the first jet sled on your stretch.',
   finalSub:'Take the two-minute quiz or build yours online â€” either way youâ€™ll end up talking to the family that welds it.',
   meta:{region:'Michigan (EXPANSION MARKET â€” not in first-wave proposal)', priority:'Test cell â€” fund from retargeting/experiment budget, review at 30â€“45 days per the proposalâ€™s method', sampleAd:'Steelhead run your rivers too. The west-coast jet sled, built for Great Lakes tributaries.',
@@ -359,7 +365,7 @@ const PAGES = {
   configs:[
     {nm:'Recent agency builds', note:'Representative projects', items:['20â€² Skagit â€” Department of Fish and Wildlife','Skagit Center Console â€” Fire / Search & Rescue','20â€² Skagit Inboard â€” Fish and Wildlife Agency','Super Sport Offshore Landing Craft','20â€² Skagit yacht tender']},
     {nm:'Typical mission packages', note:'Specâ€™d to requirement with the factory', items:['Heavy electrical & battery systems','Mission lighting and comms-ready helm','Washdown, deck drainage & self-bailing decks','UHMW bottom armor for debris and gravel','Trailering & transport packages']}],
-  dealers:{t:'Procurement & fleet contacts', d:'Wooldridge Boats â€” 1303 S 96th St, Seattle, WA 98108 Â· (206) 722-8998 Â· data@wooldridgeboats.com Â· Contract terms, survey requirements, and mission packages handled directly by the factory sales team.'},
+  dealers:{t:'Procurement & fleet contacts', d:'Wooldridge Boats â€” 1303 S 96th St, Seattle, WA 98108 Â· (206) 722-8998 Â· data@wooldridgeboats.com or info@wooldridgeboats.com Â· Contract terms, survey requirements, and mission packages handled directly by the factory sales team.'},
   finalH:'Start the conversation about the mission.',
   finalSub:'Send your operating area, crew size, and mission requirements â€” the factory team will come back with a spec, not a sales pitch.',
   meta:{region:'National â€” procurement-driven', priority:'Not a consumer ZIP campaign: route via direct outreach, GSA-adjacent channels, agency trade press, and LinkedIn', sampleAd:'Patrol, rescue, research, survey â€” mission-built welded aluminum, from the factory that has served agencies for decades.',
@@ -605,7 +611,7 @@ h += '<div class="final"><div class="wrap">' +
 '</div></div>';
 
 h += '<footer><div class="wrap">' +
-  '<b>Wooldridge Boats</b> Â· 1303 S 96th St, Seattle, WA 98108 Â· <a href="tel:+12067228998">' + PHONE + '</a> Â· <a href="mailto:data@wooldridgeboats.com">data@wooldridgeboats.com</a><br>' +
+  '<b>Wooldridge Boats</b> Â· 1303 S 96th St, Seattle, WA 98108 Â· <a href="tel:+12067228998">' + PHONE + '</a> Â· <a href="mailto:data@wooldridgeboats.com?cc=info@wooldridgeboats.com">data@wooldridgeboats.com</a><br>' +
   'Â© 2026 Wooldridge Boats. All hulls 5052 &amp; 5086 marine-grade aluminum, welded by hand in Seattle, WA. Prices subject to change â€” contact Wooldridge Boats directly for an official quote. Family built in Seattle since 1915.' +
 '</div></footer>';
 
