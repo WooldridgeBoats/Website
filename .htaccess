@@ -19,3 +19,47 @@ RewriteRule ^(.*)index\.html$ $1 [R=301,L]
 # those pages, so nothing on the site currently depends on that behavior.
 # Revisit only after confirming with the host that AllowOverride grants
 # FileInfo/Options for this vhost.
+
+# ---------------------------------------------------------------------------
+# 404 handling — added 25 Aug 2026, ahead of the dev -> production cutover.
+#
+# WHY: this host answers a missing path with a bare "500 Internal Server Error"
+# instead of a 404. Verified by effect 25 Aug 2026 — every nonexistent path on
+# dev returned 500, while the old production WordPress site returned 404 for the
+# same request. A 500 tells a crawler "the server is broken, distrust the whole
+# site"; a 404 tells it "this one URL is retired, keep the rest". At cutover the
+# seven WooCommerce URLs still serving on production (/cart/, /checkout/,
+# /account/, /login/, /category/equipment/, /feed/, /comments/feed/) all become
+# missing paths at once. Stephen's ruling 25 Aug: let them 404 cleanly, no
+# per-URL redirects — /404.html routes people onward instead.
+#
+# EXPECT THIS TO BE IGNORED. The project CLAUDE.md states as a hard rule that
+# this host does not honour .htaccess rewrites, and the note above records the
+# same by test. ErrorDocument needs the same AllowOverride FileInfo grant, so it
+# will most likely be ignored too.
+#
+# It is here anyway because there is NO client-side substitute for an HTTP
+# status code — a stub page cannot turn a 500 into a 404. If this is ignored the
+# fix is not a code change, it is a hosting ticket, and this line plus the test
+# below is the evidence to hand GoDaddy.
+#
+# VERIFY BY EFFECT after deploying — never assume it took:
+#   curl.exe -s -o NUL -w "%{http_code}`n" https://dev.wooldridgeboats.com/zzz-nope
+# 404 = working, and /404.html is being served. 500 = still ignored.
+ErrorDocument 404 /404.html
+
+# ---------------------------------------------------------------------------
+# The old /store/ mockup -> the real Shopify store. Stephen's ruling 25 Aug 2026.
+#
+# DELIBERATELY NOT DONE HERE. A RewriteRule was written at this spot first and
+# then removed, for the reason above: this host does not honour rewrites.
+#
+# The redirect is a STUB PAGE instead — store/index.html follows the models/xp
+# pattern (canonical + noindex + meta refresh + location.replace + a visible
+# link). Read that file before changing anything here.
+#
+# Background: store/index.html was a DESIGN MOCKUP carrying hardcoded prices
+# ($900, $950, $999, $949, $799, $599) and dead buttons — never a source of
+# truth for price or stock. Nothing on the site linked to it, but it answered a
+# public 200 with invented figures. The stub replaces that content; the mockup
+# is recoverable from git history if it is ever wanted.

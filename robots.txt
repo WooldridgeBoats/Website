@@ -1,0 +1,29 @@
+# Wooldridge Boats — wooldridgeboats.com
+# Added 25 August 2026, ahead of the dev -> production cutover.
+#
+# WHAT YOU FETCH FROM THE LIVE SITE IS LONGER THAN THIS FILE. Cloudflare
+# prepends its own AI content-signals block (Content-Signal, plus Disallow rules
+# for GPTBot, CCBot, ClaudeBot, Google-Extended and friends) to whatever this
+# file says. That block is managed in the Cloudflare dashboard, not in this repo
+# — don't try to reproduce or edit it here, and don't be alarmed that
+# curl https://www.wooldridgeboats.com/robots.txt returns much more than this.
+#
+# Before the cutover, the only robots.txt in play was WordPress's, which
+# advertised https://www.wooldridgeboats.com/wp-sitemap.xml — a URL that already
+# 404s. That line disappears with WordPress; this file replaces it.
+#
+# DELIBERATELY NOT DISALLOWED, so nobody "tidies" them in later:
+#   /tools/   holds live JavaScript that the configurator and the compare page
+#             load at runtime (RULES_OVERLAY.js, STD_DATA.js, SPEC_DATA.js).
+#             Blocking it stops Google rendering those pages properly.
+#   /store/   301s to store.wooldridgeboats.com. A crawler has to be allowed to
+#             fetch the URL to see the redirect and pass the signal along.
+#   /lp/      the campaign landing pages are kept OUT OF THE SITEMAP because
+#             they carry deliberately stale pricing, but they are not blocked —
+#             they're live ad destinations and blocking them would break the ads.
+
+User-agent: *
+Allow: /
+Disallow: /forms/
+
+Sitemap: https://www.wooldridgeboats.com/sitemap.xml
