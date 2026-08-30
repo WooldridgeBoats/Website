@@ -667,14 +667,6 @@ section{ padding:64px 0; }
 .listing .blurbsm{ font-weight:400; font-size:12.5px; margin-top:10px; min-height:54px; }
 .listing .price{ font-weight:500; font-size:15px; color:var(--ink); margin-top:8px; }
 .listing:hover .nm{ color:var(--blue); }
-.quotes{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
-.quote{ text-align:center; }
-.quote img{
-  width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;
-  box-shadow:var(--shadow);
-}
-.quote .q{ font-weight:400; font-size:12.5px; margin-top:10px; min-height:54px; }
-.quote .who{ font-weight:500; font-size:13px; color:var(--ink); margin-top:8px; }
 
 /* ── instagram strip ───────────────────────────────────────────────────── */
 .igrow{ display:grid; grid-template-columns:repeat(10,1fr); gap:10px; }
@@ -914,7 +906,7 @@ html.blueprint img{ filter:none; }  /* photos stay true color */
   .netgrid,.specialty,.stdgrid{ grid-template-columns:1fr; }
   .photocards{ grid-template-columns:repeat(2,1fr); }
   .gallery{ grid-template-columns:repeat(2,1fr); }
-  .listings,.quotes{ grid-template-columns:1fr; }
+  .listings{ grid-template-columns:1fr; }
   .igrow{ grid-template-columns:repeat(2,1fr); }
   footer .foot{ grid-template-columns:1fr; }
   .hero{ height:56vh; min-height:320px; }
