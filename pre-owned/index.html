@@ -10,6 +10,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../house.css?v=cc3a953b">
 <link rel="canonical" href="https://www.wooldridgeboats.com/pre-owned/">
+<style>
+  /* Pre-owned cards: the primary photo and the thumb rail both feed the shared
+     lightbox (gallery.js click delegation on .pcartrack a). These scoped rules
+     out-rank .pcartrack's fixed 236px track sizing, so the photos fit the card. */
+  .inv .invph a{ width:100%; height:100%; flex:none; border-radius:0; box-shadow:none; }
+  .inv .pothumbs{ gap:8px; margin:0 0 12px; padding:2px; }
+  .inv .pothumbs a{ width:64px; border-radius:6px; }
+  .inv .pothumbs img{ width:64px; height:48px; }
+  .inv .icount{ font-weight:500; font-size:11px; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; }
+</style>
 </head>
 <body>
 <!-- PARTIAL:header -->
@@ -112,56 +122,119 @@
 <section class="pagebody"><div class="wrap">
 
   <p style="font-size:15px; line-height:1.7; margin-bottom:4px;"><b>Use the contact information in each listing to inquire about the advertised pre-owned boats on this page.</b></p>
-  <p style="font-size:15px; line-height:1.7; margin-bottom:10px;">Here is the current pre-owned inventory. These boats are owner-listed: each listing publishes the seller&rsquo;s own contact details, and every card links to the full listing with the complete gallery and description. If you have a Wooldridge you&rsquo;d like featured here, <a href="../contact/">please contact us</a> &mdash; or reach us at (206) 722-8998 <a href="../contact/">via our contact info</a>.</p>
-  <p style="margin-bottom:22px;"><a class="ilink" href="https://www.wooldridgeboats.com/pre-owned/">View Live Listings &#8599;</a></p>
+  <p style="font-size:15px; line-height:1.7; margin-bottom:22px;">Here is the current pre-owned inventory. These boats are owner-listed: each listing publishes the seller&rsquo;s own contact details and carries its full photo gallery &mdash; click any photo to browse it. If you have a Wooldridge you&rsquo;d like featured here, <a href="../contact/">please contact us</a> &mdash; or reach us at (206) 722-8998 <a href="../contact/">via our contact info</a>.</p>
 
   <div class="listing-grid" id="grid"></div>
   <script>
-  /* WEB-P-16 — live listings snapshot, captured from wooldridgeboats.com/pre-owned/ on 2026-07-29.
-     SOLD listings excluded (5 of 18). One object per listing; to add or retire a
-     boat, edit this array. Prices and model titles normalized (WEB-P-12/13/15). */
+  /* Live listings snapshot, re-captured from wooldridgeboats.com/pre-owned/ on 2026-08-30
+     (supersedes the 2026-07-29 snapshot). SOLD listings excluded (3 of 16). One object per
+     listing, in the live page's order; to add or retire a boat, edit this array.
+     Fields follow the Sell Your Boat intake schema; an empty string means the live
+     listing did not state that value - leave it empty rather than guessing.
+     Photos live in ../assets/preowned/<slug>/NN.jpg (+ thumbs/NN.jpg), NN = 01..n in the
+     live gallery's order, downloaded and web-sized 2026-08-30 (EXIF stripped, max 1400px).
+     url = the old WordPress listing page each entry was captured from (provenance only,
+     not rendered - those URLs die when this site replaces WordPress at cutover). */
   const PREOWNED = [
-    {yr:2022, len:16, model:'Alaskan LT',                drive:'Outboard Jet', price:'$31,999',      loc:'Twisp, Washington',        contact:'Dennis',          phone:'(509) 449-1022', email:'',
-     img:'2022-16-wooldridge-alaskan-lt-low-hour-boat.jpg', url:'https://www.wooldridgeboats.com/preowned/2022-16-wooldridge-alaskan-lt-low-hour-boat/', note:'Only 40 hours'},
-    {yr:2021, len:21, model:'Super Sport Drifter',       drive:'Outboard Jet', price:'$75,000 OBO',  loc:'Langley, BC, Canada',      contact:'Steve Stalzer',   phone:'778-238-0653',   email:'steve.stalzer@shaw.ca',
-     img:'2021-wooldridge-21-super-sport-drifter.jpg', url:'https://www.wooldridgeboats.com/preowned/2021-wooldridge-21-super-sport-drifter/', note:'Yamaha 250 SHO, 45 hours'},
-    {yr:2017, len:27, model:'Super Sport Drifter Tiller',drive:'Outboard Jet', price:'$95,000',      loc:'',                          contact:'Eli',             phone:'(425) 417-0394', email:'',
-     img:'wooldridge-super-sport-drifter.jpg', url:'https://www.wooldridgeboats.com/preowned/wooldridge-super-sport-drifter/', note:''},
-    {yr:2015, len:20, model:'Sport Offshore',            drive:'Offshore',     price:'$49,500',      loc:'Anchor Point, Alaska',     contact:'Steven Friend',   phone:'907-399-6004',   email:'sjfriend011@gmail.com',
-     img:'2015-wooldridge-20-sport-offshore.jpg', url:'https://www.wooldridgeboats.com/preowned/2015-wooldridge-20-sport-offshore/', note:''},
-    {yr:2014, len:18, model:'Alaskan XL',                drive:'Outboard Jet', price:'$42,000',      loc:'Kalispell, Montana',       contact:'',                phone:'',               email:'gymmer1@comcast.net',
-     img:'2014-wooldridge-18-alaskan-xl.jpg', url:'https://www.wooldridgeboats.com/preowned/2014-wooldridge-18-alaskan-xl/', note:'Fully loaded, 24.5 hours'},
-    {yr:2012, len:23, model:'Super Sport Offshore',      drive:'Offshore',     price:'$69,000',      loc:'Manson, Washington',       contact:'David Donovick',  phone:'509-992-8252',   email:'david.donovick@outlook.com',
-     img:'2012-wooldridge-23-super-sport-drifter.jpg', url:'https://www.wooldridgeboats.com/preowned/2012-wooldridge-23-super-sport-drifter/', note:''},
-    {yr:2011, len:21, model:'Super Sport Offshore Cuddy',drive:'Offshore',     price:'$109,000',     loc:'Burbank, Washington',      contact:'Rod Read',        phone:'509-699-1154',   email:'esfam@hotmail.com',
-     img:'2011-wooldridge-21-super-sport-offshore-cuddy.jpg', url:'https://www.wooldridgeboats.com/preowned/2011-wooldridge-21-super-sport-offshore-cuddy/', note:''},
-    {yr:2008, len:17, model:'Sport',                     drive:'Outboard Jet', price:'$25,000',      loc:'Bozeman, Montana',         contact:'Malcolm',         phone:'406-223-5997',   email:'geysermountain@gmail.com',
-     img:'2008-wooldridge-17-sport.jpg', url:'https://www.wooldridgeboats.com/preowned/2008-wooldridge-17-sport/', note:''},
-    {yr:2004, len:20, model:'Sport',                     drive:'Outboard Jet', price:'$32,500 OBO',  loc:'Lake Stevens, Washington', contact:'Regan Anderson',  phone:'425-335-9902',   email:'regannorthcreek@hotmail.com',
-     img:'2004-wooldridge-20-sport.jpg', url:'https://www.wooldridgeboats.com/preowned/2004-wooldridge-20-sport/', note:''},
-    {yr:2003, len:17, model:'Alaskan',                   drive:'Outboard Jet', price:'$28,000',      loc:'Midland, Michigan',        contact:'Joshua Jenkins',  phone:'208-755-3590',   email:'jhjenkins7@gmail.com',
-     img:'2003-wooldridge-17-alaskan.jpg', url:'https://www.wooldridgeboats.com/preowned/2003-wooldridge-17-alaskan/', note:'Re-powered 2019'},
-    {yr:2001, len:25, model:'Classic Deeper V',          drive:'Outboard',     price:'$16,000',      loc:'Everett, Washington',      contact:'Meade Fox',       phone:'425-766-5299',   email:'m@mlfoxconstruction.com',
-     img:'2001-wooldridge-project-boat-25-classic-deeper-v.jpg', url:'https://www.wooldridgeboats.com/preowned/2001-wooldridge-project-boat-25-classic-deeper-v/', note:'Project boat'},
-    {yr:1992, len:22, model:'Fishing Machine River Jet', drive:'Inboard Jet',  price:'$30,000',      loc:'California',               contact:'Breanna',         phone:'209-986-7194',   email:'breanna@marcabellafarms.com',
-     img:'wooldridge-22-fishing-machine-river-jet-1992.jpg', url:'https://www.wooldridgeboats.com/preowned/wooldridge-22-fishing-machine-river-jet-1992/', note:''},
-    {yr:1987, len:18, model:'Classic Inboard, Windshield', drive:'Inboard Jet', price:'$22,500',     loc:'Cle Elum, Washington',     contact:'',                phone:'',               email:'rayrogalski46@gmail.com',
-     img:'wooldridge-18-classic-inboard-w-windshield-1987.jpg', url:'https://www.wooldridgeboats.com/preowned/wooldridge-18-classic-inboard-w-windshield-1987/', note:'Excellent condition'}
+    {yr:2014, len:24, model:'Super Sport Offshore Pilothouse', drive:'Offshore',
+     eng:'Suzuki DF250TXX + Yamaha T9.9 kicker', hours:'~510', trailer:'EZ Loader 6200# aluminum tandem, disc brakes',
+     price:'$99,500', loc:'Anacortes, Washington', contact:'', phone:'(206) 799-2392', email:'',
+     note:'Custom-built, many extras; leave a message', slug:'2014-wooldridge-24-super-sport-offshore-pilothouse', n:10,
+     url:'https://www.wooldridgeboats.com/preowned/2014-wooldridge-24-super-sport-offshore-pilothouse/'},
+    {yr:2021, len:21, model:'Super Sport Drifter', drive:'Outboard Jet',
+     eng:'Yamaha 250 SHO, urethane jet foot + Yamaha 9.9 high thrust kicker', hours:'45', trailer:'EZ Loader 4700 lb tandem axle',
+     price:'$75,000 USD OBO', loc:'Langley, BC, Canada', contact:'Steve Stalzer', phone:'778-238-0653', email:'steve.stalzer@shaw.ca',
+     note:'About 25 minutes from the Blaine, WA border', slug:'2021-wooldridge-21-super-sport-drifter', n:9,
+     url:'https://www.wooldridgeboats.com/preowned/2021-wooldridge-21-super-sport-drifter/'},
+    {yr:2014, len:18, model:'Alaskan XL', drive:'Outboard Jet',
+     eng:'Evinrude E-Tec 135 HO + Yamaha T9.9 kicker', hours:'24.5', trailer:'EZ Loader B17-20 bunk',
+     price:'$42,000', loc:'Kalispell, Montana', contact:'James Banyai', phone:'406-249-1368', email:'gymmer1@comcast.net',
+     note:'Fully loaded; includes rods, reels and gear', slug:'2014-wooldridge-18-alaskan-xl', n:11,
+     url:'https://www.wooldridgeboats.com/preowned/2014-wooldridge-18-alaskan-xl/'},
+    {yr:2003, len:17, model:'Alaskan', drive:'Outboard Jet',
+     eng:'2019 Yamaha 115/80 jet', hours:'40 since repower', trailer:'',
+     price:'$25,000', loc:'Midland, Michigan', contact:'Joshua Jenkins', phone:'208-755-3590', email:'jhjenkins7@gmail.com',
+     note:'Re-powered 2019; custom build, front and rear decks', slug:'2003-wooldridge-17-alaskan', n:4,
+     url:'https://www.wooldridgeboats.com/preowned/2003-wooldridge-17-alaskan/'},
+    {yr:2012, len:23, model:'Super Sport Offshore', drive:'Offshore',
+     eng:'200 HP outboard + Yamaha 9.9 kicker', hours:'', trailer:'',
+     price:'$69,000', loc:'Manson, Washington', contact:'David Donovick', phone:'509-992-8252', email:'david.donovick@outlook.com',
+     note:'One owner; never touched saltwater', slug:'2012-wooldridge-23-super-sport-drifter', n:5,
+     url:'https://www.wooldridgeboats.com/preowned/2012-wooldridge-23-super-sport-drifter/'},
+    {yr:2001, len:25, model:'Classic Deeper V', drive:'',
+     eng:'', hours:'', trailer:'Included',
+     price:'$16,000', loc:'Everett, Washington', contact:'Meade Fox', phone:'425-766-5299', email:'m@mlfoxconstruction.com',
+     note:'Project boat - motor has low compression, needs replacing; pump OK', slug:'2001-wooldridge-project-boat-25-classic-deeper-v', n:4,
+     url:'https://www.wooldridgeboats.com/preowned/2001-wooldridge-project-boat-25-classic-deeper-v/'},
+    {yr:2015, len:20, model:'Sport Offshore', drive:'Offshore',
+     eng:'2015 Mercury 115 FourStroke', hours:'274', trailer:'EZ Loader single axle',
+     price:'$49,500', loc:'Anchor Point, Alaska', contact:'Steven Friend', phone:'907-399-6004', email:'sjfriend011@gmail.com',
+     note:'Equipped and ready to fish', slug:'2015-wooldridge-20-sport-offshore', n:14,
+     url:'https://www.wooldridgeboats.com/preowned/2015-wooldridge-20-sport-offshore/'},
+    {yr:2004, len:20, model:'Sport', drive:'',
+     eng:'Yamaha 150 4-stroke + Yamaha 8 hp kicker', hours:'', trailer:'',
+     price:'$32,500 OBO', loc:'Lake Stevens, Washington', contact:'Regan Anderson', phone:'425-335-9902', email:'regannorthcreek@hotmail.com',
+     note:'One owner; both motors recently serviced', slug:'2004-wooldridge-20-sport', n:7,
+     url:'https://www.wooldridgeboats.com/preowned/2004-wooldridge-20-sport/'},
+    {yr:2011, len:21, model:'Super Sport Offshore Cuddy', drive:'Offshore',
+     eng:'Suzuki 200 (repowered 2024) + 9.9 kicker (repowered 2024)', hours:'Under 70', trailer:'EZ Loader tandem axle, disc brakes',
+     price:'$109,000', loc:'Burbank, Washington', contact:'Rod Read', phone:'509-699-1154', email:'esfam@hotmail.com',
+     note:'All decked out and ready for your fishing trip', slug:'2011-wooldridge-21-super-sport-offshore-cuddy', n:19,
+     url:'https://www.wooldridgeboats.com/preowned/2011-wooldridge-21-super-sport-offshore-cuddy/'},
+    {yr:1992, len:22, model:'Fishing Machine River Jet', drive:'Inboard Jet',
+     eng:'Ford 460 Big Block, 3-stage Kodiak jet + 2022 Yamaha 9.9 kicker', hours:'450', trailer:'1992 EZ Loader',
+     price:'$30,000', loc:'California', contact:'Breanna', phone:'209-986-7194', email:'breanna@marcabellafarms.com',
+     note:'Rare boat; clean title in hand', slug:'wooldridge-22-fishing-machine-river-jet-1992', n:6,
+     url:'https://www.wooldridgeboats.com/preowned/wooldridge-22-fishing-machine-river-jet-1992/'},
+    {yr:2022, len:16, model:'Alaskan LT', drive:'Outboard Prop',
+     eng:'Honda 50 BF50D4XRTA', hours:'40', trailer:'EZ Loader EZ90BT 14-18 2300 galvanized',
+     price:'$31,999', loc:'Twisp, Washington', contact:'Dennis', phone:'(509) 449-1022', email:'',
+     note:'Explorer Package; Minn Kota Terrova 55', slug:'2022-16-wooldridge-alaskan-lt-low-hour-boat', n:3,
+     url:'https://www.wooldridgeboats.com/preowned/2022-16-wooldridge-alaskan-lt-low-hour-boat/'},
+    {yr:1978, len:18, model:'Classic Inboard, Windshield', drive:'Inboard Jet',
+     eng:'Ford 351 inboard, Hamilton 773 jet', hours:'487', trailer:'E-Z Loader with brakes',
+     price:'$22,500', loc:'Cle Elum, Washington', contact:'Ray Rogalski', phone:'509-899-1319', email:'rayrogalski46@gmail.com',
+     note:'Excellent condition; canvas top and side curtains', slug:'wooldridge-18-classic-inboard-w-windshield-1987', n:9,
+     url:'https://www.wooldridgeboats.com/preowned/wooldridge-18-classic-inboard-w-windshield-1987/'},
+    {yr:2017, len:27, model:'Super Sport Drifter Tiller', drive:'',
+     eng:'2024 Honda 150 (7-year warranty) + Honda 9.9 kicker', hours:'', trailer:'Custom aluminum, custom wheels + spare',
+     price:'$95,000', loc:'', contact:'Eli', phone:'(425) 417-0394', email:'',
+     note:'Garmin wireless autopilot; JL Audio stereo', slug:'wooldridge-super-sport-drifter', n:4,
+     url:'https://www.wooldridgeboats.com/preowned/wooldridge-super-sport-drifter/'}
   ];
   (function(){
     const esc = s => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
     document.getElementById('grid').innerHTML = PREOWNED.map(b => {
-      /* whole card opens the full listing (WEB-P-01/08); contact details shown, no Inquire button (WEB-P-07) */
+      /* Contact details shown on the card, no Inquire button (WEB-P-07). The card no
+         longer links to the old WordPress listing page - after cutover those URLs are
+         gone, so the card itself carries the gallery (lightbox via gallery.js) and the
+         seller's contact details. */
+      const dir = '../assets/preowned/' + esc(b.slug) + '/';
+      const label = b.yr + ' Wooldridge ' + esc(b.model);
       const contactBits = [];
       if (b.contact) contactBits.push('<b>' + esc(b.contact) + '</b>');
-      if (b.phone) contactBits.push('<a href="tel:' + esc(b.phone.replace(/[^\d+]/g,'')) + '" onclick="event.stopPropagation()">' + esc(b.phone) + '</a>');
-      if (b.email) contactBits.push('<a href="mailto:' + esc(b.email) + '" onclick="event.stopPropagation()">' + esc(b.email) + '</a>');
-      return '<article class="inv" style="cursor:pointer;" onclick="window.open(\'' + b.url + '\',\'_blank\',\'noopener\')">' +
-        '<div class="invph"><span class="badge in">Available</span><img src="../assets/preowned/' + esc(b.img) + '" alt="' + b.yr + ' Wooldridge ' + esc(b.model) + '" loading="lazy"></div>' +
-        '<div class="ibody"><div class="iyear">' + b.yr + ' &middot; ' + esc(b.drive) + '</div><h3>' + b.len + '&prime; ' + esc(b.model) + '</h3>' +
-        '<div class="specs">' + (b.loc ? '<span><b>Location:</b> ' + esc(b.loc) + '</span>' : '') + (b.note ? '<span>' + esc(b.note) + '</span>' : '') +
-        (contactBits.length ? '<span><b>Seller:</b> ' + contactBits.join(' &middot; ') + '</span>' : '') + '</div>' +
-        '<div class="irow"><span class="iprice">' + esc(b.price) + '</span><a class="ilink" href="' + b.url + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">View full listing &#8599;</a></div></div>' +
+      if (b.phone) contactBits.push('<a href="tel:' + esc(b.phone.replace(/[^\d+]/g,'')) + '">' + esc(b.phone) + '</a>');
+      if (b.email) contactBits.push('<a href="mailto:' + esc(b.email) + '">' + esc(b.email) + '</a>');
+      let thumbs = '';
+      for (let i = 2; i <= b.n; i++) {
+        const nn = (i < 10 ? '0' : '') + i;
+        thumbs += '<a href="' + dir + nn + '.jpg" data-m="' + label + '" aria-label="' + label + ' - photo ' + i + '">' +
+                  '<img src="' + dir + 'thumbs/' + nn + '.jpg" alt="' + label + ' - photo ' + i + '" loading="lazy"></a>';
+      }
+      return '<article class="inv">' +
+        '<div class="invph pcartrack"><span class="badge in">Available</span>' +
+          '<a href="' + dir + '01.jpg" data-m="' + label + '" aria-label="Open the ' + label + ' photo gallery">' +
+          '<img src="' + dir + '01.jpg" alt="' + label + ' - photo 1" loading="lazy"></a></div>' +
+        '<div class="ibody"><div class="iyear">' + b.yr + (b.drive ? ' &middot; ' + esc(b.drive) : '') + '</div><h3>' + b.len + '&prime; ' + esc(b.model) + '</h3>' +
+        '<div class="specs">' +
+          (b.eng ? '<span><b>Engine:</b> ' + esc(b.eng) + '</span>' : '') +
+          (b.hours ? '<span><b>Hours:</b> ' + esc(b.hours) + '</span>' : '') +
+          (b.trailer ? '<span><b>Trailer:</b> ' + esc(b.trailer) + '</span>' : '') +
+          (b.loc ? '<span><b>Location:</b> ' + esc(b.loc) + '</span>' : '') +
+          (b.note ? '<span>' + esc(b.note) + '</span>' : '') +
+          (contactBits.length ? '<span><b>Seller:</b> ' + contactBits.join(' &middot; ') + '</span>' : '') + '</div>' +
+        (thumbs ? '<div class="pcartrack pothumbs">' + thumbs + '</div>' : '') +
+        '<div class="irow"><span class="iprice">' + esc(b.price) + '</span><span class="icount">' + b.n + ' photo' + (b.n === 1 ? '' : 's') + '</span></div></div>' +
         '</article>';
     }).join('');
   })();
@@ -172,7 +245,7 @@
   <div class="sechead tight" style="text-align:center;"><div class="eyebrow">Selling Your Wooldridge?</div>
   <h2 style="font-size:clamp(20px,2.6vw,28px);">We&rsquo;ll help you list it</h2>
   <p class="lede" style="margin-left:auto;margin-right:auto;">Advertised pre-owned Wooldridge boats reach buyers who already know the brand. Get in touch to consign yours.</p></div>
-  <div class="modelctas" style="justify-content:center;"><a class="plate" href="/sell-your-boat/">Sell Your Boat</a><a class="plate ghost" href="../contact/">Contact the Factory</a><a class="plate ghost" href="https://www.wooldridgeboats.com/pre-owned/">View Live Listings &#8599;</a></div>
+  <div class="modelctas" style="justify-content:center;"><a class="plate" href="/sell-your-boat/">Sell Your Boat</a><a class="plate ghost" href="../contact/">Contact the Factory</a></div>
 </div></section>
 </main>
 <!-- PARTIAL:footer -->
@@ -224,6 +297,7 @@
 </footer>
 <!-- /PARTIAL:footer -->
 <script src="../assets/shop.js?v=bdbad1e0"></script>
+<script src="../assets/gallery.js?v=29f4c7e6" defer></script>
 <script src="/assets/pagenav.js?v=554f9ee3" defer></script>
 </body>
 </html>
