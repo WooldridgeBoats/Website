@@ -331,7 +331,7 @@ if ($cfgPath === null){
          has to mean "valid" as well before it reaches a transport. */
       $ar_subject = 'We received your boat listing — Wooldridge Boats';
       $ar_b = "Thank you for sending us your boat listing — this is an automatic confirmation that it reached us.\n\n"
-            . "A real person will be in contact with you within 2-3 business days.\n\n"
+            . "A real person will be in contact with you within 1-2 business days.\n\n"
             . "If it's time-sensitive, call the shop directly: (206) 722-8998, Mon-Thu 6:00am-4:30pm Pacific.\n\n"
             . "Wooldridge Boats - 1303 S 96th St, Seattle, WA 98108\nFamily built since 1915.\n\n"
             . "----------------------------------------\n"
