@@ -9,6 +9,17 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../house.css?v=b8d6546a">
+<style>
+  /* New-inventory cards: same card anatomy as /pre-owned/ - the primary photo and
+     the thumb rail both feed the shared lightbox (gallery.js click delegation on
+     .pcartrack a). These scoped rules out-rank .pcartrack's fixed track sizing,
+     so the photos fit the card. */
+  .inv .invph a{ width:100%; height:100%; flex:none; border-radius:0; box-shadow:none; }
+  .inv .pothumbs{ gap:8px; margin:0 0 12px; padding:2px; }
+  .inv .pothumbs a{ width:64px; border-radius:6px; }
+  .inv .pothumbs img{ width:64px; height:48px; }
+  .inv .icount{ font-weight:500; font-size:11px; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; }
+</style>
 <link rel="canonical" href="https://www.wooldridgeboats.com/new-inventory/">
 </head>
 <body>
@@ -111,56 +122,76 @@
 </div></header>
 <section class="pagebody"><div class="wrap">
 
-  <div class="demo-note">Sample inventory layout &mdash; <b>design demonstration.</b> Live availability &amp; specs populate from our inventory system at launch. <a href="https://www.wooldridgeboats.com/new-inventory/">See today&rsquo;s real listings &#8599;</a></div>
-
   <div class="shopbar">
-    <div class="chiprow" id="chiprow">
-      <button class="chip on" data-f="all">All</button>
-      <button class="chip" data-f="ob">Outboard</button>
-      <button class="chip" data-f="ib">Inboard</button>
-      <button class="chip" data-f="ready">Ready Now</button>
-    </div>
-    <span class="fineprint">6 boats shown &middot; updated weekly</span>
+    <span class="fineprint"><span id="invcount"></span> &middot; call the factory for current availability</span>
   </div>
 
-  <div class="listing-grid" id="grid">
-    <article class="inv" data-f="ob ready">
-      <div class="invph"><span class="badge in">In Stock</span><img src="../assets/photos/alaskanxl/thumbs/5226-product-1.jpg" alt="2026 Alaskan XL" loading="lazy"></div>
-      <div class="ibody"><div class="iyear">2026 &middot; Outboard Jet</div><h3>20&prime; Alaskan XL</h3>
-        <div class="specs"><span><b>Power:</b> Yamaha 250</span><span><b>Length:</b> 20 ft</span><span><b>Hull:</b> Welded Al.</span></div>
-        <div class="irow"><span class="iprice">$118,500</span><a class="ilink" href="../contact/">View Details &rarr;</a></div></div>
-    </article>
-    <article class="inv" data-f="ob ready">
-      <div class="invph"><span class="badge in">In Stock</span><img src="../assets/photos/alaskan-lt/thumbs/2026-20-cc-001.jpg" alt="2026 Alaskan LT" loading="lazy"></div>
-      <div class="ibody"><div class="iyear">2026 &middot; Outboard Jet</div><h3>20&prime; Alaskan LT &mdash; Center Console</h3>
-        <div class="specs"><span><b>Power:</b> Yamaha 115</span><span><b>Length:</b> 20 ft</span><span><b>Hull:</b> Welded Al.</span></div>
-        <div class="irow"><span class="iprice">$46,500</span><a class="ilink" href="../contact/">View Details &rarr;</a></div></div>
-    </article>
-    <article class="inv" data-f="ib ready">
-      <div class="invph"><span class="badge in">In Stock</span><img src="../assets/photos/scout/thumbs/5113-product-1.jpg" alt="2026 Scout" loading="lazy"></div>
-      <div class="ibody"><div class="iyear">2026 &middot; Inboard Jet</div><h3>21&prime; Scout</h3>
-        <div class="specs"><span><b>Power:</b> Inboard Jet</span><span><b>Length:</b> 21 ft</span><span><b>Hull:</b> Welded Al.</span></div>
-        <div class="irow"><span class="iprice">$139,900</span><a class="ilink" href="../contact/">View Details &rarr;</a></div></div>
-    </article>
-    <article class="inv" data-f="ob">
-      <div class="invph"><span class="badge res">Reserved</span><img src="../assets/photos/supersportdrifter/thumbs/5175-product-1.jpg" alt="2026 Super Sport Drifter" loading="lazy"></div>
-      <div class="ibody"><div class="iyear">2026 &middot; Outboard Jet</div><h3>23&prime; Super Sport Drifter</h3>
-        <div class="specs"><span><b>Power:</b> Yamaha 250</span><span><b>Length:</b> 23 ft</span><span><b>Hull:</b> Welded Al.</span></div>
-        <div class="irow"><span class="iprice">$101,000</span><a class="ilink" href="../contact/">View Details &rarr;</a></div></div>
-    </article>
-    <article class="inv" data-f="ob">
-      <div class="invph"><span class="badge low">On Order</span><img src="../assets/photos/sport/thumbs/4589-product-3.jpg" alt="2026 Sport" loading="lazy"></div>
-      <div class="ibody"><div class="iyear">2026 &middot; Outboard Jet</div><h3>18&prime; Sport</h3>
-        <div class="specs"><span><b>Power:</b> Mercury 200</span><span><b>Length:</b> 18 ft</span><span><b>ETA:</b> 6&ndash;8 wks</span></div>
-        <div class="irow"><span class="iprice">$92,000</span><a class="ilink" href="../contact/">View Details &rarr;</a></div></div>
-    </article>
-    <article class="inv" data-f="ib ready">
-      <div class="invph"><span class="badge in">In Stock</span><img src="../assets/photos/skagit-x/thumbs/5092-21-skagit-x-blue-01.jpg" alt="2026 Skagit-X" loading="lazy"></div>
-      <div class="ibody"><div class="iyear">2026 &middot; Inboard Jet</div><h3>21&prime; Skagit-X</h3>
-        <div class="specs"><span><b>Power:</b> Inboard Jet</span><span><b>Length:</b> 21 ft</span><span><b>Hull:</b> Welded Al.</span></div>
-        <div class="irow"><span class="iprice">$132,000</span><a class="ilink" href="../contact/">View Details &rarr;</a></div></div>
-    </article>
-  </div>
+  <div class="listing-grid" id="grid"></div>
+  <script>
+  /* FACTORY INVENTORY - POINT-IN-TIME SNAPSHOT, adopted from the retired WordPress
+     wooldridgeboats.com/new-inventory/ page at go-live cutover (captured 2026-08-31).
+     THIS ARRAY IS THE PAGE'S DATA - to add, retire, or mark a boat sold, edit NEWINV
+     below and nothing else; the grid renders from it. One object per listing, in the
+     live page's order. `title` keeps the original WordPress listing title verbatim
+     (provenance); the structured fields the card renders were taken from that title
+     and, for the available boat, from its listing page's own description - an empty
+     string means the source did not state that value. Leave it empty rather than
+     guessing. Photos live in ../assets/newinv/<slug>/NN.jpg (+ thumbs/NN.jpg),
+     downloaded and web-sized 2026-08-31 (EXIF stripped, max 1400px). `url` = the old
+     WordPress listing page (provenance only, not rendered - dead after cutover). */
+  const NEWINV = [
+    {yr:2027, len:18, model:'Alaskan &#8212; Windshield Model', sold:false, price:'$67,399.00',
+     eng:'Yamaha 175 outboard jet', note:'Choose your own vinyl color!',
+     slug:'2027-18-alaskan-windshield', n:5,
+     desc:['Own the legend! The Wooldridge Alaskan is the iconic jet boat that has set the standard for generations. Available now at the factory, you can personalize yours by choosing the side vinyl color before driving home in this legendary model.',
+           'Powered by a dependable Yamaha 175-horsepower outboard with a jet drive, the Alaskan is built to conquer shallow water with confidence. Its proven Wooldridge jet tunnel and distinctive hull design deliver exceptional performance, speed, and maneuverability where other boats can’t go.',
+           'From secluded fishing holes and remote hunting grounds to backcountry camps and unexplored waterways, the Alaskan is designed to take you farther. When adventure calls, the Wooldridge Alaskan is ready to get you there.',
+           'Own this very boat now! Call us here at the factory for more information!'],
+     title:'NEW! 2027 Wooldridge 18′ Alaskan Windshield Model Available Now! – Choose your own vinyl color!',
+     url:'https://www.wooldridgeboats.com/newinventory/new-2027-wooldridge-18-alaskan-windshield-model-available-now-choose-your-own-vinyl-color/'},
+    {yr:'', len:20, model:'Alaskan X-LT', sold:true, price:'$69,995',
+     eng:'', note:'Ready to ride!',
+     slug:'20-alaskan-x-lt', n:1, desc:[],
+     title:'20′ Wooldridge Alaskan X-LT! Ready to ride! -SOLD-',
+     url:'https://www.wooldridgeboats.com/newinventory/20-wooldridge-alaskan-x-lt-ready-to-ride/'},
+    {yr:'', len:18, model:'Sport', sold:true, price:'$83,587',
+     eng:'', note:'',
+     slug:'18-sport', n:1, desc:[],
+     title:'18′ Wooldridge Sport – SOLD',
+     url:'https://www.wooldridgeboats.com/newinventory/18-wooldridge-sport-in-stock-ready-to-take-home/'}
+  ];
+  (function(){
+    const esc = s => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    document.getElementById('grid').innerHTML = NEWINV.map(b => {
+      const dir = '../assets/newinv/' + esc(b.slug) + '/';
+      const label = (b.yr ? b.yr + ' ' : '') + 'Wooldridge ' + b.len + '′ ' + b.model.replace(/&#8212;|&mdash;/g, '').replace(/\s+/g, ' ').trim();
+      const badge = b.sold ? '<span class="badge sold">Sold</span>' : '<span class="badge in">Available Now</span>';
+      let thumbs = '';
+      for (let i = 2; i <= b.n; i++) {
+        const nn = (i < 10 ? '0' : '') + i;
+        thumbs += '<a href="' + dir + nn + '.jpg" data-m="' + label + '" aria-label="' + label + ' - photo ' + i + '">' +
+                  '<img src="' + dir + 'thumbs/' + nn + '.jpg" alt="' + label + ' - photo ' + i + '" loading="lazy"></a>';
+      }
+      return '<article class="inv">' +
+        '<div class="invph pcartrack">' + badge +
+          '<a href="' + dir + '01.jpg" data-m="' + label + '" aria-label="Open the ' + label + ' photo gallery">' +
+          '<img src="' + dir + '01.jpg" alt="' + label + ' - photo 1" loading="lazy"></a></div>' +
+        '<div class="ibody"><div class="iyear">' + (b.yr ? b.yr + ' &middot; ' : '') + 'Wooldridge</div><h3>' + b.len + '&prime; ' + b.model + '</h3>' +
+        '<div class="specs">' +
+          (b.eng ? '<span><b>Power:</b> ' + esc(b.eng) + '</span>' : '') +
+          (b.note ? '<span>' + esc(b.note) + '</span>' : '') +
+          b.desc.map(p => '<span>' + esc(p) + '</span>').join('') + '</div>' +
+        (thumbs ? '<div class="pcartrack pothumbs">' + thumbs + '</div>' : '') +
+        '<div class="irow"><span class="iprice">' + esc(b.price) + '</span>' +
+          (b.sold ? '<span class="icount">' + b.n + ' photo' + (b.n === 1 ? '' : 's') + '</span>'
+                  : '<a class="ilink" href="../contact/">Contact the Factory &rarr;</a>') + '</div></div>' +
+        '</article>';
+    }).join('');
+    const avail = NEWINV.filter(b => !b.sold).length;
+    document.getElementById('invcount').textContent =
+      NEWINV.length + ' boat' + (NEWINV.length === 1 ? '' : 's') + ' listed, ' + avail + ' available';
+  })();
+  </script>
 
   <div class="flourish"></div>
 
@@ -218,22 +249,7 @@
 <script defer src="/assets/media-provenance.js?v=0e298cc0"></script><script defer src="/assets/media-fade.js?v=a48a467c"></script><script defer src="/assets/tool-nudge.js?v=2c8e476f"></script>
 </footer>
 <!-- /PARTIAL:footer -->
-<script>
-(function(){
-  var chips = document.querySelectorAll('#chiprow .chip');
-  var cards = [].slice.call(document.querySelectorAll('#grid .inv'));
-  chips.forEach(function(c){
-    c.addEventListener('click', function(){
-      chips.forEach(function(x){ x.classList.remove('on'); });
-      c.classList.add('on');
-      var f = c.dataset.f;
-      cards.forEach(function(p){
-        p.style.display = (f === 'all' || (' '+p.dataset.f+' ').indexOf(' '+f+' ') > -1) ? '' : 'none';
-      });
-    });
-  });
-})();
-</script>
 <script src="../assets/shop.js?v=bdbad1e0"></script>
+<script src="../assets/gallery.js?v=29f4c7e6" defer></script>
 </body>
 </html>
