@@ -2145,7 +2145,7 @@ function renderCustomer(){
   const prep = $('#sheetPrep');
   if (full){
     prep.style.display = 'block';
-    const bits = [c.email.trim(), c.phone.trim(), c.zip.trim() ? 'ZIP ' + c.zip.trim() : ''].filter(Boolean);
+    const bits = [c.email.trim(), c.phone.trim(), c.zip.trim() ? (c.country === 'USA' ? 'ZIP ' : 'Postal ') + c.zip.trim() : ''].filter(Boolean);
     prep.innerHTML = `Prepared for <b>${esc(full)}</b>${bits.length ? `<span> · ${esc(bits.join(' · '))}</span>` : ''}`;
   } else prep.style.display = 'none';
 
@@ -2430,7 +2430,7 @@ function sheetSummary(){
   if (tr) rows.push({l1:tr.name + ' trailer', l2:'EZ Loader · ' + tr.desc + (tr.baseKnown ? '' : ' · base TBD'), p:tr.retail, trailer:true});
   const total = boatTotal + (tr ? tr.retail : 0);
   const name = [c.first.trim(), c.last.trim()].filter(Boolean).join(' ');
-  const meta = [c.email.trim(), c.phone.trim(), c.zip.trim() ? 'ZIP ' + c.zip.trim() : ''].filter(Boolean).join(' · ');
+  const meta = [c.email.trim(), c.phone.trim(), c.zip.trim() ? (c.country === 'USA' ? 'ZIP ' : 'Postal ') + c.zip.trim() : ''].filter(Boolean).join(' · ');
   const date = new Date().toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'});
   return {rows, inqs, boatTotal, trailerTotal:tr ? tr.retail : 0, hasTrailer:!!tr, total, name, meta, date};
 }
