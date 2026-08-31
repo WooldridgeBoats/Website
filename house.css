@@ -376,14 +376,18 @@ section{ padding:64px 0; }
      explicitly instead of inherited from .tagband h1, so a future change
      there cannot silently break the mirror.
 
-     Gone with the border: the ::before back-copy that drew it, its text-shadow,
-     and the position/z-index sandwich that existed only to stack that copy
-     behind the fill. The data-text attribute on the span in index.html is now
-     unused but KEPT on purpose, so putting the border back is a single-block
-     revert - do not read it as dead markup and strip it.
+     REV 12 - 2026-08-30, Stephen's direction: the black border RETURNS. He had
+     an outside AI mock the border up on the rendered page and approved the
+     look, so this is exactly the single-block revert the rev-10 removal
+     promised, re-hosted at rev 11's size - the ::before back-copy below redraws
+     it from the data-text attribute in index.html (KEEP THAT IN SYNC with the
+     visible text), and the position/z-index sandwich here exists only to stack
+     that copy behind the blue fill. Everything else (the mirror, tracking, the
+     1.075x size peg) is rev 10/11 and unchanged.
 
      Tracking and the correction below move together: margin-right must always
      be exactly -1 x letter-spacing. */
+  position:relative; z-index:0;   /* stacking context so the border copy stays sandwiched */
   color:var(--blue);
   font-family:var(--serif);
   font-size:clamp(28px,3.66vw,43px); font-weight:700; letter-spacing:.01em;
@@ -400,6 +404,28 @@ section{ padding:64px 0; }
      item that would push the right-hand rule .01em further out than the left,
      so the box is pulled back in by exactly that much. */
   margin-right:-.01em;
+}
+.tagband h1.slogan .punch::before{
+  content:attr(data-text);
+  position:absolute; left:0; top:0; width:100%; z-index:-1;
+  color:#000;
+  /* Visible border = HALF this stroke (the blue plate covers the inner half).
+     .16em carries over from rev 7-9 verbatim: Stephen ruled it proportional to
+     the logo ("a hair thicker - i want the internal blue to compliment the
+     aesthetic, not dominate it" - its black runs 10-15px against blue limbs of
+     51-80px, measured from the PNG), so it rides the type scale rather than
+     holding a px figure: ~3.4px visible at rev 11's 43px cap, vs ~2.9px at the
+     old 36px it was tuned on. The 4px floor keeps the border reading at the
+     ~22px phone size. Fill is #000 too so the stroke has no hollow core.
+     NOTE the flanking rules above were re-derived to a HELD ~2.5px while the
+     border was away; they no longer exactly match the border's visible weight
+     the way the 2026-07-31 "same weight" ruling had them. Left alone on
+     purpose - rev 12 restores the border and touches nothing else. If the bars
+     now read too light, their height is the one knob (see their comment). */
+  -webkit-text-stroke:max(4px,.16em) #000;
+  /* rev 6's restrained dimensionality, on the back plate so the shadow hangs
+     off the black border (as on the logo) instead of the blue fill */
+  text-shadow:0 1px 0 rgba(255,255,255,.5), 0 3px 6px rgba(20,30,40,.16);
 }
 
 /* The rose is the band's closing rule, so its top margin has to clear the blurb
