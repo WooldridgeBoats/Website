@@ -6,7 +6,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/house.css?v=2385e60e">
+<link rel="stylesheet" href="/house.css?v=09215ba5">
 <title>Which Wooldridge Is Right For You?</title>
 <style>
   :root{
@@ -583,6 +583,45 @@ render();
    type, 4x4 graph-paper ground, drawing-sheet frame with zone
    labels, and a gridded title block. ref: ANSI drafting sheets.
    ============================================================ */
+/* THE HEADER OWNS THE TOP OF THE VIEWPORT - 2026-08-31, Stephen's feedback:
+   "see how the drafting paper is peeking through at the header? i dont want
+   that. The website header should be the header and thats it." Two changes
+   make that true. (a) body's old 24px padding-top is gone, so nav.nav sits
+   flush at y=0 like it does on every other page - that padding was pushing
+   the sticky header down and leaving a band of graph paper above it. (b) the
+   drafting sheet now starts below the nav instead of at the viewport edge.
+   --wb-navtop is the MEASURED nav height, published by the skin injector at
+   the bottom of this page; it is not a literal because house.css is changing
+   the header's height. The offset RESERVES a band the height of the header;
+   it does not chase it. nav.nav declares position:sticky top:0, but MEASURED
+   2026-08-31 at 1440x900 its wrapper (#siteHeaderWrap) is 96px tall against a
+   96px nav - zero sticky travel, so the bar scrolls off like a static one.
+   Its WRAPPER is what stopped it, and 2026-08-31 Stephen approved fixing that
+   too - see the #siteHeaderWrap rule below. With the header actually sticky the
+   reserved band is correct at every scroll position, not just at the top, and
+   no scroll listener is needed, so the sheet's top edge never animates under
+   the reader. */
+html{ --wb-navtop:0px; }   /* fallback until the injector measures the real nav */
+
+/* AND THE HEADER NOW STAYS THERE - 2026-08-31, Stephen: "yeah go ahead and fix
+   the sticky header thing too."
+   These four tool pages are the ONLY pages on the site that wrap the header
+   partial in <div id="siteHeaderWrap"> - build-and-price needs that wrapper so
+   it can hide the entire header when the page is iframed (see the inline script
+   just below the header). The side effect was silent, and it made these four
+   pages inconsistent with the other 122: a sticky element's travel is bounded
+   by its PARENT, and this wrapper is exactly the nav's own height, so .nav had
+   zero room to move and scrolled away like a static bar. VERIFIED BY EFFECT on
+   /compare/ before the fix - at scrollY 600, nav.getBoundingClientRect().top
+   read -600, i.e. gone off the top.
+   Moving the stickiness up to the wrapper restores it. z-index 900 is
+   house.css's own value for .nav, and its ladder is sticky toolbar 800,
+   back-to-top 850, nav 900, mega menu 950, toast 1200, lightboxes 2000/2100 -
+   so the layering here matches every other page instead of inventing a local
+   one. An inline display:none on the wrapper still beats position:sticky, so
+   the iframe case is untouched, and with the wrapper hidden the injector
+   measures the nav at 0px, which is the correct answer. */
+#siteHeaderWrap{ position:sticky; top:0; z-index:900; }
 body{
   background-color:var(--paper);
   background-image:
@@ -591,16 +630,16 @@ body{
     linear-gradient(rgba(27,117,187,.055) 1px, transparent 1px),
     linear-gradient(90deg, rgba(27,117,187,.055) 1px, transparent 1px);
   background-size:108px 108px,108px 108px,27px 27px,27px 27px;
-  padding-top:24px;
 }
-.wb-sheetframe{position:fixed; inset:7px; border:1.6px solid var(--ink); pointer-events:none; z-index:60;}
+/* frame + top zone labels clear the header - see the note above (2026-08-31) */
+.wb-sheetframe{position:fixed; inset:calc(var(--wb-navtop) + 7px) 7px 7px; border:1.6px solid var(--ink); pointer-events:none; z-index:60;}
 .wb-sheetframe::before{content:""; position:absolute; inset:4px; border:1px solid var(--ink); opacity:.45;}
 .wb-zonelab{
   position:fixed; z-index:61; pointer-events:none;
   font-family:'Courier New',ui-monospace,monospace; font-size:10px; font-weight:700; letter-spacing:.08em;
   color:var(--ink); opacity:.75; background:var(--paper); padding:0 5px; line-height:1.4;
 }
-.wb-zl-top{position:absolute; top:11px; transform:translateX(-50%);}
+.wb-zl-top{position:absolute; top:calc(var(--wb-navtop) + 11px); transform:translateX(-50%);}
 .wb-zl-bottom{bottom:12px; transform:translateX(-50%);}
 .wb-zl-left{left:13px; transform:translateY(-50%);}
 .wb-zl-right{right:13px; transform:translateY(-50%);}
@@ -628,7 +667,7 @@ body{
   .wb-tb-cell:nth-child(even){border-left:none;}
   .wb-tb-cell:nth-child(2), .wb-tb-cell:nth-child(3){border-top:none;}
 }
-@media (max-width:720px){ .wb-sheetframe, .wb-zonelab{display:none;} body{padding-top:0;} }
+@media (max-width:720px){ .wb-sheetframe, .wb-zonelab{display:none;} }
 @media print{ .wb-sheetframe, .wb-zonelab, .wb-tbwrap{display:none !important;} body{background-image:none !important; padding-top:0 !important;} }
 .mast .brand, .qtitle, .wname{font-family:'Rockwell',Georgia,Palatino,'Palatino Linotype','Times New Roman',Times,serif;}</style>
 <script id="wb-industrial-skin-js">
@@ -637,6 +676,21 @@ body{
   var CFG = { dwg: "WB-2026-QUIZ-2", title: "WHICH WOOLDRIDGE", notes: "ALL HULLS 5052 & 5086 MARINE-GRADE ALUMINUM, WELDED BY HAND IN SEATTLE, WA.<br>EVERY BOAT SEA-TRIALED BEFORE DELIVERY.<br>DO NOT SCALE DRAWING." };
   function init() {
     if (document.querySelector(".wb-sheetframe")) return;
+    /* Publish the real header height as --wb-navtop so the sheet frame and the
+       top zone labels start BELOW the site header instead of crossing it
+       (2026-08-31, Stephen's feedback). Measured, not hardcoded: house.css is
+       changing the nav's height. Re-measured on resize and on load because the
+       nav bar wraps to two rows in the 901-1283px band. Deliberately NOT on
+       scroll: this reserves a band the height of the header, it does not chase
+       the header down the page - see the CSS note above for the measurement. */
+    var wbNav = document.querySelector("nav.nav");
+    var wbSetNavTop = function () {
+      document.documentElement.style.setProperty("--wb-navtop",
+        (wbNav ? Math.round(wbNav.getBoundingClientRect().height) : 0) + "px");
+    };
+    wbSetNavTop();
+    window.addEventListener("resize", wbSetNavTop);
+    window.addEventListener("load", wbSetNavTop);
     var f = document.createElement("div");
     f.className = "wb-sheetframe"; f.setAttribute("aria-hidden", "true");
     document.body.appendChild(f);
@@ -652,8 +706,13 @@ body{
       zone("wb-zl-top", "left", x, nums[i]);
       zone("wb-zl-bottom", "left", x, nums[i]);
     }
-    zone("wb-zl-left", "top", "25%", "B"); zone("wb-zl-right", "top", "25%", "B");
-    zone("wb-zl-left", "top", "75%", "A"); zone("wb-zl-right", "top", "75%", "A");
+    /* A/B side labels centre on the FRAME, not on the window: the frame's top
+       edge moved down by the header height, so a flat 25%/75% of the viewport
+       would ride high - and on a short window the "B" pair would land on the
+       header we just cleared (2026-08-31). */
+    var wbSideY = function (p) { return "calc(var(--wb-navtop) + 7px + (100vh - var(--wb-navtop) - 14px) * " + p + ")"; };
+    zone("wb-zl-left", "top", wbSideY(0.25), "B"); zone("wb-zl-right", "top", wbSideY(0.25), "B");
+    zone("wb-zl-left", "top", wbSideY(0.75), "A"); zone("wb-zl-right", "top", wbSideY(0.75), "A");
     function cell(k, v, cls) {
       return '<div class="wb-tb-cell ' + (cls || "") + '"><span class="wb-tb-k">' + k +
              '</span><span class="wb-tb-v' + (k === "SIZE" ? " big" : "") + '">' + v + "</span></div>";

@@ -38,7 +38,7 @@
   "openingHours": "Mo-Th 06:00-16:30"
 }
 </script>
-<link rel="stylesheet" href="house.css?v=2385e60e">
+<link rel="stylesheet" href="house.css?v=09215ba5">
 <link rel="canonical" href="https://www.wooldridgeboats.com/">
 </head>
 <body>
@@ -258,7 +258,7 @@
     <div class="sechead">
       <div class="eyebrow">Plan Your Boat &mdash; Live 2026 Data</div>
       <h2>Build &amp; Price</h2>
-      <p class="lede">Not sure where to start? Take the two-minute quiz and it hands your recommendation straight into Build &amp; Price. Already know your boat? Go straight to the configurator. Torn between two models? Put them side by side.</p>
+      <p class="lede">Not sure where to start? Take the two-minute quiz and it hands your recommendation straight into Build &amp; Price. Already know your boat? Go straight to the configurator. Torn between two models? Put them side by side. Ready for a quote? Send us the details.</p>
     </div>
     <!-- TOOLS ABSORPTION 2026-07-31: the tools are real site pages now
          (/which-wooldridge/, /build-and-price/, /compare/) - the cards are
@@ -275,6 +275,17 @@
       <a class="tooltab" href="compare/">
         <span class="k">Side by Side</span><b>Compare Boats</b>
         <span>Alaskan vs Alaskan XL? Scout vs Widebody? Pick two or three models and get a plain-English answer.</span>
+      </a>
+      <!-- QUOTE CARD 2026-08-31 (Stephen): /request-a-quote/ existed only in the OUR BOATS
+           mega menu's Tools column, the sitewide footer, and one card on the contact page.
+           None of those is the planning-tools row, which is where a visitor is actually
+           choosing a tool - so it belongs beside the other three.
+           Eyebrow is deliberately the same "No Obligation" the contact page already uses
+           for this link - one label per destination sitewide. No CSS needed: .tooltab is
+           flex:1 1 230px inside a wrapping flex row, so a fourth card reflows on its own. -->
+      <a class="tooltab" href="request-a-quote/">
+        <span class="k">No Obligation</span><b>Request a Quote</b>
+        <span>The questions a salesperson would ask anyway &mdash; your water, your load, your timeline &mdash; routed straight to the sales floor.</span>
       </a>
     </div>
   </div>

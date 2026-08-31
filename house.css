@@ -112,11 +112,24 @@ h1,h2,h3,.h-serif{
      1280 the bar already wrapped at the old 46px logo — that is pre-existing
      behaviour in the 901-1279 band, not something the logo change caused.) */
   display:flex; align-items:center; gap:11px;
-  min-height:78px; flex-wrap:wrap; padding-top:8px; padding-bottom:8px;
+  /* 78px -> 92px on 2026-08-31 (Stephen, via his coworker): he wanted the
+     desktop header a little taller. DESKTOP ONLY - the max-width:900px block
+     below sets min-height:64px, and that is what tablet and mobile actually
+     get at every width from 900px down; the 62px wing logo is unchanged.
+     (An earlier version of this note also credited a 70px header to the
+     max-width:760px block. That declaration was DEAD and always had been:
+     both queries match at <=760px, both selectors are 0,2,0, and the 900px
+     block is later in the file, so 64px won. Verified by effect at 375px -
+     computed min-height read 64px - and the dead 70px has been removed
+     rather than left to mislead the next reader.) */
+  min-height:92px; flex-wrap:wrap; padding-top:8px; padding-bottom:8px;
   max-width:1420px;
 }
 .nav a{
-  font-family:var(--sans); font-weight:500; font-size:12px;
+  /* 12px -> 11.5px on 2026-08-31 (Stephen, via his coworker): "a hair smaller"
+     for OUR BOATS / PRE-OWNED etc. Tracking, weight and caps unchanged - the
+     bar reads the same, just finer against the taller header. */
+  font-family:var(--sans); font-weight:500; font-size:11.5px;
   letter-spacing:.06em; text-transform:uppercase;
   color:var(--ink); white-space:nowrap;
 }
@@ -173,7 +186,16 @@ h1,h2,h3,.h-serif{
    Specificity: this selector is 0,3,0 and the hamburger menu's re-show rule
    .nav.nav-open .wrap > .navsoc is 0,4,0, so it still wins - the icons keep
    appearing inside the opened mobile menu at 900px and below, where that
-   menu is the only way to reach them. */
+   menu is the only way to reach them.
+
+   NOTE 2026-08-31: every measured figure above was taken at 12px/.06em nav
+   type. The nav type is now 11.5px (Stephen, via his coworker - "a hair
+   smaller"). Smaller type needs LESS width for one row, so those numbers are
+   now an UPPER BOUND, not the current widths - they have NOT been re-measured.
+   Consequences of that, both in the safe direction: the 1299.98px cut still
+   holds with more slack than the ~16px above, and the unresolved 901-1182px
+   wrap band gets slightly narrower. The breakpoint is deliberately unchanged;
+   do not replace the measured numbers with guesses - re-measure or leave. */
 @media (max-width:1299.98px){
   .nav .wrap > .navsoc{ display:none; }
 }
@@ -187,15 +209,47 @@ h1,h2,h3,.h-serif{
 .mega{
   /* Anchored to the nav container's left edge (not centred on the link) so the
      wide panel never runs off the left of the viewport on narrower windows.
-     The negative margin + larger padding pull the panel's (invisible) hover
-     zone up to overlap the trigger, so moving the cursor down into the menu
-     never crosses a gap that would close it. */
+
+     ATTACHED TO THE HEADER, 2026-08-31 (Stephen, via his coworker): this used
+     to sit at margin-top:-12px with padding-top:22px, a net 10px of
+     transparent space under the header. The hero VIDEO showed through that
+     strip, so the panel read as a floating slab instead of part of the bar.
+     margin-top and padding-top are now both 0, so the panel's top edge meets
+     the nav's bottom border with nothing between them. */
   display:none; position:absolute; left:0; transform:none;
-  top:100%; margin-top:-12px; padding-top:22px; z-index:950;
+  top:100%; margin-top:0; padding-top:0; z-index:950;
 }
+/* Replacement hover bridge for the padding that used to do this job. The nav's
+   own 1px border-bottom is a strip that belongs to neither the trigger nor the
+   panel, so without a bridge the cursor crosses a dead pixel on its way down
+   and the menu closes. 4px up / 5px tall covers that hairline with slack on
+   both sides while still landing entirely inside .wrap's 8px bottom padding,
+   so it can never sit over a nav link's text. Invisible, and it only exists
+   while the panel is open - its parent is display:none the rest of the time.
+
+   THE NUMBERS ARE MEASURED, NOT CHOSEN - and the first attempt got them wrong.
+   top:-4px/height:5px covered y 91-96 and left a 4px DEAD BAND, because the
+   trigger does not reach the panel: .hasmega has align-self:stretch, so it ends
+   at .wrap's CONTENT-box bottom (y 87 at 1440px) while top:100% resolves to
+   .wrap's PADDING-box bottom (y 95). Verified by effect 2026-08-31 on /careers/
+   at 1440x900 - document.elementFromPoint(600, y) returned SPAN.hasmega at
+   y 86, DIV.wrap at y 87/88/89/90, and DIV.mega only from y 91. Since
+   .hasmega:hover is what renders the panel AND therefore this bridge, losing
+   hover for one frame in that band tore the panel down before the cursor
+   reached it, and the cursor then landed on the hero with nothing to re-enter.
+   -9px/10px spans y 86-96: one pixel INTO the trigger, across .wrap's 8px of
+   bottom padding, and over the nav's 1px border-bottom - so the hover chain is
+   continuous with a pixel of slack at each end. The strip still lands in
+   padding, never on link text: nav links are ~17px tall around y 49. */
+.mega::before{ content:""; position:absolute; left:0; right:0; top:-9px; height:10px; }
 .hasmega:hover .mega,.hasmega:focus-within .mega{ display:block; }
 .mega-in{
-  background:#fff; border:1px solid var(--line); border-radius:var(--rad);
+  background:#fff; border:1px solid var(--line);
+  /* Reads as one piece with the header, 2026-08-31 (Stephen, via his coworker):
+     no top border (the nav's border-bottom is already there) and square top
+     corners, so the panel hangs off the bar instead of looking like a card
+     dropped in front of it. */
+  border-top:0; border-radius:0 0 var(--rad) var(--rad);
   box-shadow:var(--shadow-lg);
   display:grid; grid-template-columns:repeat(4,minmax(150px,1fr)) 170px;
   gap:8px 28px; padding:26px 30px; width:min(920px,92vw);
@@ -511,6 +565,20 @@ section{ padding:64px 0; }
   font-family:var(--sans); display:block; color:var(--ink); width:100%;
 }
 .exp .ph{
+  /* display:block added 2026-08-31 and it is the WHOLE fix for two of Stephen's
+     complaints, which were one bug: .ph is a <span>, so with no display set it
+     computed to display:inline - and border-radius, overflow, aspect-ratio and
+     shadow clipping ALL do nothing on a non-replaced inline box. Symptom one:
+     "the explore by power, purpose, and water cards are the only ones where the
+     photos dont have rounded corners." Symptom two: "when you make the page
+     real narrow... the models get truncated" - measured at 375px wide, the
+     button's box was 276.3px tall against 306.3px of content, so the .lab
+     caption (INBOARD / OUTBOARD) spilled out and the next grid item painted
+     over it. Verified in the browser after the fix: corners 10px, aspect-ratio
+     resolving to 4/3.4 (1.177), button 307.9px == content 307.9px. Nothing else
+     was needed - no overflow guards, no extra media queries. .photocard was
+     never affected because it is already display:block. */
+  display:block;
   border-radius:var(--rad); overflow:hidden; box-shadow:var(--shadow);
   aspect-ratio:4/3.4; background:#dfe3e6;
 }
@@ -623,8 +691,55 @@ section{ padding:64px 0; }
   background:var(--card); border:1px solid var(--line); border-radius:var(--rad);
   box-shadow:var(--shadow); padding:18px 22px; max-width:390px; flex:1 1 230px;
 }
-.tooltab:hover{ border-color:var(--blue); box-shadow:0 0 0 2px rgba(27,117,187,.25), var(--shadow); }
+/* STANDING ACCENT ON THE PLANNING-TOOL CARDS - 2026-08-31, Stephen: "im trying
+   to visually draw peoples eyes towards those buttons and im trying to simply
+   ensure that people know that they are in fact buttons... perhaps they should
+   have a border to begin with and then when you hover over it, it pops it out
+   slightly. Nothing too overbearing though."
+   So the cue is now permanent (soft blue border + a blue bar across the top at
+   rest) and hover just lifts the card. The old hover-only 2px ring is gone: a
+   ring PLUS a lift PLUS a border is three cues at once, and the lift and the
+   border are the two that read. Applies to every card in .tooltabs, so the
+   Request a Quote card added the same day is covered with no extra rule.
+   Timing is .25s to match the card family's hover timing, not a second value.
+
+   WHY 1px AND NOT 1.5px: Chrome and Safari truncate border-width to whole
+   DEVICE pixels, so 1.5px renders as 1px at DPR 1 (Stephen's monitor) and 2px
+   on a HiDPI laptop - measured 2026-08-31: computed borderTopWidth was '1px'
+   and offsetHeight minus clientHeight was 2px total. A declaration that
+   renders as neither of its stated values is just a lie in the file. The
+   resting cue here is deliberately COLOUR plus the 3px bar, not extra weight -
+   the border was already 1px before today, it was just #dcdfe2, a grey
+   hairline Stephen could not see. Blue at 1px reads as a border; 2px under a
+   3px bar starts being the "overbearing" he asked us to avoid.
+
+   WHY THIS SELECTOR IS 0,2,0 AND NOT PLAIN .tooltab: the card-family rule in
+   the elegance layer at the end of this file (search "refined borders")
+   re-declares border:1px solid var(--line) on .tooltab and sits LATER in the
+   file, so a bare .tooltab border here would be overridden by it. Winning on
+   specificity beats moving this block away from the component it styles. That
+   same rule is what gives .tooltab position:relative, which the bar needs. */
+.tooltabs .tooltab{
+  border:1px solid rgba(27,117,187,.45);
+  transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+/* Same idiom as the card family's hover accent bar - .tooltab is deliberately
+   NOT in that shared ::after rule, so this pseudo-element was free. Difference:
+   here it is present at rest and only brightens on hover. */
+.tooltab::after{
+  content:""; position:absolute; left:0; right:0; top:0; height:3px;
+  background:var(--blue); border-radius:var(--rad) var(--rad) 0 0;
+  opacity:.8; transition:opacity .25s ease;
+}
+.tooltab:hover{ transform:translateY(-4px); box-shadow:var(--shadow-lg); border-color:var(--blue); }
+.tooltab:hover::after{ opacity:1; }
 .tooltab:hover b{ color:var(--blue); }
+/* Motion preference: keep the border and the bar (they are colour, not motion),
+   drop the lift. Same shape as the other prefers-reduced-motion blocks here
+   (hero, .rev, .wb-corner) - suppress the transform, leave the styling. */
+@media (prefers-reduced-motion: reduce){
+  .tooltab:hover{ transform:none; }
+}
 .tooltab .k{
   display:block; font-weight:500; font-size:10.5px; letter-spacing:.12em;
   text-transform:uppercase; color:var(--muted); margin-bottom:4px;
@@ -936,7 +1051,7 @@ html.blueprint img{ filter:none; }  /* photos stay true color */
   .heritage-grid{ grid-template-columns:1fr; }
 }
 @media (max-width:760px){
-  .nav .wrap{ gap:14px; min-height:70px; }
+  .nav .wrap{ gap:14px; }   /* dead min-height:70px removed 2026-08-31 - the 900px block's 64px always won; see the .nav .wrap note above */
   .nav .brand img{ height:52px; }   /* scaled with the desktop bump, 2026-07-30 */
   .mega{ position:static; transform:none; }
   .mega-in{ grid-template-columns:1fr 1fr; width:100%; }

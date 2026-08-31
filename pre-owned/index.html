@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../house.css?v=2385e60e">
+<link rel="stylesheet" href="../house.css?v=09215ba5">
 <link rel="canonical" href="https://www.wooldridgeboats.com/pre-owned/">
 <style>
   /* Pre-owned cards: the primary photo and the thumb rail both feed the shared
@@ -123,6 +123,19 @@
 
   <p style="font-size:15px; line-height:1.7; margin-bottom:4px;"><b>Use the contact information in each listing to inquire about the advertised pre-owned boats on this page.</b></p>
   <p style="font-size:15px; line-height:1.7; margin-bottom:22px;">Here is the current pre-owned inventory. These boats are owner-listed: each listing publishes the seller&rsquo;s own contact details and carries its full photo gallery &mdash; click any photo to browse it. If you have a Wooldridge you&rsquo;d like featured here, <a href="../contact/">please contact us</a> &mdash; or reach us at (206) 722-8998 <a href="../contact/">via our contact info</a>.</p>
+
+  <!-- Second, earlier sell-your-boat entry point (Stephen 2026-08-31). The "Selling Your
+       Wooldridge?" block at the foot of this page is only reached by readers who scroll the
+       whole grid, and an owner who came here to SELL rarely gets that far. Same destination,
+       deliberately different wording so the two don't read as a repeat. .infocard, not
+       .emptystate, because that panel reads as "nothing here yet" and this one sits directly
+       above live listings. No fee, commission or timeline wording in here: that is a business
+       term and Stephen's call, not ours. -->
+  <div class="infocard" style="margin-bottom:22px;">
+    <h3>Have a Wooldridge to sell?</h3>
+    <p style="font-weight:400; font-size:14px; margin:6px 0 14px;">Wooldridges are listed on this page owner-listed &mdash; your own contact details and a full photo gallery alongside them. Tell us about yours and we&rsquo;ll walk you through what a listing involves.</p>
+    <a class="plate" href="/sell-your-boat/"><span class="k">Owner Listings</span>Sell Your Boat With Wooldridge</a>
+  </div>
 
   <div class="listing-grid" id="grid"></div>
   <script>
