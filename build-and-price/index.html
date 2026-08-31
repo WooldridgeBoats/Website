@@ -353,12 +353,12 @@
     font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--slate); font-weight:700;
   }
   .custfield label .star{color:var(--buoy); margin-left:3px;}
-  .custfield input{
+  .custfield input, .custfield select{
     background:var(--paper); border:1px solid var(--rule); border-radius:2px; color:var(--ink);
     font-family:inherit; font-size:14px; padding:9px 11px; outline:none; transition:border-color .12s, box-shadow .12s;
   }
   .custfield input::placeholder{color:var(--slate); font-style:italic; font-family:var(--sans);}
-  .custfield input:focus{border-color:var(--buoy); box-shadow:0 0 0 1px var(--buoy);}
+  .custfield input:focus, .custfield select:focus{border-color:var(--buoy); box-shadow:0 0 0 1px var(--buoy);}
   .custfield input.missing{border-color:rgba(27,117,187,.55);}
   .custnote{
     font-size:11.5px; color:var(--slate); font-style:italic; font-family:var(--sans); margin-top:11px;
@@ -943,12 +943,28 @@
           <input type="email" id="cEmail" autocomplete="email" placeholder="name@example.com">
         </div>
         <div class="custfield">
-          <label for="cZip">Zip code<span class="star">*</span></label>
+          <label for="cZip"><span id="cZipLabel">Zip code</span><span class="star">*</span></label>
           <input type="text" id="cZip" autocomplete="postal-code" inputmode="numeric" maxlength="10" placeholder="98101">
         </div>
         <div class="custfield">
           <label for="cPhone">Phone</label>
           <input type="tel" id="cPhone" autocomplete="tel" placeholder="(000) 000-0000">
+        </div>
+        <!-- Canada location capture (Stephen, go-live week 2026-08): country + state/province,
+             optional-but-visible — never blocks printing or emailing. Feeds the WB-INQUIRY
+             Location line for the Hub; USA with no state stays silent (Zip covers US geography). -->
+        <div class="custfield">
+          <label for="cCountry">Country</label>
+          <select id="cCountry" autocomplete="country-name">
+            <option value="USA" selected>USA</option>
+            <option value="Canada">Canada</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="custfield">
+          <label for="cRegion"><span id="cRegionLabel">State</span></label>
+          <select id="cRegion" autocomplete="address-level1"></select>
+          <input type="text" id="cRegionText" autocomplete="address-level1" placeholder="Your region or country" style="display:none">
         </div>
       </div>
       <div class="custnote" id="custNote">Enter your name, email, and zip code to enable printing and emailing your build sheet. Phone is requested but optional.</div>
@@ -1464,7 +1480,7 @@ const state = {
   opts:{},             // itemId -> qty
   radios:{},           // catId -> itemId
   radioQty:{},         // catId -> qty, for single-choice categories whose item carries qty
-  customer:{first:'', last:'', phone:'', email:'', zip:''},
+  customer:{first:'', last:'', phone:'', email:'', zip:'', country:'USA', region:''},
   custom:[],
   notesText:'',
   trailer:null
@@ -2110,7 +2126,15 @@ function renderSheet(){
 /* ════════ CUSTOMER / CUSTOM ITEMS ════════ */
 let custTouched = false;
 const emailOK = e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.trim());
-const zipOK = z => /^\d{5}(-\d{4})?$/.test(z.trim());
+const zipOK = z => {
+  /* country-aware since the Canada capture: a Canadian postal code must be able to pass
+     the required-field gate, or the Country selector is a lie. USA keeps the strict
+     5-digit rule; Other accepts any non-trivial value (postal formats vary worldwide). */
+  const ctry = state.customer.country;
+  if (ctry === 'Canada') return /^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$/.test(z.trim());
+  if (ctry === 'Other') return z.trim().length >= 2;
+  return /^\d{5}(-\d{4})?$/.test(z.trim());
+};
 function customerReady(){
   const c = state.customer;
   return c.first.trim() !== '' && c.last.trim() !== '' && emailOK(c.email) && zipOK(c.zip);
@@ -2139,7 +2163,7 @@ function renderCustomer(){
     const missing = [];
     if (c.first.trim() === '' || c.last.trim() === '') missing.push('customer name');
     if (!emailOK(c.email)) missing.push('a valid email');
-    if (!zipOK(c.zip)) missing.push('a 5-digit zip code');
+    if (!zipOK(c.zip)) missing.push(c.country === 'USA' ? 'a 5-digit zip code' : 'a postal code');
     note.textContent = 'Still needed to print or email: ' + missing.join(', ').replace(/, ([^,]*)$/, ' and $1') + '.';
   }
 
@@ -2322,6 +2346,41 @@ if (CUSTOMER_MODE){
   const el = $('#' + id);
   el.addEventListener('input', () => { state.customer[key] = el.value; custTouched = true; renderCustomer(); });
 });
+
+/* ── Canada location capture: country + state/province wiring ──
+   Like the rest of the contact fields, deliberately NOT in packState(): customer
+   info never rides the share link or the autosave. Optional both — never gates
+   print/email. Only the zip FORMAT rule follows the country (see zipOK). */
+const US_STATES = ['Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','District of Columbia','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana','Maine','Maryland','Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey','New Mexico','New York','North Carolina','North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont','Virginia','Washington','West Virginia','Wisconsin','Wyoming'];
+const CA_PROVINCES = ['Alberta','British Columbia','Manitoba','New Brunswick','Newfoundland and Labrador','Northwest Territories','Nova Scotia','Nunavut','Ontario','Prince Edward Island','Quebec','Saskatchewan','Yukon'];
+function fillRegionControl(){
+  const ctry = state.customer.country;
+  const sel = $('#cRegion'), txt = $('#cRegionText'), lab = $('#cRegionLabel');
+  if (ctry === 'Other'){
+    sel.style.display = 'none'; txt.style.display = '';
+    lab.textContent = 'Where are you located?';
+  } else {
+    sel.style.display = ''; txt.style.display = 'none';
+    lab.textContent = ctry === 'Canada' ? 'Province / territory' : 'State';
+    const list = ctry === 'Canada' ? CA_PROVINCES : US_STATES;
+    sel.innerHTML = '<option value="">Select (optional)</option>' + list.map(n => '<option>' + n + '</option>').join('');
+    sel.value = list.indexOf(state.customer.region) >= 0 ? state.customer.region : '';
+  }
+  /* the zip field follows the country: label, hint, and mobile keyboard */
+  $('#cZipLabel').textContent = ctry === 'USA' ? 'Zip code' : 'Postal code';
+  $('#cZip').placeholder = ctry === 'Canada' ? 'V6B 2W9' : (ctry === 'Other' ? 'Postal code' : '98101');
+  $('#cZip').setAttribute('inputmode', ctry === 'USA' ? 'numeric' : 'text');
+}
+$('#cCountry').addEventListener('change', () => {
+  state.customer.country = $('#cCountry').value;
+  state.customer.region = '';
+  $('#cRegionText').value = '';
+  fillRegionControl();
+  renderCustomer();   /* zip validity is country-dependent */
+});
+$('#cRegion').addEventListener('change', () => { state.customer.region = $('#cRegion').value; });
+$('#cRegionText').addEventListener('input', () => { state.customer.region = $('#cRegionText').value; });
+fillRegionControl();
 $('#buildNotes').addEventListener('input', () => {
   state.notesText = $('#buildNotes').value;
   renderNotes();
@@ -2376,6 +2435,18 @@ function sheetSummary(){
   return {rows, inqs, boatTotal, trailerTotal:tr ? tr.retail : 0, hasTrailer:!!tr, total, name, meta, date};
 }
 
+function customerLocation(){
+  /* the Canada capture: '<Province/State>, <Country>' for the WB-INQUIRY block.
+     USA with no state chosen stays '' — Zip already covers US geography, so no
+     Location line is emitted. Canada with no province still says 'Canada' (the
+     country alone is the marketing datum). 'Other' is the free text verbatim. */
+  const c = state.customer;
+  const reg = (c.region || '').trim();
+  if (c.country === 'Canada') return reg ? reg + ', Canada' : 'Canada';
+  if (c.country === 'Other') return reg;
+  return reg ? reg + ', USA' : '';
+}
+
 function wbInquiryBlock(type){
   /* machine-readable footer parsed by the internal Build Hub inquiries tab */
   const s2 = sheetSummary();
@@ -2403,6 +2474,8 @@ function wbInquiryBlock(type){
   if (c2.email.trim()) L.push('Email: ' + c2.email.trim());
   if (c2.phone.trim()) L.push('Phone: ' + c2.phone.trim());
   if (c2.zip.trim()) L.push('Zip: ' + c2.zip.trim());
+  const loc = customerLocation();
+  if (loc) L.push('Location: ' + loc);
   return L.join('\n') + '\n';
 }
 
@@ -2646,9 +2719,11 @@ $('#btnReset').addEventListener('click', () => {
   state.model = null; state.style = null; state.len = null; state.adder = false; state.engine = null;
   state.opts = {}; state.radios = {}; state.radioQty = {}; state.custom = []; state.notesText = '';
   $('#buildNotes').value = '';
-  state.customer = {first:'', last:'', phone:'', email:'', zip:''}; custTouched = false;
+  state.customer = {first:'', last:'', phone:'', email:'', zip:'', country:'USA', region:''}; custTouched = false;
   $('#adderChk').checked = false;
-  ['cFirst','cLast','cPhone','cEmail','cZip','customName','customPrice'].forEach(id => { const el = $('#' + id); if (el) el.value = ''; });
+  ['cFirst','cLast','cPhone','cEmail','cZip','customName','customPrice','cRegionText'].forEach(id => { const el = $('#' + id); if (el) el.value = ''; });
+  $('#cCountry').value = 'USA';
+  fillRegionControl();
   if (window.TR) TR.removeFromBuild(); else state.trailer = null;
   clearSaved();
   sync();

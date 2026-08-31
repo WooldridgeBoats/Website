@@ -135,7 +135,15 @@ footer{padding:10px 20px 24px;}
     <div class="sechead"><span class="n">01</span><h2>Who you are</h2></div>
     <div class="row">
       <div class="field"><label>Name <i>*</i></label><input type="text" id="fName" autocomplete="name" placeholder="First and last"></div>
-      <div class="field"><label>Location <i>*</i></label><input type="text" id="fLoc" placeholder="City, state / province"></div>
+      <!-- Canada location capture (go-live week 2026-08): country selector beside the existing
+           free-text location — this page already required a location, so the country is the only
+           new datum. buildSummary() folds it into the WB-INQUIRY Location line. -->
+      <div class="field"><label>Location <i>*</i></label>
+        <div style="display:flex; gap:8px;">
+          <select id="fCountry" autocomplete="country-name" style="flex:0 0 108px; min-width:0;"><option selected>USA</option><option>Canada</option><option>Other</option></select>
+          <input type="text" id="fLoc" placeholder="City, state" style="flex:1; min-width:0;">
+        </div>
+      </div>
     </div>
     <div class="row">
       <div class="field"><label>Phone</label><input type="tel" id="fPhone" autocomplete="tel" placeholder="(555) 555-5555"></div>
@@ -431,8 +439,15 @@ const DRAFT_KEY = 'wq_intake_draft_v1';
 const TEXT_IDS = ['fName','fLoc','fPhone','fEmail','fReach','fCurrent','fTradeInfo','fNotes'];
 TEXT_IDS.forEach(id => $('#'+id).addEventListener('input', saveDraft));
 $('#fDealer').addEventListener('change', saveDraft);
+/* Canada capture: the country select rides the draft like the dealer select,
+   and steers the location placeholder */
+function updLocPh(){
+  const c = $('#fCountry').value;
+  $('#fLoc').placeholder = c === 'Canada' ? 'City, province' : (c === 'Other' ? 'City, region, country' : 'City, state');
+}
+$('#fCountry').addEventListener('change', () => { updLocPh(); saveDraft(); });
 function saveDraft(){
-  const d = {state, text:{}, dealer: $('#fDealer').value};
+  const d = {state, text:{}, dealer: $('#fDealer').value, country: $('#fCountry').value};
   TEXT_IDS.forEach(id => d.text[id] = $('#'+id).value);
   localStorage.setItem(DRAFT_KEY, JSON.stringify(d));
 }
@@ -443,6 +458,7 @@ function saveDraft(){
     Object.assign(state, d.state); state.use = state.use || []; state.models = state.models || [];
     TEXT_IDS.forEach(id => { if (d.text[id]) $('#'+id).value = d.text[id]; });
     $('#fDealer').value = d.dealer || '';
+    if (d.country) { $('#fCountry').value = d.country; updLocPh(); }
     document.querySelectorAll('.chips').forEach(g => {
       const q = g.dataset.q, v = state[q];
       g.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', Array.isArray(v) ? v.includes(c.dataset.v) : v === c.dataset.v));
@@ -579,7 +595,14 @@ function buildSummary(a){
   if (name) L.push('Name: ' + name);
   if (email) L.push('Email: ' + email);
   if (phone) L.push('Phone: ' + phone);
-  if (loc) L.push('Location: ' + loc);
+  /* Canada capture: fold the country into the Location line unless the free text
+     already names it (e.g. someone typed "Vancouver, BC, Canada" themselves).
+     Canada with no city still says 'Canada'; 'Other' passes the text verbatim. */
+  const ctry = $('#fCountry') ? $('#fCountry').value : 'USA';
+  const locFull = loc
+    ? (ctry === 'Other' || loc.toLowerCase().indexOf(ctry.toLowerCase()) >= 0 ? loc : loc + ', ' + ctry)
+    : (ctry === 'Canada' ? 'Canada' : '');
+  if (locFull) L.push('Location: ' + locFull);
   L.push('Priority: ' + a.prioLabel);
   return L.join('\n');
 }

@@ -124,6 +124,14 @@
         <label for="f-nm">Name <span class="reqstar" style="color:#c0392b;">*</span></label><input id="f-nm" name="nm" required autocomplete="name">
         <label for="f-em">Email <span class="reqstar" style="color:#c0392b;">*</span></label><input id="f-em" name="em" type="email" required autocomplete="email">
         <label for="f-ph">Phone (optional)</label><input id="f-ph" name="ph" autocomplete="tel">
+        <!-- Canada location capture (go-live week 2026-08): optional country + region.
+             Reaches the notification body as one 'Location:' line via submit.php's
+             generic field serializer; never blocks a submission. -->
+        <label for="f-country">Country</label>
+        <select id="f-country" name="country" autocomplete="country-name"><option selected>USA</option><option>Canada</option><option>Other</option></select>
+        <label for="f-region" id="f-regionLbl">State (optional)</label>
+        <select id="f-region" name="region" autocomplete="address-level1"></select>
+        <input id="f-regionOther" name="region_other" type="text" autocomplete="address-level1" placeholder="Your region or country" style="display:none;">
         <label for="f-dept">Department</label>
         <select id="f-dept" name="dept"><option>Sales</option><option>Parts</option><option>Service</option><option>Dealer Inquiry</option><option>Other</option></select>
         <label for="f-msg">How can we help? <span class="reqstar" style="color:#c0392b;">*</span></label><textarea id="f-msg" name="msg" required></textarea>
@@ -138,6 +146,37 @@
       <script>
       (function(){
         var f = document.getElementById('contactForm');
+
+        /* ── Canada location capture: country-driven region control ── */
+        var US_STATES = ['Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','District of Columbia','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana','Maine','Maryland','Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey','New Mexico','New York','North Carolina','North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont','Virginia','Washington','West Virginia','Wisconsin','Wyoming'];
+        var CA_PROVINCES = ['Alberta','British Columbia','Manitoba','New Brunswick','Newfoundland and Labrador','Northwest Territories','Nova Scotia','Nunavut','Ontario','Prince Edward Island','Quebec','Saskatchewan','Yukon'];
+        var fCountry = document.getElementById('f-country'),
+            fRegion = document.getElementById('f-region'),
+            fRegionOther = document.getElementById('f-regionOther'),
+            fRegionLbl = document.getElementById('f-regionLbl');
+        function fillRegion(){
+          var c = fCountry.value;
+          if (c === 'Other'){
+            fRegion.style.display = 'none'; fRegionOther.style.display = '';
+            fRegionLbl.textContent = 'Where are you located? (optional)';
+            return;
+          }
+          fRegion.style.display = ''; fRegionOther.style.display = 'none';
+          fRegionLbl.textContent = (c === 'Canada' ? 'Province / territory' : 'State') + ' (optional)';
+          var list = c === 'Canada' ? CA_PROVINCES : US_STATES;
+          fRegion.innerHTML = '<option value="">Select (optional)</option>' + list.map(function(n){ return '<option>' + n + '</option>'; }).join('');
+        }
+        fCountry.addEventListener('change', fillRegion);
+        fillRegion();
+        function wbLocation(){
+          /* '<Region>, <Country>' — USA with nothing chosen stays silent */
+          var c = fCountry.value;
+          var r = (c === 'Other' ? fRegionOther.value : fRegion.value).trim();
+          if (c === 'Canada') return r ? r + ', Canada' : 'Canada';
+          if (c === 'Other') return r;
+          return r ? r + ', USA' : '';
+        }
+
         f.addEventListener('submit', function(ev){
           ev.preventDefault();
           var fd = new FormData();
@@ -146,6 +185,8 @@
           fd.append('email', f.em.value.trim());
           fd.append('phone', f.ph.value.trim());
           fd.append('department', f.dept.value);
+          var loc = wbLocation();
+          if (loc) fd.append('location', loc);
           fd.append('message', f.msg.value.trim());
           fd.append('website', f.website.value);
           var done = function(){
