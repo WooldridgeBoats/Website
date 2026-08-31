@@ -2472,8 +2472,15 @@ function wbInquiryBlock(type){
      proven in the 2026-08-30 through-line audit. Fold pipes to ' / ' per entry BEFORE
      joining; the human-readable YOUR BUILD body above stays verbatim. */
   const noPipe = function(t){ return String(t).replace(/\s*\|\s*/g, ' / '); };
-  if (s2.rows && s2.rows.length) L.push('Options: ' + s2.rows.map(function(r){
-    return noPipe(r.l1) + ' — ' + fmt(r.p) + (r.l2 ? ' (' + noPipe(r.l2) + ')' : ''); }).join(' | '));
+  const optParts = (s2.rows || []).map(function(r){
+    return noPipe(r.l1) + ' — ' + fmt(r.p) + (r.l2 ? ' (' + noPipe(r.l2) + ')' : ''); });
+  /* CHAIN-04 (D7): priced-on-request items (null-priced catalog picks, and EVERY custom
+     item in the customer tool) lived only in the PRICED ON REQUEST body section, so they
+     dropped out of the Hub's estimate options box whenever the machine-readable Options
+     line won over the body scrape. They join the line as unpriced text entries — no
+     dollar sign, downstream tolerates that (verified in the 2026-08-30 audit). */
+  (s2.inqs || []).forEach(function(n){ optParts.push(noPipe(n) + ' — priced on request'); });
+  if (optParts.length) L.push('Options: ' + optParts.join(' | '));
   if (s2.total) L.push('Total: ' + fmt(s2.total));
   if (s2.name) L.push('Name: ' + s2.name);
   if (c2.email.trim()) L.push('Email: ' + c2.email.trim());
