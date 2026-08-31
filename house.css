@@ -385,12 +385,22 @@ section{ padding:64px 0; }
      that copy behind the blue fill. Everything else (the mirror, tracking, the
      1.075x size peg) is rev 10/11 and unchanged.
 
+     REV 14 - 2026-08-30, Stephen: with the border back, rev 10's .01em
+     tracking let adjacent outlines FUSE - each letter grows ~1.7px of stroke
+     sideways into gaps sized for bare type, and the tight Rockwell pairs
+     closed to zero ("the letters are literally touching"). +.03em of daylight
+     (.04em) is a small step, deliberately: he asked for "a tiny little room
+     to breathe", not a return to rev 9's wide .055em. The border copy inherits
+     this tracking, so fill and outline stay registered. The phone-fit block
+     further down re-measures its width ratio at this tracking - the two move
+     together.
+
      Tracking and the correction below move together: margin-right must always
      be exactly -1 x letter-spacing. */
   position:relative; z-index:0;   /* stacking context so the border copy stays sandwiched */
   color:var(--blue);
   font-family:var(--serif);
-  font-size:clamp(28px,3.66vw,43px); font-weight:700; letter-spacing:.01em;
+  font-size:clamp(28px,3.66vw,43px); font-weight:700; letter-spacing:.04em;
   text-transform:uppercase;
   /* Found while measuring rev 7: rev 6's "the 22px floor just fits" was wrong -
      at 375px the mark wrapped NOT FOR / PRACTICE (the flanking rules' 34px
@@ -401,9 +411,9 @@ section{ padding:64px 0; }
      gaps on small phones, so nowrap on its own is still not enough. */
   white-space:nowrap;
   /* letter-spacing hangs a phantom space off the last letter. As a centred flex
-     item that would push the right-hand rule .01em further out than the left,
+     item that would push the right-hand rule .04em further out than the left,
      so the box is pulled back in by exactly that much. */
-  margin-right:-.01em;
+  margin-right:-.04em;
 }
 .tagband h1.slogan .punch::before{
   content:attr(data-text);
@@ -463,25 +473,29 @@ section{ padding:64px 0; }
    on 31 Jul, and nowrap is called load-bearing in the rev-7 notes. So the ONE
    LINE is kept and the SIZE yields.
 
-   The formula, derived from the measurement rather than guessed. "NOT FOR
-   PRACTICE" at .01em tracking costs 10.5941px of width per 1px of font-size
-   (413.17 / 39). Reserving 2 x 34px minimum rule + 2 x 12px minimum gap = 92px,
-   the largest size that fits at viewport V is (V - 48 - 92) / 10.5941, which is
-   9.44vw - 13.2px. Solving that against the rev-11 28px floor gives V =
-   436.44px - above that the desktop floor fits on its own and this block must
-   not apply. Hence the 436.44px cut, and the 28px ceiling in the clamp makes
+   The formula, derived from the measurement rather than guessed, and
+   RE-MEASURED at rev 14 when the tracking opened to .04em (each tracking
+   change re-prices the mark's width, so these numbers and the tracking move
+   together). "NOT FOR PRACTICE" at .04em tracking costs 11.0741px of width
+   per 1px of font-size (measured 310.075 / 28; the old .01em figure was
+   10.5941). Reserving 2 x 34px minimum rule + 2 x 12px minimum gap = 92px,
+   the largest size that fits at viewport V is (V - 48 - 92) / 11.0741, which
+   is 9.03vw - 12.64px. Solving that against the rev-11 28px floor gives V =
+   450.07px - above that the desktop floor fits on its own and this block must
+   not apply. Hence the 450.07px cut, and the 28px ceiling in the clamp makes
    the two states meet exactly at the crossover instead of stepping. (Under
-   rev 10's 39px floor the same solve gave the old 552.98px cut.)
+   .01em tracking the same solve gave the old 436.44px cut; under rev 10's
+   39px floor, 552.98px.)
 
-   At 375px this still yields ~22.2px (rev 7's accepted floor was 22px, and
-   this sits ABOVE rev 9's 19px), with ~40px left for each flanking rule. The
+   At 375px this still yields ~21.2px (rev 7's accepted floor was 22px, and
+   this sits ABOVE rev 9's 19px), with ~34px left for each flanking rule. The
    19px floor stops it collapsing on a 320px screen. The rules track it via
    the same font-size, per the sync rule above; their height:max(1px,.0577em)
    keeps them from dropping under a rendered pixel at these sizes. */
-@media (max-width:436.44px){
+@media (max-width:450.07px){
   .tagband h1.slogan .punch,
   .tagband h1.slogan::before,
-  .tagband h1.slogan::after{ font-size:clamp(19px,9.44vw - 13.2px,28px); }
+  .tagband h1.slogan::after{ font-size:clamp(19px,9.03vw - 12.64px,28px); }
 }
 .tagband .blurb{
   max-width:960px; margin:20px auto 0; font-weight:400;
