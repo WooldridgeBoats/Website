@@ -591,20 +591,86 @@ document.querySelectorAll('.vid').forEach(v=>{
   });
 });
 
-/* ── hero background video: inject after load so the page never blocks on
-     the Vimeo stream; poster shows instantly, video fades in ── */
+/* ── hero background video ────────────────────────────────────────────────
+     Injected after load so the page never blocks on the Vimeo stream: the
+     poster paints instantly and the video crossfades over it.
+
+     REWRITTEN 2026-08-31, after Stephen said the hero "seems to constantly be
+     dead or buggy" and Tyler handed over the current embed code. What was
+     actually checked, so nobody re-runs this:
+
+       - It is the same Vimeo video Tyler sent, 1202667357. Nothing to swap.
+       - The player reports "privacy":"anybody" and "embed_permission":"public",
+         so the video is public and embeddable anywhere.
+       - Both the old URL and this one reach the player's own `ready` handshake
+         in a real browser. The embed was NOT broken.
+       - Raw curl status codes on player.vimeo.com flap 200/401 across every
+         variant including the bare URL - that is Vimeo throttling an
+         unauthenticated prober, and it is NOT usable evidence about the embed.
+         Do not diagnose this player with curl.
+
+     THE ONE DEFECT THAT WAS REAL, and it is fixed here: the old code faded the
+     iframe in on the iframe's `load` event. That event fires for a Vimeo ERROR
+     page too - it is cross-origin, so `load` tells you a document arrived, not
+     that a video is playing. Any Vimeo hiccup therefore crossfaded a black
+     error box over a perfectly good poster, which is exactly what a visitor
+     would describe as a dead hero. Now the reveal waits for the player's own
+     "ready" message, and if that never comes the iframe is removed and the
+     poster simply stands. Every failure mode is now a clean still photograph.
+
+     h= dropped: it is the unlisted-video hash, the video is public, and Tyler's
+     current embed code omits it. One fewer thing that breaks if he changes the
+     privacy setting later. autopause=0 is from Tyler's snippet and stops Vimeo
+     pausing the hero when any other Vimeo player starts.
+
+     (Tyler's snippet as pasted is also mangled - its src ends `loop=1%22`, a
+     URL-encoded quote that swallowed the closing attribute quote. It was not
+     copied verbatim; the parameters were read off it and rebuilt.)
+
+     Reduced motion still suppresses the video, here and in house.css. If a
+     dead-looking hero needs diagnosing on a specific machine, ?forcevid=1
+     overrides that bail - the counterpart to the ?novid=1 hook below. ── */
 window.addEventListener('load', ()=>{
-  if (/[?&]novid/.test(location.search)) return;  /* test hook: ?novid=1 skips the stream */
-  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (/[?&]novid/.test(location.search)) return;   /* test hook: ?novid=1 skips the stream */
+  const force = /[?&]forcevid/.test(location.search);  /* test hook: ?forcevid=1 ignores reduced motion */
+  if (!force && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const wrapV = document.getElementById('heroVid');
   if (!wrapV) return;
+  /* house.css hides .vidwrap under reduced motion; an inline style outranks a
+     stylesheet rule, so the diagnostic hook has to lift that too. */
+  if (force) wrapV.style.display = 'block';
+
   const ifr = document.createElement('iframe');
-  ifr.src = 'https://player.vimeo.com/video/1202667357?h=30963c22bb&background=1&autoplay=1&loop=1&muted=1&playsinline=1&title=0&byline=0&portrait=0';
+  ifr.src = 'https://player.vimeo.com/video/1202667357?background=1&autoplay=1&loop=1&muted=1&playsinline=1&autopause=0&title=0&byline=0&portrait=0';
   ifr.allow = 'autoplay; fullscreen; picture-in-picture';
   ifr.title = 'Wooldridge Boats on the water';
   ifr.style.opacity = '0';
   ifr.style.transition = 'opacity 1.2s ease';
-  ifr.addEventListener('load', ()=>{ setTimeout(()=>{ ifr.style.opacity = '1'; }, 350); });
+
+  let settled = false;
+  const onMsg = (e)=>{
+    if (e.source !== ifr.contentWindow) return;
+    if (!/^https:\/\/player\.vimeo\.com/.test(e.origin)) return;
+    let d = e.data;
+    if (typeof d === 'string'){ try { d = JSON.parse(d); } catch(_){ return; } }
+    if (!d || d.event !== 'ready') return;
+    settled = true;
+    clearTimeout(watchdog);
+    window.removeEventListener('message', onMsg);
+    setTimeout(()=>{ ifr.style.opacity = '1'; }, 350);
+  };
+  window.addEventListener('message', onMsg);
+
+  /* No handshake in 8s means Vimeo is down, blocked, throttled, or serving its
+     error page. Take the iframe back out rather than crossfade a black box over
+     the poster - the poster is a real photograph of a real boat and is a better
+     hero than a broken player. */
+  const watchdog = setTimeout(()=>{
+    if (settled) return;
+    window.removeEventListener('message', onMsg);
+    ifr.remove();
+  }, 8000);
+
   wrapV.appendChild(ifr);
 });
 
