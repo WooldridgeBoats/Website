@@ -37,6 +37,12 @@
 *.pm    text eol=lf
 *.htaccess text eol=lf
 
+# Server-side sources - LF, same as every other web source. The mail handlers
+# arrived 25 Aug 2026, after this file was written, so they were falling through
+# to text=auto and picking up CRLF in the working copy on checkout.
+*.php   text eol=lf
+*.xml   text eol=lf
+
 # Windows-native helpers must keep CRLF or they misbehave when double-clicked.
 *.bat   text eol=crlf
 *.cmd   text eol=crlf
