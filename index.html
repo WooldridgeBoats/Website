@@ -329,7 +329,13 @@
      This section WAS "What's Happening?" (customer quote cards + the tag-@wooldridgeboats
      line). Those were removed 2026-08-30 for go-live; the section id is kept so any old
      /#whats-happening deep link still lands here. Only the SHOP-LIVE pipeline block remains. -->
-<section id="whats-happening" class="rev">
+<!-- padding-top trimmed 64px -> 20px on 2026-08-31 (Stephen): removing the quote
+     cards left .sechead.tight - whose 44px top margin is sized for sitting BELOW
+     other content - as this section's first child, so the boundary measured 172px
+     against the 128px every other section pair gets. 64+20+44 = 128 restores the
+     house rhythm. Inline on the section tag, NOT inside the SHOP-LIVE markers,
+     so the sync pipeline can never overwrite it. -->
+<section id="whats-happening" class="rev" style="padding-top:20px;">
   <div class="wrap">
     <!-- Everything between the SHOP-LIVE markers is OWNED by the sync pipeline:
          Build Hub admin toggle -> LIVE BUILDS.json -> _build/sync_shop_live.ps1
