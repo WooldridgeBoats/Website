@@ -451,6 +451,15 @@
   </div>
 
   <div class="card">
+    <!-- Spam honeypot. forms/submit.php has always checked $_POST['website']
+         (line 226: a filled one gets a silent ok:true and is dropped, and line
+         248 keeps it out of the email body) and contact + careers have always
+         sent it - this form never did. Gap closed 2026-08-31 while the page was
+         open; it is inert for a real submission, empty or absent both pass.
+         OFF-SCREEN, NOT display:none - a naive bot skips display:none and fills
+         an off-screen field, which is the entire point. Same markup as
+         contact/index.html and careers/index.html. -->
+    <input name="website" id="fHoneypot" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;" aria-hidden="true">
     <div class="submitrow">
       <button type="submit" class="plate">Review &amp; send my request</button>
       <span class="formnote">No spam, no list — this goes straight to the sales floor in Seattle.<br><span class="errmsg" id="formErr">Please fill the starred fields — name, location, water, and primary use.</span></span>
@@ -814,6 +823,7 @@ $('#qiForm').addEventListener('submit', e => {
   if (FORM_ENDPOINT){
     const fd = new FormData();
     fd.append('form', 'quote');
+    fd.append('website', $('#fHoneypot').value);   /* honeypot - see the input's note above */
     fd.append('subject', subject);
     fd.append('summary', summary);
     fd.append('name', name);
