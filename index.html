@@ -38,7 +38,7 @@
   "openingHours": "Mo-Th 06:00-16:30"
 }
 </script>
-<link rel="stylesheet" href="house.css?v=09215ba5">
+<link rel="stylesheet" href="house.css?v=b8d6546a">
 <link rel="canonical" href="https://www.wooldridgeboats.com/">
 </head>
 <body>
@@ -627,18 +627,17 @@ document.querySelectorAll('.vid').forEach(v=>{
      URL-encoded quote that swallowed the closing attribute quote. It was not
      copied verbatim; the parameters were read off it and rebuilt.)
 
-     Reduced motion still suppresses the video, here and in house.css. If a
-     dead-looking hero needs diagnosing on a specific machine, ?forcevid=1
-     overrides that bail - the counterpart to the ?novid=1 hook below. ── */
+     THE REDUCED-MOTION BAIL IS GONE - Stephen's ruling, 2026-08-31: "i want the
+     video being displayed for everyone... every time they visit the website."
+     It was also the answer to his own bug report: his Windows has animation
+     effects off, so the old bail (and house.css's matching display:none) meant
+     HE was always served the still poster - the hero he kept seeing "dead" was
+     this suppression working as designed on his own machine. The ?forcevid
+     diagnostic hook that existed for one commit went with it; ?novid=1 stays. ── */
 window.addEventListener('load', ()=>{
   if (/[?&]novid/.test(location.search)) return;   /* test hook: ?novid=1 skips the stream */
-  const force = /[?&]forcevid/.test(location.search);  /* test hook: ?forcevid=1 ignores reduced motion */
-  if (!force && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const wrapV = document.getElementById('heroVid');
   if (!wrapV) return;
-  /* house.css hides .vidwrap under reduced motion; an inline style outranks a
-     stylesheet rule, so the diagnostic hook has to lift that too. */
-  if (force) wrapV.style.display = 'block';
 
   const ifr = document.createElement('iframe');
   ifr.src = 'https://player.vimeo.com/video/1202667357?background=1&autoplay=1&loop=1&muted=1&playsinline=1&autopause=0&title=0&byline=0&portrait=0';

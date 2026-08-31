@@ -294,8 +294,14 @@ h1,h2,h3,.h-serif{
 }
 .hero .heroscroll img{ height:34px; width:auto; animation:bob 2.2s ease-in-out infinite; }
 @keyframes bob{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(7px)} }
+/* The hero VIDEO is deliberately no longer suppressed under reduced motion -
+   Stephen's ruling 2026-08-31: "i want the video being displayed for everyone...
+   every time they visit the website." The old .hero .vidwrap{display:none} in
+   this block is also what made the hero look permanently dead to Stephen
+   himself: his Windows has animation effects off, so his own browser matched
+   this query and only ever painted the poster. The bobbing scroll arrow stays
+   suppressed - the ruling was about the video, not every animation. */
 @media (prefers-reduced-motion: reduce){
-  .hero .vidwrap{ display:none; }
   .hero .heroscroll img{ animation:none; }
 }
 
