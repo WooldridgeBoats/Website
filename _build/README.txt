@@ -52,8 +52,10 @@ It flags three failure modes:
   - a model that only ever wins on a tie-break. Ties resolve by key order in T,
     which is arbitrary and invisible, so those "wins" are one edit from vanishing.
 
-As of 1 Sep 2026 it exits 1: Alaskan XL and Rogue HDPE both lose on their own
-ideal profile (to Skagit and Alaskan LT respectively), and Skagit takes 26.5% of
-all paths — 2.5x the next model. Rebalancing the weights is a Stephen + Danny
-call, not a code fix; this script only measures. Re-run it after any weight
-change and after gen_fleet.pl rewrites the FACTS block.
+As of 1 Sep 2026 it exits 0 - every model is reachable and wins on its own
+ideal-customer profile. It got there via four weight changes Stephen ruled on
+that day (commit 356432c): Alaskan XL and Rogue HDPE had both been losing on
+their own ideal profiles, to Skagit and Alaskan LT respectively. Rebalancing
+the weights is a Stephen + Danny call, not a code fix; this script only
+measures. Re-run it after any weight change and after gen_fleet.pl rewrites
+the FACTS block, and treat a non-zero exit as a release blocker.
