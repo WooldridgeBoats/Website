@@ -1302,7 +1302,7 @@
 </script>
 <div class="toast" id="toast"></div>
 
-<script src="/tools/RULES_OVERLAY.js?v=697c4fdd"></script>
+<script src="/tools/RULES_OVERLAY.js?v=1b593b10"></script>
 <script>
 'use strict';
 const CUSTOMER_MODE = true;  /* customer-facing build: no custom pricing, softer copy */
@@ -2038,6 +2038,7 @@ function buildLines(){
   }
   for (const c of state.custom){
     if (c.price != null) lines.push({cls:'opt', l1:c.name, l2:'Custom item', p:c.price, customId:c.id});
+    else if (c.pnote) lines.push({cls:'opt', l1:c.name, l2:'Custom item', p:0, ptext:c.pnote, customId:c.id});
     else inqs.push(c.name + ' (custom request)');
   }
   return {lines, inqs};
@@ -2056,7 +2057,7 @@ function renderSheet(){
     const d = document.createElement('div');
     d.className = 'sline ' + ln.cls;
     d.innerHTML = `<span class="lt"><div class="l1">${esc(ln.l1)}</div>${ln.l2 ? `<div class="l2">${esc(ln.l2)}</div>` : ''}</span>
-      <span class="dots"></span><span class="lp">${fmt(ln.p)}</span>`;
+      <span class="dots"></span><span class="lp">${ln.ptext ? esc(ln.ptext) : fmt(ln.p)}</span>`;
     if (ln.optId || ln.radioCat || ln.customId){
       const rm = document.createElement('button');
       rm.type = 'button'; rm.className = 'rm'; rm.title = 'Remove'; rm.textContent = '✕';
@@ -2187,7 +2188,7 @@ function renderCustomList(){
   for (const c of state.custom){
     const row = document.createElement('div');
     row.className = 'crow';
-    row.innerHTML = `<span class="cn">${esc(c.name)}</span><span class="cp">${c.price != null ? fmt(c.price) : 'Priced on request'}</span>`;
+    row.innerHTML = `<span class="cn">${esc(c.name)}</span><span class="cp">${c.price != null ? fmt(c.price) : (c.pnote || 'Priced on request')}</span>`;
     const rm = document.createElement('button');
     rm.type = 'button'; rm.className = 'crm'; rm.title = 'Remove'; rm.textContent = '✕';
     rm.addEventListener('click', () => { state.custom = state.custom.filter(x => x.id !== c.id); sync(); });
@@ -2214,7 +2215,7 @@ function addCustom(){
 /* ════════ VINYL COLOUR PICKER (CFG-U-03) ════════
    Placeholder swatches only — clearly labelled; the real colour range comes
    from Stephen (OQ-11) and is a one-list swap below. The pick rides the
-   custom-line-item mechanism (price 0), so it appears on the build sheet,
+   custom-line-item mechanism, so it appears on the build sheet,
    email, PDF, and share links with no extra plumbing. */
 const VINYL_COLORS = [
   {nm:'Marine Grey',  hex:'#8a8f94'},
@@ -2227,6 +2228,7 @@ const VINYL_COLORS = [
   {nm:'Signal Red',   hex:'#8e2f2f'}
 ];
 const VINYL_PREFIX = 'Vinyl colour (placeholder swatch): ';
+const VINYL_PNOTE  = 'Price determined by complexity';
 function vinylCurrent(){ return state.custom.find(c => String(c.name).indexOf(VINYL_PREFIX) === 0); }
 function renderVinyl(){
   const host = $('#vinylRow');
@@ -2250,7 +2252,7 @@ function renderVinyl(){
       } else if (existing){
         existing.name = VINYL_PREFIX + v.nm;
       } else {
-        state.custom.push({id:'cust' + (customSeq++), name:VINYL_PREFIX + v.nm, price:0});
+        state.custom.push({id:'cust' + (customSeq++), name:VINYL_PREFIX + v.nm, price:null, pnote:VINYL_PNOTE});
       }
       sync();
     });
@@ -2430,7 +2432,7 @@ function sheetSummary(){
   /* shared text model for the email body and the PDF */
   const {lines, inqs} = buildLines();
   const c = state.customer;
-  const rows = lines.map(ln => ({l1:ln.l1, l2:ln.l2 || '', p:ln.p}));
+  const rows = lines.map(ln => ({l1:ln.l1, l2:ln.l2 || '', p:ln.p, ptext:ln.ptext}));
   let boatTotal = lines.reduce((a, ln) => a + ln.p, 0);
   const tr = state.trailer;
   if (tr) rows.push({l1:tr.name + ' trailer', l2:'EZ Loader · ' + tr.desc + (tr.baseKnown ? '' : ' · base TBD'), p:tr.retail, trailer:true});
@@ -2479,7 +2481,7 @@ function wbInquiryBlock(type){
      joining; the human-readable YOUR BUILD body above stays verbatim. */
   const noPipe = function(t){ return String(t).replace(/\s*\|\s*/g, ' / '); };
   const optParts = (s2.rows || []).map(function(r){
-    return noPipe(r.l1) + ' — ' + fmt(r.p) + (r.l2 ? ' (' + noPipe(r.l2) + ')' : ''); });
+    return noPipe(r.l1) + ' — ' + (r.ptext ? noPipe(r.ptext) : fmt(r.p)) + (r.l2 ? ' (' + noPipe(r.l2) + ')' : ''); });
   /* CHAIN-04 (D7): priced-on-request items (null-priced catalog picks, and EVERY custom
      item in the customer tool) lived only in the PRICED ON REQUEST body section, so they
      dropped out of the Hub's estimate options box whenever the machine-readable Options
@@ -2510,7 +2512,7 @@ function emailBodyText(){
   t += 'YOUR BUILD' + NL + RULE + NL;
   if (!s.rows.length && !s.inqs.length) t += '(no items configured)' + NL + NL;
   for (const r of s.rows){
-    t += r.l1 + ' \u2014 ' + fmt(r.p) + NL;
+    t += r.l1 + ' \u2014 ' + (r.ptext ? r.ptext : fmt(r.p)) + NL;
     if (r.l2) t += '    ' + r.l2 + NL;
     t += NL;
   }
@@ -2602,7 +2604,7 @@ function makeBuildPDF(){
     if (r.trailer){ y -= 3; rule(0.5, 0.7); y -= 13; }
     nameLines.forEach((tl, i) => {
       text(L, tl, 'F1', 10);
-      if (i === 0) priceR(fmt(r.p), 'F4', 10);
+      if (i === 0) priceR(r.ptext ? r.ptext : fmt(r.p), 'F4', 10);
       y -= 14;
     });
     for (const sl of subLines){ text(L + 10, sl, 'F1', 8, {gray:0.45}); y -= 11; }

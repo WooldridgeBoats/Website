@@ -156,14 +156,17 @@ for my $m (@$models) {
 #      maps    $299   folbejr $99   rodbase $49
 #      RE-PRICED 3 Aug 2026 - maps cut $299 -> $199, Stephen's call on the 9c
 #      sheet; QuickBooks already carried $199, this closes that gap.
-#    The Garmin STRIKER stays undef ON PURPOSE. Stephen left it blank because
+#    The Garmin STRIKER was left unpriced on purpose. Stephen left it blank because
 #    the open question is not the price, it is WHICH Striker model(s) we sell —
 #    the line has several. NAMED 3 Aug 2026: Stephen confirmed it is the
 #    STRIKER Vivid 7cv, so the name now says so (append form on purpose -
 #    codeify() in gen_qb_import.pl truncates at 30 chars, so the QB leaf stays
 #    GARMIN-STRIKER-GPS-FISHFINDER and the imported item is not orphaned).
-#    The price stays undef: QB carries $999 but no website price has been
-#    approved - written up for Stephen rather than decided here.
+#    PRICED 1 Sep 2026 - $999, APPROVED BY STEPHEN. Sourced from his own
+#    2026-08-05 note off the 9c sheet, and QuickBooks already carried $999,
+#    so this closes the last website-vs-QB gap on the line rather than
+#    setting a new price. DO NOT ASK HIM ABOUT THIS NUMBER AGAIN - it had
+#    been open for months and being re-asked is what he objected to.
 #    Placement is name-readable, not invented: the two Garmin items join
 #    every "Garmin Electronics" category; the Folbe Junior sits directly
 #    under the full-size Folbe it is the junior of; extra bases join every
@@ -175,7 +178,7 @@ for my $m (@$models){
   if (grep { $_->{name} eq 'Garmin Electronics' } @{$m->{cats}}){
     push @qe4,
       { m=>$m->{id}, cat=>'Garmin Electronics', id=>$p.'_striker',
-        nm=>'Garmin STRIKER GPS / Fishfinder (budget option), installed - STRIKER Vivid 7cv', price=>undef },
+        nm=>'Garmin STRIKER GPS / Fishfinder (budget option), installed - STRIKER Vivid 7cv', price=>999 },
       { m=>$m->{id}, cat=>'Garmin Electronics', id=>$p.'_maps',
         nm=>'Non-US inland maps card for Garmin display', price=>199 };
   }
