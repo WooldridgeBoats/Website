@@ -32,3 +32,28 @@ mechanism silently stopped working.
 
 Idempotent. Query strings are stripped by serve.pl, so stamped links work
 unchanged in local preview.
+
+  node _build/audit_quiz_reach.js  — reachability audit for the Which Wooldridge quiz
+  node _build/audit_quiz_reach.js --full          whole table
+  node _build/audit_quiz_reach.js --model ssd     one boat
+
+Brute-forces all 680,400 reachable answer paths against the quiz's own scoring
+matrix (lifted live out of which-wooldridge/index.html, so it can never drift
+from what ships) and asks the only question that matters: can a customer who
+honestly describes boat X ever be told X?
+
+Exit 0 = PASS, 1 = a model failed, 2 = the script could not read the page.
+
+It flags three failure modes:
+  - a model that can NEVER be the top recommendation
+  - a model that loses on its OWN ideal-customer profile — the answer set that
+    maximises that model's own score. This is the one that bites: the boat is
+    technically reachable, but not by the buyer it was designed for.
+  - a model that only ever wins on a tie-break. Ties resolve by key order in T,
+    which is arbitrary and invisible, so those "wins" are one edit from vanishing.
+
+As of 1 Sep 2026 it exits 1: Alaskan XL and Rogue HDPE both lose on their own
+ideal profile (to Skagit and Alaskan LT respectively), and Skagit takes 26.5% of
+all paths — 2.5x the next model. Rebalancing the weights is a Stephen + Danny
+call, not a code fix; this script only measures. Re-run it after any weight
+change and after gen_fleet.pl rewrites the FACTS block.
