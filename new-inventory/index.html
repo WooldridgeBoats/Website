@@ -19,6 +19,27 @@
   .inv .pothumbs a{ width:64px; border-radius:6px; }
   .inv .pothumbs img{ width:64px; height:48px; }
   .inv .icount{ font-weight:500; font-size:11px; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; }
+
+  /* FEATURED SINGLE LISTING - when NEWINV holds exactly one boat the card grid is the
+     wrong instrument twice over: one card leaves two thirds of the row empty, and the
+     listing's four paragraphs of factory copy have nowhere to go. They were going into
+     .specs, which is a wrapping flex row built for one-line chips - it rendered a 422px
+     block of prose inside an 881px card, against 121-168px and 580-634px on /pre-owned/.
+     A single boat therefore renders in the site's OWN single-subject layout: the same
+     .modelhero / .factrow / .modelctas / .gallery furniture every /models/ page uses, so
+     no new look is invented here. Two or more boats fall back to the card grid.
+     These rules are scoped to this page deliberately - house.css is shared site-wide and
+     carries a ?v= cache-buster on every page that links it, so editing it to style one
+     listing would mean re-stamping the whole site. */
+  .invmast{ grid-template-columns:1fr; gap:0; }      /* .gallery collapsed to a single cell */
+  .invmast a{ border-radius:0; box-shadow:none; }    /* the .modelhero frame supplies both */
+  .invmast img{ aspect-ratio:auto; height:auto; }  /* natural, like .modelhero img */
+  /* solid ground, not the .badge tint - a 12% green wash vanishes over sunlit foliage */
+  .modelhero .badge{ position:absolute; top:14px; left:14px; z-index:2; box-shadow:var(--shadow); background:#fff; }
+  .invdesc{ max-width:840px; margin:0 auto; }
+  .invdesc p{ font-size:16px; line-height:1.7; text-align:center; margin:0 0 14px; }
+  .invdesc p:last-child{ margin-bottom:0; }
+  .fact.price .v{ font-family:var(--serif); font-weight:700; font-size:20px; color:var(--blue); }
 </style>
 <link rel="canonical" href="https://www.wooldridgeboats.com/new-inventory/">
 </head>
@@ -126,22 +147,38 @@
     <span class="fineprint"><span id="invcount"></span> &middot; call the factory for current availability</span>
   </div>
 
+  <!-- One boat fills #feature; two or more fill #grid. See the two render paths below. -->
+  <div id="feature"></div>
   <div class="listing-grid" id="grid"></div>
   <script>
   /* FACTORY INVENTORY - POINT-IN-TIME SNAPSHOT, adopted from the retired WordPress
      wooldridgeboats.com/new-inventory/ page at go-live cutover (captured 2026-08-31).
      THIS ARRAY IS THE PAGE'S DATA - to add, retire, or mark a boat sold, edit NEWINV
-     below and nothing else; the grid renders from it. One object per listing, in the
-     live page's order. `title` keeps the original WordPress listing title verbatim
-     (provenance); the structured fields the card renders were taken from that title
-     and, for the available boat, from its listing page's own description - an empty
-     string means the source did not state that value. Leave it empty rather than
-     guessing. Photos live in ../assets/newinv/<slug>/NN.jpg (+ thumbs/NN.jpg),
-     downloaded and web-sized 2026-08-31 (EXIF stripped, max 1400px). `url` = the old
-     WordPress listing page (provenance only, not rendered - dead after cutover). */
+     below and nothing else. One object per listing, in the live page's order.
+
+     TWO RENDER PATHS, both fed by this array and chosen automatically:
+       exactly one boat  -> renderFeature(), the single-subject layout used by /models/
+       two or more boats -> renderCard(), the listing grid shared with /pre-owned/
+     Adding a second boat therefore needs no markup change - paste an object and reload.
+
+     `title` keeps the original WordPress listing title verbatim (provenance); the
+     structured fields the page renders were taken from that title and, for the available
+     boat, from its listing page's own description - an empty string means the source did
+     not state that value. Leave it empty rather than guessing; every field is skipped
+     when empty. `model` is authored HTML (it carries its own em-dash entity); every
+     other string is escaped at render time. `drive`, `vinyl`, `loc` and `mpage` were
+     added 2026-09-01 so the facts read the way /pre-owned/ and /models/ read - all four
+     come from that same listing ("outboard with a jet drive", "choosing the side vinyl
+     color", "available now at the factory"); none are inferred.
+     Photos live in ../assets/newinv/<slug>/NN.jpg (+ thumbs/NN.jpg), downloaded and
+     web-sized 2026-08-31 (EXIF stripped, max 1400px); 01 is the hero, 02..n the gallery.
+     `url` = the old WordPress listing page (provenance only, not rendered - dead after
+     cutover). NOTE: `price` is the listing's asking price, not a configurator price. */
   const NEWINV = [
     {yr:2027, len:18, model:'Alaskan &#8212; Windshield Model', sold:false, price:'$67,399.00',
-     eng:'Yamaha 175 outboard jet', note:'Choose your own vinyl color!',
+     drive:'Outboard Jet', eng:'Yamaha 175 outboard jet', vinyl:'Your choice of color',
+     note:'Choose your own vinyl color!', loc:'Wooldridge factory, Seattle',
+     mpage:'/models/alaskan/',
      slug:'2027-18-alaskan-windshield', n:5,
      desc:['Own the legend! The Wooldridge Alaskan is the iconic jet boat that has set the standard for generations. Available now at the factory, you can personalize yours by choosing the side vinyl color before driving home in this legendary model.',
            'Powered by a dependable Yamaha 175-horsepower outboard with a jet drive, the Alaskan is built to conquer shallow water with confidence. Its proven Wooldridge jet tunnel and distinctive hull design deliver exceptional performance, speed, and maneuverability where other boats can’t go.',
@@ -151,32 +188,89 @@
      url:'https://www.wooldridgeboats.com/newinventory/new-2027-wooldridge-18-alaskan-windshield-model-available-now-choose-your-own-vinyl-color/'},
   ];
   (function(){
-    const esc = s => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-    document.getElementById('grid').innerHTML = NEWINV.map(b => {
-      const dir = '../assets/newinv/' + esc(b.slug) + '/';
-      const label = (b.yr ? b.yr + ' ' : '') + 'Wooldridge ' + b.len + '′ ' + b.model.replace(/&#8212;|&mdash;/g, '').replace(/\s+/g, ' ').trim();
-      const badge = b.sold ? '<span class="badge sold">Sold</span>' : '<span class="badge in">Available Now</span>';
+    const esc   = s => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    const plain = s => String(s).replace(/&#8212;|&mdash;/g, '').replace(/\s+/g, ' ').trim();
+    const dirOf = b => '../assets/newinv/' + esc(b.slug) + '/';
+    /* labelOf = plain text, for alt/data-m. headOf = HTML, so `model` keeps its em dash. */
+    const labelOf = b => (b.yr ? b.yr + ' ' : '') + 'Wooldridge ' + b.len + '′ ' + plain(b.model);
+    const headOf  = b => (b.yr ? b.yr + ' ' : '') + 'Wooldridge ' + b.len + '&prime; ' + b.model;
+    const badgeOf = b => b.sold ? '<span class="badge sold">Sold</span>'
+                                : '<span class="badge in">Available Now</span>';
+    /* Every photo goes out as one <a> the shared lightbox can see: gallery.js delegates on
+       '.pcartrack a, .gallery a' and walks them in DOM order, so emitting the hero first and
+       02..n after it hands the lightbox the gallery's real sequence. */
+    const shot = (b, i, thumb, eager) => {
+      const dir = dirOf(b), nn = (i < 10 ? '0' : '') + i, lab = labelOf(b);
+      return '<a href="' + dir + nn + '.jpg" data-m="' + lab + '" aria-label="' + lab +
+             ' - photo ' + i + '"><img src="' + dir + (thumb ? 'thumbs/' : '') + nn +
+             '.jpg" alt="' + lab + ' - photo ' + i + '"' +
+             (eager ? '' : ' loading="lazy"') + '></a>';
+    };
+
+    /* ---- ONE BOAT: the site's single-subject layout, same furniture as a model page ---- */
+    function renderFeature(b){
+      const kick = [b.drive, b.len + ' ft', b.yr ? 'model year ' + b.yr : '']
+                     .filter(Boolean).join(' · ');
+      const facts = [
+        ['Asking',     esc(b.price), 'price'],
+        ['Model Year', b.yr ? esc(String(b.yr)) : ''],
+        ['Length',     b.len + ' <i>ft</i>'],
+        ['Power',      b.eng   ? esc(b.eng)   : ''],
+        ['Side Vinyl', b.vinyl ? esc(b.vinyl) : '']
+      ].filter(f => f[1]);
+      let gal = '';
+      for (let i = 2; i <= b.n; i++) gal += shot(b, i, false);
+      return '<div class="sechead tight" style="margin:8px 0 18px;">' +
+          (kick ? '<div class="eyebrow">' + esc(kick) + '</div>' : '') +
+          '<h2 style="font-size:clamp(20px,2.6vw,28px);">' + headOf(b) + '</h2></div>' +
+        '<figure class="modelhero">' + badgeOf(b) +
+          '<div class="gallery invmast">' + shot(b, 1, false, true) + '</div>' +
+          '<figcaption>' + b.model + (b.loc ? '<span class="ref">' + esc(b.loc) + '</span>' : '') +
+          '</figcaption></figure>' +
+        '<div class="invdesc">' + b.desc.map(p => '<p>' + esc(p) + '</p>').join('') + '</div>' +
+        '<div class="factrow">' + facts.map(f =>
+            '<div class="fact' + (f[2] ? ' ' + f[2] : '') + '"><div class="l">' + f[0] +
+            '</div><div class="v">' + f[1] + '</div></div>').join('') + '</div>' +
+        '<div class="modelctas">' +
+          '<a class="plate" href="../contact/"><span class="k">Ready Now</span>Contact the Factory</a>' +
+          '<a class="plate ghost" href="tel:+12067228998"><span class="k">Seattle Factory</span>(206) 722-8998</a>' +
+          (b.mpage ? '<a class="plate ghost" href="' + b.mpage + '"><span class="k">The Model</span>About the ' +
+                     esc(plain(b.model).split(' ')[0]) + '</a>' : '') +
+        '</div>' +
+        (gal ? '<div class="sechead tight"><div class="eyebrow">Gallery</div>' +
+               '<h2 style="font-size:clamp(20px,2.6vw,28px);">More of this boat</h2></div>' +
+               '<div class="gallery">' + gal + '</div>' : '');
+    }
+
+    /* ---- TWO OR MORE: the shared listing card, same anatomy as /pre-owned/ -------------
+       Labelled one-line chips only. `desc` is deliberately NOT rendered here - .specs is a
+       wrapping flex row meant for chips, and paragraphs in it are what blew this card out
+       to 881px tall against 580-634px on /pre-owned/. Long copy belongs in the feature. */
+    function renderCard(b){
       let thumbs = '';
-      for (let i = 2; i <= b.n; i++) {
-        const nn = (i < 10 ? '0' : '') + i;
-        thumbs += '<a href="' + dir + nn + '.jpg" data-m="' + label + '" aria-label="' + label + ' - photo ' + i + '">' +
-                  '<img src="' + dir + 'thumbs/' + nn + '.jpg" alt="' + label + ' - photo ' + i + '" loading="lazy"></a>';
-      }
+      for (let i = 2; i <= b.n; i++) thumbs += shot(b, i, true);
+      const chips = [
+        b.drive ? '<span><b>Drive:</b> '      + esc(b.drive) + '</span>' : '',
+        b.eng   ? '<span><b>Power:</b> '      + esc(b.eng)   + '</span>' : '',
+        b.vinyl ? '<span><b>Side Vinyl:</b> ' + esc(b.vinyl) + '</span>' : '',
+        b.loc   ? '<span><b>Location:</b> '   + esc(b.loc)   + '</span>' : '',
+        b.note  ? '<span>' + esc(b.note) + '</span>' : ''
+      ].join('');
       return '<article class="inv">' +
-        '<div class="invph pcartrack">' + badge +
-          '<a href="' + dir + '01.jpg" data-m="' + label + '" aria-label="Open the ' + label + ' photo gallery">' +
-          '<img src="' + dir + '01.jpg" alt="' + label + ' - photo 1" loading="lazy"></a></div>' +
-        '<div class="ibody"><div class="iyear">' + (b.yr ? b.yr + ' &middot; ' : '') + 'Wooldridge</div><h3>' + b.len + '&prime; ' + b.model + '</h3>' +
-        '<div class="specs">' +
-          (b.eng ? '<span><b>Power:</b> ' + esc(b.eng) + '</span>' : '') +
-          (b.note ? '<span>' + esc(b.note) + '</span>' : '') +
-          b.desc.map(p => '<span>' + esc(p) + '</span>').join('') + '</div>' +
+        '<div class="invph pcartrack">' + badgeOf(b) + shot(b, 1, false) + '</div>' +
+        '<div class="ibody"><div class="iyear">' + (b.yr ? b.yr + ' &middot; ' : '') + 'Wooldridge</div>' +
+        '<h3>' + b.len + '&prime; ' + b.model + '</h3>' +
+        '<div class="specs">' + chips + '</div>' +
         (thumbs ? '<div class="pcartrack pothumbs">' + thumbs + '</div>' : '') +
         '<div class="irow"><span class="iprice">' + esc(b.price) + '</span>' +
           (b.sold ? '<span class="icount">' + b.n + ' photo' + (b.n === 1 ? '' : 's') + '</span>'
                   : '<a class="ilink" href="../contact/">Contact the Factory &rarr;</a>') + '</div></div>' +
         '</article>';
-    }).join('');
+    }
+
+    if (NEWINV.length === 1) document.getElementById('feature').innerHTML = renderFeature(NEWINV[0]);
+    else                     document.getElementById('grid').innerHTML    = NEWINV.map(renderCard).join('');
+
     const avail = NEWINV.filter(b => !b.sold).length;
     document.getElementById('invcount').textContent =
       NEWINV.length + ' boat' + (NEWINV.length === 1 ? '' : 's') + ' listed, ' + avail + ' available';
