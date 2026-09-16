@@ -59,7 +59,16 @@
   /* ══════════════════════════════════════════════════════════════════════
      LIGHTBOX
      ══════════════════════════════════════════════════════════════════════ */
-  var lb, lbImg, lbTitle, lbCount, lbCap, lbStrip, seq = [], cur = -1, pushed = false;
+  var lb, lbImg, lbCount, lbCap, lbStrip, lbZoom, seq = [], cur = -1, pushed = false, zoomed = false;
+
+  function setZoom(on) {
+    zoomed = !!on;
+    if (!lb) return;
+    lb.classList.toggle('zoomed', zoomed);
+    if (lbZoom) lbZoom.textContent = zoomed ? 'Fit' : 'Zoom';
+    var st = lb.querySelector('.wblbstage');
+    if (st && !zoomed) { st.scrollTop = 0; st.scrollLeft = 0; }
+  }
 
   function buildLb() {
     if (lb) return;
@@ -68,24 +77,28 @@
     lb.setAttribute('role', 'dialog');
     lb.setAttribute('aria-label', 'Photo viewer');
     lb.innerHTML =
-      '<div class="wblbhead"><span class="wblbtitle"></span><span class="wblbcount"></span>' +
+      '<div class="wblbhead"><span class="wblbcount"></span>' +
       '<button class="wblbx" type="button">Close &#215;</button></div>' +
-      '<div class="wblbstage"><button class="wblbnav wblbprev" type="button" aria-label="Previous photo">&#8592;</button>' +
+      '<div class="wblbstage">' +
+      '<button class="wblbnav wblbprev" type="button" aria-label="Previous photo">&#8592;</button>' +
       '<img alt=""><div class="wblbspin"></div>' +
-      '<button class="wblbnav wblbnext" type="button" aria-label="Next photo">&#8594;</button></div>' +
+      '<button class="wblbnav wblbnext" type="button" aria-label="Next photo">&#8594;</button>' +
+      '<button class="wblbzoom" type="button">Zoom</button></div>' +
       '<div class="wblbcap"></div><div class="wblbstrip"></div>';
     document.body.appendChild(lb);
     lbImg = lb.querySelector('.wblbstage img');
-    lbTitle = lb.querySelector('.wblbtitle');
     lbCount = lb.querySelector('.wblbcount');
     lbCap = lb.querySelector('.wblbcap');
     lbStrip = lb.querySelector('.wblbstrip');
+    lbZoom = lb.querySelector('.wblbzoom');
 
     lb.querySelector('.wblbx').addEventListener('click', function () { closeLb(true); });
     lb.querySelector('.wblbprev').addEventListener('click', function () { showLb(cur - 1); });
     lb.querySelector('.wblbnext').addEventListener('click', function () { showLb(cur + 1); });
+    lbZoom.addEventListener('click', function (e) { e.stopPropagation(); setZoom(!zoomed); });
+    lbImg.addEventListener('click', function (e) { e.stopPropagation(); setZoom(!zoomed); });
     lb.querySelector('.wblbstage').addEventListener('click', function (e) {
-      if (e.target === e.currentTarget) closeLb(true);
+      if (e.target === e.currentTarget && !zoomed) closeLb(true);
     });
     document.addEventListener('keydown', function (e) {
       if (!lb.classList.contains('on')) return;
@@ -133,26 +146,25 @@
     if (!seq.length) return;
     cur = (n + seq.length) % seq.length;
     var a = seq[cur], m = metaFor(a);
+    setZoom(false);
     lb.classList.add('loading');
     lbImg.classList.add('fade');
     lbImg.src = a.href;
     lbImg.alt = (a.querySelector('img') || {}).alt || '';
 
-    /* agency-lc29's display name already leads with its length ("29' LC ..."),
-       so prepending m.len rendered "29′29' LC". Skip the prefix when the name
-       itself starts with it. */
+    /* One centred caption under the image with all the info together (Tyler's
+       spec): length badge + model + build + hull. agency-lc29's display name
+       already leads with its length ("29' LC ..."), so skip the badge when the
+       name itself starts with it, to avoid "29′29' LC". */
     var nm = m.name || 'Wooldridge';
     var dupLen = m.len && nm.indexOf(m.len + "'") === 0;
-    lbTitle.innerHTML = (m.len && !dupLen ? '<span class="len">' + m.len + '&#8242;</span>' : '') + nm;
+    var lenBadge = (m.len && !dupLen) ? '<span class="len">' + m.len + '&#8242;</span>' : '';
     lbCount.textContent = (cur + 1) + ' / ' + seq.length;
 
-    var bits = [];
+    var bits = [nm];
     if (m.cfg) bits.push(m.cfg);
     if (m.hull) bits.push('Hull #' + m.hull);
-    if (m.year) bits.push(String(m.year));
-    if (m.shot) bits.push(m.shot);
-    lbCap.innerHTML = bits.map(function (b) { return '<span>' + b + '</span>'; }).join('') +
-      '<a href="' + a.href + '" target="_blank" rel="noopener">Open original &#8599;</a>';
+    lbCap.innerHTML = lenBadge + '<span class="wblbcaptext">' + bits.join(' &#183; ') + '</span>';
 
     var imgs = lbStrip.children;
     for (var i = 0; i < imgs.length; i++) imgs[i].classList.toggle('on', i === cur);
@@ -174,6 +186,7 @@
     if (idx < 0) { seq = [anchor]; idx = 0; }
     buildStrip();
     lb.classList.add('on');
+    document.body.classList.add('wblb-open');   /* hide the corner nudge while viewing */
     document.body.style.overflow = 'hidden';
     if (!viaHistory) {
       history.pushState({ wblb: 1 }, '', photoHash(anchor));
@@ -187,6 +200,8 @@
   function closeLb(viaUi) {
     if (!lb || !lb.classList.contains('on')) return;
     lb.classList.remove('on');
+    document.body.classList.remove('wblb-open');
+    setZoom(false);
     document.body.style.overflow = '';
     if (viaUi) {
       if (pushed) { pushed = false; history.back(); }
@@ -496,8 +511,9 @@
           });
           if (!names.length) return modelName + ' builds';
           if (names.length === 1) return names[0];
-          return names.map(function (n, i) { return i ? n.toLowerCase() : n; })
-            .join(' & ') + ' trims';
+          /* Title Case list: "Console & Tiller Trims", "Windshield, Tiller & Console Trims" */
+          var last = names[names.length - 1];
+          return names.slice(0, -1).join(', ') + ' & ' + last + ' Trims';
         }
 
         var lede;
@@ -540,11 +556,16 @@
             sub = cfgLine(list);
           }
           var cover = list[0].querySelector('img');
+          /* per-length cover override: a page may set window.WB_COVERS[slug][key]
+             to a specific thumb (e.g. Tyler's GALLERY-THUMB per length). Falls
+             back to the first photo's thumbnail when no override is provided. */
+          var coverSrc = (window.WB_COVERS && WB_COVERS[slug] && WB_COVERS[slug][k]) ||
+            (cover ? cover.src : list[0].href);
           var card = document.createElement('button');
           card.type = 'button';
           card.className = 'mcard';
           card.innerHTML =
-            '<img src="' + (cover ? cover.src : list[0].href) + '" alt="" loading="lazy">' +
+            '<img src="' + coverSrc + '" alt="" loading="lazy">' +
             '<span class="mcbadge">' + list.length + ' photo' + (list.length === 1 ? '' : 's') + '</span>' +
             '<span class="mcmeta"><b>' + title + '</b><span>' + sub + '</span></span>';
           card.addEventListener('click', function () { openLb(list[0], false, list); });
