@@ -11,6 +11,26 @@ Preview locally with `python3 -m http.server 8811` in the repo root, then open
 
 ---
 
+## ⚡ ONE-COMMAND PATH (built 2026-09-16 — use this; steps 0–7 below are the reference/fallback)
+
+Trigger convention: **Tyler says "Model Ready" + model name + master folder.** Then:
+
+```bash
+SRC="/Users/tylerlee/Library/CloudStorage/OneDrive-WooldridgeBoatsInc/Wooldridge Boats Inc_ - SQUIRREL HOLE/70 MARKETING AND BRAND/WEBSITE/MASTER-WEBSITE PHOTOS/<MODEL>-WEB"
+_build/check_model_photos.sh "$SRC"                                  # 1. PRE-FLIGHT: vet naming/size/hulls (Tyler can run this himself too)
+_build/apply_model_photos.sh <slug> "<Display Name>" "$SRC" --dry-run # 2. preview the filename map + gallery HTML (writes nothing)
+_build/apply_model_photos.sh <slug> "<Display Name>" "$SRC"           # 3. do it (copies, thumbs, covers, hero, page rewrite, cross-refs, build_gallery + stamp)
+```
+
+Then verify in the browser pane (§7 checklist) and hand Tyler the commit line (he drives the push).
+
+- **`check_model_photos.sh`** flags: missing/duplicate order#, missing hull#, unknown trim code, length≠folder, non-2000×1250, 0-byte cloud placeholders, missing HERO / per-length GALLERY-THUMB. Exit 0 = safe to build.
+- **`apply_model_photos.sh`** re-runs the pre-flight and refuses on errors (`--force` overrides). It auto-handles the homepage fleet card + Compare thumb (matched by `url:models/<slug>/`), regens provenance, and prints any leftover `lp/` persona refs to repoint by hand.
+- **Caveat — `<slug>` must name BOTH `models/<slug>/` AND `assets/photos/<slug>/`.** True for ~all models (alaskan, alaskanxl, …). The known exception is **XLT** (`models/xlt/` but `assets/photos/alaskan-xlt/`): for a mismatch like that, run the manual steps or fix paths by hand.
+- A **brand-new trim code** (e.g. side console) must be added to `%CFG` in `build_gallery.pl` AND to `cfg_disp`/`parse_one` in `apply_model_photos.sh` (and the validator's `KNOWN_TRIMS`) before building — the pre-flight will flag it.
+
+---
+
 ## 0) WHAT TYLER HANDS OVER
 
 Source master (OneDrive): `~/Library/CloudStorage/OneDrive-WooldridgeBoatsInc/Wooldridge Boats Inc_ - SQUIRREL HOLE/70 MARKETING AND BRAND/WEBSITE/MASTER-WEBSITE PHOTOS/<MODEL>-WEB/`
