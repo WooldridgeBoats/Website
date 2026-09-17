@@ -243,6 +243,22 @@ h1,h2,h3,.h-serif{
    padding, never on link text: nav links are ~17px tall around y 49. */
 .mega::before{ content:""; position:absolute; left:0; right:0; top:-9px; height:10px; }
 .hasmega:hover .mega,.hasmega:focus-within .mega{ display:block; }
+/* Desktop hover close-delay (2026-09-16): the mega menu used to snap shut the
+   instant the cursor left the trigger, so a quick move left (toward Home/logo),
+   right, or down would lose it. This keeps the panel up for a moment after the
+   cursor leaves, so you can move in any direction and still reach it — and a
+   quick fade-in on open. Scoped to >900px so the mobile tap-accordion (which
+   toggles the panel with display:none/block) is left exactly as it was. */
+@media (min-width:901px){
+  .mega{
+    display:block; visibility:hidden; opacity:0; pointer-events:none;
+    transition:opacity .18s ease .35s, visibility 0s linear .53s;
+  }
+  .hasmega:hover .mega,.hasmega:focus-within .mega{
+    visibility:visible; opacity:1; pointer-events:auto;
+    transition:opacity .14s ease 0s, visibility 0s linear 0s;
+  }
+}
 .mega-in{
   background:#fff; border:1px solid var(--line);
   /* Reads as one piece with the header, 2026-08-31 (Stephen, via his coworker):
@@ -859,6 +875,18 @@ section{ padding:64px 0; }
 .gallery a{ border-radius:8px; overflow:hidden; box-shadow:var(--shadow); display:block; }
 .gallery img{ width:100%; aspect-ratio:4/3; object-fit:cover; transition:transform .35s; }
 .gallery a:hover img{ transform:scale(1.05); }
+/* Captioned wide-ratio galleries (2000x1250 / 16:10 photos, e.g. Alaskan LT):
+   show the length + build + model on the bottom of every thumbnail. */
+.gallery.captioned img{ aspect-ratio:8/5; }
+.gallery.captioned a{ position:relative; }
+.gallery.captioned a::after{ content:""; position:absolute; left:0; right:0; bottom:0; height:52%;
+  background:linear-gradient(to top, rgba(10,18,26,.86), rgba(10,18,26,.32) 58%, rgba(10,18,26,0));
+  pointer-events:none; }
+.gallery.captioned .gcap{ position:absolute; left:11px; right:11px; bottom:9px; z-index:1; color:#fff;
+  font-weight:300; font-size:12px; line-height:1.25; letter-spacing:.01em;
+  text-shadow:0 1px 3px rgba(0,0,0,.55); pointer-events:none; }
+.gallery.captioned .gcap b{ display:block; font-weight:600; font-size:13.5px; letter-spacing:.02em; }
+@media (max-width:560px){ .gallery.captioned .gcap{ font-size:11px; } .gallery.captioned .gcap b{ font-size:12px; } }
 
 /* ── page masthead (interior pages) ────────────────────────────────────── */
 .pagemast{ padding:52px 0 8px; text-align:center; }
@@ -1516,7 +1544,7 @@ footer::before{
 .wblb.on{ display:flex; }
 .wblbhead{
   display:flex; align-items:center; gap:16px; padding:14px 20px;
-  border-bottom:1px solid rgba(255,255,255,.08); flex:none;
+  flex:none; margin-top:auto;   /* rides the top of the image group, not the window */
 }
 .wblbtitle{ font-weight:600; font-size:14px; letter-spacing:.04em; color:#fff; min-width:0;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -1532,7 +1560,10 @@ footer::before{
   padding:7px 16px; transition:all .2s;
 }
 .wblbx:hover{ background:#fff; color:#12171c; }
-.wblbstage{ position:relative; flex:1; min-height:0; display:flex; align-items:center; justify-content:center; padding:14px 74px; }
+/* flex:0 1 auto + auto margins keep the image group (photo + caption + strip)
+   centered as ONE block, so the caption/thumbs/zoom hug the image and move with
+   its bottom edge as the window resizes — instead of sticking to the window. */
+.wblbstage{ position:relative; flex:0 1 auto; min-height:0; display:flex; align-items:center; justify-content:center; padding:14px 78px 6px; }
 .wblbstage img{
   max-width:100%; max-height:100%; width:auto; height:auto; margin:auto;
   border-radius:4px; box-shadow:0 10px 50px rgba(0,0,0,.5);
@@ -1540,26 +1571,29 @@ footer::before{
 }
 .wblbstage img.fade{ opacity:0; }
 .wblbnav{
-  position:absolute; top:0; bottom:0; width:64px; border:0; background:none; color:#fff;
-  font-size:26px; opacity:.65; transition:opacity .2s, background .2s;
+  position:absolute; top:0; bottom:0; width:78px; border:0; background:none; color:#fff;
+  font-size:46px; -webkit-text-stroke:2px currentColor; opacity:.72; transition:opacity .2s, background .2s;
   display:flex; align-items:center; justify-content:center;
 }
 .wblbnav:hover{ opacity:1; background:linear-gradient(90deg,rgba(255,255,255,.06),transparent); }
 .wblbprev{ left:0; } .wblbnext{ right:0; }
 .wblbnext:hover{ background:linear-gradient(270deg,rgba(255,255,255,.06),transparent); }
 .wblbcap{
-  flex:none; display:flex; align-items:center; gap:18px; padding:10px 20px 4px;
-  font-weight:300; font-size:12.5px; letter-spacing:.04em; color:#b7bfc6;
+  flex:none; display:flex; align-items:center; justify-content:center; gap:11px; padding:18px 20px 14px;
+  font-weight:300; font-size:13.5px; letter-spacing:.05em; color:#cfd6db; text-align:center;
 }
-.wblbcap a{ color:#7db8e8; font-weight:500; }
-.wblbcap a:hover{ color:#fff; }
+.wblbcap .len{
+  display:inline-block; background:var(--blue); color:#fff; border-radius:4px;
+  font-weight:700; font-size:11px; letter-spacing:.06em; padding:2px 8px; vertical-align:1px;
+}
+.wblbcaptext{ color:#cfd6db; }
 .wblbstrip{
   flex:none; display:flex; gap:6px; overflow-x:auto; padding:10px 20px 16px;
-  scrollbar-width:none;
+  scrollbar-width:none; margin-bottom:auto;
 }
 .wblbstrip::-webkit-scrollbar{ display:none; }
 .wblbstrip img{
-  width:86px; height:60px; object-fit:cover; border-radius:4px; cursor:pointer;
+  width:140px; height:88px; object-fit:cover; border-radius:4px; cursor:pointer;
   opacity:.45; transition:opacity .2s; flex:none; border:2px solid transparent;
 }
 .wblbstrip img:hover{ opacity:.8; }
@@ -1571,6 +1605,32 @@ footer::before{
 }
 .wblb.loading .wblbspin{ display:block; }
 @keyframes wblbspin{ to{ transform:rotate(360deg); } }
+
+/* Zoom overlay, nudge-hide, zoom state — 2026-09-16 */
+.wblbzoom{
+  position:absolute; right:20px; bottom:16px; z-index:3;
+  background:rgba(12,17,22,.66); border:1px solid rgba(255,255,255,.28); color:#fff;
+  font-weight:600; font-size:11px; letter-spacing:.09em; text-transform:uppercase;
+  padding:8px 15px; border-radius:999px; backdrop-filter:blur(4px);
+  transition:background .2s, border-color .2s;
+}
+.wblbzoom:hover{ background:var(--blue); border-color:var(--blue); }
+.wblbstage img{ cursor:zoom-in; }
+.wblb.zoomed .wblbhead{ margin-top:0; }
+.wblb.zoomed .wblbstage{ flex:1 1 auto; margin-top:0; overflow:auto; align-items:flex-start; justify-content:flex-start; }
+.wblb.zoomed .wblbstrip{ margin-bottom:0; }
+.wblb.zoomed .wblbstage img{
+  max-width:none; max-height:none; width:auto; height:auto; margin:auto; cursor:zoom-out;
+}
+/* hide the corner "Not sure which boat?" nudge while the photo viewer is open */
+body.wblb-open #wb-corner{ display:none !important; }
+
+/* Model-page masthead tightened so the hero sits higher — scoped via .mp-tight
+   on <main> (test on Alaskan LT; roll out to all model pages once approved). */
+.mp-tight .pagemast{ padding-top:26px; padding-bottom:4px; }
+.mp-tight .pagemast h1{ margin-top:10px; }
+.mp-tight .pagemast .mastrule{ margin-top:14px; }
+.mp-tight .pagebody{ padding-top:18px; }
 
 /* blueprint (dark) theme support */
 html.blueprint .ptoolbar{ background:rgba(15,22,28,.96); border-color:#22303b; }
@@ -1584,8 +1644,8 @@ html.blueprint .pcarbtn{ background:rgba(21,31,40,.94); border-color:#22303b; co
   .pcartrack a{ width:190px; }
   .pcartrack img{ width:190px; height:142px; }
   .pcar.asgrid .pcartrack{ grid-template-columns:repeat(3,1fr); }
-  .wblbstage{ padding:10px 48px; }
-  .wblbnav{ width:44px; font-size:22px; }
+  .wblbstage{ padding:10px 58px; }
+  .wblbnav{ width:58px; font-size:38px; }
 }
 @media (max-width:560px){
   .pcartrack a{ width:150px; }
@@ -1595,9 +1655,9 @@ html.blueprint .pcarbtn{ background:rgba(21,31,40,.94); border-color:#22303b; co
   .prowhead{ flex-wrap:wrap; row-gap:2px; }
   .wblbhead{ padding:10px 12px; gap:10px; }
   .wblbstage{ padding:8px 2px 8px; }
-  .wblbnav{ width:38px; opacity:.5; }
-  .wblbstrip img{ width:66px; height:46px; }
-  .wblbcap{ flex-wrap:wrap; gap:8px 14px; padding:8px 12px 2px; }
+  .wblbnav{ width:44px; font-size:34px; -webkit-text-stroke:1.5px currentColor; opacity:.6; }
+  .wblbstrip img{ width:96px; height:60px; }
+  .wblbcap{ flex-wrap:wrap; gap:6px 14px; padding:12px 12px 10px; }
   .ptop{ right:14px; bottom:14px; }
 }
 
@@ -1772,6 +1832,117 @@ html.blueprint .pcarbtn{ background:rgba(21,31,40,.94); border-color:#22303b; co
   .pfold summary{ padding:15px 16px; gap:8px; }
   .pfoldtitle{ font-size:16.5px; }
   .pfoldbody{ padding:2px 14px 16px; }
+}
+
+/* ── boat specs (.bspec) — the collapsible Specifications table on model
+   pages. Sits inside a .pfold body (the fold shell is styled above). Matches
+   Tyler's "Boat Specifications" mockup: Rockwell blue column + category
+   headings, Inter body, blue-outline config badges, thin cool-gray dividers,
+   no heavy borders. Semantic: category rows are a colspan <th scope=colgroup>;
+   per-config weights are a badge list. Reused across every model page with
+   per-model values (data differs per model, often per length/config). ─────── */
+.bspec-scroll{
+  overflow-x:auto; -webkit-overflow-scrolling:touch;
+  border:1px solid var(--line); border-radius:var(--rad); background:#fff;
+}
+.bspec{
+  width:100%; min-width:600px; border-collapse:separate; border-spacing:0;
+  font-family:var(--sans); color:var(--body);
+}
+.bspec caption{ position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
+.bspec col.bspec-c0{ width:26%; }
+.bspec th,.bspec td{
+  padding:11px 16px; border-bottom:1px solid var(--line); vertical-align:middle;
+}
+.bspec tbody tr:last-child th,.bspec tbody tr:last-child td{ border-bottom:0; }
+
+/* column headers — Rockwell, Wooldridge blue, uppercase */
+.bspec thead th{
+  font-family:var(--serif); font-weight:700; font-size:15px; color:var(--blue);
+  text-transform:uppercase; letter-spacing:.04em; text-align:center;
+  vertical-align:middle; background:#fff; border-bottom:1.5px solid var(--rule); white-space:nowrap;
+}
+.bspec thead th.bspec-spec{ text-align:left; }
+
+/* row labels + values */
+.bspec tbody th[scope=row]{
+  font-weight:500; font-size:14px; color:var(--ink); text-align:left; white-space:nowrap;
+}
+.bspec tbody td{ text-align:center; font-size:14px; }
+/* vertical column dividers for the full-grid look of the mockup. The spec↔first-
+   length boundary is drawn by the sticky column's border-right (below); these
+   draw the boundaries between length columns. Category bands have no .bspec-v
+   cell, so they stay solid (no verticals crossing them) — matches the mockup. */
+.bspec .bspec-v2,.bspec .bspec-v3,.bspec .bspec-v4{ border-left:1px solid var(--line); }
+
+/* category band — light blue, Rockwell blue caps, spans all columns; the label
+   is a sticky span so it stays put when the table scrolls sideways on mobile */
+.bspec-cat th{
+  font-family:var(--serif); font-weight:700; font-size:14.5px; color:var(--blue);
+  text-transform:uppercase; letter-spacing:.05em; text-align:left; vertical-align:middle;
+  background:rgba(27,117,187,.07); padding-left:0; padding-right:0;
+}
+.bspec-cat th span{ position:sticky; left:0; display:inline-block; vertical-align:middle; line-height:1.15; padding:0 16px; }
+
+/* sticky Specification column while the table scrolls on narrow screens */
+.bspec thead th.bspec-spec,
+.bspec tbody th[scope=row]{
+  position:sticky; left:0; z-index:1; background:#fff;
+  border-right:1px solid var(--line);
+}
+.bspec tbody tr:hover td{ background:rgba(27,117,187,.035); }
+.bspec tbody tr:hover th[scope=row]{ background:#eef5fc; }
+
+/* config badge (Tiller / Center Console / Windshield) */
+.bspec-badge{
+  display:inline-block; font-weight:600; font-size:10px; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--blue); background:#fff;
+  border:1px solid rgba(27,117,187,.45); border-radius:5px;
+  padding:3px 7px; line-height:1; white-space:nowrap;
+}
+/* per-config weight stack inside a cell */
+.bspec-wt{ display:inline-flex; flex-direction:column; gap:8px; text-align:left;
+  list-style:none; margin:0; padding:0; }
+.bspec-wt li{ display:flex; align-items:center; gap:8px; white-space:nowrap; }
+.bspec-wt .v{ color:var(--ink); }
+/* inline value + badge, e.g. "90 hp · Center Console" */
+.bspec-cell{ display:inline-flex; align-items:center; justify-content:center;
+  gap:7px; flex-wrap:wrap; }
+.bspec-dot{ color:var(--rule); }
+/* footnote under the table */
+.bspec-foot{ font-size:12px; color:var(--muted); margin:12px 2px 2px; }
+
+/* mobile length tabs — hidden until JS wires them up AND the screen is narrow.
+   On a phone the visitor taps 16 / 18 / 20 ft to switch length instead of
+   scrolling the table sideways; desktop keeps the full side-by-side table. */
+.bspec-lentabs{ display:none; gap:6px; justify-content:flex-end; flex-wrap:wrap; margin:0 0 12px; }
+.bspec-lentab{
+  font-family:var(--sans); font-weight:600; font-size:12.5px; letter-spacing:.02em;
+  color:var(--blue); background:#fff; border:1px solid var(--line); border-radius:999px;
+  padding:6px 15px; cursor:pointer; -webkit-tap-highlight-color:transparent;
+}
+.bspec-lentab.is-active{ background:var(--blue); border-color:var(--blue); color:#fff; }
+
+@media (max-width:640px){
+  .bspecfold.js-specs .bspec-lentabs{ display:flex; }
+  .bspecfold.js-specs .bspec-scroll{ overflow-x:auto; }
+  .bspec[data-active]{ min-width:0; }
+  .bspec[data-active] .bspec-v{ border-left:0; }   /* one length shows; col-1 border is the only divider */
+  /* show the Specification column + only the active length (by POSITION, so
+     this is length-value agnostic — works for any 1–4 lengths a model has) */
+  .bspec[data-active="1"] .bspec-v:not(.bspec-v1),
+  .bspec[data-active="2"] .bspec-v:not(.bspec-v2),
+  .bspec[data-active="3"] .bspec-v:not(.bspec-v3),
+  .bspec[data-active="4"] .bspec-v:not(.bspec-v4){ display:none; }
+  .bspec[data-active] thead th.bspec-spec,
+  .bspec[data-active] tbody th[scope=row]{ position:static; }
+}
+
+@media (max-width:560px){
+  .bspec th,.bspec td{ padding:10px 12px; }
+  .bspec thead th{ font-size:13.5px; }
+  .bspec tbody th[scope=row],.bspec tbody td{ font-size:13px; }
 }
 
 /* ── pagenav — the reusable back / prev-next bar (WEB-N-05..08) ────────── */
