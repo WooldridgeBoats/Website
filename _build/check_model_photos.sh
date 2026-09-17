@@ -30,7 +30,7 @@ SRC="${1:-}"
 [ -n "$SRC" ] || { echo "usage: $0 \"/path/to/<MODEL>-WEB\""; exit 2; }
 [ -d "$SRC" ] || { echo "ERROR: folder not found: $SRC"; exit 2; }
 
-KNOWN_TRIMS="cc ws tiller first-responder"
+KNOWN_TRIMS="cc ws tiller aft-ws first-responder"
 errs=0; warns=0
 err(){  echo "  ✗ $*"; errs=$((errs+1)); }
 warn(){ echo "  ! $*"; warns=$((warns+1)); }
@@ -81,9 +81,11 @@ for d in "$SRC"/*/; do
     base="$(basename "$f")"; stem="${base%.jpg}"
     IFS='-' read -r -a t <<< "$stem"
     nn="${t[0]:-}";
-    if [[ "${t[1]:-}" =~ ^[45][0-9]{3}$ ]]; then hull="${t[1]:-}"; flen="${t[2]:-}"; style="${t[3]:-}";
-    else hull=""; flen="${t[1]:-}"; style="${t[2]:-}"; fi
+    if [[ "${t[1]:-}" =~ ^[45][0-9]{3}$ ]]; then hull="${t[1]:-}"; flen="${t[2]:-}"; style="${t[3]:-}"; styn="${t[4]:-}";
+    else hull=""; flen="${t[1]:-}"; style="${t[2]:-}"; styn="${t[3]:-}"; fi
     stylelc="$(printf %s "$style" | tr 'A-Z' 'a-z')"
+    nlc="$(printf %s "${styn:-}" | tr 'A-Z' 'a-z')"
+    [ "$stylelc" = "aft" ] && [ "$nlc" = "ws" ] && stylelc="aft-ws"   # two-token AFT-WS config
 
     # order number
     [[ "$nn" =~ ^[0-9]{1,3}$ ]] || err "$base: order number '$nn' not numeric (name must start NN-)"

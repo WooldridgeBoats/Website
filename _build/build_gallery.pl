@@ -36,7 +36,7 @@ my @MODELS = (
   ['agency-lc29',             "29' LC — In The Shop",       'Agency Build', [29],       29],
 );
 
-my %CFG  = ('cc','Center Console','ws','Windshield','tiller','Tiller','first-responder','First Responder');
+my %CFG  = ('cc','Center Console','ws','Windshield','tiller','Tiller','aft-ws','Aft Windshield','first-responder','First Responder');
 my %SHOT = ('product','Product','photo','Field','water','On the water','delivery','Delivery','finish','Finish work','build','In the shop');
 
 sub parse_file {
@@ -56,6 +56,7 @@ sub parse_file {
   my $joined = join('-', @rest);
   my ($cfg, $shot);
   $cfg = 'first-responder' if $joined =~ /first-responder/;
+  $cfg = 'aft-ws' if $joined =~ /aft-ws/;
   for my $t (@rest) {
     $cfg  = $t if !defined $cfg  && exists $CFG{$t};
     $shot = $t if !defined $shot && exists $SHOT{$t};

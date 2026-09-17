@@ -26,8 +26,8 @@ Then verify in the browser pane (§7 checklist) and hand Tyler the commit line (
 
 - **`check_model_photos.sh`** flags: missing/duplicate order#, missing hull#, unknown trim code, length≠folder, non-2000×1250, 0-byte cloud placeholders, missing HERO / per-length GALLERY-THUMB. Exit 0 = safe to build.
 - **`apply_model_photos.sh`** re-runs the pre-flight and refuses on errors (`--force` overrides). It auto-handles the homepage fleet card + Compare thumb (matched by `url:models/<slug>/`), regens provenance, and prints any leftover `lp/` persona refs to repoint by hand.
-- **Caveat — `<slug>` must name BOTH `models/<slug>/` AND `assets/photos/<slug>/`.** True for ~all models (alaskan, alaskanxl, …). The known exception is **XLT** (`models/xlt/` but `assets/photos/alaskan-xlt/`): for a mismatch like that, run the manual steps or fix paths by hand.
-- A **brand-new trim code** (e.g. side console) must be added to `%CFG` in `build_gallery.pl` AND to `cfg_disp`/`parse_one` in `apply_model_photos.sh` (and the validator's `KNOWN_TRIMS`) before building — the pre-flight will flag it.
+- **Page-dir ≠ photo-dir → set `PHOTOSLUG`.** `<slug>` is the PAGE dir (`models/<slug>/`); photos default to `assets/photos/<slug>/`. When they differ, pass `PHOTOSLUG`. Known case **Alaskan XLT** (page `xlt`, photos `alaskan-xlt`): `PHOTOSLUG=alaskan-xlt _build/apply_model_photos.sh xlt "Alaskan XLT" "<SRC>"`. (gallery.js keys its `slug` off the photo path, so covers/provenance/photo-data follow PHOTOSLUG; only the page file + `url:models/<slug>/` match use the page slug — the builder handles both.)
+- A **brand-new trim code** must be added to `%CFG` in `build_gallery.pl` AND to `cfg_disp`/`parse_one` in `apply_model_photos.sh` AND the validator's `KNOWN_TRIMS` before building — the pre-flight flags it. Done for **`aft-ws` → "Aft Windshield"** (Alaskan XLT). If it's a **two-token** code in the filename (`…-AFT-WS-…`, like `first-responder`), build_gallery must match it with `$cfg='aft-ws' if $joined=~/aft-ws/` BEFORE the single-token loop (else the lone `ws` token wins), and parse_one/validator detect it as "style==aft AND next==ws".
 
 ---
 

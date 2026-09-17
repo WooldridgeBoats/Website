@@ -11,6 +11,10 @@
 # Example:
 #   _build/apply_model_photos.sh alaskanxl "Alaskan XL" "/Users/.../MASTER-WEBSITE PHOTOS/ALASKAN-XL-WEB"
 #
+# <slug> is the PAGE dir (models/<slug>/). Photos go in assets/photos/<slug>/ by default.
+# When the photo dir differs from the page dir, set PHOTOSLUG, e.g. Alaskan XLT:
+#   PHOTOSLUG=alaskan-xlt _build/apply_model_photos.sh xlt "Alaskan XLT" "/Users/.../ALASKAN XLT-WEB"
+#
 # Does: wipe old assets/photos/<slug> fulls+thumbs -> copy fulls (remapped to
 # HULL-LEN-cfg-NN.jpg) -> 800x500 thumbs -> per-length cover-NN thumbs -> hero
 # full + hero.jpg card thumb -> rewrite the model page gallery (captioned) + hero
@@ -28,7 +32,8 @@ for a in "$@"; do case "$a" in --dry-run) DRY=1;; --force) FORCE=1;; esac; done
 [ -d "$SRC" ] || { echo "ERROR: source not found: $SRC"; exit 2; }
 PAGE="$REPO/models/$SLUG/index.html"
 [ -f "$PAGE" ] || { echo "ERROR: model page not found: $PAGE"; exit 2; }
-DEST="$REPO/assets/photos/$SLUG"
+PSLUG="${PHOTOSLUG:-$SLUG}"   # photo dir under assets/photos/; set PHOTOSLUG when it differs from the page slug (e.g. page 'xlt' / photos 'alaskan-xlt')
+DEST="$REPO/assets/photos/$PSLUG"
 say(){ echo "$*"; }
 run(){ if [ "$DRY" = 1 ]; then echo "  [dry] $*"; else eval "$*"; fi; }
 
@@ -41,17 +46,19 @@ if [ -x "$REPO/_build/check_model_photos.sh" ]; then
   else rm -f /tmp/pf.$$; say "pre-flight: PASS"; fi
 fi
 
-cfg_disp(){ case "$1" in cc)echo "Center Console";; ws)echo "Windshield";; tiller)echo "Tiller";; first-responder)echo "First Responder";; *)echo "?$1";; esac; }
+cfg_disp(){ case "$1" in cc)echo "Center Console";; ws)echo "Windshield";; tiller)echo "Tiller";; aft-ws)echo "Aft Windshield";; first-responder)echo "First Responder";; *)echo "?$1";; esac; }
 upper(){ printf '%s' "$1" | tr 'a-z' 'A-Z'; }
 
 # parse "NN-HULL-LEN-STYLE-..." -> "dest hull len cfg" (positional; hull optional)
 parse_one(){
   local base stem; base="$(basename "$1")"; stem="${base%.jpg}"
   local -a t; IFS='-' read -r -a t <<< "$stem"
-  local nn="${t[0]:-}" hull len style
-  if printf '%s' "${t[1]:-}" | grep -qE '^[45][0-9]{3}$'; then hull="${t[1]:-}"; len="${t[2]:-}"; style="${t[3]:-}";
-  else hull=""; len="${t[1]:-}"; style="${t[2]:-}"; fi
-  local cfg; case "$(printf %s "$style" | tr 'A-Z' 'a-z')" in cc)cfg=cc;; ws)cfg=ws;; tiller)cfg=tiller;; first-responder)cfg=first-responder;; *)cfg="?";; esac
+  local nn="${t[0]:-}" hull len style styn
+  if printf '%s' "${t[1]:-}" | grep -qE '^[45][0-9]{3}$'; then hull="${t[1]:-}"; len="${t[2]:-}"; style="${t[3]:-}"; styn="${t[4]:-}";
+  else hull=""; len="${t[1]:-}"; style="${t[2]:-}"; styn="${t[3]:-}"; fi
+  local sl nl cfg; sl="$(printf %s "$style" | tr 'A-Z' 'a-z')"; nl="$(printf %s "$styn" | tr 'A-Z' 'a-z')"
+  if [ "$sl" = "aft" ] && [ "$nl" = "ws" ]; then cfg=aft-ws   # two-token config "AFT-WS" -> Aft Windshield
+  else case "$sl" in cc)cfg=cc;; ws)cfg=ws;; tiller)cfg=tiller;; first-responder)cfg=first-responder;; *)cfg="?";; esac; fi
   local nn2; nn2="$(printf '%02d' "$((10#$nn))")"
   if [ -n "$hull" ]; then echo "${hull}-${len}-${cfg}-${nn2}.jpg $hull $len $cfg"; else echo "${len}-${cfg}-${nn2}.jpg  $len $cfg"; fi
 }
@@ -86,14 +93,14 @@ for d in "${LENDIRS_SORTED[@]}"; do
     local_cd="$(cfg_disp "$cfg")"
     if [ -n "$hull" ]; then altsuf=" &#8212; Hull $hull"; else altsuf=""; fi
     printf '          <a href="../../assets/photos/%s/%s"><img src="../../assets/photos/%s/thumbs/%s" alt="%s&#8242; %s %s%s" loading="lazy"><span class="gcap"><b>%s&#8242; %s</b>%s</span></a>\n' \
-      "$SLUG" "$dest" "$SLUG" "$dest" "$L" "$local_cd" "$MODEL" "$altsuf" "$L" "$local_cd" "$MODEL" >> "$GAL"
+      "$PSLUG" "$dest" "$PSLUG" "$dest" "$L" "$local_cd" "$MODEL" "$altsuf" "$L" "$local_cd" "$MODEL" >> "$GAL"
   done
   # cover for this length
   cov=""; for c in "$d"GALLERY-THUMB*.jpg "$d"GALLERY-thumb*.jpg; do [ -f "$c" ] && cov="$c" && break; done
   shopt -u nullglob
   if [ -n "$cov" ]; then
     run "sips -s format jpeg -Z 800 \"$cov\" --out \"$DEST/thumbs/cover-$L.jpg\" >/dev/null 2>&1"
-    COVERKEYS="$COVERKEYS\"$L\":\"../../assets/photos/$SLUG/thumbs/cover-$L.jpg\","
+    COVERKEYS="$COVERKEYS\"$L\":\"../../assets/photos/$PSLUG/thumbs/cover-$L.jpg\","
   fi
 done
 
@@ -116,7 +123,7 @@ if [ "$DRY" = 1 ]; then
   echo "  [dry] would rewrite $PAGE (hero figcaption, gallery captioned block, WB_COVERS)"
   echo "  ---- gallery HTML preview (first 3) ----"; head -3 "$GAL" | sed 's/^/    /'
 else
-  MODEL="$MODEL" SLUG="$SLUG" HERODEST="$HERODEST" HHULL="$hhull" HLEN="$hlen" \
+  MODEL="$MODEL" SLUG="$PSLUG" HERODEST="$HERODEST" HHULL="$hhull" HLEN="$hlen" \
   HCFG_DISP="$HCFG_DISP" HCFG_UP="$(upper "$HCFG_DISP")" MODEL_UP="$(upper "$MODEL")" \
   COVERKEYS="${COVERKEYS%,}" GALF="$GAL" perl - "$PAGE" <<'PERL'
 use strict; use warnings;
@@ -141,16 +148,16 @@ fi
 
 # ---- 5) cross-page: homepage fleet card + compare thumb -> hero.jpg ----------
 if [ "$DRY" = 1 ]; then
-  echo "  [dry] would repoint homepage fleet card + compare thumb -> assets/photos/$SLUG/thumbs/hero.jpg"
+  echo "  [dry] would repoint homepage fleet card + compare thumb -> assets/photos/$PSLUG/thumbs/hero.jpg"
 else
-  SLUG="$SLUG" perl -0pi -e 'my $s=$ENV{SLUG}; s{(\{[^{}]*?)"ph":"[^"]*"([^{}]*?"url":"models/\Q$s\E/")}{$1"ph":"assets/photos/$s/thumbs/hero.jpg"$2}s' "$REPO/index.html"
-  SLUG="$SLUG" perl -0pi -e 'my $s=$ENV{SLUG}; s{(\bph:\s*'"'"')[^'"'"']*('"'"'[^{}]*?url:\s*'"'"'/models/\Q$s\E/'"'"')}{$1/assets/photos/$s/thumbs/hero.jpg$2}s' "$REPO/compare/index.html"
+  SLUG="$SLUG" PSLUG="$PSLUG" perl -0pi -e 'my $s=$ENV{SLUG}; my $p=$ENV{PSLUG}; s{(\{[^{}]*?)"ph":"[^"]*"([^{}]*?"url":"models/\Q$s\E/")}{$1"ph":"assets/photos/$p/thumbs/hero.jpg"$2}s' "$REPO/index.html"
+  SLUG="$SLUG" PSLUG="$PSLUG" perl -0pi -e 'my $s=$ENV{SLUG}; my $p=$ENV{PSLUG}; s{(\bph:\s*'"'"')[^'"'"']*('"'"'[^{}]*?url:\s*'"'"'/models/\Q$s\E/'"'"')}{$1/assets/photos/$p/thumbs/hero.jpg$2}s' "$REPO/compare/index.html"
   say "  repointed homepage + compare -> hero.jpg"
 fi
 
 # ---- 6) provenance: swap bare "<slug>/..." keys for current files ------------
-if [ "$DRY" = 1 ]; then echo "  [dry] would regen WB_VETTED keys for $SLUG"; else
-  SLUG="$SLUG" DEST="$DEST" perl - "$REPO/assets/media-provenance.js" <<'PERL'
+if [ "$DRY" = 1 ]; then echo "  [dry] would regen WB_VETTED keys for $PSLUG"; else
+  SLUG="$PSLUG" DEST="$DEST" perl - "$REPO/assets/media-provenance.js" <<'PERL'
 use strict; use warnings; my $prov=shift; my $s=$ENV{SLUG};
 opendir my $dh,$ENV{DEST} or die $!; my @files=sort grep {/\.jpe?g$/i} readdir $dh; closedir $dh;
 open my $f,'<',$prov or die $!; local $/; my $h=<$f>; close $f;
@@ -164,7 +171,7 @@ fi
 
 # ---- 7) rebuild data + fleet page + cache-bust -------------------------------
 if [ "$DRY" = 1 ]; then echo "  [dry] would run build_gallery.pl + stamp_assets.pl"; else
-  ( cd "$REPO" && perl _build/build_gallery.pl 2>&1 | grep -iE "(^| )$SLUG |MISSING THUMB: $SLUG/" )
+  ( cd "$REPO" && perl _build/build_gallery.pl 2>&1 | grep -iE "(^| )$PSLUG |MISSING THUMB: $PSLUG/" )
   ( cd "$REPO" && perl _build/stamp_assets.pl >/dev/null 2>&1 && echo "  cache-stamped" )
 fi
 rm -f "$GAL"
@@ -176,8 +183,8 @@ if [ "$DRY" = 1 ]; then echo "DRY-RUN complete — nothing written."; else
   echo "  • serve: python3 -m http.server 8811   then open /models/$SLUG/"
   echo "  • model page: N cover cards (one per length), gcaps, hero loads, 0 broken imgs, no console errors"
   echo "  • lightbox caption switches config+hull; homepage fleet card = hero"
-  leftover="$(grep -rl "photos/$SLUG/" "$REPO"/lp/*.html 2>/dev/null || true)"
-  [ -n "$leftover" ] && { echo "  • REVIEW lp/ refs to photos/$SLUG/ (persona heroes are model-specific):"; echo "$leftover" | sed 's/^/      /'; }
+  leftover="$(grep -rl "photos/$PSLUG/" "$REPO"/lp/*.html 2>/dev/null || true)"
+  [ -n "$leftover" ] && { echo "  • REVIEW lp/ refs to photos/$PSLUG/ (persona heroes are model-specific):"; echo "$leftover" | sed 's/^/      /'; }
   echo "  • commit when happy (you drive the push):"
   echo "      cd $REPO && git add -A && git commit -m \"$MODEL: 2026 photo set\""
 fi
