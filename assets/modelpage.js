@@ -203,4 +203,38 @@
     closeVid();
     closePdf();
   });
+
+  /* ── specs table — mobile length tabs. The multi-length comparison table is
+     hard to read on a phone, so on narrow screens (CSS) we show one length at
+     a time and let the visitor tap 16 / 18 / 20 ft to switch. Desktop keeps
+     the full table (tabs hidden by CSS). No-JS falls back to the horizontally
+     scrollable table. Generic — reads whatever lengths each page declares. */
+  function initSpecTabs() {
+    var groups = document.querySelectorAll('.bspec-lentabs');
+    for (var i = 0; i < groups.length; i++) {
+      (function (tabs) {
+        var fold = tabs.closest('.bspecfold') || tabs.parentNode;
+        var table = fold.querySelector('.bspec');
+        if (!table) return;
+        var btns = tabs.querySelectorAll('.bspec-lentab');
+        fold.classList.add('js-specs');
+        function setActive(idx) {                      /* idx = column position */
+          table.setAttribute('data-active', idx);
+          for (var j = 0; j < btns.length; j++) {
+            var on = btns[j].getAttribute('data-idx') === String(idx);
+            btns[j].classList.toggle('is-active', on);
+            btns[j].setAttribute('aria-selected', on ? 'true' : 'false');
+          }
+        }
+        tabs.addEventListener('click', function (e) {
+          var b = e.target.closest ? e.target.closest('.bspec-lentab') : null;
+          if (!b) return;
+          setActive(b.getAttribute('data-idx'));
+        });
+        setActive(btns.length ? btns[0].getAttribute('data-idx') : '1');
+        if (btns.length < 2) tabs.style.display = 'none';   /* single length → no switcher */
+      })(groups[i]);
+    }
+  }
+  initSpecTabs();
 })();
