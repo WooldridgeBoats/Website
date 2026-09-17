@@ -1,0 +1,505 @@
+{
+  "alaskan-lt": {
+    "name": "Alaskan LT",
+    "lengths": ["16 ft.", "18 ft.", "20 ft."],
+    "intro": "Configuration-specific differences are labeled below.",
+    "footnote": "Configuration labels appear only where specifications differ.",
+    "categories": [
+      {"name": "Dimensions & Construction", "rows": [
+        {"label": "Length Overall", "values": ["16 ft. 8 in.", "20 ft. 1 in.", "20 ft. 8 in."]},
+        {"label": "Beam", "values": ["80 in.", "80 in.", "80 in."]},
+        {"label": "Bottom Width", "values": ["60 in.", "60 in.", "60 in."]},
+        {"label": "Side Height", "values": ["22 in.", "22 in.", "22 in."]},
+        {"label": "Bottom Gauge", "values": [".125 in.", ".125 in.", ".125 in."]},
+        {"label": "Center Bottom Gauge", "values": [".250 in.", ".250 in.", ".250 in."]},
+        {"label": "Side Gauge", "values": [".125 in.", ".125 in.", ".125 in."]},
+        {"label": "Deadrise", "values": ["9°", "9°", "9°"]},
+        {"label": "Deadrise At Bow", "values": ["9°", "9°", "9°"]}
+      ]},
+      {"name": "Weight by Configuration", "rows": [
+        {"label": "Weight", "badges": [
+          [["Tiller", "690 lbs."], ["Center Console", "715 lbs."]],
+          [["Tiller", "740 lbs."], ["Center Console", "765 lbs."], ["Windshield", "815 lbs."]],
+          [["Tiller", "800 lbs."], ["Center Console", "825 lbs."], ["Windshield", "875 lbs."]]
+        ]}
+      ]},
+      {"name": "Power Ratings", "rows": [
+        {"label": "Max Jet HP", "values": [{"v": "90 hp", "badge": "Center Console"}, "115 hp", "150 hp"]},
+        {"label": "Max Prop HP", "values": ["60 hp", "70 hp", "70 hp"]},
+        {"label": "Max Tiller HP", "values": ["60 hp", "115 hp", "115 hp"]}
+      ]}
+    ]
+  },
+
+  "alaskan": {
+    "name": "Alaskan",
+    "lengths": ["18 ft.", "20 ft."],
+    "intro": "Configuration-specific differences are labeled below.",
+    "footnote": "18 ft. includes welded Stable Pods. Weight shown open and with windshield.",
+    "categories": [
+      {"name": "Dimensions & Construction", "rows": [
+        {"label": "Length Overall", "values": ["20 ft. 1 in.", "20 ft. 9 in."]},
+        {"label": "Beam", "values": ["82 in.", "82 in."]},
+        {"label": "Bottom Width", "values": ["66 in.", "66 in."]},
+        {"label": "Side Height", "values": ["28 in.", "28 in."]},
+        {"label": "Bottom Gauge", "values": [".125 in.", ".125 in."]},
+        {"label": "Center Bottom Gauge", "values": [".250 in.", ".250 in."]},
+        {"label": "Side Gauge", "values": [".125 in.", ".125 in."]},
+        {"label": "Deadrise", "values": ["9°", "9°"]},
+        {"label": "Deadrise At Bow", "values": ["9°", "9°"]},
+        {"label": "Fuel Tank", "values": ["36 gal.", "50 gal."]}
+      ]},
+      {"name": "Weight by Configuration", "rows": [
+        {"label": "Weight", "badges": [
+          [["Open", "1,175 lbs."], ["Windshield", "1,250 lbs."]],
+          [["Open", "1,255 lbs."], ["Windshield", "1,330 lbs."]]
+        ]}
+      ]},
+      {"name": "Power Ratings", "rows": [
+        {"label": "Max Jet HP", "values": ["200 hp", "250 hp"]},
+        {"label": "Max Prop HP", "values": ["90 hp", "140 hp"]}
+      ]}
+    ]
+  },
+
+  "alaskanxl": {
+    "name": "Alaskan XL",
+    "lengths": ["20 ft."],
+    "intro": "Full dimensions, weight, and power for the Alaskan XL.",
+    "footnote": "Weight shown open and with windshield.",
+    "categories": [
+      {"name": "Dimensions & Construction", "rows": [
+        {"label": "Length Overall", "values": ["20 ft. 9 in."]},
+        {"label": "Beam", "values": ["99 in."]},
+        {"label": "Bottom Width", "values": ["80 in."]},
+        {"label": "Side Height", "values": ["29.5 in."]},
+        {"label": "Bottom Gauge", "values": [".160 in."]},
+        {"label": "Side Gauge", "values": [".125 in."]},
+        {"label": "Deadrise", "values": ["9°"]},
+        {"label": "Deadrise At Bow", "values": ["9°"]},
+        {"label": "Fuel Tank", "values": ["52 gal."]}
+      ]},
+      {"name": "Weight by Configuration", "rows": [
+        {"label": "Weight", "badges": [
+          [["Open", "1,250 lbs."], ["Windshield", "1,350 lbs."]]
+        ]}
+      ]},
+      {"name": "Power Ratings", "rows": [
+        {"label": "Max Jet HP", "values": ["250 hp"]},
+        {"label": "Max Prop HP", "values": ["150 hp"]},
+        {"label": "Max Tiller HP", "values": ["250 hp"]}
+      ]}
+    ]
+  },
+
+  "xlt": {
+    "name": "Alaskan XLT",
+    "lengths": ["18 ft.", "20 ft."],
+    "intro": "Full dimensions, weight, and power for each length.",
+    "categories": [
+      {"name": "Dimensions & Construction", "rows": [
+        {"label": "Length Overall", "values": ["20 ft. 2 in.", "20 ft. 10 in."]},
+        {"label": "Beam", "values": ["93 in.", "93 in."]},
+        {"label": "Bottom Width", "values": ["72 in.", "72 in."]},
+        {"label": "Side Height", "values": ["27 in.", "27 in."]},
+        {"label": "Bottom Gauge", "values": [".125 in.", ".125 in."]},
+        {"label": "Center Bottom Gauge", "values": [".250 in.", ".250 in."]},
+        {"label": "Side Gauge", "values": [".125 in.", ".125 in."]},
+        {"label": "Deadrise", "values": ["9°", "9°"]},
+        {"label": "Deadrise At Bow", "values": ["9°", "9°"]},
+        {"label": "Weight", "values": ["1,080 lbs.", "1,160 lbs."]}
+      ]},
+      {"name": "Power Ratings", "rows": [
+        {"label": "Max Jet HP", "values": ["200 hp", "250 hp"]},
+        {"label": "Max Prop HP", "values": ["90 hp", "115 hp"]}
+      ]}
+    ]
+  },
+
+  "rogue": {
+    "name": "Rogue",
+    "lengths": ["16 ft.", "18 ft.", "20 ft."],
+    "intro": "HDPE hull dimensions and power for each length.",
+    "footnote": "Stable Pods on 18 ft. model. 26 gal. topside tank on 20 ft. model.",
+    "categories": [
+      {"name": "Dimensions & Construction", "rows": [
+        {"label": "Length Overall", "values": ["17 ft. 11 in.", "20 ft. 2 in.", "21 ft. 11 in."]},
+        {"label": "Beam", "values": ["85 in.", "86 in.", "86 in."]},
+        {"label": "Bottom Width", "values": ["60 in.", "66 in.", "66 in."]},
+        {"label": "Side Height", "values": ["28 in.", "32 in.", "32 in."]},
+        {"label": "Bottom Gauge", "values": [".500 in.", ".500 in.", ".625 in."]},
+        {"label": "Side Gauge", "values": [".500 in.", ".500 in.", ".500 in."]},
+        {"label": "Deadrise", "values": ["9°", "9°", "9°"]},
+        {"label": "Fuel Tank", "values": ["14 gal.", "14 gal.", "26 gal."]}
+      ]},
+      {"name": "Power Ratings", "rows": [
+        {"label": "Max Jet HP", "values": ["115 hp", "200 hp", "250 hp"]},
+        {"label": "Max Prop HP", "values": ["60 hp", "115 hp", "115 hp"]}
+      ]}
+    ]
+  },
+
+  "skagit": {
+    "name": "Skagit",
+    "lengths": ["18 ft.", "20 ft."],
+    "intro": "Configuration-specific differences are labeled below.",
+    "footnote": "* Includes welded Stable Pods. Weight shown open and with windshield.",
+    "categories": [
+      {"name": "Dimensions & Construction", "rows": [
+        {"label": "Length Overall", "values": ["20 ft. 5 in.*", "20 ft. 10 in."]},
+        {"label": "Beam", "values": ["93 in.", "93 in."]},
+        {"label": "Bottom Width", "values": ["72 in.", "72 in."]},
+        {"label": "Side Height", "values": ["34.5 in.", "34.5 in."]},
+        {"label": "Bottom Gauge", "values": [".190 in.", ".190 in."]},
+        {"label": "Side Gauge", "values": [".125 in.", ".125 in."]},
+        {"label": "Deadrise", "values": ["10°", "10°"]},
+        {"label": "Deadrise At Bow", "values": ["14°", "14°"]},
+        {"label": "Fuel Tank", "values": ["50 gal.", "50 gal."]}
+      ]},
+      {"name": "Weight by Configuration", "rows": [
+        {"label": "Weight", "badges": [
+          [["Open", "1,425 lbs."], ["Windshield", "1,500 lbs."]],
+          [["Open", "1,525 lbs."], ["Windshield", "1,600 lbs."]]
+        ]}
+      ]},
+      {"name": "Power Ratings", "rows": [
+        {"label": "Max Jet HP", "values": ["200 hp", "250 hp"]},
+        {"label": "Max Prop HP", "values": ["115 hp", "140 hp"]}
+      ]}
+    ]
+  },
+
+  "skagit-inboard": {
+    "name": "Skagit Inboard",
+    "lengths": ["18 ft.", "20 ft."],
+    "intro": "Configuration-specific differences are labeled below.",
+    "footnote": "Weight shown open and with windshield.",
+    "categories": [
+      {"name": "Dimensions & Construction", "rows": [
+        {"label": "Length Overall", "values": ["21 ft. 2 in.", "23 ft. 2 in."]},
+        {"label": "Beam", "values": ["93 in.", "93 in."]},
+        {"label": "Bottom Width", "values": ["72 in.", "72 in."]},
+        {"label": "Side Height", "values": ["34 in.", "34 in."]},
+        {"label": "Bottom Gauge", "values": [".160 in.", ".160 in."]},
+        {"label": "Center Bottom Gauge", "values": [".160 in.", ".160 in."]},
+        {"label": "Side Gauge", "values": [".125 in.", ".125 in."]},
+        {"label": "Deadrise", "values": ["10°", "10°"]},
+        {"label": "Deadrise At Bow", "values": ["14°", "14°"]},
+        {"label": "Fuel Tank", "values": ["50 gal.", "50 gal."]}
+      ]},
+      {"name": "Weight by Configuration", "rows": [
+        {"label": "Weight", "badges": [
+          [["Open", "2,356 lbs."], ["Windshield", "2,431 lbs."]],
+          [["Open", "2,456 lbs."], ["Windshield", "2,531 lbs."]]
+        ]}
+      ]},
+      {"name": "Power Ratings", "rows": [
+        {"label": "Standard Motor", "values": ["KEM 5.3DI", "KEM 5.3DI"]},
+        {"label": "Standard Jet", "values": ["Hamilton 214", "Hamilton 214"]}
+      ]}
+    ]
+  },
+
+  "skagit-x": {
+    "name": "Skagit-X",
+    "lengths": ["21 ft."],
+    "intro": "Full dimensions and power for the Skagit-X.",
+    "categories": [
+      {"name": "Dimensions & Construction", "rows": [
+        {"label": "Length Overall", "values": ["23 ft. 6 in."]},
+        {"label": "Beam", "values": ["90 in."]},
+        {"label": "Interior Floor Width", "values": ["76 in."]},
+        {"label": "Bottom Width", "values": ["72 in."]},
+        {"label": "Side Height", "values": ["29.5 in."]},
+        {"label": "Interior Side Height", "values": ["21.5 in."]},
+        {"label": "Bottom Gauge", "values": [".190 in."]},
+        {"label": "Side Gauge", "values": [".125 in."]},
+        {"label": "Deadrise", "values": ["10°"]},
+        {"label": "Deadrise At Bow", "values": ["14°"]},
+        {"label": "Weight", "values": ["3,400 lbs."]},
+        {"label": "Fuel Tank", "values": ["50 gal."]}
+      ]},
+      {"name": "Power Ratings", "rows": [
+        {"label": "Standard Motor", "values": ["Chevy 5.3DI"]},
+        {"label": "Standard Jet", "values": ["Hamilton 214"]}
+      ]}
+    ]
+  },
+
+  "scout": {
+    "name": "Scout",
+    "lengths": ["19 ft.", "21 ft.", "23 ft."],
+    "intro": "Full dimensions, weight, and power for each length.",
+    "categories": [
+      {"name": "Dimensions & Construction", "rows": [
+        {"label": "Length Overall", "values": ["21 ft. 9 in.", "23 ft. 9 in.", "25 ft. 6 in."]},
+        {"label": "Beam", "values": ["93 in.", "93 in.", "93 in."]},
+        {"label": "Bottom Width", "values": ["72 in.", "72 in.", "72 in."]},
+        {"label": "Side Height", "values": ["35 in.", "35 in.", "35 in."]},
+        {"label": "Bottom Gauge", "values": [".190 in.", ".190 in.", ".190 in."]},
+        {"label": "Side Gauge", "values": [".125 in.", ".125 in.", ".125 in."]},
+        {"label": "Delta Pad Gauge", "values": [".500 in.", ".500 in.", ".500 in."]},
+        {"label": "Deadrise", "values": ["10°", "10°", "10°"]},
+        {"label": "Deadrise At Bow", "values": ["17°", "17°", "17°"]},
+        {"label": "Weight", "values": ["3,050 lbs.", "3,300 lbs.", "3,450 lbs."]},
+        {"label": "Fuel Tank", "values": ["50 gal.", "50 gal.", "50 gal."]}
+      ]},
+      {"name": "Power Ratings", "rows": [
+        {"label": "Standard Motor", "values": ["KEM 5.3DI", "KEM 5.3DI", "KEM 5.3DI"]},
+        {"label": "Standard Jet", "values": ["Hamilton 214", "Hamilton 214", "Hamilton 214"]}
+      ]}
+    ]
+  },
+
+  "scout-widebody": {
+    "name": "Scout Widebody",
+    "lengths": ["21 ft.", "23 ft.", "25 ft."],
+    "intro": "Full dimensions, weight, and power for each length.",
+    "categories": [
+      {"name": "Dimensions & Construction", "rows": [
+        {"label": "Length Overall", "values": ["23 ft. 6 in.", "25 ft. 6 in.", "27 ft. 6 in."]},
+        {"label": "Beam", "values": ["105 in.", "105 in.", "105 in."]},
+        {"label": "Interior Floor Width", "values": ["84 in.", "84 in.", "84 in."]},
+        {"label": "Bottom Width", "values": ["84 in.", "84 in.", "84 in."]},
+        {"label": "Side Height", "values": ["33 in.", "33 in.", "33 in."]},
+        {"label": "Bottom Gauge", "values": [".190 in.", ".190 in.", ".190 in."]},
+        {"label": "Side Gauge", "values": [".125 in.", ".125 in.", ".125 in."]},
+        {"label": "Deadrise", "values": ["10°", "10°", "10°"]},
+        {"label": "Deadrise At Bow", "values": ["17°", "17°", "17°"]},
+        {"label": "Weight", "values": ["4,540 lbs.", "4,790 lbs.", "5,040 lbs."]},
+        {"label": "Fuel Tank", "values": ["80 gal.", "80 gal.", "80 gal."]}
+      ]},
+      {"name": "Power Ratings", "rows": [
+        {"label": "Standard Motor", "values": ["KEM 6.2DI", "KEM 6.2DI", "KEM 6.2DI"]},
+        {"label": "Standard Jet", "values": ["Hamilton 214", "Hamilton 214", "Hamilton 214"]}
+      ]}
+    ]
+  },
+
+  "sport": {
+    "name": "Sport",
+    "lengths": ["18 ft.", "20 ft."],
+    "intro": "Configuration-specific differences are labeled below.",
+    "footnote": "Weight shown open and with windshield.",
+    "categories": [
+      {"name": "Dimensions & Construction", "rows": [
+        {"label": "Length Overall", "values": ["20 ft. 1 in.", "20 ft. 6 in."]},
+        {"label": "Beam", "values": ["94 in.", "94 in."]},
+        {"label": "Bottom Width", "values": ["72 in.", "72 in."]},
+        {"label": "Side Height", "values": ["34.5 in.", "34.5 in."]},
+        {"label": "Bottom Gauge", "values": [".190 in.", ".190 in."]},
+        {"label": "Side Gauge", "values": [".125 in.", ".125 in."]},
+        {"label": "Deadrise", "values": ["10°", "10°"]},
+        {"label": "Deadrise At Bow", "values": ["16°", "16°"]},
+        {"label": "Fuel Tank", "values": ["50 gal.", "50 gal."]}
+      ]},
+      {"name": "Weight by Configuration", "rows": [
+        {"label": "Weight", "badges": [
+          [["Open", "1,325 lbs."], ["Windshield", "1,400 lbs."]],
+          [["Open", "1,425 lbs."], ["Windshield", "1,500 lbs."]]
+        ]}
+      ]},
+      {"name": "Power Ratings", "rows": [
+        {"label": "Max Jet HP", "values": ["200 hp", "250 hp"]},
+        {"label": "Max Prop HP", "values": ["115 hp", "150 hp"]}
+      ]}
+    ]
+  },
+
+  "sportinboard": {
+    "name": "Sport Inboard",
+    "lengths": ["18 ft.", "20 ft."],
+    "intro": "Configuration-specific differences are labeled below.",
+    "footnote": "Weight shown open and with windshield, with the standard KEM 5.3 DI V8. Indmar 2.3 EcoBoost also available.",
+    "categories": [
+      {"name": "Dimensions & Construction", "rows": [
+        {"label": "Length Overall", "values": ["20 ft. 10 in.", "22 ft. 10 in."]},
+        {"label": "Beam", "values": ["94 in.", "94 in."]},
+        {"label": "Bottom Width", "values": ["72 in.", "72 in."]},
+        {"label": "Side Height", "values": ["32 in.", "32 in."]},
+        {"label": "Bottom Gauge", "values": [".160 in.", ".160 in."]},
+        {"label": "Side Gauge", "values": [".125 in.", ".125 in."]},
+        {"label": "Deadrise", "values": ["10°", "12°"]},
+        {"label": "Deadrise At Bow", "values": ["18°", "18°"]},
+        {"label": "Fuel Tank", "values": ["50 gal.", "50 gal."]}
+      ]},
+      {"name": "Weight by Configuration", "rows": [
+        {"label": "Weight", "badges": [
+          [["Open", "2,256 lbs."], ["Windshield", "2,331 lbs."]],
+          [["Open", "2,356 lbs."], ["Windshield", "2,431 lbs."]]
+        ]}
+      ]},
+      {"name": "Power Ratings", "rows": [
+        {"label": "Standard Motor", "values": ["KEM 5.3 DI V8", "KEM 5.3 DI V8"]},
+        {"label": "Standard Jet", "values": ["Hamilton 214", "Hamilton 214"]}
+      ]}
+    ]
+  },
+
+  "sportoffshore": {
+    "name": "Sport Offshore",
+    "lengths": ["18 ft.", "20 ft."],
+    "intro": "Full dimensions, weight, and power for each length.",
+    "footnote": "Weight shown with windshield.",
+    "categories": [
+      {"name": "Dimensions & Construction", "rows": [
+        {"label": "Length Overall", "values": ["20 ft. 5 in.", "22 ft. 5 in."]},
+        {"label": "Beam", "values": ["98 in.", "98 in."]},
+        {"label": "Bottom Width", "values": ["78 in.", "78 in."]},
+        {"label": "Side Height", "values": ["34 in.", "34 in."]},
+        {"label": "Bottom Gauge", "values": [".190 in.", ".190 in."]},
+        {"label": "Side Gauge", "values": [".125 in.", ".125 in."]},
+        {"label": "Deadrise", "values": ["16°", "16°"]},
+        {"label": "Deadrise At Bow", "values": ["30°", "30°"]},
+        {"label": "Weight", "values": ["1,830 lbs.", "1,940 lbs."]},
+        {"label": "Fuel Tank", "values": ["52 gal.", "52 gal."]}
+      ]},
+      {"name": "Power Ratings", "rows": [
+        {"label": "Max Prop HP", "values": ["150 hp", "200 hp"]}
+      ]}
+    ]
+  },
+
+  "sportster": {
+    "name": "Sportster",
+    "lengths": ["21 ft.", "23 ft.", "25 ft."],
+    "intro": "Configuration-specific differences are labeled below.",
+    "footnote": "Weight shown open and with windshield.",
+    "categories": [
+      {"name": "Dimensions & Construction", "rows": [
+        {"label": "Length Overall", "values": ["21 ft. 8 in.", "23 ft. 8 in.", "25 ft. 8 in."]},
+        {"label": "Beam", "values": ["106 in.", "106 in.", "106 in."]},
+        {"label": "Bottom Width", "values": ["88 in.", "88 in.", "88 in."]},
+        {"label": "Side Height", "values": ["30 in.", "30 in.", "30 in."]},
+        {"label": "Bottom Gauge", "values": [".190 in.", ".190 in.", ".190 in."]},
+        {"label": "Side Gauge", "values": [".125 in.", ".125 in.", ".125 in."]},
+        {"label": "Deadrise", "values": ["12°", "12°", "12°"]},
+        {"label": "Deadrise At Bow", "values": ["18°", "18°", "18°"]},
+        {"label": "Fuel Tank", "values": ["52 gal.", "52 gal.", "52 gal."]}
+      ]},
+      {"name": "Weight by Configuration", "rows": [
+        {"label": "Weight", "badges": [
+          [["Open", "1,805 lbs."], ["Windshield", "1,905 lbs."]],
+          [["Open", "1,905 lbs."], ["Windshield", "2,005 lbs."]],
+          [["Open", "2,005 lbs."], ["Windshield", "2,105 lbs."]]
+        ]}
+      ]},
+      {"name": "Power Ratings", "rows": [
+        {"label": "Max Jet HP", "values": ["250 hp", "250 hp", "250 hp"]},
+        {"label": "Max Prop HP", "values": ["200 hp", "225 hp", "225 hp"]},
+        {"label": "Max Tiller HP", "values": ["250 hp", "250 hp", "250 hp"]}
+      ]}
+    ]
+  },
+
+  "super-sport-offshore": {
+    "name": "Super Sport Offshore",
+    "lengths": ["20 ft.", "21 ft.", "23 ft.", "26 ft."],
+    "intro": "Configuration-specific differences are labeled below.",
+    "footnote": "Weight shown open and with windshield. 34 in. side height available on 21 ft. and 23 ft.; 23 ft. offers 70 or 97 gal.",
+    "categories": [
+      {"name": "Dimensions & Construction", "rows": [
+        {"label": "Length Overall", "values": ["20 ft. 3 in.", "21 ft. 3 in.", "23 ft. 3 in.", "26 ft. 3 in."]},
+        {"label": "Beam", "values": ["102 in.", "102 in.", "102 in.", "102 in."]},
+        {"label": "Bottom Width", "values": ["84 in.", "84 in.", "84 in.", "84 in."]},
+        {"label": "Side Height", "values": ["28 in.", "28 in.", "28 in.", "34 in."]},
+        {"label": "Bottom Gauge", "values": [".190 in.", ".190 in.", ".190 in.", ".190 in."]},
+        {"label": "Side Gauge", "values": [".125 in.", ".125 in.", ".125 in.", ".125 in."]},
+        {"label": "Deadrise", "values": ["18°", "18°", "18°", "18°"]},
+        {"label": "Deadrise At Bow", "values": ["40°", "40°", "40°", "40°"]},
+        {"label": "Fuel Tank", "values": ["70 gal.", "70 gal.", "70 gal.", "97 gal."]}
+      ]},
+      {"name": "Weight by Configuration", "rows": [
+        {"label": "Weight", "badges": [
+          [["Open", "1,510 lbs."], ["Windshield", "1,610 lbs."]],
+          [["Open", "1,550 lbs."], ["Windshield", "1,650 lbs."]],
+          [["Open", "1,620 lbs."], ["Windshield", "1,720 lbs."]],
+          [["Open", "1,730 lbs."], ["Windshield", "1,830 lbs."]]
+        ]}
+      ]},
+      {"name": "Power Ratings", "rows": [
+        {"label": "Max Prop HP", "values": ["200 hp", "200 hp", "225 hp", "250 hp"]}
+      ]}
+    ]
+  },
+
+  "supersportdrifter": {
+    "name": "Super Sport Drifter",
+    "lengths": ["21 ft.", "23 ft.", "25 ft."],
+    "intro": "Configuration-specific differences are labeled below.",
+    "footnote": "Weight shown open and with windshield.",
+    "categories": [
+      {"name": "Dimensions & Construction", "rows": [
+        {"label": "Length Overall", "values": ["21 ft.", "23 ft.", "25 ft."]},
+        {"label": "Beam", "values": ["102 in.", "102 in.", "102 in."]},
+        {"label": "Bottom Width", "values": ["84 in.", "84 in.", "84 in."]},
+        {"label": "Side Height", "values": ["34.25 in.", "34.25 in.", "34.25 in."]},
+        {"label": "Bottom Gauge", "values": [".190 in.", ".190 in.", ".190 in."]},
+        {"label": "Side Gauge", "values": [".125 in.", ".125 in.", ".125 in."]},
+        {"label": "Deadrise", "values": ["10°", "10°", "10°"]},
+        {"label": "Deadrise At Bow", "values": ["18°", "18°", "18°"]},
+        {"label": "Fuel Tank", "values": ["52 gal.", "52 gal.", "52 gal."]}
+      ]},
+      {"name": "Weight by Configuration", "rows": [
+        {"label": "Weight", "badges": [
+          [["Open", "1,530 lbs."], ["Windshield", "1,630 lbs."]],
+          [["Open", "1,630 lbs."], ["Windshield", "1,730 lbs."]],
+          [["Open", "1,730 lbs."], ["Windshield", "1,830 lbs."]]
+        ]}
+      ]},
+      {"name": "Power Ratings", "rows": [
+        {"label": "Max Jet HP", "values": ["250 hp", "250 hp", "250 hp"]},
+        {"label": "Max Prop HP", "values": ["200 hp", "225 hp", "225 hp"]}
+      ]}
+    ]
+  },
+
+  "supersportdrifterinboard": {
+    "name": "Super Sport Drifter Inboard",
+    "lengths": ["21 ft.", "23 ft.", "25 ft."],
+    "intro": "Configuration-specific differences are labeled below.",
+    "footnote": "Weight shown open and with windshield.",
+    "categories": [
+      {"name": "Dimensions & Construction", "rows": [
+        {"label": "Length Overall", "values": ["21 ft. 3 in.", "23 ft. 3 in.", "25 ft. 3 in."]},
+        {"label": "Beam", "values": ["102 in.", "102 in.", "102 in."]},
+        {"label": "Bottom Width", "values": ["84 in.", "84 in.", "84 in."]},
+        {"label": "Side Height", "values": ["28 in.", "28 in.", "28 in."]},
+        {"label": "Bottom Gauge", "values": [".190 in.", ".190 in.", ".190 in."]},
+        {"label": "Side Gauge", "values": [".125 in.", ".125 in.", ".125 in."]},
+        {"label": "Deadrise", "values": ["12°", "12°", "12°"]},
+        {"label": "Deadrise At Bow", "values": ["18°", "18°", "18°"]},
+        {"label": "Fuel Tank", "values": ["77 gal.", "77 gal.", "77 gal."]}
+      ]},
+      {"name": "Weight by Configuration", "rows": [
+        {"label": "Weight", "badges": [
+          [["Open", "2,660 lbs."], ["Windshield", "2,760 lbs."]],
+          [["Open", "2,760 lbs."], ["Windshield", "2,860 lbs."]],
+          [["Open", "2,860 lbs."], ["Windshield", "2,960 lbs."]]
+        ]}
+      ]},
+      {"name": "Power Ratings", "rows": [
+        {"label": "Standard Motor", "values": ["350 Chevy V8", "350 Chevy V8", "350 Chevy V8"]}
+      ]}
+    ]
+  },
+
+  "alaskan-xl-inboard": {
+    "name": "Alaskan XL Inboard",
+    "lengths": ["20 ft.", "21 ft."],
+    "intro": "Dimensions for each length.",
+    "categories": [
+      {"name": "Dimensions & Construction", "rows": [
+        {"label": "Length Overall", "values": ["22 ft. 8 in.", "23 ft. 8 in."]},
+        {"label": "Beam", "values": ["99 in.", "99 in."]},
+        {"label": "Bottom Width", "values": ["81 in.", "81 in."]},
+        {"label": "Side Height", "values": ["29.5 in.", "29.5 in."]},
+        {"label": "Bottom Gauge", "values": [".190 in.", ".190 in."]},
+        {"label": "Side Gauge", "values": [".125 in.", ".125 in."]},
+        {"label": "Deadrise", "values": ["9°", "9°"]},
+        {"label": "Deadrise At Bow", "values": ["9°", "9°"]},
+        {"label": "Fuel Tank", "values": ["50 gal.", "50 gal."]}
+      ]}
+    ]
+  }
+}
