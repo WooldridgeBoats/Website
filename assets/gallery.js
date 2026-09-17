@@ -488,7 +488,12 @@
       if (slot) {
         var by = 'length', g = groups, ks = keys.slice();
         var realLens = ks.filter(function (k) { return k !== 'x'; });
-        if (realLens.length < 2) {
+        /* One card per LENGTH is the gallery unit (trims are listed in the card
+           sub-line, e.g. "Windshield & Console Trims"). A single-length model is
+           therefore ONE length card (uses its WB_COVERS thumb; mc-single caps it
+           to a normal card size). Only fall back to grouping by config/all when
+           there is NO length metadata at all. */
+        if (realLens.length < 1) {
           var gc = {}, kc = [];
           anchors.forEach(function (a) {
             var c = a.dataset.cfg || 'All builds';
