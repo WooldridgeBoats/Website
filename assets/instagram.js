@@ -24,7 +24,7 @@
   var row = section.querySelector('.igrow');
   if (!row) return;
 
-  var MAX = 8; // one clean desktop row (matches the .igrow grid in house.css)
+  var MAX = 6; // one clean desktop row (matches the .igrow grid in house.css)
   var DEFAULT_FEED =
     'https://cdn.jsdelivr.net/gh/WooldridgeBoats/Website@main/assets/homepage/instagram/feed.json';
   var feedUrl = section.getAttribute('data-feed') || DEFAULT_FEED;

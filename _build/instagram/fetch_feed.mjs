@@ -18,7 +18,7 @@ import { writeFile, mkdir } from 'node:fs/promises';
 const TOKEN   = process.env.IG_TOKEN;
 const REPO    = process.env.GITHUB_REPOSITORY || 'WooldridgeBoats/Website';
 const BRANCH  = process.env.FEED_BRANCH || 'main';
-const LIMIT   = Number(process.env.IG_LIMIT || 8);
+const LIMIT   = Number(process.env.IG_LIMIT || 6);
 const OUT_DIR = 'assets/homepage/instagram';
 const PROFILE = 'https://www.instagram.com/wooldridgeboats/';
 const GRAPH   = 'https://graph.instagram.com';
