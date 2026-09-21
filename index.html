@@ -38,7 +38,7 @@
   "openingHours": "Mo-Th 06:00-16:30"
 }
 </script>
-<link rel="stylesheet" href="house.css?v=015770b4">
+<link rel="stylesheet" href="house.css?v=b627ed70">
 <link rel="canonical" href="https://www.wooldridgeboats.com/">
 </head>
 <body>
@@ -370,7 +370,7 @@
 </section>
 
 <!-- ══ instagram ══ -->
-<section id="instagram" class="rev" style="padding-top:30px;">
+<section id="instagram" class="rev" style="padding-top:30px;" data-feed="https://cdn.jsdelivr.net/gh/WooldridgeBoats/Website@main/assets/homepage/instagram/feed.json">
   <div class="wrap">
     <div class="sechead">
       <h2>Instagram</h2>
@@ -384,8 +384,6 @@
       <a href="https://www.instagram.com/wooldridgeboats/"><img src="assets/homepage/ig-6.jpg" alt="Instagram photo 6" loading="lazy"></a>
       <a href="https://www.instagram.com/wooldridgeboats/"><img src="assets/homepage/ig-7.jpg" alt="Instagram photo 7" loading="lazy"></a>
       <a href="https://www.instagram.com/wooldridgeboats/"><img src="assets/homepage/ig-8.jpg" alt="Instagram photo 8" loading="lazy"></a>
-      <a href="https://www.instagram.com/wooldridgeboats/"><img src="assets/homepage/ig-9.jpg" alt="Instagram photo 9" loading="lazy"></a>
-      <a href="https://www.instagram.com/wooldridgeboats/"><img src="assets/homepage/ig-10.jpg" alt="Instagram photo 10" loading="lazy"></a>
     </div>
     <p class="igfollow">Follow us <a href="https://www.instagram.com/wooldridgeboats/">@wooldridgeboats</a></p>
   </div>
@@ -692,5 +690,7 @@ if ('IntersectionObserver' in window){
 <!-- photo-data + gallery power the In The Shop Right Now lightbox (added 2026-07-30
      with the section's move from /custom-agency-builds/); data must load first -->
 <script src="assets/photo-data.js?v=f5b12faa"></script><script src="assets/gallery.js?v=b59620e3"></script><script src="assets/shop.js?v=2b60ad77"></script>
+<!-- live @wooldridgeboats feed; falls back to the baked-in ig-*.jpg tiles -->
+<script src="assets/instagram.js?v=f0da102a"></script>
 </body>
 </html>

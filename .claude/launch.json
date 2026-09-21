@@ -6,6 +6,12 @@
       "runtimeExecutable": "C:/Program Files/Git/usr/bin/perl.exe",
       "runtimeArgs": ["_build/serve.pl", ".", "8410"],
       "port": 8410
+    },
+    {
+      "name": "website-preview-mac",
+      "runtimeExecutable": "/usr/bin/perl",
+      "runtimeArgs": ["_build/serve.pl", ".", "8410"],
+      "port": 8410
     }
   ]
 }

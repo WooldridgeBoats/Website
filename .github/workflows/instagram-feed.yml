@@ -1,0 +1,86 @@
+name: Instagram feed
+
+# Rebuilds assets/homepage/instagram/feed.json from the real @wooldridgeboats
+# account. Runs on a schedule and can be run by hand from the Actions tab.
+# Turns on automatically once the IG_TOKEN repo secret exists; until then every
+# run just stops after the guard step and the website keeps showing the baked-in
+# photos. Full explanation: _build/instagram/INSTAGRAM-FEED-SETUP.md
+
+on:
+  schedule:
+    - cron: '17 * * * *'      # once an hour, at :17 past
+  workflow_dispatch:            # a "Run workflow" button in the Actions tab
+
+# Let the built-in token push the refreshed feed back to the repo.
+permissions:
+  contents: write
+
+concurrency:
+  group: instagram-feed
+  cancel-in-progress: false
+
+jobs:
+  build-feed:
+    runs-on: ubuntu-latest
+    env:
+      IG_TOKEN: ${{ secrets.IG_TOKEN }}
+      GH_PAT: ${{ secrets.GH_PAT }}
+    steps:
+      - name: Check out the site
+        uses: actions/checkout@v4
+
+      # Gate everything below on whether the token exists, via a step OUTPUT
+      # (referencing secrets directly inside an `if:` is avoided on purpose).
+      - name: Is the Instagram token set?
+        id: guard
+        run: |
+          if [ -n "$IG_TOKEN" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No IG_TOKEN secret yet — nothing to do. This is expected before setup."
+          fi
+
+      - name: Renew the token (extends it ~60 days; persists it if GH_PAT is set)
+        if: steps.guard.outputs.ready == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          NEW=$(curl -s "https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token=$IG_TOKEN" | jq -r '.access_token // empty')
+          if [ -n "$NEW" ] && [ -n "$GH_TOKEN" ]; then
+            gh secret set IG_TOKEN --repo "$GITHUB_REPOSITORY" --body "$NEW"
+            echo "Token renewed and saved back to the IG_TOKEN secret."
+          elif [ -n "$NEW" ]; then
+            echo "Token renewed for this run. Add a GH_PAT secret to make renewals permanent."
+          else
+            echo "Could not renew (token may still be valid). Continuing."
+          fi
+
+      - name: Build feed.json from the latest posts
+        if: steps.guard.outputs.ready == 'true'
+        run: node _build/instagram/fetch_feed.mjs
+
+      - name: Commit only if the feed actually changed
+        if: steps.guard.outputs.ready == 'true'
+        id: commit
+        run: |
+          git config user.name  "wooldridge-feed-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/homepage/instagram
+          if git diff --cached --quiet; then
+            echo "No new posts — nothing to commit."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "chore(instagram): refresh homepage feed [skip ci]"
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || true
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Refresh the jsDelivr CDN copy so the site sees it right away
+        if: steps.commit.outputs.changed == 'true'
+        run: |
+          base="https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/assets/homepage/instagram"
+          curl -s "$base/feed.json" > /dev/null || true
+          for i in 1 2 3 4 5 6 7 8; do curl -s "$base/img-$i.jpg" > /dev/null || true; done
+          echo "Asked jsDelivr to fetch the new feed."

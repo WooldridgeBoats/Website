@@ -1,0 +1,15 @@
+{
+  "updated": "2026-09-21T14:00:00Z",
+  "profile": "https://www.instagram.com/wooldridgeboats/",
+  "note": "LOCAL DEMO ONLY — reversed order + fake captions to prove the renderer works. Safe to delete.",
+  "posts": [
+    { "permalink": "https://www.instagram.com/p/DEMO8/", "image": "assets/homepage/ig-8.jpg", "caption": "Sunrise run on the Columbia — the 23' Super Sport doing what it's built for. #wooldridgeboats" },
+    { "permalink": "https://www.instagram.com/p/DEMO7/", "image": "assets/homepage/ig-7.jpg", "caption": "Fresh off the floor in Seattle & headed to its new owner in Alaska." },
+    { "permalink": "https://www.instagram.com/p/DEMO6/", "image": "assets/homepage/ig-6.jpg", "caption": "Skinny-water season. Welded aluminum, no apologies." },
+    { "permalink": "https://www.instagram.com/p/DEMO5/", "image": "assets/homepage/ig-5.jpg", "caption": "A limit of kings & a dry deck — that's a good day." },
+    { "permalink": "https://www.instagram.com/p/DEMO4/", "image": "assets/homepage/ig-4.jpg", "caption": "Testing a caption with an ampersand & \"quotes\" to make sure nothing breaks <safely>." },
+    { "permalink": "https://www.instagram.com/p/DEMO3/", "image": "assets/homepage/ig-3.jpg", "caption": "Family time upriver." },
+    { "permalink": "https://www.instagram.com/p/DEMO2/", "image": "assets/homepage/ig-2.jpg", "caption": "This is an intentionally very long caption written specifically to confirm that the renderer clips overflowing text cleanly instead of stuffing the entire paragraph into the image alt and aria-label attributes where it would be unwieldy for screen readers and pointless for everyone else." },
+    { "permalink": "https://www.instagram.com/p/DEMO1/", "image": "assets/homepage/ig-1.jpg", "caption": "Four generations, one river at a time. Since 1915." }
+  ]
+}

@@ -845,9 +845,9 @@ section{ padding:64px 0; }
 .listing:hover .nm{ color:var(--blue); }
 
 /* ── instagram strip ───────────────────────────────────────────────────── */
-.igrow{ display:grid; grid-template-columns:repeat(10,1fr); gap:10px; }
+.igrow{ display:grid; grid-template-columns:repeat(8,1fr); gap:12px; }
 .igrow a{ border-radius:8px; overflow:hidden; box-shadow:var(--shadow); display:block; }
-.igrow img{ width:100%; aspect-ratio:1/1; object-fit:cover; transition:transform .4s; }
+.igrow img{ width:100%; aspect-ratio:4/5; object-fit:cover; transition:transform .4s; }
 .igrow a:hover img{ transform:scale(1.06); }
 .igfollow{
   text-align:center; margin-top:16px; font-weight:400; font-size:14px; color:var(--muted);
@@ -1079,7 +1079,7 @@ html.blueprint img{ filter:none; }  /* photos stay true color */
   .vids{ grid-template-columns:1fr 1fr; }
   .netgrid,.specialty{ grid-template-columns:repeat(2,1fr); }
   .photocards{ grid-template-columns:repeat(3,1fr); }
-  .igrow{ grid-template-columns:repeat(5,1fr); }
+  .igrow{ grid-template-columns:repeat(4,1fr); }
   .duo{ grid-template-columns:1fr; }
   .duo > div:first-child{ border-right:0; border-bottom:1px solid var(--rule); padding-bottom:44px; margin-bottom:44px; }
   .heritage-grid{ grid-template-columns:1fr; }
