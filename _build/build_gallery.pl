@@ -36,7 +36,7 @@ my @MODELS = (
   ['agency-lc29',             "29' LC — In The Shop",       'Agency Build', [29],       29],
 );
 
-my %CFG  = ('cc','Center Console','ws','Windshield','tiller','Tiller','aft-ws','Aft Windshield','first-responder','First Responder');
+my %CFG  = ('cc','Center Console','ws','Windshield','tiller','Tiller','aft-ws','Aft Windshield','cabin','Cabin','first-responder','First Responder');
 my %SHOT = ('product','Product','photo','Field','water','On the water','delivery','Delivery','finish','Finish work','build','In the shop');
 
 sub parse_file {

@@ -46,7 +46,7 @@ if [ -x "$REPO/_build/check_model_photos.sh" ]; then
   else rm -f /tmp/pf.$$; say "pre-flight: PASS"; fi
 fi
 
-cfg_disp(){ case "$1" in cc)echo "Center Console";; ws)echo "Windshield";; tiller)echo "Tiller";; aft-ws)echo "Aft Windshield";; first-responder)echo "First Responder";; *)echo "?$1";; esac; }
+cfg_disp(){ case "$1" in cc)echo "Center Console";; ws)echo "Windshield";; tiller)echo "Tiller";; aft-ws)echo "Aft Windshield";; cabin)echo "Cabin";; first-responder)echo "First Responder";; *)echo "?$1";; esac; }
 upper(){ printf '%s' "$1" | tr 'a-z' 'A-Z'; }
 
 # parse "NN-HULL-LEN-STYLE-..." -> "dest hull len cfg" (positional; hull optional)
@@ -58,7 +58,7 @@ parse_one(){
   else hull=""; len="${t[1]:-}"; style="${t[2]:-}"; styn="${t[3]:-}"; fi
   local sl nl cfg; sl="$(printf %s "$style" | tr 'A-Z' 'a-z')"; nl="$(printf %s "$styn" | tr 'A-Z' 'a-z')"
   if [ "$sl" = "aft" ] && [ "$nl" = "ws" ]; then cfg=aft-ws   # two-token config "AFT-WS" -> Aft Windshield
-  else case "$sl" in cc)cfg=cc;; ws)cfg=ws;; tiller)cfg=tiller;; first-responder)cfg=first-responder;; *)cfg="?";; esac; fi
+  else case "$sl" in cc)cfg=cc;; ws)cfg=ws;; tiller)cfg=tiller;; cabin)cfg=cabin;; first-responder)cfg=first-responder;; *)cfg="?";; esac; fi
   local nn2; nn2="$(printf '%02d' "$((10#$nn))")"
   if [ -n "$hull" ]; then echo "${hull}-${len}-${cfg}-${nn2}.jpg $hull $len $cfg"; else echo "${len}-${cfg}-${nn2}.jpg  $len $cfg"; fi
 }
