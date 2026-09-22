@@ -1740,6 +1740,15 @@ html.blueprint .pcarbtn{ background:rgba(21,31,40,.94); border-color:#22303b; co
 }
 .vidsoon p{ font-size:15px; line-height:1.7; margin-bottom:16px; }
 
+/* ── two-video layout: two facades side by side, each sized like a 2-up gallery
+   cover card (588×368, 16:10). Reuses .vidsec/.vidfacade; drop into a "Watch"
+   sechead in place of a single .vidsec or the .vidsoon card. ── */
+.vid2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.vid2 .vidsec{ max-width:none; margin:0; }
+.vid2 .vidfacade{ aspect-ratio:16/9; }           /* video-native 16:9 at the 2-up cover-card WIDTH (588px) — clean, no letterbox */
+.vid2 .vidsec figcaption .ref{ display:none; }   /* per-video titles need the room */
+@media (max-width:760px){ .vid2{ grid-template-columns:1fr; gap:14px; } }
+
 /* ── video gallery: big main player + scrollable rail of more videos (Rogue etc.) ── */
 .vidgallery{ display:grid; grid-template-columns:2.1fr 1fr; gap:18px; align-items:stretch; max-width:1120px; margin:0 auto; }
 .vidgallery .vidsec{ max-width:none; margin:0; }

@@ -46,7 +46,7 @@ sub parse_file {
   my $idx;
   if (@toks && $toks[-1] =~ /^\d+$/) { $idx = 0 + pop @toks; $stem = join '-', @toks; }
   my ($hull, $year);
-  if (@toks && $toks[0] =~ /^[45]\d{3}$/) { $hull = shift @toks; }
+  if (@toks && $toks[0] =~ /^[3-9]\d{3}$/) { $hull = shift @toks; }
   elsif (@toks && $toks[0] =~ /^y?20\d\d$/) { ($year = shift @toks) =~ s/^y//; }
   my ($len, @rest);
   for my $t (@toks) {

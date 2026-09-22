@@ -54,7 +54,7 @@ parse_one(){
   local base stem; base="$(basename "$1")"; stem="${base%.jpg}"
   local -a t; IFS='-' read -r -a t <<< "$stem"
   local nn="${t[0]:-}" hull len style styn
-  if printf '%s' "${t[1]:-}" | grep -qE '^[45][0-9]{3}$'; then hull="${t[1]:-}"; len="${t[2]:-}"; style="${t[3]:-}"; styn="${t[4]:-}";
+  if printf '%s' "${t[1]:-}" | grep -qE '^[3-9][0-9]{3}$'; then hull="${t[1]:-}"; len="${t[2]:-}"; style="${t[3]:-}"; styn="${t[4]:-}";
   else hull=""; len="${t[1]:-}"; style="${t[2]:-}"; styn="${t[3]:-}"; fi
   local sl nl cfg; sl="$(printf %s "$style" | tr 'A-Z' 'a-z')"; nl="$(printf %s "$styn" | tr 'A-Z' 'a-z')"
   if [ "$sl" = "aft" ] && [ "$nl" = "ws" ]; then cfg=aft-ws   # two-token config "AFT-WS" -> Aft Windshield
