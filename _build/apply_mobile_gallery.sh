@@ -31,6 +31,8 @@ PSLUG="${PHOTOSLUG:-$SLUG}"
 PAGE="$REPO/models/$SLUG/index.html"
 [ -f "$PAGE" ] || { echo "ERROR: model page not found: $PAGE"; exit 2; }
 DEST="$REPO/assets/photos/$PSLUG/mobile"
+MOBQ="${MOBQ:-75}"   # mozjpeg quality for the full portraits (keep-smaller: never enlarges, no visible loss on a phone)
+HAVE_MOZ=0; command -v cjpeg >/dev/null 2>&1 && command -v djpeg >/dev/null 2>&1 && HAVE_MOZ=1
 run(){ if [ "$DRY" = 1 ]; then echo "  [dry] $*"; else eval "$*"; fi; }
 cfg_disp(){ case "$1" in cc)echo "Center Console";; ws)echo "Windshield";; tiller)echo "Tiller";; aft-ws)echo "Aft Windshield";; cabin)echo "Cabin";; first-responder)echo "First Responder";; *)echo "$1";; esac; }
 
@@ -49,11 +51,27 @@ parse_row(){
   echo "$dest $len $cfg $hull $nn2"
 }
 
+# copy a full portrait, recompressed with mozjpeg IF that comes out smaller
+# (keep-smaller — never enlarge a well-compressed shot, no visible loss on a
+# phone; dimensions preserved). Falls back to a plain copy without mozjpeg.
+opt_full(){  # $1 src  $2 out
+  if [ "$HAVE_MOZ" = 1 ]; then
+    tmp="$2.opt.$$"
+    if djpeg "$1" 2>/dev/null | cjpeg -quality "$MOBQ" -optimize -progressive > "$tmp" 2>/dev/null && [ -s "$tmp" ]; then
+      os=$(stat -f %z "$1"); ns=$(stat -f %z "$tmp")
+      if [ "$ns" -lt "$os" ]; then mv "$tmp" "$2"; return 0; fi
+    fi
+    rm -f "$tmp" 2>/dev/null
+  fi
+  cp "$1" "$2"
+}
+
 MOBDIRS=()
 for d in "$SRC"/*/; do bn="$(basename "$d")"; case "$(printf %s "$bn"|tr 'A-Z' 'a-z')" in *mobile*) MOBDIRS+=("$d");; esac; done
 [ "${#MOBDIRS[@]}" -gt 0 ] || { echo "no *-MOBILE folders in $(basename "$SRC") — nothing to do (desktop gallery stays as-is)"; exit 0; }
 
 echo "mobile gallery: $SLUG  <-  $(basename "$SRC")  (${#MOBDIRS[@]} folder(s))"
+[ "$HAVE_MOZ" = 1 ] && echo "  optimizing fulls: mozjpeg -quality $MOBQ (keep-smaller)" || echo "  (mozjpeg/cjpeg not found — fulls copied as-is)"
 run "rm -rf \"$DEST\"; mkdir -p \"$DEST/thumbs\""
 MAN="$(mktemp)"; n=0; skipped=0
 shopt -s nullglob
@@ -62,7 +80,7 @@ for d in "${MOBDIRS[@]}"; do
     case "$(basename "$f")" in GALLERY-THUMB*|GALLERY-thumb*|.*) continue;; esac
     read -r dest len cfg hull nn <<< "$(parse_row "$f")"
     [ "$cfg" = "?" ] && { echo "  SKIP unknown trim: $(basename "$f")"; skipped=$((skipped+1)); continue; }
-    run "cp \"$f\" \"$DEST/$dest\""
+    if [ "$DRY" = 1 ]; then echo "  [dry] optimize+copy $(basename "$f") -> $dest"; else opt_full "$f" "$DEST/$dest"; fi
     run "sips -s format jpeg -Z 400 \"$f\" --out \"$DEST/thumbs/$dest\" >/dev/null 2>&1"
     printf '%s\t%s\t%s\t%s\n' "$len" "$nn" "$dest" "$(cfg_disp "$cfg")|$hull" >> "$MAN"
     n=$((n+1))
