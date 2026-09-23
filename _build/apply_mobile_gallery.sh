@@ -41,7 +41,7 @@ parse_row(){
   local base stem; base="$(basename "$1")"; stem="${base%.jpg}"
   local -a t; IFS='-' read -r -a t <<< "$stem"
   local nn="${t[0]:-}" hull len style styn
-  if printf '%s' "${t[1]:-}" | grep -qE '^[3-9][0-9]{3}$'; then hull="${t[1]:-}"; len="${t[2]:-}"; style="${t[3]:-}"; styn="${t[4]:-}";
+  if printf '%s' "${t[1]:-}" | grep -qE '^[03-9][0-9]{3}$'; then hull="${t[1]:-}"; len="${t[2]:-}"; style="${t[3]:-}"; styn="${t[4]:-}";
   else hull=""; len="${t[1]:-}"; style="${t[2]:-}"; styn="${t[3]:-}"; fi
   local sl nl cfg
   if [ "${NOCFG:-0}" = 1 ]; then cfg=""   # NOCFG: model has no configuration (token after LEN is the model name)

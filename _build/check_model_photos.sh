@@ -82,7 +82,7 @@ for d in "$SRC"/*/; do
     base="$(basename "$f")"; stem="${base%.jpg}"
     IFS='-' read -r -a t <<< "$stem"
     nn="${t[0]:-}";
-    if [[ "${t[1]:-}" =~ ^[3-9][0-9]{3}$ ]]; then hull="${t[1]:-}"; flen="${t[2]:-}"; style="${t[3]:-}"; styn="${t[4]:-}";
+    if [[ "${t[1]:-}" =~ ^[03-9][0-9]{3}$ ]]; then hull="${t[1]:-}"; flen="${t[2]:-}"; style="${t[3]:-}"; styn="${t[4]:-}";
     else hull=""; flen="${t[1]:-}"; style="${t[2]:-}"; styn="${t[3]:-}"; fi
     stylelc="$(printf %s "$style" | tr 'A-Z' 'a-z')"
     nlc="$(printf %s "${styn:-}" | tr 'A-Z' 'a-z')"
