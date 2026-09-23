@@ -43,12 +43,17 @@ parse_row(){
   local nn="${t[0]:-}" hull len style styn
   if printf '%s' "${t[1]:-}" | grep -qE '^[3-9][0-9]{3}$'; then hull="${t[1]:-}"; len="${t[2]:-}"; style="${t[3]:-}"; styn="${t[4]:-}";
   else hull=""; len="${t[1]:-}"; style="${t[2]:-}"; styn="${t[3]:-}"; fi
-  local sl nl cfg; sl="$(printf %s "$style"|tr 'A-Z' 'a-z')"; nl="$(printf %s "$styn"|tr 'A-Z' 'a-z')"
-  if [ "$sl" = "aft" ] && [ "$nl" = "ws" ]; then cfg=aft-ws
-  else case "$sl" in cc)cfg=cc;; ws)cfg=ws;; tiller)cfg=tiller;; cabin)cfg=cabin;; first-responder)cfg=first-responder;; *)cfg="?";; esac; fi
+  local sl nl cfg
+  if [ "${NOCFG:-0}" = 1 ]; then cfg=""   # NOCFG: model has no configuration (token after LEN is the model name)
+  else
+    sl="$(printf %s "$style"|tr 'A-Z' 'a-z')"; nl="$(printf %s "$styn"|tr 'A-Z' 'a-z')"
+    if [ "$sl" = "aft" ] && [ "$nl" = "ws" ]; then cfg=aft-ws
+    else case "$sl" in cc)cfg=cc;; ws)cfg=ws;; tiller)cfg=tiller;; cabin)cfg=cabin;; first-responder)cfg=first-responder;; *)cfg="?";; esac; fi
+  fi
   local nn2; nn2="$(printf '%02d' "$((10#$nn))")"
-  local dest; if [ -n "$hull" ]; then dest="${hull}-${len}-${cfg}-${nn2}.jpg"; else dest="${len}-${cfg}-${nn2}.jpg"; fi
-  echo "$dest $len $cfg $hull $nn2"
+  local seg=""; [ -n "$cfg" ] && seg="${cfg}-"
+  local dest; if [ -n "$hull" ]; then dest="${hull}-${len}-${seg}${nn2}.jpg"; else dest="${len}-${seg}${nn2}.jpg"; fi
+  printf '%s|%s|%s|%s|%s\n' "$dest" "$len" "$cfg" "$hull" "$nn2"   # pipe-delimited (NON-whitespace) so an empty cfg field is preserved by read (tab would collapse)
 }
 
 # copy a full portrait, recompressed with mozjpeg IF that comes out smaller
@@ -78,7 +83,7 @@ shopt -s nullglob
 for d in "${MOBDIRS[@]}"; do
   for f in "$d"*.jpg; do
     case "$(basename "$f")" in GALLERY-THUMB*|GALLERY-thumb*|.*) continue;; esac
-    read -r dest len cfg hull nn <<< "$(parse_row "$f")"
+    IFS='|' read -r dest len cfg hull nn <<< "$(parse_row "$f")"
     [ "$cfg" = "?" ] && { echo "  SKIP unknown trim: $(basename "$f")"; skipped=$((skipped+1)); continue; }
     if [ "$DRY" = 1 ]; then echo "  [dry] optimize+copy $(basename "$f") -> $dest"; else opt_full "$f" "$DEST/$dest"; fi
     run "sips -s format jpeg -Z 400 \"$f\" --out \"$DEST/thumbs/$dest\" >/dev/null 2>&1"

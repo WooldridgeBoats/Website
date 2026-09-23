@@ -46,7 +46,7 @@ if [ -x "$REPO/_build/check_model_photos.sh" ]; then
   else rm -f /tmp/pf.$$; say "pre-flight: PASS"; fi
 fi
 
-cfg_disp(){ case "$1" in cc)echo "Center Console";; ws)echo "Windshield";; tiller)echo "Tiller";; aft-ws)echo "Aft Windshield";; cabin)echo "Cabin";; first-responder)echo "First Responder";; *)echo "?$1";; esac; }
+cfg_disp(){ case "$1" in ""|none)echo "";; cc)echo "Center Console";; ws)echo "Windshield";; tiller)echo "Tiller";; aft-ws)echo "Aft Windshield";; cabin)echo "Cabin";; first-responder)echo "First Responder";; *)echo "?$1";; esac; }
 upper(){ printf '%s' "$1" | tr 'a-z' 'A-Z'; }
 
 # parse "NN-HULL-LEN-STYLE-..." -> "dest hull len cfg" (positional; hull optional)
@@ -56,11 +56,16 @@ parse_one(){
   local nn="${t[0]:-}" hull len style styn
   if printf '%s' "${t[1]:-}" | grep -qE '^[3-9][0-9]{3}$'; then hull="${t[1]:-}"; len="${t[2]:-}"; style="${t[3]:-}"; styn="${t[4]:-}";
   else hull=""; len="${t[1]:-}"; style="${t[2]:-}"; styn="${t[3]:-}"; fi
-  local sl nl cfg; sl="$(printf %s "$style" | tr 'A-Z' 'a-z')"; nl="$(printf %s "$styn" | tr 'A-Z' 'a-z')"
-  if [ "$sl" = "aft" ] && [ "$nl" = "ws" ]; then cfg=aft-ws   # two-token config "AFT-WS" -> Aft Windshield
-  else case "$sl" in cc)cfg=cc;; ws)cfg=ws;; tiller)cfg=tiller;; cabin)cfg=cabin;; first-responder)cfg=first-responder;; *)cfg="?";; esac; fi
+  local sl nl cfg
+  if [ "${NOCFG:-0}" = 1 ]; then cfg=""   # NOCFG: model has no configuration (e.g. Scout Widebody) — the token after LEN is the model name, not a trim
+  else
+    sl="$(printf %s "$style" | tr 'A-Z' 'a-z')"; nl="$(printf %s "$styn" | tr 'A-Z' 'a-z')"
+    if [ "$sl" = "aft" ] && [ "$nl" = "ws" ]; then cfg=aft-ws   # two-token config "AFT-WS" -> Aft Windshield
+    else case "$sl" in cc)cfg=cc;; ws)cfg=ws;; tiller)cfg=tiller;; cabin)cfg=cabin;; first-responder)cfg=first-responder;; *)cfg="?";; esac; fi
+  fi
   local nn2; nn2="$(printf '%02d' "$((10#$nn))")"
-  if [ -n "$hull" ]; then echo "${hull}-${len}-${cfg}-${nn2}.jpg $hull $len $cfg"; else echo "${len}-${cfg}-${nn2}.jpg  $len $cfg"; fi
+  local seg=""; [ -n "$cfg" ] && seg="${cfg}-"   # drop the cfg segment for no-config models -> HULL-LEN-NN.jpg
+  if [ -n "$hull" ]; then echo "${hull}-${len}-${seg}${nn2}.jpg $hull $len $cfg"; else echo "${len}-${seg}${nn2}.jpg  $len $cfg"; fi
 }
 
 # ---- 1) discover length subfolders (leading number) --------------------------
@@ -92,8 +97,9 @@ for d in "${LENDIRS_SORTED[@]}"; do
     run "sips -s format jpeg -Z 800 \"$f\" --out \"$DEST/thumbs/$dest\" >/dev/null 2>&1"
     local_cd="$(cfg_disp "$cfg")"
     if [ -n "$hull" ]; then altsuf=" &#8212; Hull $hull"; else altsuf=""; fi
-    printf '          <a href="../../assets/photos/%s/%s"><img src="../../assets/photos/%s/thumbs/%s" alt="%s&#8242; %s %s%s" loading="lazy"><span class="gcap"><b>%s&#8242; %s</b>%s</span></a>\n' \
-      "$PSLUG" "$dest" "$PSLUG" "$dest" "$L" "$local_cd" "$MODEL" "$altsuf" "$L" "$local_cd" "$MODEL" >> "$GAL"
+    cdsp=""; gcb=""; [ -n "$local_cd" ] && { cdsp="$local_cd "; gcb=" $local_cd"; }   # blank config (no-config models) -> no stray spaces in alt/gcap
+    printf '          <a href="../../assets/photos/%s/%s"><img src="../../assets/photos/%s/thumbs/%s" alt="%s&#8242; %s%s%s" loading="lazy"><span class="gcap"><b>%s&#8242;%s</b>%s</span></a>\n' \
+      "$PSLUG" "$dest" "$PSLUG" "$dest" "$L" "$cdsp" "$MODEL" "$altsuf" "$L" "$gcb" "$MODEL" >> "$GAL"
   done
   # cover for this length
   cov=""; for c in "$d"GALLERY-THUMB*.jpg "$d"GALLERY-thumb*.jpg; do [ -f "$c" ] && cov="$c" && break; done
@@ -109,7 +115,7 @@ shopt -s nullglob nocaseglob; HEROES=("$SRC"/HERO-*.jpg); shopt -u nocaseglob nu
 [ "${#HEROES[@]}" -gt 0 ] || { echo "ERROR: no HERO-*.jpg"; exit 1; }
 HERO="${HEROES[0]}"
 read -r hdest hhull hlen hcfg <<< "$(parse_one "$(basename "$HERO" | sed 's/^HERO-/00-/')")"   # reuse parser (fake order 00)
-HERODEST="hero-${hhull}-${hlen}-${hcfg}.jpg"
+if [ -n "$hcfg" ]; then HERODEST="hero-${hhull}-${hlen}-${hcfg}.jpg"; else HERODEST="hero-${hhull}-${hlen}.jpg"; fi
 run "cp \"$HERO\" \"$DEST/$HERODEST\""
 run "sips -s format jpeg -Z 800 \"$HERO\" --out \"$DEST/thumbs/hero.jpg\" >/dev/null 2>&1"
 HCFG_DISP="$(cfg_disp "$hcfg")"
@@ -132,7 +138,9 @@ open my $g,'<',$E{GALF} or die $!; local $/; my $gal=<$g>; close $g; chomp $gal;
 open my $f,'<',$page or die $!; my $h=<$f>; close $f;
 my ($slug,$model)=@E{qw/SLUG MODEL/};
 # hero figure
-my $hero=qq{<figure class="modelhero"><img src="../../assets/photos/$slug/$E{HERODEST}" alt="$model &#8212; $E{HLEN}&#8242; $E{HCFG_DISP}, Hull $E{HHULL}"><figcaption>$E{MODEL_UP} &#8212; $E{HLEN}&#8242; $E{HCFG_UP}<span class="ref">HULL #$E{HHULL}</span></figcaption></figure>};
+my $altcfg = ($E{HCFG_DISP} ne '') ? " $E{HCFG_DISP}" : '';   # no-config models: no stray space/label
+my $capcfg = ($E{HCFG_UP}   ne '') ? " $E{HCFG_UP}"   : '';
+my $hero=qq{<figure class="modelhero"><img src="../../assets/photos/$slug/$E{HERODEST}" alt="$model &#8212; $E{HLEN}&#8242;$altcfg, Hull $E{HHULL}"><figcaption>$E{MODEL_UP} &#8212; $E{HLEN}&#8242;$capcfg<span class="ref">HULL #$E{HHULL}</span></figcaption></figure>};
 $h =~ s{<figure class="modelhero">.*?</figure>}{$hero}s or warn "  (no modelhero figure found)\n";
 # gallery block
 my $block=qq{<div class="gallery captioned">\n$gal\n        </div>};
@@ -186,9 +194,9 @@ if [ -x "$REPO/_build/apply_mobile_gallery.sh" ]; then
   if [ "$hasmob" = 1 ]; then
     echo "-- mobile gallery --"
     if [ "$DRY" = 1 ]; then
-      PHOTOSLUG="$PSLUG" bash "$REPO/_build/apply_mobile_gallery.sh" "$SLUG" "$SRC" --dry-run 2>&1 | grep -iE 'mobile gallery|portraits|orphan|would set|would run' | sed 's/^/  /'
+      PHOTOSLUG="$PSLUG" NOCFG="${NOCFG:-0}" bash "$REPO/_build/apply_mobile_gallery.sh" "$SLUG" "$SRC" --dry-run 2>&1 | grep -iE 'mobile gallery|portraits|orphan|would set|would run' | sed 's/^/  /'
     else
-      PHOTOSLUG="$PSLUG" bash "$REPO/_build/apply_mobile_gallery.sh" "$SLUG" "$SRC" 2>&1 | sed 's/^/  /'
+      PHOTOSLUG="$PSLUG" NOCFG="${NOCFG:-0}" bash "$REPO/_build/apply_mobile_gallery.sh" "$SLUG" "$SRC" 2>&1 | sed 's/^/  /'
     fi
   fi
 fi

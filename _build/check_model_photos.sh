@@ -100,8 +100,10 @@ for d in "$SRC"/*/; do
     # length matches folder
     [ "$flen" = "$L" ] || err "$base: length token '$flen' != folder ${L}ft"
     # trim code
-    if [ -z "$stylelc" ]; then err "$base: no trim code"
-    elif ! is_trim "$stylelc"; then err "$base: UNKNOWN trim '$style' — add to build_gallery.pl %CFG + apply_model_photos.sh first"; fi
+    if [ "${NOCFG:-0}" != 1 ]; then   # NOCFG models (e.g. Scout Widebody) have no trim — the token after LEN is the model name
+      if [ -z "$stylelc" ]; then err "$base: no trim code"
+      elif ! is_trim "$stylelc"; then err "$base: UNKNOWN trim '$style' — add to build_gallery.pl %CFG + apply_model_photos.sh first (or run with NOCFG=1 if this model has no configuration)"; fi
+    fi
     # bytes / size
     if [ ! -s "$f" ]; then err "$base: 0 bytes (cloud-only placeholder? force-download it)"; else
       dim="$(sips -g pixelWidth -g pixelHeight "$f" 2>/dev/null | awk '/pixelWidth/{w=$2}/pixelHeight/{h=$2}END{print w"x"h}')"
