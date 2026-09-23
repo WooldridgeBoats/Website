@@ -54,6 +54,7 @@ else ok "hero: $(basename "${heroes[0]}")"; fi
 lensfound=0
 for d in "$SRC"/*/; do
   bn="$(basename "$d")"
+  case "$(printf %s "$bn" | tr 'A-Z' 'a-z')" in *mobile*) continue;; esac   # skip *-MOBILE folders (mobile-only galleries, validated/built separately)
   # length = leading 2-digit number 14..32
   if [[ "$bn" =~ ^([0-9]{2}) ]]; then L="${BASH_REMATCH[1]}"; else continue; fi
   [[ "$L" =~ ^(1[4-9]|2[0-9]|3[0-2])$ ]] || continue

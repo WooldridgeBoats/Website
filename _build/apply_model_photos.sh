@@ -65,7 +65,7 @@ parse_one(){
 
 # ---- 1) discover length subfolders (leading number) --------------------------
 LENDIRS=()
-for d in "$SRC"/*/; do bn="$(basename "$d")"; if printf '%s' "$bn" | grep -qE '^(1[4-9]|2[0-9]|3[0-2])'; then LENDIRS+=("$d"); fi; done
+for d in "$SRC"/*/; do bn="$(basename "$d")"; case "$(printf %s "$bn" | tr 'A-Z' 'a-z')" in *mobile*) continue;; esac; if printf '%s' "$bn" | grep -qE '^(1[4-9]|2[0-9]|3[0-2])'; then LENDIRS+=("$d"); fi; done
 [ "${#LENDIRS[@]}" -gt 0 ] || { echo "ERROR: no length subfolders in $SRC"; exit 1; }
 
 # ---- 2) assets: wipe + copy fulls/thumbs, build gallery HTML + covers list ----
@@ -175,6 +175,23 @@ if [ "$DRY" = 1 ]; then echo "  [dry] would run build_gallery.pl + stamp_assets.
   ( cd "$REPO" && perl _build/stamp_assets.pl >/dev/null 2>&1 && echo "  cache-stamped" )
 fi
 rm -f "$GAL"
+
+# ---- 7.5) mobile portrait gallery (auto, if the master has *-MOBILE folders) --
+# Baked into the "Model Ready" flow: when the master supplies per-length
+# <L>-<MODEL>-MOBILE/ folders, ingest those portraits + write WB_MOBILE so the
+# lightbox swaps to them on phones. No *-MOBILE folders -> silently no-ops.
+if [ -x "$REPO/_build/apply_mobile_gallery.sh" ]; then
+  hasmob=0
+  for d in "$SRC"/*/; do case "$(printf %s "$(basename "$d")" | tr 'A-Z' 'a-z')" in *mobile*) hasmob=1;; esac; done
+  if [ "$hasmob" = 1 ]; then
+    echo "-- mobile gallery --"
+    if [ "$DRY" = 1 ]; then
+      PHOTOSLUG="$PSLUG" bash "$REPO/_build/apply_mobile_gallery.sh" "$SLUG" "$SRC" --dry-run 2>&1 | grep -iE 'mobile gallery|portraits|orphan|would set|would run' | sed 's/^/  /'
+    else
+      PHOTOSLUG="$PSLUG" bash "$REPO/_build/apply_mobile_gallery.sh" "$SLUG" "$SRC" 2>&1 | sed 's/^/  /'
+    fi
+  fi
+fi
 
 # ---- 8) post-build report ----------------------------------------------------
 echo "--------------------------------------------------------------"

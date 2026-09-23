@@ -17,6 +17,7 @@
       m.photos.forEach(function (p) { PHOTO[m.slug][p.f] = p; });
     });
   }
+  var MOBILE = window.WB_MOBILE || null;   /* slug -> {len:[{f,cfg,hull},...]} — independent mobile gallery */
 
   /* ── nav height → CSS var (sticky toolbar offset) ─────────────────────── */
   var nav = document.querySelector('.nav');
@@ -55,6 +56,38 @@
     }
     return out;
   }
+
+  /* ── mobile gallery (independent portrait set) ─────────────────────────────
+     A model page may ship  window.WB_MOBILE = {slug:{len:[{f,cfg,hull},...]}} —
+     its OWN per-length portrait photos, supplied separately and free to differ
+     in count/curation from the desktop set. On a phone (<=700px) a length's
+     gallery opens THIS set; above 700px it opens the desktop landscape gallery.
+     Pages without WB_MOBILE are completely unaffected. */
+  var mqMobile = window.matchMedia ? window.matchMedia('(max-width:700px)') : { matches: false };
+  function mobileSet(slug, len) {
+    return (MOBILE && MOBILE[slug] && MOBILE[slug][len]) ? MOBILE[slug][len] : null;
+  }
+  function mobileAnchors(dirAnchor, slug, len) {
+    /* Detached <a> elements the lightbox consumes, built from the mobile data.
+       dirAnchor is any desktop anchor for this length — used only to derive the
+       "…/assets/photos/<slug>/" relative prefix. Caption metadata rides on
+       data-* because these files aren't in photo-data.js. */
+    var dir = dirAnchor.getAttribute('href').replace(/[^\/]+$/, '');
+    var name = (MODEL[slug] && MODEL[slug].name) || '';
+    return mobileSet(slug, len).map(function (p) {
+      var a = document.createElement('a');
+      a.setAttribute('href', dir + 'mobile/' + p.f);
+      a.dataset.len = len; a.dataset.cfg = p.cfg || ''; a.dataset.hull = p.hull || ''; a.dataset.m = name;
+      var img = document.createElement('img'); img.src = dir + 'mobile/thumbs/' + p.f; img.alt = '';
+      a.appendChild(img);
+      return a;
+    });
+  }
+  if (mqMobile.addEventListener) mqMobile.addEventListener('change', function () {
+    /* crossing the 700px line swaps which gallery a card opens; close any open
+       viewer so the next tap picks the right (desktop vs mobile) set */
+    if (lb && lb.classList.contains('on')) closeLb(true);
+  });
 
   /* ══════════════════════════════════════════════════════════════════════
      LIGHTBOX
@@ -569,17 +602,27 @@
           var card = document.createElement('button');
           card.type = 'button';
           card.className = 'mcard';
+          var mset = mobileSet(slug, k);
+          var badge = (mset && mset.length && mset.length !== list.length)
+            ? '<span class="mcbadge"><span class="wbd">' + list.length + ' photos</span><span class="wbm">' + mset.length + ' photos</span></span>'
+            : '<span class="mcbadge">' + list.length + ' photo' + (list.length === 1 ? '' : 's') + '</span>';
           card.innerHTML =
-            '<img src="' + coverSrc + '" alt="" loading="lazy">' +
-            '<span class="mcbadge">' + list.length + ' photo' + (list.length === 1 ? '' : 's') + '</span>' +
+            '<img src="' + coverSrc + '" alt="" loading="lazy">' + badge +
             '<span class="mcmeta"><b>' + title + '</b><span>' + sub + '</span></span>';
-          card.addEventListener('click', function () { openLb(list[0], false, list); });
+          /* phones (<=700px) open this length's independent mobile set; desktop opens the desktop anchors */
+          card.addEventListener('click', function () {
+            if (mqMobile.matches && mset && mset.length) { var ma = mobileAnchors(list[0], slug, k); openLb(ma[0], false, ma); }
+            else openLb(list[0], false, list);
+          });
           cards.appendChild(card);
         });
 
         /* a lone group would otherwise stretch full-width (grid-auto-columns:1fr);
            flag it so the CSS can cap it to a normal card size */
         if (cards.children.length === 1) cards.classList.add('mc-single');
+        /* this model has an independent mobile gallery — hide the desktop flat
+           grid on phones so the per-length cover cards are the sole entry there */
+        if (MOBILE && MOBILE[slug] && cards.children.length) grid.classList.add('mobcards');
       }
 
       /* link through to the fleet gallery, anchored at this model */

@@ -1622,7 +1622,7 @@ footer::before{
 .wblb.zoomed .wblbstage{ flex:1 1 auto; margin-top:0; overflow:auto; align-items:flex-start; justify-content:flex-start; }
 .wblb.zoomed .wblbstrip{ margin-bottom:0; }
 .wblb.zoomed .wblbstage img{
-  max-width:none; max-height:none; width:auto; height:auto; margin:auto; cursor:zoom-out;
+  max-width:none; max-height:none; width:auto; height:auto; aspect-ratio:auto; margin:auto; cursor:zoom-out;
 }
 /* hide the corner "Not sure which boat?" nudge while the photo viewer is open */
 body.wblb-open #wb-corner{ display:none !important; }
@@ -1661,6 +1661,41 @@ html.blueprint .pcarbtn{ background:rgba(21,31,40,.94); border-color:#22303b; co
   .wblbstrip img{ width:96px; height:60px; }
   .wblbcap{ flex-wrap:wrap; gap:6px 14px; padding:12px 12px 10px; }
   .ptop{ right:14px; bottom:14px; }
+}
+
+/* Desktop lightbox: the WHOLE dark zone to the left/right of the photo navigates
+   (prev/next), not just the little arrow button (Tyler 2026-09-23). The nav
+   buttons already carry the click handlers — we just widen each to half the
+   stage and tuck them BEHIND the photo (image z-index:2) so the photo itself
+   still toggles zoom and the caption/thumbs are unaffected. The arrow glyph
+   stays pinned near the outer edge (always in the letterbox, never hidden under
+   a wide photo). Scoped to >700px on purpose — the same line where the gallery
+   flips to desktop/landscape mode; touch/phones keep the compact edge arrows +
+   swipe. While zoomed, shrink the zones back to the edges to pan the image. */
+@media (min-width:701px){
+  .wblbstage img{ position:relative; z-index:2; }
+  .wblbnav{ width:50%; z-index:1; cursor:pointer; }
+  .wblbprev{ justify-content:flex-start; padding-left:28px; }
+  .wblbnext{ justify-content:flex-end; padding-right:28px; }
+  .wblb.zoomed .wblbnav{ width:78px; }
+}
+
+/* Mobile portrait gallery (independent set, <=700px): the flat desktop thumb
+   grid is hidden so the per-length cover cards are the sole entry (each opens
+   this model's OWN portrait set), and a cover card's photo count shows the
+   mobile total. Only touches models that ship WB_MOBILE (.mobcards / .wbm). */
+.mcbadge .wbm{ display:none; }
+@media (max-width:700px){
+  .gallery.captioned.mobcards{ display:none; }
+  .mcbadge .wbd{ display:none; }
+  .mcbadge .wbm{ display:inline; }
+  /* Fixed 4:5 photo frame (Tyler's mobile spec, 2026-09-23): every shot occupies
+     the SAME box, so an off-size image can't bump the caption/thumbnails when you
+     swipe. A correctly-sized 4:5 shot fills it exactly; a straggler is contained
+     (letterboxed) but the layout stays put. */
+  .wblbstage{ flex:0 0 auto; }
+  .wblbstage img{ width:100%; height:auto; aspect-ratio:4/5; object-fit:contain;
+    max-width:100%; max-height:calc(100dvh - 200px); }
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
