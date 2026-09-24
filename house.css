@@ -323,10 +323,17 @@ h1,h2,h3,.h-serif{
 
 /* ── section scaffolding ───────────────────────────────────────────────── */
 section{ padding:36px 0; }
-.sechead{ text-align:center; margin-bottom:38px; }
+.sechead{ text-align:center; margin-bottom:38px; display:flex; flex-direction:column; align-items:center; }
+/* Section headings: blue title on top, small grey eyebrow BELOW it (matches the page
+   masthead). Reordered with flex `order` so no per-page HTML edit is needed. */
+.sechead>*{ order:3; }
+.sechead h2{ order:1; }
+.sechead .eyebrow{ order:2; }
+.sechead .lede{ order:4; }
+.sechead .rule,.sechead .secrule{ order:5; }
 .sechead .eyebrow{
   font-weight:500; font-size:12px; letter-spacing:.14em;
-  text-transform:uppercase; color:var(--muted); margin-bottom:10px;
+  text-transform:uppercase; color:var(--muted); margin:9px 0 0;
 }
 .sechead h2{
   font-size:clamp(26px,3.4vw,40px); letter-spacing:.01em;
@@ -693,7 +700,7 @@ section{ padding:36px 0; }
 .plate,.btn-blue{
   display:inline-block; background:var(--blue); color:#fff;
   font-family:var(--serif); font-weight:700; font-size:17px;
-  padding:13px 30px; border-radius:8px; box-shadow:var(--shadow);
+  padding:7px 30px; border-radius:8px; box-shadow:var(--shadow); text-align:center;
 }
 .plate:hover,.btn-blue:hover{ background:var(--blue-dark); color:#fff; }
 .plate .k{
@@ -934,7 +941,7 @@ section{ padding:36px 0; }
 .factrow{ display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin:24px 0; }
 .fact{
   background:#fff; border-radius:8px; box-shadow:var(--shadow);
-  padding:12px 20px; text-align:center;
+  padding:6px 20px; text-align:center;
 }
 .fact .l{
   font-weight:500; font-size:10px; letter-spacing:.12em; text-transform:uppercase;
@@ -943,6 +950,9 @@ section{ padding:36px 0; }
 .fact .v{ font-weight:500; font-size:15px; color:var(--ink); margin-top:3px; }
 .fact .v i{ font-style:normal; font-weight:400; color:var(--muted); }
 .modelctas{ display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin:26px 0 8px; }
+/* Model-page galleries sit right under the fact boxes as just the cover-card
+   thumbs — hide gallery.js's injected "Photo gallery / In The Field" heading. */
+.modelcards-slot .sechead{ display:none; }
 .sechead.tight{ margin:44px 0 18px; text-align:center; }
 .ptable{
   width:100%; border-collapse:collapse; background:#fff; border-radius:var(--rad);
