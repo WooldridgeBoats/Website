@@ -34,7 +34,7 @@ DEST="$REPO/assets/photos/$PSLUG/mobile"
 MOBQ="${MOBQ:-75}"   # mozjpeg quality for the full portraits (keep-smaller: never enlarges, no visible loss on a phone)
 HAVE_MOZ=0; command -v cjpeg >/dev/null 2>&1 && command -v djpeg >/dev/null 2>&1 && HAVE_MOZ=1
 run(){ if [ "$DRY" = 1 ]; then echo "  [dry] $*"; else eval "$*"; fi; }
-cfg_disp(){ case "$1" in cc)echo "Center Console";; ws)echo "Windshield";; tiller)echo "Tiller";; aft-ws)echo "Aft Windshield";; cabin)echo "Cabin";; first-responder)echo "First Responder";; *)echo "$1";; esac; }
+cfg_disp(){ case "$1" in cc)echo "Center Console";; ws)echo "Windshield";; tiller)echo "Tiller";; aft-ws)echo "Aft Windshield";; cabin)echo "Cabin";; pybus)echo "Pybus";; first-responder)echo "First Responder";; *)echo "$1";; esac; }
 
 # parse "NN-HULL-LEN-STYLE-..." -> echo "dest len cfgcode hull nn" (positional; hull optional)
 parse_row(){
@@ -48,7 +48,7 @@ parse_row(){
   else
     sl="$(printf %s "$style"|tr 'A-Z' 'a-z')"; nl="$(printf %s "$styn"|tr 'A-Z' 'a-z')"
     if [ "$sl" = "aft" ] && [ "$nl" = "ws" ]; then cfg=aft-ws
-    else case "$sl" in cc)cfg=cc;; ws)cfg=ws;; tiller)cfg=tiller;; cabin)cfg=cabin;; first-responder)cfg=first-responder;; *)cfg="?";; esac; fi
+    else case "$sl" in cc)cfg=cc;; ws)cfg=ws;; tiller)cfg=tiller;; cabin)cfg=cabin;; pybus)cfg=pybus;; first-responder)cfg=first-responder;; *)cfg="?";; esac; fi
   fi
   local nn2; nn2="$(printf '%02d' "$((10#$nn))")"
   local seg=""; [ -n "$cfg" ] && seg="${cfg}-"

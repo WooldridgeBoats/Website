@@ -30,7 +30,7 @@ SRC="${1:-}"
 [ -n "$SRC" ] || { echo "usage: $0 \"/path/to/<MODEL>-WEB\""; exit 2; }
 [ -d "$SRC" ] || { echo "ERROR: folder not found: $SRC"; exit 2; }
 
-KNOWN_TRIMS="cc ws tiller aft-ws cabin first-responder"
+KNOWN_TRIMS="cc ws tiller aft-ws cabin pybus first-responder"
 errs=0; warns=0
 err(){  echo "  ✗ $*"; errs=$((errs+1)); }
 warn(){ echo "  ! $*"; warns=$((warns+1)); }

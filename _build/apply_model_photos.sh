@@ -46,7 +46,7 @@ if [ -x "$REPO/_build/check_model_photos.sh" ]; then
   else rm -f /tmp/pf.$$; say "pre-flight: PASS"; fi
 fi
 
-cfg_disp(){ case "$1" in ""|none)echo "";; cc)echo "Center Console";; ws)echo "Windshield";; tiller)echo "Tiller";; aft-ws)echo "Aft Windshield";; cabin)echo "Cabin";; first-responder)echo "First Responder";; *)echo "?$1";; esac; }
+cfg_disp(){ case "$1" in ""|none)echo "";; cc)echo "Center Console";; ws)echo "Windshield";; tiller)echo "Tiller";; aft-ws)echo "Aft Windshield";; cabin)echo "Cabin";; pybus)echo "Pybus";; first-responder)echo "First Responder";; *)echo "?$1";; esac; }
 upper(){ printf '%s' "$1" | tr 'a-z' 'A-Z'; }
 
 # parse "NN-HULL-LEN-STYLE-..." -> "dest hull len cfg" (positional; hull optional)
@@ -61,7 +61,7 @@ parse_one(){
   else
     sl="$(printf %s "$style" | tr 'A-Z' 'a-z')"; nl="$(printf %s "$styn" | tr 'A-Z' 'a-z')"
     if [ "$sl" = "aft" ] && [ "$nl" = "ws" ]; then cfg=aft-ws   # two-token config "AFT-WS" -> Aft Windshield
-    else case "$sl" in cc)cfg=cc;; ws)cfg=ws;; tiller)cfg=tiller;; cabin)cfg=cabin;; first-responder)cfg=first-responder;; *)cfg="?";; esac; fi
+    else case "$sl" in cc)cfg=cc;; ws)cfg=ws;; tiller)cfg=tiller;; cabin)cfg=cabin;; pybus)cfg=pybus;; first-responder)cfg=first-responder;; *)cfg="?";; esac; fi
   fi
   local nn2; nn2="$(printf '%02d' "$((10#$nn))")"
   local seg=""; [ -n "$cfg" ] && seg="${cfg}-"   # drop the cfg segment for no-config models -> HULL-LEN-NN.jpg
