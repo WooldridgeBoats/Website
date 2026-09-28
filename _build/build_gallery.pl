@@ -28,7 +28,7 @@ my @MODELS = (
   ['scout-widebody',          'Scout Widebody',             'Inboard Jet',  [21,23,25], undef],
   ['skagit-inboard',          'Skagit Inboard',             'Inboard Jet',  [18,20],    undef],
   ['sportinboard',            'Sport Inboard',              'Inboard Jet',  [18,20],    undef],
-  ['supersportdrifterinboard','Super Sport Drifter Inboard','Inboard Jet',  [20,23,25], undef],
+  ['supersportdrifterinboard','Super Sport Drifter Inboard','Inboard Jet',  [21,23,25], undef],
   ['skagit-x',                'Skagit-X',                   'Inboard Jet',  [21],       21],
   ['sportoffshore',           'Sport Offshore',             'Offshore',     [18,20],    undef],
   ['super-sport-offshore',    'Super Sport Offshore',       'Offshore',     [20,21,23,26], undef],
@@ -62,9 +62,10 @@ sub parse_file {
     $shot = $t if !defined $shot && exists $SHOT{$t};
   }
   $len = $single if !defined $len && defined $single;
+  my $legacy = (grep { $_ eq 'lm' } @rest) ? 1 : 0;   # "lm" segment (from an "LM"-tagged source) = Legacy Model
   return { f=>$fname, len=>$len, cfg=>(defined $cfg ? $CFG{$cfg} : undef),
            shot=>(defined $shot ? $SHOT{$shot} : undef),
-           hull=>$hull, year=>$year, idx=>($idx // 0), stem=>$stem };
+           hull=>$hull, year=>$year, idx=>($idx // 0), stem=>$stem, legacy=>$legacy };
 }
 
 # ---- enumerate photos from disk (manifest is stale) ---------------------------
@@ -99,6 +100,7 @@ for my $m (@catalog) {
     slug=>$m->{slug}, name=>$m->{name}, cat=>$m->{cat}, lens=>$m->{lens},
     photos=>[ map { my $p=$_; my %h;
         for my $k (qw(f len cfg shot hull year)) { $h{$k}=$p->{$k} if defined $p->{$k} }
+        $h{legacy}=1 if $p->{legacy};
         \%h } @{$m->{photos}} ],
   };
 }

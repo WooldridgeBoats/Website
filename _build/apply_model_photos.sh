@@ -63,9 +63,11 @@ parse_one(){
     if [ "$sl" = "aft" ] && [ "$nl" = "ws" ]; then cfg=aft-ws   # two-token config "AFT-WS" -> Aft Windshield
     else case "$sl" in cc)cfg=cc;; ws)cfg=ws;; tiller)cfg=tiller;; cabin)cfg=cabin;; pybus)cfg=pybus;; first-responder)cfg=first-responder;; *)cfg="?";; esac; fi
   fi
+  local legacy=0; case "-$(printf %s "$stem" | tr 'a-z' 'A-Z')-" in *-LM-*) legacy=1;; esac   # "LM" token (after cfg, before model name) = Legacy Model
   local nn2; nn2="$(printf '%02d' "$((10#$nn))")"
   local seg=""; [ -n "$cfg" ] && seg="${cfg}-"   # drop the cfg segment for no-config models -> HULL-LEN-NN.jpg
-  if [ -n "$hull" ]; then echo "${hull}-${len}-${seg}${nn2}.jpg $hull $len $cfg"; else echo "${len}-${seg}${nn2}.jpg  $len $cfg"; fi
+  local lmseg=""; [ "$legacy" = 1 ] && lmseg="lm-"   # encode legacy into the dest name so build_gallery.pl flags the photo -> HULL-LEN-cfg-lm-NN.jpg
+  if [ -n "$hull" ]; then echo "${hull}-${len}-${seg}${lmseg}${nn2}.jpg $hull $len $cfg"; else echo "${len}-${seg}${lmseg}${nn2}.jpg  $len $cfg"; fi
 }
 
 # ---- 1) discover length subfolders (leading number) --------------------------

@@ -37,15 +37,27 @@
     var p = (loc && PHOTO[loc.slug]) ? PHOTO[loc.slug][loc.file] : null;
     var mdl = loc ? MODEL[loc.slug] : null;
     return {
-      slug: loc ? loc.slug : '',
+      slug: loc ? loc.slug : (a.dataset.slug || ''),
       file: loc ? loc.file : '',
       name: mdl ? mdl.name : (a.dataset.m || ''),
       len: a.dataset.len || (p && p.len) || '',
       cfg: a.dataset.cfg || (p && p.cfg) || '',
       hull: a.dataset.hull || (p && p.hull) || '',
       shot: a.dataset.shot || (p && p.shot) || '',
-      year: (p && p.year) || ''
+      year: (p && p.year) || '',
+      legacy: (a.dataset.legacy || (p && p.legacy)) ? 1 : 0   /* per-photo "LM" flag (desktop: photo-data; mobile: dataset) */
     };
+  }
+  /* A gallery length is "legacy" when it isn't one of the model's currently
+     offered lengths (MODEL[slug].lens, from photo-data.js — mirrors the homepage
+     fleet badge). Flags archive builds we still show but no longer make. Gated:
+     no lens data, or an untagged/blank length -> never legacy (safe no-op). */
+  function isLegacyLen(slug, len) {
+    var m = MODEL[slug];
+    if (!m || !m.lens || !m.lens.length) return false;
+    var L = parseInt(len, 10);
+    if (!L) return false;
+    return m.lens.indexOf(L) === -1;
   }
   function visible(el) { return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length); }
   function collect() {
@@ -77,7 +89,8 @@
     return mobileSet(slug, len).map(function (p) {
       var a = document.createElement('a');
       a.setAttribute('href', dir + 'mobile/' + p.f);
-      a.dataset.len = len; a.dataset.cfg = p.cfg || ''; a.dataset.hull = p.hull || ''; a.dataset.m = name;
+      a.dataset.len = len; a.dataset.cfg = p.cfg || ''; a.dataset.hull = p.hull || ''; a.dataset.m = name; a.dataset.slug = slug;
+      if (p.legacy) a.dataset.legacy = '1';
       var img = document.createElement('img'); img.src = dir + 'mobile/thumbs/' + p.f; img.alt = '';
       a.appendChild(img);
       return a;
@@ -197,6 +210,7 @@
     var bits = [nm];
     if (m.cfg) bits.push(m.cfg);
     if (m.hull) bits.push('Hull #' + m.hull);
+    if (isLegacyLen(m.slug, m.len) || m.legacy) bits.push('<span class="lgcy">Legacy Model</span>');  /* per-length legacy OR per-photo LM tag; after the hull */
     lbCap.innerHTML = lenBadge + '<span class="wblbcaptext">' + bits.join(' &#183; ') + '</span>';
 
     var imgs = lbStrip.children;
@@ -606,8 +620,11 @@
           var badge = (mset && mset.length && mset.length !== list.length)
             ? '<span class="mcbadge"><span class="wbd">' + list.length + ' photos</span><span class="wbm">' + mset.length + ' photos</span></span>'
             : '<span class="mcbadge">' + list.length + ' photo' + (list.length === 1 ? '' : 's') + '</span>';
+          /* legacy tag: a length we still show but no longer build (not in MODEL.lens) */
+          var legacyTag = (by === 'length' && k !== 'x' && isLegacyLen(slug, k))
+            ? '<span class="mclegacy">Legacy Model</span>' : '';
           card.innerHTML =
-            '<img src="' + coverSrc + '" alt="" loading="lazy">' + badge +
+            '<img src="' + coverSrc + '" alt="" loading="lazy">' + badge + legacyTag +
             '<span class="mcmeta"><b>' + title + '</b><span>' + sub + '</span></span>';
           /* phones (<=700px) open this length's independent mobile set; desktop opens the desktop anchors */
           card.addEventListener('click', function () {

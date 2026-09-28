@@ -50,10 +50,12 @@ parse_row(){
     if [ "$sl" = "aft" ] && [ "$nl" = "ws" ]; then cfg=aft-ws
     else case "$sl" in cc)cfg=cc;; ws)cfg=ws;; tiller)cfg=tiller;; cabin)cfg=cabin;; pybus)cfg=pybus;; first-responder)cfg=first-responder;; *)cfg="?";; esac; fi
   fi
+  local legacy=0; case "-$(printf %s "$stem"|tr 'a-z' 'A-Z')-" in *-LM-*) legacy=1;; esac   # "LM" token anywhere = Legacy Model
   local nn2; nn2="$(printf '%02d' "$((10#$nn))")"
   local seg=""; [ -n "$cfg" ] && seg="${cfg}-"
-  local dest; if [ -n "$hull" ]; then dest="${hull}-${len}-${seg}${nn2}.jpg"; else dest="${len}-${seg}${nn2}.jpg"; fi
-  printf '%s|%s|%s|%s|%s\n' "$dest" "$len" "$cfg" "$hull" "$nn2"   # pipe-delimited (NON-whitespace) so an empty cfg field is preserved by read (tab would collapse)
+  local lmseg=""; [ "$legacy" = 1 ] && lmseg="lm-"
+  local dest; if [ -n "$hull" ]; then dest="${hull}-${len}-${seg}${lmseg}${nn2}.jpg"; else dest="${len}-${seg}${lmseg}${nn2}.jpg"; fi
+  printf '%s|%s|%s|%s|%s|%s\n' "$dest" "$len" "$cfg" "$hull" "$nn2" "$legacy"   # pipe-delimited so empty cfg survives; legacy flag last
 }
 
 # copy a full portrait, recompressed with mozjpeg IF that comes out smaller
@@ -83,11 +85,11 @@ shopt -s nullglob
 for d in "${MOBDIRS[@]}"; do
   for f in "$d"*.jpg; do
     case "$(basename "$f")" in GALLERY-THUMB*|GALLERY-thumb*|.*) continue;; esac
-    IFS='|' read -r dest len cfg hull nn <<< "$(parse_row "$f")"
+    IFS='|' read -r dest len cfg hull nn legacy <<< "$(parse_row "$f")"
     [ "$cfg" = "?" ] && { echo "  SKIP unknown trim: $(basename "$f")"; skipped=$((skipped+1)); continue; }
     if [ "$DRY" = 1 ]; then echo "  [dry] optimize+copy $(basename "$f") -> $dest"; else opt_full "$f" "$DEST/$dest"; fi
     run "sips -s format jpeg -Z 400 \"$f\" --out \"$DEST/thumbs/$dest\" >/dev/null 2>&1"
-    printf '%s\t%s\t%s\t%s\n' "$len" "$nn" "$dest" "$(cfg_disp "$cfg")|$hull" >> "$MAN"
+    printf '%s\t%s\t%s\t%s\n' "$len" "$nn" "$dest" "$(cfg_disp "$cfg")|$hull|$legacy" >> "$MAN"
     n=$((n+1))
   done
 done
@@ -112,14 +114,14 @@ fi
 SLUG="$PSLUG" MAN="$MAN" perl - "$PAGE" <<'PERL'
 use strict; use warnings; my $page=shift;
 open my $m,'<',$ENV{MAN} or die $!; my %by;
-while(<$m>){ chomp; my ($len,$nn,$f,$rest)=split /\t/; my ($cfg,$hull)=split /\|/, ($rest//''), 2;
-  push @{$by{$len}}, [$nn+0,$f,$cfg//'',$hull//'']; }
+while(<$m>){ chomp; my ($len,$nn,$f,$rest)=split /\t/; my ($cfg,$hull,$leg)=split /\|/, ($rest//''), 3;
+  push @{$by{$len}}, [$nn+0,$f,$cfg//'',$hull//'',$leg//0]; }
 close $m;
 my @lens = sort { $a <=> $b } keys %by;
 my @lp;
 for my $L (@lens){
   my @rows = sort { $a->[0] <=> $b->[0] } @{$by{$L}};
-  my @objs = map { '{"f":"'.$_->[1].'","cfg":"'.$_->[2].'","hull":"'.$_->[3].'"}' } @rows;
+  my @objs = map { '{"f":"'.$_->[1].'","cfg":"'.$_->[2].'","hull":"'.$_->[3].'"'.($_->[4] ? ',"legacy":1' : '').'}' } @rows;
   push @lp, '"'.$L.'":['.join(',',@objs).']';
 }
 my $json = '{"'.$ENV{SLUG}.'":{'.join(',',@lp).'}}';
