@@ -248,11 +248,27 @@ h1,h2,h3,.h-serif{
    right, or down would lose it. This keeps the panel up for a moment after the
    cursor leaves, so you can move in any direction and still reach it — and a
    quick fade-in on open. Scoped to >900px so the mobile tap-accordion (which
-   toggles the panel with display:none/block) is left exactly as it was. */
+   toggles the panel with display:none/block) is left exactly as it was.
+
+   THE GHOST-PANEL FIX (2026-09-29, Tyler): the close-delay above was being
+   defeated by pointer-events. The closed rule used to say pointer-events:none,
+   which - unlike opacity/visibility - is NOT transitioned, so it flipped to
+   none the instant the cursor left the "Our Boats" text. That left the panel
+   fully VISIBLE for the whole grace period but un-hittable: moving the cursor
+   down into it never re-fired :hover, so the timer kept running and the panel
+   faded out right as you reached to click it. Measured by effect at 1440x900 -
+   on mouseleave the panel read visibility:visible / opacity:1 / pointer-events:
+   NONE, and no mouseover fired when the cursor entered the panel body.
+   Fix: the closed state is pointer-events:auto too. It is still completely
+   inert whenever it is truly closed, because visibility:hidden elements are
+   never hit-test targets - so it only becomes clickable once it is visible
+   (during open AND during the fade-out grace), which is exactly when the
+   cursor moving onto it must re-open it. Grace also lengthened a touch
+   (.35s -> .45s before the fade starts, gone at .65s) for more catch time. */
 @media (min-width:901px){
   .mega{
-    display:block; visibility:hidden; opacity:0; pointer-events:none;
-    transition:opacity .18s ease .35s, visibility 0s linear .53s;
+    display:block; visibility:hidden; opacity:0; pointer-events:auto;
+    transition:opacity .2s ease .45s, visibility 0s linear .65s;
   }
   .hasmega:hover .mega,.hasmega:focus-within .mega{
     visibility:visible; opacity:1; pointer-events:auto;
