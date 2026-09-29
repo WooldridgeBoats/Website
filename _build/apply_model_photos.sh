@@ -116,6 +116,7 @@ done
 shopt -s nullglob nocaseglob; HEROES=("$SRC"/HERO-*.jpg); shopt -u nocaseglob nullglob
 [ "${#HEROES[@]}" -gt 0 ] || { echo "ERROR: no HERO-*.jpg"; exit 1; }
 HERO="${HEROES[0]}"
+HLEGACY=0; case "-$(basename "$HERO" | tr 'a-z' 'A-Z')-" in *-LM-*) HLEGACY=1;; esac   # LM token in the hero name -> Legacy Model build -> gold tag in the hero header
 read -r hdest hhull hlen hcfg <<< "$(parse_one "$(basename "$HERO" | sed 's/^HERO-/00-/')")"   # reuse parser (fake order 00)
 if [ -n "$hcfg" ]; then HERODEST="hero-${hhull}-${hlen}-${hcfg}.jpg"; else HERODEST="hero-${hhull}-${hlen}.jpg"; fi
 run "cp \"$HERO\" \"$DEST/$HERODEST\""
@@ -133,7 +134,7 @@ if [ "$DRY" = 1 ]; then
 else
   MODEL="$MODEL" SLUG="$PSLUG" HERODEST="$HERODEST" HHULL="$hhull" HLEN="$hlen" \
   HCFG_DISP="$HCFG_DISP" HCFG_UP="$(upper "$HCFG_DISP")" MODEL_UP="$(upper "$MODEL")" \
-  COVERKEYS="${COVERKEYS%,}" GALF="$GAL" perl - "$PAGE" <<'PERL'
+  HLEGACY="$HLEGACY" COVERKEYS="${COVERKEYS%,}" GALF="$GAL" perl - "$PAGE" <<'PERL'
 use strict; use warnings;
 my $page=shift; my %E=%ENV;
 open my $g,'<',$E{GALF} or die $!; local $/; my $gal=<$g>; close $g; chomp $gal;
@@ -142,7 +143,8 @@ my ($slug,$model)=@E{qw/SLUG MODEL/};
 # hero figure
 my $altcfg = ($E{HCFG_DISP} ne '') ? " $E{HCFG_DISP}" : '';   # no-config models: no stray space/label
 my $capcfg = ($E{HCFG_UP}   ne '') ? " $E{HCFG_UP}"   : '';
-my $hero=qq{<figure class="modelhero"><img src="../../assets/photos/$slug/$E{HERODEST}" alt="$model &#8212; $E{HLEN}&#8242;$altcfg, Hull $E{HHULL}"><figcaption>$E{MODEL_UP} &#8212; $E{HLEN}&#8242;$capcfg<span class="ref">HULL #$E{HHULL}</span></figcaption></figure>};
+my $hlgcy  = $E{HLEGACY} ? qq{<span class="hlgcy">Legacy Model</span> &#183; } : '';   # gold Legacy Model tag when the hero is an LM build (right-aligned group with the hull)
+my $hero=qq{<figure class="modelhero"><img src="../../assets/photos/$slug/$E{HERODEST}" alt="$model &#8212; $E{HLEN}&#8242;$altcfg, Hull $E{HHULL}"><figcaption>$E{MODEL_UP} &#8212; $E{HLEN}&#8242;$capcfg<span class="ref">${hlgcy}HULL #$E{HHULL}</span></figcaption></figure>};
 $h =~ s{<figure class="modelhero">.*?</figure>}{$hero}s or warn "  (no modelhero figure found)\n";
 # gallery block
 my $block=qq{<div class="gallery captioned">\n$gal\n        </div>};

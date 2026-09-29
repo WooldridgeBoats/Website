@@ -934,10 +934,12 @@ section{ padding:36px 0; }
 /* intro description directly under the hero — centred */
 .modelhero + p{ text-align:center; max-width:840px; margin-left:auto; margin-right:auto; }
 .modelhero figcaption{
-  display:flex; justify-content:space-between; padding:10px 16px;
-  background:#fff; font-weight:500; font-size:11px; letter-spacing:.1em;
+  display:flex; justify-content:space-between; padding:11px 16px;
+  background:#fff; font-weight:500; font-size:13px; letter-spacing:.08em;
   text-transform:uppercase; color:var(--muted);
 }
+/* gold "Legacy Model" tag in a hero header (LM build) — legible on the white figcaption */
+.modelhero figcaption .hlgcy{ color:#c37d0f; font-weight:700; }
 .factrow{ display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin:24px 0; }
 .fact{
   background:#fff; border-radius:8px; box-shadow:var(--shadow);
@@ -1599,7 +1601,7 @@ footer::before{
   font-weight:700; font-size:11px; letter-spacing:.06em; padding:2px 8px; vertical-align:1px;
 }
 .wblbcaptext{ color:#cfd6db; }
-.wblbcap .lgcy{ font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:#d1a860; }
+.wblbcap .lgcy{ font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:#c37d0f; }
 .wblbstrip{
   flex:none; display:flex; gap:6px; overflow-x:auto; padding:10px 20px 16px;
   scrollbar-width:none; margin-bottom:auto;
@@ -1753,7 +1755,7 @@ html.blueprint .pcarbtn{ background:rgba(21,31,40,.94); border-color:#22303b; co
 /* legacy/archive tag — a length we still show but no longer build (top-left, opposite the count pill) */
 .mcard .mclegacy{
   position:absolute; top:12px; left:12px; z-index:1;
-  background:rgba(150,110,40,.92); color:#fff; border-radius:999px;
+  background:rgba(195,125,15,.95); color:#fff; border-radius:999px;
   font-weight:600; font-size:11px; letter-spacing:.05em; text-transform:uppercase; padding:4px 10px;
   backdrop-filter:blur(4px);
 }
