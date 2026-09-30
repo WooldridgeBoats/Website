@@ -1,32 +1,47 @@
 # "Model Ready" — paste this into a NEW chat window
 
-Copy everything in the box below as your first message in a new chat, then attach the
-next model's master photo folder and say which model it is.
+Copy everything in the box below as your first message in a new chat, then attach
+the next model's master photo folder and say which model it is.
 
 ---
 
-We're continuing the **dev.wooldridgeboats.com boat-model photo replacement + gallery rebuild** in the repo `~/Desktop/LOCAL-WEBSITE`. **Before doing anything, read my memory note `website-photo-replacement-workflow`** — it's kept fully up to date and has every gotcha + the full pipeline (also the runbook `_build/BOAT-MODEL-IMAGE-UPDATES-HANDOFF.md`). Serve locally with `python3 -m http.server 8811`; verify in the browser pane (screenshots come back blank when the pane is hidden — use DOM/`javascript_tool` geometry as the source of truth; set an explicit **`resize_window {width:1440,height:900}`** for desktop — NOT `preset:"desktop"`, which snaps to the pane's own narrow width — and `{width:390,height:844}` for phones).
+Continuing the dev.wooldridgeboats.com boat-model photo/gallery work in
+~/Desktop/LOCAL-WEBSITE. FIRST read my memory note
+`website-photo-replacement-workflow` — it has every gotcha + the full pipeline.
 
-**Trigger — I say "Model Ready! <Model>" and attach its master folder** (OneDrive `…/MASTER-WEBSITE PHOTOS/<MODEL>-WEB/`; Inboards are `… IB-WEB`). Then:
+Serve: python3 -m http.server 8811. Verify in the browser pane — FRONT it
+(tabs_select) so I can see it and SEND screenshots as files; set
+resize_window {1440x900} desktop / {390x844} phone (never preset:"desktop");
+screenshots go blank when the pane's hidden, so use DOM/javascript_tool
+geometry as the source of truth.
 
-1. **Confirm the slug** (`models/<slug>/` AND `assets/photos/<slug>/`). Set **`PHOTOSLUG`** if the photo dir differs from the page dir (known: page `xlt` / photos `alaskan-xlt`). Prefix **`NOCFG=1`** if the model has NO config choice (no CC/WS/Tiller token — the token after the length is the model name, e.g. Scout Widebody, Skagit-X). Page type: proper (hero+gallery+photo-data.js → builder rewrites it), old-style (plain `<div class="gallery">` → builder upgrades it), or truly bare (no infra → manual insert per memory's bare-page recipe). **The model-page LAYOUT is already global on every built page and SURVIVES a rebuild** — galleries sit under the fact boxes as thumbs-only, slim centered fact/CTA boxes, blue-title-over-grey-eyebrow section headings, Boat Specs above Standard features. The builder preserves section order, so DON'T re-apply it; only a truly bare/new page needs the layout inserted.
+Trigger: I say "Model Ready! <Model>" + attach the master folder
+(OneDrive …/MASTER-WEBSITE PHOTOS/<MODEL>-WEB/). Then:
+1. Confirm slug (models/<slug>/ == assets/photos/<slug>/; set PHOTOSLUG if they
+   differ, NOCFG=1 if the model has no trim token).
+2. Warm the source (find "<folder>" -name '*.jpg' -exec cat {} + >/dev/null),
+   then pre-flight: [NOCFG=1] _build/check_model_photos.sh "<folder>" (exit 0 =
+   safe). Fix obvious source-name typos in the master yourself; ASK me if a
+   length/config is ambiguous.
+3. Build (desktop+mobile in one): --dry-run, then
+   [NOCFG=1][PHOTOSLUG=x] _build/apply_model_photos.sh <slug> "<Name>" "<folder>".
+   Confirm "mobile photos: N (skipped: 0)" + WB_MOBILE lists every length.
+4. Cross-refs (not auto-fixed): broken-image sweep; repoint lp/* persona hero →
+   full hero-*.jpg; homepage photocard / borrowed category tile → thumbs/hero.jpg
+   or cover-<len>.jpg.
+5. Verify in browser (desktop cover cards + mobile portraits, captions, 0 broken);
+   CONFIRM any data-yt with me (inboard ≠ outboard); check legacy tags render.
+6. Give me the commit line — I push. Commit each model before the next.
 
-2. **Pre-flight:** `[NOCFG=1] _build/check_model_photos.sh "<folder>"` (exit 0 = safe). Fix obvious source-name typos IN THE MASTER FOLDER myself: double-dash, `GALLER THUMB`, a SPACE where a dash belongs (`WS SSD IB`→`WS-SSD IB` — a space glues the config to the model name into one unparseable token), a prefix-less file (needs leading `NN-`), a duplicate order# (renumber to a free slot — the validator's "keeps both" is only true when the dup has a DIFFERENT hull/len/cfg; same → they collide, one is lost). A DASH inside the model name (Skagit-X) is FINE under NOCFG. New trim → ASK the caption wording, then add it to ALL FOUR: `%CFG` (build_gallery.pl) + `cfg_disp`/`parse_one` (apply_model_photos.sh) + `cfg_disp`/`parse_row` (apply_mobile_gallery.sh) + `KNOWN_TRIMS` (check_model_photos.sh).
+State: all 18 fleet models are photo-done. Legacy tagging is live (color
+#c37d0f): per-length (a gallery length not in the model's offered lens → pill on
+the card + "· Legacy Model" in captions) AND per-image via an LM token in the
+filename (NN-HULL-LEN-CFG-LM-MODEL, e.g. 01-5099-23-WS-LM-SSD IB — LM after
+config, before model name; caption-only for a mixed current length; the hero
+shows it in its header too). Known trims: cc, ws, tiller, aft-ws, cabin, pybus,
+first-responder + NOCFG. Hero captions are 13px. Hull regex ^[03-9]\d{3}$ in all
+4 scripts.
 
-3. **Build (desktop + mobile in ONE command):** FIRST **warm the source** to beat the OneDrive materialization flicker — `find "<folder>" -name '*.jpg' -exec cat {} + >/dev/null` (critical for multi-mobile-folder models, or the ingest silently drops a folder). Then `--dry-run`, then for real: `[NOCFG=1] [PHOTOSLUG=<x>] _build/apply_model_photos.sh <slug> "<Display Name>" "<folder>"`. Does desktop fulls+thumbs+covers+hero, model-page rewrite, homepage fleet-card + compare repoint, provenance, build_gallery, stamp — AND auto-runs the mobile ingest for every `<L>-<MODEL>-MOBILE/` folder. **Check the output: `mobile photos: N (skipped: 0)` and `WB_MOBILE written:` must list EVERY length** (a missing length = a dropped folder → warm + re-run).
-
-4. **Cross-refs the builder does NOT auto-fix:** broken-image sweep (grep refs vs disk); repoint any `lp/*` persona hero → the model's full `hero-*.jpg`, homepage "Shot in the Field" photocard → `thumbs/cover-<firstlen>.jpg`, and grep the homepage for the model's OLD basenames (a category tile may have borrowed one). Auto-handled: fleet-card `ph`, compare `ph`, provenance, build_gallery, stamp.
-
-5. **Verify in browser:** desktop — N cover cards (one per length; single length = one centered `.mc-single` ~588px), hero + HULL#, gcaps, lightbox caption switches config+hull (MIXED hulls within one length are FINE), 0 broken imgs, `<!-- SPECS -->` intact, layout order facts→galleries→plates→video→Boat Specs→Standard features. Mobile (390px) — independent portrait set, fixed 4:5 frame (no bump), flat grid hidden, cover-card count = mobile total. **Video:** if the page has a `data-yt`, CONFIRM WITH ME it's the right clip (inboard ≠ outboard — some carry the wrong one). Right → sync the page `data-vtitle`/`alt`/`figcaption` to the YT title; wrong/none → swap the `<figure class="vidsec">` for the VIDEO COMING SOON `.vidsoon` block. (Stale `ERR_CONNECTION_REFUSED` console errors are just from my server restarts — confirm via a fresh network trace showing 200/304 before treating any as real.)
-
-6. **Give me the commit line — I push** (your env can't push; `git fetch` works). **COMMIT EACH MODEL BEFORE STARTING THE NEXT** — a later rebuild regenerates shared files (`photo-data.js`, `media-provenance.js`, `?v=` stamps) that then reflect BOTH models and can't be cleanly split. `git fetch` first; origin ahead = IG bot (`assets/homepage/instagram/feed.json` only) → `git pull --rebase origin main` is clean.
-
-**Mobile spec:** desktop folder = desktop gallery, `<L>-<MODEL>-MOBILE/` = mobile gallery, fully independent (different photos/counts fine). **4:5 portrait @ 1080×1350, JPEG ~75%**, all one pixel size (off-size ones letterbox in the fixed frame).
-
-**Re-runs are cheap + safe** — a config fix (rename source `WS`→`CABIN` etc.), a photo top-up (add shots to one length), or any source edit = just re-run the full builder (it wipes+rebuilds `assets/photos/<slug>` from the current master). A rebuild **preserves manual page edits outside the hero/gallery/WB_COVERS regions** (video caption, layout). Concept boats use leading-`0` hulls (`0001`) — handled by the regex. OneDrive can lag a rename ~1 min (it mirrors the X Drive) — re-list before concluding it's stale. A model's homepage-grid `nm` may intentionally differ from its page name (Skagit-X page = "Skagit-X", grid = "Skagit-X Inboard" — same boat, leave it).
-
-**DONE (don't redo) — 16 models:** Alaskan LT, Alaskan, Alaskan XL, Alaskan XLT, Rogue HDPE, Skagit, Sport, Super Sport Drifter, Sportster, Alaskan XL Inboard, Scout, Scout Widebody, Skagit Inboard, Sport Inboard, Super Sport Drifter Inboard, Skagit-X. (The 6 newest carry mobile galleries; the 10 pre-Scout are desktop-done, mobile pending a future `*-MOBILE` export + re-run.) **Known trims:** cc, ws, tiller, aft-ws, cabin, first-responder + **`NOCFG=1`**. **Hull regex `^[03-9]\d{3}$` in all FOUR scripts.** Desktop lightbox nav-zones, the WB-monogram favicon, and the model-page layout redesign are all done + global. Reusable **2-video `.vid2`** layout (local thumbs in `assets/video-thumbs/` at 1280×720, or YT-URL thumbs) + the **video-wall** recipe for multi-video pages.
-
-Ready — I'll drop the next model.
+Ready — I'll drop the next model or edit.
 
 ---
