@@ -653,6 +653,12 @@
     });
   }
 
+  /* public hook: a page script can open the viewer on its OWN list of detached
+     <a href="full.jpg"><img src="thumb.jpg"></a> anchors, captioned from data-m /
+     data-len / data-cfg / data-hull (same fields mobileAnchors sets). Used by
+     agency-gallery.js on the Agency & Work Boats page. */
+  window.WBGallery = { open: function (list, i) { if (list && list.length) openLb(list[i || 0], false, list); } };
+
   /* deep-linked photo on a model page */
   if (!gal && /^#p=/.test(location.hash)) openFromHash();
   window.addEventListener('popstate', function () {

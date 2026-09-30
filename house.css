@@ -1663,6 +1663,70 @@ body.wblb-open #wb-corner{ display:none !important; }
 .mp-tight .pagemast .mastrule{ margin-top:14px; }
 .mp-tight .pagebody{ padding-top:18px; }
 
+/* Agency & Work Boats page (custom-agency-builds/) — model-page masthead with a
+   "Built for the mission" line (Inter Medium) between the title and the caps
+   kick line; intro copy centred like a model page's description. */
+.pagemast .mission{ font-family:var(--sans); font-weight:500; font-size:clamp(17px,1.9vw,22px); color:var(--ink); margin-top:8px; }
+.agency-intro{ max-width:840px; margin:0 auto; text-align:center; }
+.agency-intro p{ font-size:16px; line-height:1.7; margin-bottom:14px; }
+
+/* Hero slider (assets/hero-slider.js) — a .modelhero frame whose photo slides.
+   Same 2000x1250 (16:10) photos and header strip as a model-page hero. */
+.hslider .hs-view{ position:relative; overflow:hidden; aspect-ratio:16/10; touch-action:pan-y; }
+.hslider .hs-track{ display:flex; height:100%; transition:transform .7s cubic-bezier(.4,0,.2,1); will-change:transform; }
+.hslider .hs-slide{ flex:0 0 100%; height:100%; }
+.hslider .hs-slide img{ display:block; width:100%; height:100%; object-fit:cover; user-select:none; -webkit-user-drag:none; }
+.hslider .hs-arrow{
+  position:absolute; top:50%; transform:translateY(-50%); z-index:2;
+  width:46px; height:46px; padding:0; border:0; border-radius:50%; cursor:pointer;
+  display:grid; place-items:center; background:rgba(255,255,255,.82);
+  box-shadow:0 2px 10px rgba(0,0,0,.2); opacity:.7; transition:opacity .2s, background .2s;
+}
+.hslider .hs-arrow:hover,.hslider .hs-arrow:focus-visible{ opacity:1; background:#fff; }
+.hslider .hs-arrow::before{ content:""; width:11px; height:11px; border:solid var(--ink); border-width:0 2.5px 2.5px 0; }
+.hslider .hs-prev{ left:16px; }
+.hslider .hs-prev::before{ transform:rotate(135deg); margin-left:5px; }
+.hslider .hs-next{ right:16px; }
+.hslider .hs-next::before{ transform:rotate(-45deg); margin-right:5px; }
+.hslider .hs-dots{ position:absolute; left:0; right:0; bottom:10px; z-index:2; display:flex; justify-content:center; gap:2px; }
+.hslider .hs-dot{ width:24px; height:24px; padding:0; border:0; background:none; cursor:pointer; display:grid; place-items:center; }
+.hslider .hs-dot::before{
+  content:""; width:9px; height:9px; border-radius:50%;
+  background:rgba(255,255,255,.6); box-shadow:0 0 0 1px rgba(0,0,0,.22); transition:transform .2s, background .2s;
+}
+.hslider .hs-dot[aria-current="true"]::before{ background:#fff; transform:scale(1.3); }
+/* keep "HULL #5320" on one line; the JS sizes the strip to its tallest caption so it never jumps */
+.hslider figcaption{ gap:14px; align-items:flex-start; box-sizing:border-box; }
+.hslider figcaption .ref{ white-space:nowrap; }
+@media (max-width:640px){
+  .hslider .hs-arrow{ width:36px; height:36px; }
+  .hslider .hs-prev{ left:10px; } .hslider .hs-next{ right:10px; }
+  .hslider .hs-dots{ bottom:6px; }
+  /* phone caption = two tidy rows: MODEL ........ HULL #NNNN / 20′ CENTER CONSOLE — PURPOSE */
+  .hslider figcaption{ display:grid; grid-template-columns:1fr auto; column-gap:12px; row-gap:3px; padding:10px 14px 11px; letter-spacing:.06em; }
+  .hslider .hs-cap{ display:contents; }
+  .hslider .hs-model{ grid-column:1; grid-row:1; font-weight:600; color:var(--ink); font-size:12.5px; }
+  .hslider figcaption .ref{ grid-column:2; grid-row:1; font-size:12px; align-self:baseline; }
+  .hslider .hs-sep{ display:none; }
+  .hslider .hs-spec{ grid-column:1 / -1; grid-row:2; font-size:11px; font-weight:500; }
+}
+@media (prefers-reduced-motion:reduce){ .hslider .hs-track{ transition:none; } }
+
+/* Agency galleries (agency-gallery.js + _build/build_agency_galleries.pl): BIG
+   .mcard cover cards, TWO across (Tyler: not the one-row strip of a multi-length
+   model page). An odd last card centres on its own row at the same size. */
+.agcards{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; margin:4px 0 8px; }
+.agcards > .mcard:last-child:nth-child(odd){ grid-column:1 / -1; justify-self:center; width:calc(50% - 10px); }
+.agcards .mcard{ text-decoration:none; }
+.agcards .mcard .mcmeta{ left:20px; right:20px; bottom:16px; }
+.agcards .mcard .mcmeta b{ font-size:23px; }
+.agcards .mcard .mcmeta span{ font-size:14px; font-weight:400; }
+@media (max-width:640px){
+  .agcards{ grid-template-columns:1fr; gap:14px; }
+  .agcards > .mcard:last-child:nth-child(odd){ width:100%; }
+  .agcards .mcard .mcmeta b{ font-size:19px; }
+}
+
 /* blueprint (dark) theme support */
 html.blueprint .ptoolbar{ background:rgba(15,22,28,.96); border-color:#22303b; }
 html.blueprint .pmode{ background:#151f28; border-color:#22303b; color:#c6cdd3; }
