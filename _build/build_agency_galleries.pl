@@ -227,7 +227,7 @@ for my $k (@keys) {
   push @sub, "Hull #$h[0]" if @h == 1;
   (my $altH = esc($alt)) =~ s/\x{2032}/&#8242;/g; $altH =~ s/\x{2014}/&#8212;/g;
   push @cards, qq{    <a class="mcard" href="$WEB/$k/$d[0]{f}" data-gal="$k"><img src="$WEB/$k/cover.jpg$cv" alt="$altH" loading="lazy">$badge}
-    . qq{<span class="mcmeta"><b>$g->{len}&#8242; } . esc($g->{model}) . ($g->{purpose} ? " &#8212; " . esc($g->{purpose}) : "") . "</b><span>" . join(' &#183; ', @sub) . "</span></span></a>";
+    . qq{<span class="mcmeta"><b>$g->{len}&#8242; } . esc($g->{model}) . ($g->{purpose} ? " &#8212; <span class=\"agp\">" . esc($g->{purpose}) . "</span>" : "") . "</b><span>" . join(' &#183; ', @sub) . "</span></span></a>";
   printf "  built %-28s -> %d + %d photos, cover %s\n", $k, $nd, $nm, ($g->{cover} ? "GALLERY-THUMB" : (split /\?/, $d[0]{f})[0]);
 }
 opendir my $xd, $DEST or die $!;

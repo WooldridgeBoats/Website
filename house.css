@@ -1721,6 +1721,8 @@ body.wblb-open #wb-corner{ display:none !important; }
 .agcards .mcard .mcmeta{ left:20px; right:20px; bottom:16px; }
 .agcards .mcard .mcmeta b{ font-size:23px; }
 .agcards .mcard .mcmeta span{ font-size:14px; font-weight:400; }
+/* the mission ("First Responder") never splits across lines — a long title breaks after the dash */
+.agcards .mcard .mcmeta b .agp{ display:inline; font:inherit; color:inherit; white-space:nowrap; }
 @media (max-width:640px){
   .agcards{ grid-template-columns:1fr; gap:14px; }
   .agcards > .mcard:last-child:nth-child(odd){ width:100%; }
