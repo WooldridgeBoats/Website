@@ -232,7 +232,8 @@ for my $k (@keys) {
 }
 opendir my $xd, $DEST or die $!;
 my %want = map { $_ => 1 } @keys;
-for (sort grep { !/^\./ && -d "$DEST/$_" && !$want{$_} } readdir $xd) { print "WARN  stale folder assets/photos/agency-work/$_ (no longer in the master) — delete it if it's retired\n" }
+# (agency-work/thumbs/ holds the homepage "Explore" tile image — made from slide-01, not a gallery)
+for (sort grep { !/^\./ && -d "$DEST/$_" && !$want{$_} && $_ ne "thumbs" } readdir $xd) { print "WARN  stale folder assets/photos/agency-work/$_ (no longer in the master) — delete it if it's retired\n" }
 closedir $xd;
 
 # ---- page block ---------------------------------------------------------------
