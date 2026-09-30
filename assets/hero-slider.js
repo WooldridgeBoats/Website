@@ -5,14 +5,14 @@
  * plus a figcaption holding .hs-cap and .ref (same header strip as a model-page hero).
  * Without JS the first photo simply shows as a normal hero.
  *
- * Auto-advances every DELAY ms and loops seamlessly (a copy of slide 1 sits after
+ * Auto-advances every DELAY ms (4s — Tyler, 2026-09-30) and loops seamlessly (a copy of slide 1 sits after
  * the last slide). Arrows, dots, swipe and the arrow keys all work. Autoplay pauses
  * while a mouse is over it, while it has keyboard focus, and while the tab is
  * hidden; with the OS "reduce motion" setting on it never autoplays.
  */
 (function () {
   'use strict';
-  var DELAY = 5000, SPEED = 700;   // SPEED must match the .hs-track transition in house.css
+  var DELAY = 4000, SPEED = 700;   // SPEED must match the .hs-track transition in house.css
 
   var root = document.querySelector('.hslider');
   if (!root) return;

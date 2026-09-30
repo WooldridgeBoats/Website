@@ -221,12 +221,13 @@ for my $k (@keys) {
   my $badge = ($nm && $nm != $nd)
     ? qq{<span class="mcbadge"><span class="wbd">$nd photos</span><span class="wbm">$nm photos</span></span>}
     : qq{<span class="mcbadge">$nd photo} . ($nd == 1 ? '' : 's') . '</span>';
+  # card title carries the mission ("18′ Skagit — Fire" — Tyler: make the purpose easy to see);
+  # the small line under it is config + hull
   my @sub = (esc($g->{cfg}));
-  push @sub, esc($g->{purpose}) if $g->{purpose};
   push @sub, "Hull #$h[0]" if @h == 1;
   (my $altH = esc($alt)) =~ s/\x{2032}/&#8242;/g; $altH =~ s/\x{2014}/&#8212;/g;
   push @cards, qq{    <a class="mcard" href="$WEB/$k/$d[0]{f}" data-gal="$k"><img src="$WEB/$k/cover.jpg$cv" alt="$altH" loading="lazy">$badge}
-    . qq{<span class="mcmeta"><b>$g->{len}&#8242; } . esc($g->{model}) . '</b><span>' . join(' &#183; ', @sub) . "</span></span></a>";
+    . qq{<span class="mcmeta"><b>$g->{len}&#8242; } . esc($g->{model}) . ($g->{purpose} ? " &#8212; " . esc($g->{purpose}) : "") . "</b><span>" . join(' &#183; ', @sub) . "</span></span></a>";
   printf "  built %-28s -> %d + %d photos, cover %s\n", $k, $nd, $nm, ($g->{cover} ? "GALLERY-THUMB" : (split /\?/, $d[0]{f})[0]);
 }
 opendir my $xd, $DEST or die $!;
