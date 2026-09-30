@@ -242,6 +242,7 @@ $h
 </main>
 
 <!--#include virtual="/footer.html" -->
+<script src="/assets/shop.js"></script>
 
 </body>
 </html>

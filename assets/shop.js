@@ -88,8 +88,10 @@
       });
     }
 
-    // tapping a real destination closes the menu
+    // tapping a real destination closes the menu (but not the "Our Boats" tap
+    // above, which cancels its navigation to open the submenu instead)
     wrap.addEventListener("click", function (e) {
+      if (e.defaultPrevented) return;
       var a = e.target.closest ? e.target.closest("a") : null;
       if (a && a.getAttribute("href") && a.getAttribute("href").charAt(0) !== "#" &&
           !a.classList.contains("brand")) {
