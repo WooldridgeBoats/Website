@@ -1667,6 +1667,7 @@ body.wblb-open #wb-corner{ display:none !important; }
    "Built for the mission" line (Inter Medium) between the title and the caps
    kick line; intro copy centred like a model page's description. */
 .pagemast .mission{ font-family:var(--sans); font-weight:500; font-size:clamp(17px,1.9vw,22px); color:var(--ink); margin-top:8px; text-transform:uppercase; letter-spacing:.06em; }
+html.blueprint .pagemast .mission{ color:#c6cdd3; }   /* "Night Run" easter-egg theme: keep it readable on the dark page */
 .agency-intro{ max-width:840px; margin:0 auto; text-align:center; }
 .agency-intro p{ font-size:16px; line-height:1.7; margin-bottom:14px; }
 
