@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# mkdocx.pl — build a .docx directly from a simple text markup.
+# mkdocx.pl - build a .docx directly from a simple text markup.
 #
 # Word COM proved pathologically slow for table-heavy documents (150s+ of CPU
 # without finishing), so this writes the OOXML package itself. Deterministic
@@ -126,6 +126,7 @@ my $ct = <<'XML';
 <Default Extension="xml" ContentType="application/xml"/>
 <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
 <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+<Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/>
 </Types>
 XML
 
@@ -140,7 +141,15 @@ my $drels = <<'XML';
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
 <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" Target="settings.xml"/>
 </Relationships>
+XML
+
+# Without a settings part Word opens the file in Compatibility Mode.
+# compatibilityMode 15 = current Word (2013 and later).
+my $settings = <<'XML';
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:compat><w:compatSetting w:name="compatibilityMode" w:uri="http://schemas.microsoft.com/office/word" w:val="15"/></w:compat></w:settings>
 XML
 
 my %parts = (
@@ -148,9 +157,10 @@ my %parts = (
   '_rels/.rels'           => $rels,
   'word/document.xml'     => $doc,
   'word/styles.xml'       => $styles,
+  'word/settings.xml'     => $settings,
   'word/_rels/document.xml.rels' => $drels,
 );
-my @names = ('[Content_Types].xml','_rels/.rels','word/document.xml','word/styles.xml','word/_rels/document.xml.rels');
+my @names = ('[Content_Types].xml','_rels/.rels','word/document.xml','word/styles.xml','word/settings.xml','word/_rels/document.xml.rels');
 unlink $out;
 my $z;
 for my $i (0 .. $#names) {
