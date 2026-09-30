@@ -33,14 +33,17 @@ Trigger: I say "Model Ready! <Model>" + attach the master folder
    CONFIRM any data-yt with me (inboard ≠ outboard); check legacy tags render.
 6. Give me the commit line — I push. Commit each model before the next.
 
-State: all 18 fleet models are photo-done. Legacy tagging is live (color
-#c37d0f): per-length (a gallery length not in the model's offered lens → pill on
-the card + "· Legacy Model" in captions) AND per-image via an LM token in the
-filename (NN-HULL-LEN-CFG-LM-MODEL, e.g. 01-5099-23-WS-LM-SSD IB — LM after
-config, before model name; caption-only for a mixed current length; the hero
-shows it in its header too). Known trims: cc, ws, tiller, aft-ws, cabin, pybus,
-first-responder + NOCFG. Hero captions are 13px. Hull regex ^[03-9]\d{3}$ in all
-4 scripts.
+State: the 18 MAIN models (the ones tied to the build configurator) all have
+new desktop galleries; 8 also have mobile. The 10 pre-Scout models (Alaskan LT,
+Alaskan, Alaskan XL, XLT, Rogue, Skagit, Sport, SSD, Sportster, Alaskan XL IB)
+still need *-MOBILE exports from me, then a re-run. The 7 CUSTOM builds (Angler,
+Canyon, Deepwater, Landing Craft, Pybus Offshore, RiverRat DIY Kit, SSO
+Pilothouse) aren't part of the main lineup — their photos will come over time.
+Legacy tagging is live (gold #c37d0f): a gallery length the model no longer
+offers gets tagged automatically. Per-photo LM tags are RARE and only come on
+files I supply — never add one yourself. Known trims: cc, ws, tiller, aft-ws,
+cabin, pybus, first-responder + NOCFG. Hero captions are 13px. Hull regex
+^[03-9]\d{3}$ in all 4 scripts.
 
 Ready — I'll drop the next model or edit.
 

@@ -102,7 +102,7 @@ for d in "$SRC"/*/; do
     # trim code
     if [ "${NOCFG:-0}" != 1 ]; then   # NOCFG models (e.g. Scout Widebody) have no trim — the token after LEN is the model name
       if [ -z "$stylelc" ]; then err "$base: no trim code"
-      elif ! is_trim "$stylelc"; then err "$base: UNKNOWN trim '$style' — add to build_gallery.pl %CFG + apply_model_photos.sh first (or run with NOCFG=1 if this model has no configuration)"; fi
+      elif ! is_trim "$stylelc"; then err "$base: UNKNOWN trim '$style' — add it to ALL 4 scripts first: build_gallery.pl %CFG, apply_model_photos.sh (cfg_disp + parse_one), apply_mobile_gallery.sh (cfg_disp + parse_row), KNOWN_TRIMS here (or run with NOCFG=1 if this model has no configuration)"; fi
     fi
     # bytes / size
     if [ ! -s "$f" ]; then err "$base: 0 bytes (cloud-only placeholder? force-download it)"; else
