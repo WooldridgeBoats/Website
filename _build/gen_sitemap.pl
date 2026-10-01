@@ -41,7 +41,6 @@ my @SKIP = (
   [ qr{^header\.html$},            'partial, not a page' ],
   [ qr{^footer\.html$},            'partial, not a page' ],
   [ qr{^404\.html$},               'error page — must never be indexed' ],
-  [ qr{^lp/},                      'campaign landing pages carry deliberately stale pricing (standing governance ruling: leave lp/ alone)' ],
   [ qr{^forms/},                   'handlers and the defended submissions dir' ],
   [ qr{^tools/},                   'internal/dealer tools and JS data files, not public content' ],
   [ qr{^store/},                   '301s to store.wooldridgeboats.com' ],

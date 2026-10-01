@@ -107,8 +107,8 @@ reconcile them into the final standard rather than duplicating.
 - Per-model spec numbers come from **the current LIVE site** (`wooldridgeboats.com` model pages /
   spec tables) **+ screenshots Tyler supplies** of the specific finished models.
 - Values are **per model, and usually per length** (see canyon's one-table-per-length layout).
-- In-repo leads (partial only, not a full dataset): `tools/WOOLDRIDGE_SALES_ASSIST.html`,
-  `option-guide/index.html` mention some spec fields — useful for label wording, not authoritative.
+- In-repo lead (partial only, not a full dataset): `option-guide/index.html` mentions some spec
+  fields — useful for label wording, not authoritative.
 - **Do NOT invent/guess numbers.** Every value must come from the live site or Tyler's screenshot.
   If a value is missing, flag it and leave a clear placeholder for Tyler rather than fabricating.
 

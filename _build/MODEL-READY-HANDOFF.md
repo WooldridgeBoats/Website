@@ -26,9 +26,8 @@ Trigger: I say "Model Ready! <Model>" + attach the master folder
 3. Build (desktop+mobile in one): --dry-run, then
    [NOCFG=1][PHOTOSLUG=x] _build/apply_model_photos.sh <slug> "<Name>" "<folder>".
    Confirm "mobile photos: N (skipped: 0)" + WB_MOBILE lists every length.
-4. Cross-refs (not auto-fixed): broken-image sweep; repoint lp/* persona hero →
-   full hero-*.jpg; homepage photocard / borrowed category tile → thumbs/hero.jpg
-   or cover-<len>.jpg.
+4. Cross-refs (not auto-fixed): broken-image sweep; homepage photocard / borrowed
+   category tile → thumbs/hero.jpg or cover-<len>.jpg.
 5. Verify in browser (desktop cover cards + mobile portraits, captions, 0 broken);
    CONFIRM any data-yt with me (inboard ≠ outboard); check legacy tags render.
 6. Give me the commit line — I push. Commit each model before the next.

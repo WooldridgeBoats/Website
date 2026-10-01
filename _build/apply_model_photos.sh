@@ -20,7 +20,7 @@
 # full + hero.jpg card thumb -> rewrite the model page gallery (captioned) + hero
 # figcaption + WB_COVERS -> repoint homepage fleet card + compare thumb to the
 # hero -> regen provenance -> build_gallery.pl + stamp_assets.pl. Prints a
-# verification checklist and any leftover refs (e.g. lp/) to review by hand.
+# verification checklist.
 # ------------------------------------------------------------------------------
 set -uo pipefail
 
@@ -212,8 +212,6 @@ if [ "$DRY" = 1 ]; then echo "DRY-RUN complete — nothing written."; else
   echo "  • serve: python3 -m http.server 8811   then open /models/$SLUG/"
   echo "  • model page: N cover cards (one per length), gcaps, hero loads, 0 broken imgs, no console errors"
   echo "  • lightbox caption switches config+hull; homepage fleet card = hero"
-  leftover="$(grep -rl "photos/$PSLUG/" "$REPO"/lp/*.html 2>/dev/null || true)"
-  [ -n "$leftover" ] && { echo "  • REVIEW lp/ refs to photos/$PSLUG/ (persona heroes are model-specific):"; echo "$leftover" | sed 's/^/      /'; }
   echo "  • commit when happy (you drive the push):"
   echo "      cd $REPO && git add -A && git commit -m \"$MODEL: 2026 photo set\""
 fi

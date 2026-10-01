@@ -25,7 +25,7 @@ sub handle {
   # mirror the .htaccess "index.html" -> trailing-slash redirect against the
   # RAW requested path, before any "/" -> "index.html" completion below
   # (otherwise our own completion looks like an explicit request and gets
-  # redirected right back). Flat pages (tools/*.html, lp/*.html) are served
+  # redirected right back). Flat pages (tools/*.html) are served
   # by their real filename only — no extension-hiding here, matching
   # .htaccess after that mechanism was reverted (didn't work on the host).
   if ($path =~ m{^(.*/)index\.html$}) {

@@ -9,7 +9,7 @@ RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /.*index\.html\ HTTP/
 RewriteRule ^(.*)index\.html$ $1 [R=301,L]
 
 # NOTE: an earlier version of this file also tried to hide the .html
-# extension on flat pages (tools/*.html, lp/*.html) via a redirect rule plus
+# extension on flat pages (tools/*.html) via a redirect rule plus
 # either a custom RewriteRule or Options +MultiViews to serve them. Neither
 # worked on this host — investigation showed .htaccess rewrite conditions
 # and Options aren't being honored here, and any request that falls through

@@ -36,3 +36,9 @@ deployment:
     - /bin/rm -f $DEPLOYPATH/pricesheets/SUPER_SPORT_DRIFTER_IB_Price_Sheet.pdf
     - /bin/rm -f $DEPLOYPATH/pricesheets/SUPER_SPORT_DRIFTER_OB_Price_Sheet.pdf
     - /bin/rm -f $DEPLOYPATH/pricesheets/SUPER_SPORT_OFFSHORE_OB_Price_Sheet.pdf
+    # --- retire the ad-campaign landing pages (lp/) and the Sales Assist tool ---
+    # Stephen's ruling 2026-10-01: both deleted from the repo, "no trace". rm -rf on
+    # the lp folder is safe here, unlike the price sheets above: nothing in the repo
+    # lands in lp/ any more, and these steps run after the copy step.
+    - /bin/rm -rf $DEPLOYPATH/lp
+    - /bin/rm -f $DEPLOYPATH/tools/WOOLDRIDGE_SALES_ASSIST.html

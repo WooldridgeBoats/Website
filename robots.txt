@@ -18,9 +18,6 @@
 #             Blocking it stops Google rendering those pages properly.
 #   /store/   301s to store.wooldridgeboats.com. A crawler has to be allowed to
 #             fetch the URL to see the redirect and pass the signal along.
-#   /lp/      the campaign landing pages are kept OUT OF THE SITEMAP because
-#             they carry deliberately stale pricing, but they are not blocked —
-#             they're live ad destinations and blocking them would break the ads.
 
 User-agent: *
 Allow: /
