@@ -45,6 +45,7 @@ use Digest::MD5;
 # the length moved every gallery URL off the poisoned ones. Bump it again (11, 12...)
 # if cached 404s ever need flushing (.cpanel.yml now copies assets first to prevent it).
 my $VERLEN = 10;
+sub file_md5 { open my $fh, "<:raw", $_[0] or die "$_[0]: $!"; Digest::MD5->new->addfile($fh)->hexdigest }
 sub ver { open my $fh, "<:raw", $_[0] or die "$_[0]: $!"; "?v=" . substr(Digest::MD5->new->addfile($fh)->hexdigest, 0, $VERLEN) }
 
 my $REPO = dirname(dirname(abs_path(__FILE__)));
@@ -83,7 +84,8 @@ sub pretty {   # "FIRST RESPONDER" -> "First Responder", "USCG" stays "USCG"
 # Tyler (2026-10-05): a FIRE boat reads "Fire & Rescue"; write FIRE ONLY in the
 # file names when a boat should say just "Fire". Everything else = the token.
 my %PURPOSE = ('FIRE' => 'Fire & Rescue', 'FIRE ONLY' => 'Fire',
-               'USCG' => 'U.S. Coast Guard');   # Tyler 2026-10-05: BSR SW gallery title
+               'USCG' => 'U.S. Coast Guard',     # Tyler 2026-10-05: BSR SW gallery title
+               'USFWS' => 'U.S. Fish & Wildlife Service');   # 20' Skagit USFWS (spelled out like USCG)
 sub purpose_name { my $u = uc $_[0]; $u =~ s/ +/ /g; $PURPOSE{$u} // pretty($_[0]) }
 sub slug { (my $s = lc join '-', @_) =~ s/[^a-z0-9]+/-/g; $s =~ s/^-|-$//g; $s }
 sub esc  { (my $s = $_[0]) =~ s/&/&amp;/g; $s =~ s/</&lt;/g; $s =~ s/>/&gt;/g; $s =~ s/"/&quot;/g; $s }
@@ -170,14 +172,18 @@ sub scan_folder {
     my $g = $G{$key} ||= { key => $key, (map { ($_, $p->{$_}) } qw(len cfgc cfg mcode model purpose)), d => [], mob => [] };
     push @warn, "$d/$f: mission $p->{purpose} differs from the rest of $key ($g->{purpose}) — the card title uses $g->{purpose}"
       if $fkey && $p->{purpose} ne $g->{purpose};
-    $p->{src} = $path;
+    $p->{src} = $path; $p->{rel} = "$d/$f";
     if (!$mobile && $p->{cover}) {
       push @err, "$d/$f: a second GALLERY-THUMB for $key" if $g->{cover};
       $g->{cover} = $path; $g->{cover_hull} = $p->{hull}; next;
     }
     my $list = $mobile ? $g->{mob} : $g->{d};
-    push @err, "$d/$f: duplicate order #$p->{nn} in $key" . ($mobile ? ' (mobile)' : '')
-      if grep { $_->{nn} == $p->{nn} } @$list;
+    if (my ($dup) = grep { $_->{nn} == $p->{nn} } @$list) {
+      # the same photo in two folders (e.g. a phone folder moved while the old copy
+      # lingers) is harmless: keep one, say so. A DIFFERENT photo on the same # stops the build.
+      if (file_md5($dup->{src}) eq file_md5($path)) { push @warn, "$d/$f: identical copy of $dup->{rel} — ignored (one of the two folders can be deleted)"; next }
+      push @err, "$d/$f: duplicate order #$p->{nn} in $key" . ($mobile ? ' (mobile)' : '') . " (also $dup->{rel})";
+    }
     push @$list, $p;
   }
   # attach this folder's GALLERY-THUMB cover(s) to their boat
