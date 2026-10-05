@@ -153,8 +153,8 @@ sub scan_folder {
       my $dim = dims($path);
       push @warn, "$d/$f: $dim (expected 2000x1250)" if $dim ne '2000x1250';
       my ($p) = parse("00-$rest", 0);
-      if ($fkey)  { push @loose, [$f, $path, $fkey] }   # in a gallery sub-folder: it's that gallery's cover
-      elsif ($p)  { push @loose, [$f, $path, slug($p->{len}, $p->{cfgc}, $p->{mcode}, $p->{purp})] }
+      if ($fkey)  { push @loose, [$f, $path, $fkey, ($p ? $p->{hull} : q{})] }   # in a gallery sub-folder: it's that gallery's cover
+      elsif ($p)  { push @loose, [$f, $path, slug($p->{len}, $p->{cfgc}, $p->{mcode}, $p->{purp}), $p->{hull}] }
       else        { push @loose, [$f, $path, undef] }
       next;
     }
@@ -173,7 +173,7 @@ sub scan_folder {
     $p->{src} = $path;
     if (!$mobile && $p->{cover}) {
       push @err, "$d/$f: a second GALLERY-THUMB for $key" if $g->{cover};
-      $g->{cover} = $path; next;
+      $g->{cover} = $path; $g->{cover_hull} = $p->{hull}; next;
     }
     my $list = $mobile ? $g->{mob} : $g->{d};
     push @err, "$d/$f: duplicate order #$p->{nn} in $key" . ($mobile ? ' (mobile)' : '')
@@ -183,13 +183,13 @@ sub scan_folder {
   # attach this folder's GALLERY-THUMB cover(s) to their boat
   my @here = grep { my $g = $G{$_}; lc("$g->{len}-$g->{cfgc}-$g->{mcode}") eq lc $base } keys %G;
   for my $c (@loose) {
-    my ($f, $path, $key) = @$c;
+    my ($f, $path, $key, $chull) = @$c;
     $key = $here[0] if !$key && @here == 1;
     if (!$key || !$G{$key}) {
       push @err, "$d/$f: can't tell which boat this cover is for — name it GALLERY-THUMB-HULL-LEN-CFG-MODEL-PURPOSE.jpg"; next;
     }
     if ($G{$key}{cover}) { push @err, "$d/$f: a second cover for $key"; next }
-    $G{$key}{cover} = $path;
+    $G{$key}{cover} = $path; $G{$key}{cover_hull} = $chull;
   }
 }
 for my $key (sort keys %G) {
@@ -246,8 +246,13 @@ for my $k (@keys) {
   push @prov, "$k/cover.jpg";
 
   my @h = sort keys %hulls;
+  # the card shows ONE hull: the only one, or for a mixed-hull gallery the COVER photo's hull
+  # (Tyler, 2026-10-05: BSR SW = 5335 + 5336, card shows its cover's 5335). The viewer
+  # still captions every photo with its own hull.
+  my $first = (sort { $a->{nn} <=> $b->{nn} } @{ $g->{d} })[0];
+  my $hull = @h == 1 ? $h[0] : (($g->{cover} ? $g->{cover_hull} : $first->{hull}) || q{});
   my $cfgline = $g->{cfg} . ($g->{purpose} ? " \x{b7} $g->{purpose}" : '');
-  my $alt = "$g->{len}\x{2032} $g->{model} $g->{cfg}" . ($g->{purpose} ? " \x{2014} $g->{purpose}" : '') . (@h == 1 ? ", Hull $h[0]" : '');
+  my $alt = "$g->{len}\x{2032} $g->{model} $g->{cfg}" . ($g->{purpose} ? " \x{2014} $g->{purpose}" : '') . ($hull ? ", Hull $hull" : '');
   $DATA{$k} = { m => $g->{model}, len => $g->{len}, cfg => $cfgline, dir => "$WEB/$k/", alt => $alt, d => \@d, mob => \@m };
 
   my $nd = @d; my $nm = @m;
@@ -258,7 +263,7 @@ for my $k (@keys) {
   # 2026-10-05); on the card: "18′ Skagit", then config + hull. No purpose -> the
   # model name stands in as the title so the cards in a row stay level.
   my @sub = (esc($g->{cfg}));
-  push @sub, "Hull #$h[0]" if @h == 1;
+  push @sub, "Hull #$hull" if $hull;
   (my $altH = esc($alt)) =~ s/\x{2032}/&#8242;/g; $altH =~ s/\x{2014}/&#8212;/g;
   my $title = esc($g->{purpose} || $g->{model});
   push @cards, qq{    <div class="agcell"><h2 class="agtitle">$title</h2>}
