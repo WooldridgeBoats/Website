@@ -75,7 +75,8 @@ sub pretty {   # "FIRST RESPONDER" -> "First Responder", "USCG" stays "USCG"
 # Gallery wording for a purpose token, where it differs from the token itself.
 # Tyler (2026-10-05): a FIRE boat reads "Fire & Rescue"; write FIRE ONLY in the
 # file names when a boat should say just "Fire". Everything else = the token.
-my %PURPOSE = ('FIRE' => 'Fire & Rescue', 'FIRE ONLY' => 'Fire');
+my %PURPOSE = ('FIRE' => 'Fire & Rescue', 'FIRE ONLY' => 'Fire',
+               'USCG' => 'U.S. Coast Guard');   # Tyler 2026-10-05: BSR SW gallery title
 sub purpose_name { my $u = uc $_[0]; $u =~ s/ +/ /g; $PURPOSE{$u} // pretty($_[0]) }
 sub slug { (my $s = lc join '-', @_) =~ s/[^a-z0-9]+/-/g; $s =~ s/^-|-$//g; $s }
 sub esc  { (my $s = $_[0]) =~ s/&/&amp;/g; $s =~ s/</&lt;/g; $s =~ s/>/&gt;/g; $s =~ s/"/&quot;/g; $s }
