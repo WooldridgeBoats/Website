@@ -42,3 +42,13 @@ deployment:
     # lands in lp/ any more, and these steps run after the copy step.
     - /bin/rm -rf $DEPLOYPATH/lp
     - /bin/rm -f $DEPLOYPATH/tools/WOOLDRIDGE_SALES_ASSIST.html
+    # --- retire the five dev-only agency case-study stubs (Tyler, 2026-10-05) ---
+    # Deleted from the repo when Agency & Work Boats moved to /agency-work-boats/.
+    # Only the sub-folders go: /custom-agency-builds/index.html STAYS, as the
+    # redirect stub for the live WordPress page's old address. Nothing in the repo
+    # lands in these folders any more, and these steps run after the copy step.
+    - /bin/rm -rf $DEPLOYPATH/custom-agency-builds/skagit-fire-rescue
+    - /bin/rm -rf $DEPLOYPATH/custom-agency-builds/skagit-fish-and-wildlife
+    - /bin/rm -rf $DEPLOYPATH/custom-agency-builds/skagit-inboard-fish-and-wildlife
+    - /bin/rm -rf $DEPLOYPATH/custom-agency-builds/skagit-yacht-tender
+    - /bin/rm -rf $DEPLOYPATH/custom-agency-builds/sso-landing-craft
