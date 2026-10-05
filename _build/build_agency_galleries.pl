@@ -37,8 +37,13 @@ use JSON::PP;
 use Digest::MD5;
 
 # content-hash tag for an image URL — Cloudflare caches images ~4h, so a re-exported
-# photo that keeps its file name needs a new URL to show up (same idea as stamp_assets.pl)
-sub ver { open my $fh, "<:raw", $_[0] or die "$_[0]: $!"; "?v=" . substr(Digest::MD5->new->addfile($fh)->hexdigest, 0, 8) }
+# photo that keeps its file name needs a new URL to show up (same idea as stamp_assets.pl).
+# $VERLEN is 10 since 2026-10-05: a page viewed mid-deploy had its new photos 404,
+# and Cloudflare + browsers cached those 404s for 4h under the 8-char URLs; changing
+# the length moved every gallery URL off the poisoned ones. Bump it again (11, 12...)
+# if cached 404s ever need flushing (.cpanel.yml now copies assets first to prevent it).
+my $VERLEN = 10;
+sub ver { open my $fh, "<:raw", $_[0] or die "$_[0]: $!"; "?v=" . substr(Digest::MD5->new->addfile($fh)->hexdigest, 0, $VERLEN) }
 
 my $REPO = dirname(dirname(abs_path(__FILE__)));
 my $SRC  = "/Users/tylerlee/Library/CloudStorage/OneDrive-WooldridgeBoatsInc/Wooldridge Boats Inc_ - SQUIRREL HOLE/70 MARKETING AND BRAND/WEBSITE/MASTER-WEBSITE PHOTOS/AGENCY-WORK-WEB";

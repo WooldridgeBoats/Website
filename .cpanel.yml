@@ -16,6 +16,14 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/hx01pil7u5iy/public_html/dev
+    # Photos, scripts and the stylesheet go up FIRST, then everything (pages
+    # included). `cp -R *` copies alphabetically, so a page folder like
+    # agency-work-boats/ used to land minutes before the assets/ it points at;
+    # anyone who opened it mid-deploy got "not found" for the new photos, and
+    # because the host sends max-age=14400 even on a 404, Cloudflare and the
+    # browser kept that 404 for up to 4 hours (2026-10-05, the BSR SW gallery).
+    # Copying assets first means a page never goes live before its files.
+    - /bin/cp -R assets house.css favicon.ico $DEPLOYPATH
     - /bin/cp -R * $DEPLOYPATH
     # --- retire the 18 static price-sheet PDFs left behind on the host (E2) ---
     - /bin/rm -f $DEPLOYPATH/pricesheets/ALASKAN_LT_OB_Price_Sheet.pdf
