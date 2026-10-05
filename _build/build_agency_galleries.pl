@@ -5,10 +5,12 @@
 #
 #   perl _build/build_agency_galleries.pl [--dry-run] ["/path/to/AGENCY-WORK-WEB"]
 #
-# Default source: OneDrive …/MASTER-WEBSITE PHOTOS/AGENCY-WORK-WEB. Every
-# sub-folder is scanned: "<LEN>-<CFG>-<MODEL>" holds desktop photos (2000x1250),
-# "<LEN>-<CFG>-<MODEL>-MOBILE" the phone portraits (1080x1350). Loose files at the
-# top level are the hero-slider photos and are NOT touched here.
+# Default source: OneDrive …/MASTER-WEBSITE PHOTOS/AGENCY-WORK-WEB. Every folder is
+# scanned: "<LEN>-<CFG>-<MODEL>" holds desktop photos (2000x1250), "…-MOBILE" the
+# phone portraits (1080x1350). A model with several builds can instead hold one
+# SUB-FOLDER per build, e.g. 20-CC-SKAGIT/20-CC-SKAGIT-FIRE/ (+ 20-CC-SKAGIT-MOBILE/
+# 20-CC-SKAGIT-FIRE-MOBILE/); each sub-folder is its own gallery (see scan_folder).
+# Loose files at the top level are the hero-slider photos and are NOT touched here.
 #
 # File names:  NN-HULL-LEN-CFG-MODEL-PURPOSE[-MOBILE].jpg
 #   e.g.  04-4572-18-CC-SKAGIT-FIRE.jpg    03-5320-20-CC-AK XL-IB-FIRST RESPONDER.jpg
@@ -116,15 +118,31 @@ sub parse {
 
 # ---- scan + check (no writes) -------------------------------------------------
 my (%G, @err, @warn);
-opendir my $sd, $SRC or die "$SRC: $!";
-my @dirs = sort grep { !/^\./ && -d "$SRC/$_" } readdir $sd;
-closedir $sd;
+sub list_dir { my ($dir, $want_dirs) = @_; opendir my $h, $dir or die "$dir: $!";
+  my @e = sort grep { !/^\./ && ($want_dirs ? -d "$dir/$_" : (/\.jpe?g$/i && -f "$dir/$_")) } readdir $h; closedir $h; @e }
+# Two folder layouts, both supported:
+#  - FLAT (the first boats): <LEN>-<CFG>-<MODEL>[-MOBILE]/NN-…jpg. The gallery is
+#    worked out from each FILE NAME (len+cfg+model+purpose), so two missions in
+#    one folder still make two cards.
+#  - SUB-FOLDER (Tyler, 2026-10-05, for models with many builds, e.g. 20' Skagit):
+#    <LEN>-<CFG>-<MODEL>/<LEN>-<CFG>-<MODEL>-<PURPOSE>/NN-…jpg, phone set in
+#    <LEN>-<CFG>-<MODEL>-MOBILE/<LEN>-<CFG>-<MODEL>-<PURPOSE>-MOBILE/. EACH
+#    SUB-FOLDER IS ITS OWN GALLERY (keyed by the sub-folder name), so two builds
+#    with the same mission (two Fire boats) can still be separate cards.
+my @dirs = list_dir($SRC, 1);
 for my $d (@dirs) {
   my $mobile = ($d =~ /-MOBILE$/i) ? 1 : 0;
   (my $base = $d) =~ s/-MOBILE$//i;
-  opendir my $dh, "$SRC/$d" or die "$SRC/$d: $!";
-  my @files = sort grep { /\.jpe?g$/i && !/^\./ } readdir $dh;
-  closedir $dh;
+  scan_folder($d, $mobile, $base, undef);
+  for my $s (list_dir("$SRC/$d", 1)) {
+    (my $sbase = $s) =~ s/-MOBILE$//i;
+    push @warn, "$d/$s: sub-folder name doesn't start with $base" if index(lc $sbase, lc $base) != 0;
+    scan_folder("$d/$s", ($mobile || $s =~ /-MOBILE$/i) ? 1 : 0, $base, slug($sbase));
+  }
+}
+sub scan_folder {
+  my ($d, $mobile, $base, $fkey) = @_;   # $fkey = the gallery key when the folder IS the gallery
+  my @files = list_dir("$SRC/$d", 0);
   my @loose;   # GALLERY-THUMB files whose name doesn't say which boat (fine in a one-boat folder)
   for my $f (@files) {
     my $path = "$SRC/$d/$f";
@@ -135,8 +153,9 @@ for my $d (@dirs) {
       my $dim = dims($path);
       push @warn, "$d/$f: $dim (expected 2000x1250)" if $dim ne '2000x1250';
       my ($p) = parse("00-$rest", 0);
-      if ($p) { push @loose, [$f, $path, slug($p->{len}, $p->{cfgc}, $p->{mcode}, $p->{purp})] }
-      else    { push @loose, [$f, $path, undef] }
+      if ($fkey)  { push @loose, [$f, $path, $fkey] }   # in a gallery sub-folder: it's that gallery's cover
+      elsif ($p)  { push @loose, [$f, $path, slug($p->{len}, $p->{cfgc}, $p->{mcode}, $p->{purp})] }
+      else        { push @loose, [$f, $path, undef] }
       next;
     }
     my ($p, $why) = parse($f, $mobile);
@@ -147,8 +166,10 @@ for my $d (@dirs) {
     push @warn, "$d/$f: $dim (expected $want)" if $dim ne $want;
     push @warn, "$d/$f: file says $p->{len}-$p->{cfgc}-$p->{mcode}, folder is $base"
       if lc("$p->{len}-$p->{cfgc}-$p->{mcode}") ne lc $base;
-    my $key = slug($p->{len}, $p->{cfgc}, $p->{mcode}, $p->{purp});
+    my $key = $fkey || slug($p->{len}, $p->{cfgc}, $p->{mcode}, $p->{purp});
     my $g = $G{$key} ||= { key => $key, (map { ($_, $p->{$_}) } qw(len cfgc cfg mcode model purpose)), d => [], mob => [] };
+    push @warn, "$d/$f: mission $p->{purpose} differs from the rest of $key ($g->{purpose}) — the card title uses $g->{purpose}"
+      if $fkey && $p->{purpose} ne $g->{purpose};
     $p->{src} = $path;
     if (!$mobile && $p->{cover}) {
       push @err, "$d/$f: a second GALLERY-THUMB for $key" if $g->{cover};
@@ -177,7 +198,7 @@ for my $key (sort keys %G) {
   delete $G{$key};
 }
 
-my @keys = sort { $G{$a}{len} <=> $G{$b}{len} || $G{$a}{model} cmp $G{$b}{model} || $G{$a}{purpose} cmp $G{$b}{purpose} } keys %G;
+my @keys = sort { $G{$a}{len} <=> $G{$b}{len} || $G{$a}{model} cmp $G{$b}{model} || $G{$a}{purpose} cmp $G{$b}{purpose} || $a cmp $b } keys %G;   # last: folder key, so twin missions keep a steady order
 print "Agency galleries from: $SRC\n";
 for my $k (@keys) {
   my $g = $G{$k};
