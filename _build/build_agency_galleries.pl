@@ -85,7 +85,8 @@ sub pretty {   # "FIRST RESPONDER" -> "First Responder", "USCG" stays "USCG"
 # file names when a boat should say just "Fire". Everything else = the token.
 my %PURPOSE = ('FIRE' => 'Fire & Rescue', 'FIRE ONLY' => 'Fire',
                'USCG' => 'U.S. Coast Guard',     # Tyler 2026-10-05: BSR SW gallery title
-               'USFWS' => 'U.S. Fish & Wildlife Service');   # 20' Skagit USFWS (spelled out like USCG)
+               'USFWS' => 'U.S. Fish & Wildlife Service',   # 20' Skagit USFWS (spelled out like USCG)
+               'NW ENERGY' => 'NorthWestern Energy');       # 20' Skagit (Tyler: NW ENERGY = NorthWestern Energy, the company's own capitalisation)
 sub purpose_name { my $u = uc $_[0]; $u =~ s/ +/ /g; $PURPOSE{$u} // pretty($_[0]) }
 sub slug { (my $s = lc join '-', @_) =~ s/[^a-z0-9]+/-/g; $s =~ s/^-|-$//g; $s }
 sub esc  { (my $s = $_[0]) =~ s/&/&amp;/g; $s =~ s/</&lt;/g; $s =~ s/>/&gt;/g; $s =~ s/"/&quot;/g; $s }
@@ -290,7 +291,7 @@ my $block = !@keys ? '' : join "\n",
   '  <div class="agcards">', @cards, '  </div>',
   "  <script>window.WB_AGENCY=$json;</script>", '';
 open my $ph, '<:raw', $PAGE or die "$PAGE: $!"; my $html = do { local $/; <$ph> }; close $ph;
-$html =~ s{(<!-- AGENCY-GALLERIES:BEGIN -->\n).*?(\s*<!-- AGENCY-GALLERIES:END -->)}{$1$block$2}s
+$html =~ s{(<!-- AGENCY-GALLERIES:BEGIN -->\n).*?\n?([ \t]*<!-- AGENCY-GALLERIES:END -->)}{$1$block$2}s   # everything between the markers is replaced, blank lines included (they used to pile up one per run)
   or die "no AGENCY-GALLERIES markers in $PAGE\n";
 open my $po, '>:raw', $PAGE or die $!; print $po $html; close $po;
 print "  page: " . scalar(@keys) . " gallery card(s) written\n";
