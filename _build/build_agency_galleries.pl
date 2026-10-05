@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # build_agency_galleries.pl — builds the per-boat photo galleries on the Agency &
-# Work Boats page (custom-agency-builds/index.html) from Tyler's master folder,
+# Work Boats page (agency-work-boats/index.html) from Tyler's master folder,
 # the way apply_model_photos.sh does for a model page. Built 2026-09-30.
 #
 #   perl _build/build_agency_galleries.pl [--dry-run] ["/path/to/AGENCY-WORK-WEB"]
@@ -15,8 +15,9 @@
 #   HULL is optional; a HERO token is ignored. The COVER is a file named the way
 #   the model folders do it: GALLERY-THUMB-HULL-LEN-CFG-MODEL-PURPOSE.jpg (in a
 #   one-boat folder plain GALLERY-THUMB.jpg is enough); no cover = lowest NN.
-#   PURPOSE is shown exactly as written (Tyler: "write what I have written"), title-cased except
-#   known acronyms like USCG.
+#   PURPOSE is the gallery title (blue caps above the card), shown as written
+#   (title-cased except acronyms like USCG) — except FIRE, which reads "Fire &
+#   Rescue" (write FIRE ONLY for just "Fire"); see %PURPOSE.
 #
 # ONE GALLERY (one big cover card) PER BOAT = LEN + CFG + MODEL + PURPOSE, so a
 # folder holding two missions (e.g. 20′ Skagit WORK and FIRE) becomes two cards.
@@ -46,7 +47,7 @@ for (@ARGV) { if ($_ eq '--dry-run') { $DRY = 1 } else { $SRC = $_ } }
 $SRC =~ s{/+$}{};
 -d $SRC or die "no source folder: $SRC\n";
 
-my $PAGE = "$REPO/custom-agency-builds/index.html";
+my $PAGE = "$REPO/agency-work-boats/index.html";
 my $DEST = "$REPO/assets/photos/agency-work";
 my $WEB  = "../assets/photos/agency-work";          # as the page references it
 my $PROV = "$REPO/assets/media-provenance.js";
@@ -71,6 +72,11 @@ my @MCODES = sort { length($b) <=> length($a) } keys %MODEL;   # longest match f
 sub pretty {   # "FIRST RESPONDER" -> "First Responder", "USCG" stays "USCG"
   join ' ', map { $ACRONYM{uc $_} ? uc $_ : ucfirst lc $_ } split / +/, $_[0];
 }
+# Gallery wording for a purpose token, where it differs from the token itself.
+# Tyler (2026-10-05): a FIRE boat reads "Fire & Rescue"; write FIRE ONLY in the
+# file names when a boat should say just "Fire". Everything else = the token.
+my %PURPOSE = ('FIRE' => 'Fire & Rescue', 'FIRE ONLY' => 'Fire');
+sub purpose_name { my $u = uc $_[0]; $u =~ s/ +/ /g; $PURPOSE{$u} // pretty($_[0]) }
 sub slug { (my $s = lc join '-', @_) =~ s/[^a-z0-9]+/-/g; $s =~ s/^-|-$//g; $s }
 sub esc  { (my $s = $_[0]) =~ s/&/&amp;/g; $s =~ s/</&lt;/g; $s =~ s/>/&gt;/g; $s =~ s/"/&quot;/g; $s }
 sub dims { my $o = `sips -g pixelWidth -g pixelHeight "$_[0]" 2>/dev/null`;
@@ -99,7 +105,7 @@ sub parse {
   (my $purp = substr($rest, length $mcode)) =~ s/^-//;
   return { nn => $nn + 0, hull => $hull, len => $len, cfgc => $cfgc, cfg => $CFG{$cfgc},
            mcode => $mcode, model => $MODEL{$mcode}, purp => uc $purp,
-           purpose => ($purp eq '' ? '' : pretty($purp)), cover => $cover };
+           purpose => ($purp eq '' ? '' : purpose_name($purp)), cover => $cover };
 }
 
 # ---- scan + check (no writes) -------------------------------------------------
@@ -221,13 +227,16 @@ for my $k (@keys) {
   my $badge = ($nm && $nm != $nd)
     ? qq{<span class="mcbadge"><span class="wbd">$nd photos</span><span class="wbm">$nm photos</span></span>}
     : qq{<span class="mcbadge">$nd photo} . ($nd == 1 ? '' : 's') . '</span>';
-  # card title carries the mission ("18′ Skagit — Fire" — Tyler: make the purpose easy to see);
-  # the small line under it is config + hull
+  # the mission is the blue Rockwell title ABOVE the card ("FIRE & RESCUE" — Tyler,
+  # 2026-10-05); on the card: "18′ Skagit", then config + hull. No purpose -> the
+  # model name stands in as the title so the cards in a row stay level.
   my @sub = (esc($g->{cfg}));
   push @sub, "Hull #$h[0]" if @h == 1;
   (my $altH = esc($alt)) =~ s/\x{2032}/&#8242;/g; $altH =~ s/\x{2014}/&#8212;/g;
-  push @cards, qq{    <a class="mcard" href="$WEB/$k/$d[0]{f}" data-gal="$k"><img src="$WEB/$k/cover.jpg$cv" alt="$altH" loading="lazy">$badge}
-    . qq{<span class="mcmeta"><b>$g->{len}&#8242; } . esc($g->{model}) . ($g->{purpose} ? " &#8212; <span class=\"agp\">" . esc($g->{purpose}) . "</span>" : "") . "</b><span>" . join(' &#183; ', @sub) . "</span></span></a>";
+  my $title = esc($g->{purpose} || $g->{model});
+  push @cards, qq{    <div class="agcell"><h2 class="agtitle">$title</h2>}
+    . qq{<a class="mcard" href="$WEB/$k/$d[0]{f}" data-gal="$k"><img src="$WEB/$k/cover.jpg$cv" alt="$altH" loading="lazy">$badge}
+    . qq{<span class="mcmeta"><b>$g->{len}&#8242; } . esc($g->{model}) . "</b><span>" . join(' &#183; ', @sub) . "</span></span></a></div>";
   printf "  built %-28s -> %d + %d photos, cover %s\n", $k, $nd, $nm, ($g->{cover} ? "GALLERY-THUMB" : (split /\?/, $d[0]{f})[0]);
 }
 opendir my $xd, $DEST or die $!;

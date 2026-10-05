@@ -46,7 +46,7 @@ my @SKIP = (
   [ qr{^store/},                   '301s to store.wooldridgeboats.com' ],
   [ qr{^models/xp/},               'carries noindex and canonicalises to /models/skagit/' ],
   [ qr{^login/},                   'redirect stub for the retired WordPress /login/ URL — noindex, forwards to /dealer-resources/' ],
-  [ qr{^custom-agency-builds/[^/]+/}, 'retired agency case studies (2026-09-30) — noindex redirect stubs to /custom-agency-builds/' ],
+  [ qr{^custom-agency-builds/},   'old address of Agency & Work Boats (moved to /agency-work-boats/ 2026-10-05) — noindex redirect stub; the live WordPress page lives here until cutover' ],
   [ qr{^_build/},                  'build scripts' ],
   [ qr{^PHOTO PATHWAYS/},          'working files' ],
   [ qr{^\.claude/},                'tooling config' ],

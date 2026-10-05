@@ -1,5 +1,5 @@
 /* hero-slider.js — the multi-photo hero slider on the Agency & Work Boats page
- * (custom-agency-builds/). Built 2026-09-30.
+ * (agency-work-boats/). Built 2026-09-30.
  *
  * Markup: figure.modelhero.hslider > .hs-view > .hs-track > .hs-slide[data-cap][data-hull] > img,
  * plus a figcaption holding .hs-cap and .ref (same header strip as a model-page hero).

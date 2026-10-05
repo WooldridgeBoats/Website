@@ -1,5 +1,5 @@
 /* agency-gallery.js — the per-boat photo galleries on the Agency & Work Boats page
- * (custom-agency-builds/). Built 2026-09-30.
+ * (agency-work-boats/). Built 2026-09-30.
  *
  * _build/build_agency_galleries.pl writes the cover cards (a.mcard[data-gal]) and
  * window.WB_AGENCY = { key: { m, len, cfg, dir, alt, d:[{f,hull}], mob:[{f,hull}] } }.
