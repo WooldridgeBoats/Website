@@ -26,9 +26,11 @@ folder(s) from OneDrive …/MASTER-WEBSITE PHOTOS/AGENCY-WORK-WEB/ (the X Drive 
 4. Check in the browser (desktop 1440 + phone 390): cover loads, the viewer count
    matches, the phone set opens. The local preview must be served from a scratchpad
    copy (see "Local preview" in the log). SEND me screenshots as files.
-5. LEAVE IT UNCOMMITTED. Give me a Summary + Description to paste; I commit and push
-   in GitHub Desktop. After I push, check the live page (titles + every image URL
-   = 200; never byte-compare the HTML, because Cloudflare rewrites the footer email).
+5. LEAVE IT UNCOMMITTED; I commit and push in GitHub Desktop. Don't give me a Summary +
+   Description after every boat, only when it's something new (a new feature, layout
+   or rule) or when we're wrapping up for a new chat. After I push, check the live page
+   (titles + every image URL = 200; never byte-compare the HTML, because Cloudflare
+   rewrites the footer email).
 
 Rules I set: one gallery card per boat, 2 across; the mission is a blue Rockwell
 caps title ABOVE each card; FIRE = "Fire & Rescue" (FIRE ONLY = "Fire"); spell out
@@ -162,8 +164,9 @@ matches slider #02). Once the galleries are done, ask Tyler whether to delete th
 14 MB `assets/agency/` (the old case-study photos).
 
 ### Deploy + checking (gotchas that bit us)
-- Tyler commits AND pushes in GitHub Desktop. Leave work uncommitted, and give him a
-  Summary + Description. Never `git commit` / `git push` unless he asks.
+- Tyler commits AND pushes in GitHub Desktop. Leave work uncommitted. Give him a Summary +
+  Description only for something new or a wrap-up before a new chat, not after every
+  boat (Tyler, 2026-10-06). Never `git commit` / `git push` unless he asks.
 - Push → cPanel deploy (`.cpanel.yml`). It copies `assets house.css favicon.ico` FIRST,
   then everything, so a page never goes live before its photos. (Before that fix a
   mid-deploy view cached 404s for 4h in Cloudflare + the browser.)
