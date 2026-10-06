@@ -39,8 +39,7 @@ NorthWestern Energy); a card shows ONE hull (the cover's if hulls are mixed); a 
 WITH a video = photo card left, video card right, the title centred over both
 (phones: title, photos, video); fix my spelling; call me Bro; plain English.
 
-Status: 8 galleries (see the log); the 8th, 20′ Skagit USGS Electroshock, has the
-first video. Still to come: 23-CC-SKAGIT, plus more 20-CC-SKAGIT/<mission>
+Status: 9 galleries (see the log); 20′ Skagit USGS Electroshock has the first video. Still to come: 23-CC-SKAGIT, plus more 20-CC-SKAGIT/<mission>
 sub-folders. Ready — I'll drop the next boat.
 
 ---
@@ -71,7 +70,7 @@ sub-folders. Ready — I'll drop the next boat.
 - Caption format: `MODEL — LEN′ CONFIG — MISSION` + `HULL #` on the right (caps). Phone:
   row 1 = model + hull, row 2 = the rest. The slider uses the SAME mission wording as
   the galleries (Fire & Rescue, U.S. Coast Guard, …), so a new slide needs it typed in.
-- Current slides: 01 BSR SW USCG #5336 · 02 Skagit 20 Work #5348 · 03 Alaskan XL
+- Current slides: 01 BSR SW USCG #5336 · 02 Skagit 20 Work Boat #5348 · 03 Alaskan XL
   Inboard 20 First Responder #5320 · 04 Skagit 18 Fire & Rescue #4572 · 05 BSR SW
   USCG #5335 · 06 Skagit 20 Fire & Rescue #4552.
 
@@ -147,7 +146,7 @@ sub-folders. Ready — I'll drop the next boat.
 - `.agcards` is a wrapping FLEX row (was a grid until 2026-10-06), so any card alone on
   its row centres itself: the odd last one, or one just before a video row.
 
-### Galleries (7 live 2026-10-05; #8 built 2026-10-06)
+### Galleries (7 live 2026-10-05; USGS Electroshock + Work Boat 2026-10-06)
 | Card title | Boat | Desktop / phone | Hull(s) |
 |---|---|---|---|
 | FIRE & RESCUE | 18′ Skagit | 13 / 14 | 4572 |
@@ -157,7 +156,8 @@ sub-folders. Ready — I'll drop the next boat.
 | NORTHWESTERN ENERGY | 20′ Skagit | 9 / 11 | 4669 + 5063 (card shows 4669) |
 | RESEARCH | 20′ Skagit | 7 / 7 | 5046 (desktop numbers skip 07-08; harmless) |
 | U.S. FISH & WILDLIFE SERVICE | 20′ Skagit | 7 / 8 | 4656 |
-| USGS ELECTROSHOCK (+ video) | 20′ Skagit | 18 / 20 | 5082 · video `LZEBC-i06WM` "Wooldridge 20' Skagit Electroshock \| Features, Layout & On-Water Look", 3:23, UNLISTED on YouTube (embeds fine) |
+| USGS ELECTROSHOCK (+ video) | 20′ Skagit | 18 / 20 | 5082 · video `LZEBC-i06WM` "Wooldridge 20' Skagit Electroshock \| Features, Layout & On-Water Look", 3:23, UNLISTED on YouTube (embeds fine). Placed right after 20′ Skagit Fire & Rescue (`%AFTER`) |
+| WORK BOAT | 20′ Skagit | 28 / 16 | 5348 (same boat as hero slide 02, whose caption now says Work Boat too) |
 
 To do: **23-CC-SKAGIT** (empty so far), more 20-CC-SKAGIT missions (e.g. WORK, which
 matches slider #02). Once the galleries are done, ask Tyler whether to delete the unused
