@@ -22,6 +22,7 @@ folder(s) from OneDrive …/MASTER-WEBSITE PHOTOS/AGENCY-WORK-WEB/ (the X Drive 
    word (purpose token) or model/config code → ASK me the wording, then add it to
    %PURPOSE / %MODEL / %CFG at the top of the script. A boat with a YouTube video →
    add its link to %VIDEO; its VIDEO-THUMB-…jpg goes in the boat's desktop folder.
+   A new boat goes at the END of the card order until I say where (@ORDER).
 3. Run it for real. It rebuilds every gallery, the page block and the cache stamps.
 4. Check in the browser (desktop 1440 + phone 390): cover loads, the viewer count
    matches, the phone set opens. The local preview must be served from a scratchpad
@@ -105,8 +106,12 @@ Still to come: more 20-CC-SKAGIT/<mission> sub-folders. Ready — I'll drop the 
   `assets/media-provenance.js`, and runs `stamp_assets.pl`.
 - Image URLs carry a content hash `?v=` (`$VERLEN` = 10). Bump it to force fresh URLs
   if cached 404s ever need flushing.
-- Re-runs are safe and identical (verified). Order of cards: length → model → mission
-  → folder.
+- Re-runs are safe and identical (verified). Order of cards: Tyler's hand-picked `@ORDER`
+  list at the top of the builder (2026-10-06): First Responder, U.S. Coast Guard, Work
+  Boat, 18′ Fire & Rescue, USGS Electroshock, 20′ Fire & Rescue, NorthWestern Energy,
+  WDFW, Research, USFWS. A boat not in the list goes at the end (auto order: length →
+  model → mission) and the dry run warns. Ask Tyler where it goes, then add it. Moving
+  cards only changes the page: the vetted-photo list is sorted, so no page restamps.
 - Lookup tables at the top (add a line for anything new):
   - `%MODEL`: SKAGIT, SKAGIT-IB, SKAGIT-X, AK, AK LT, AK XL, AK XL-IB, AK XLT, BSR SW
     (stays "BSR SW"), SCOUT, SCOUT WB, ROGUE, SPORT, SPORT-IB, SPORTSTER, SSD, SSD IB,
@@ -157,7 +162,7 @@ Still to come: more 20-CC-SKAGIT/<mission> sub-folders. Ready — I'll drop the 
 | NORTHWESTERN ENERGY | 20′ Skagit | 9 / 11 | 4669 + 5063 (card shows 4669) |
 | RESEARCH | 20′ Skagit | 7 / 7 | 5046 (desktop numbers skip 07-08; harmless) |
 | U.S. FISH & WILDLIFE SERVICE | 20′ Skagit | 7 / 8 | 4656 |
-| USGS ELECTROSHOCK (+ video) | 20′ Skagit | 18 / 20 | 5082 · video `LZEBC-i06WM` "Wooldridge 20' Skagit Electroshock \| Features, Layout & On-Water Look", 3:23, UNLISTED on YouTube (embeds fine). Placed right after 20′ Skagit Fire & Rescue (`%AFTER`) |
+| USGS ELECTROSHOCK (+ video) | 20′ Skagit | 18 / 20 | 5082 · video `LZEBC-i06WM` "Wooldridge 20' Skagit Electroshock \| Features, Layout & On-Water Look", 3:23, UNLISTED on YouTube (embeds fine) |
 | WORK BOAT | 20′ Skagit | 28 / 16 | 5348 (same boat as hero slide 02, whose caption now says Work Boat too) |
 | WASHINGTON DEPARTMENT OF FISH & WILDLIFE | 23′ Skagit | 9 / 9 | 5059 (FLAT folders 23-CC-SKAGIT/ + -MOBILE/; the phone files have no -MOBILE suffix, which is fine because the folder says it) |
 
