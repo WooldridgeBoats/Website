@@ -20,7 +20,8 @@ folder(s) from OneDrive …/MASTER-WEBSITE PHOTOS/AGENCY-WORK-WEB/ (the X Drive 
    (the builder takes the source folder as an argument).
 2. `perl _build/build_agency_galleries.pl --dry-run`. It must be clean. A NEW mission
    word (purpose token) or model/config code → ASK me the wording, then add it to
-   %PURPOSE / %MODEL / %CFG at the top of the script.
+   %PURPOSE / %MODEL / %CFG at the top of the script. A boat with a YouTube video →
+   add its link to %VIDEO; its VIDEO-THUMB-…jpg goes in the boat's desktop folder.
 3. Run it for real. It rebuilds every gallery, the page block and the cache stamps.
 4. Check in the browser (desktop 1440 + phone 390): cover loads, the viewer count
    matches, the phone set opens. The local preview must be served from a scratchpad
@@ -32,11 +33,13 @@ folder(s) from OneDrive …/MASTER-WEBSITE PHOTOS/AGENCY-WORK-WEB/ (the X Drive 
 Rules I set: one gallery card per boat, 2 across; the mission is a blue Rockwell
 caps title ABOVE each card; FIRE = "Fire & Rescue" (FIRE ONLY = "Fire"); spell out
 agencies (USCG → U.S. Coast Guard, USFWS → U.S. Fish & Wildlife Service, NW ENERGY →
-NorthWestern Energy); a card shows ONE hull (the cover's if hulls are mixed); fix
-my spelling; call me Bro; plain English.
+NorthWestern Energy); a card shows ONE hull (the cover's if hulls are mixed); a boat
+WITH a video = photo card left, video card right, the title centred over both
+(phones: title, photos, video); fix my spelling; call me Bro; plain English.
 
-Status: 7 galleries live (see the log). Still to come: 23-CC-SKAGIT, plus more
-20-CC-SKAGIT/<mission> sub-folders. Ready — I'll drop the next boat.
+Status: 8 galleries (see the log); the 8th, 20′ Skagit USGS Electroshock, has the
+first video. Still to come: 23-CC-SKAGIT, plus more 20-CC-SKAGIT/<mission>
+sub-folders. Ready — I'll drop the next boat.
 
 ---
 
@@ -78,6 +81,10 @@ Status: 7 galleries live (see the log). Still to come: 23-CC-SKAGIT, plus more
   contain dashes (`AK XL-IB`). Everything after the model is the PURPOSE (mission).
 - Cover: `GALLERY-THUMB-HULL-LEN-CFG-MODEL-PURPOSE.jpg` (or plain `GALLERY-THUMB.jpg` in a
   one-boat folder). No cover = photo 01.
+- Video thumbnail (2026-10-06): `VIDEO-THUMB-HULL-LEN-CFG-MODEL-PURPOSE.jpg` (16:9, e.g.
+  1920×1080) in the boat's DESKTOP folder = the video card's picture. Tyler pastes it in
+  chat; save it into the master under that name (done for USGS Electroshock: OneDrive
+  only, Tyler copies it to the X Drive). No VIDEO-THUMB = YouTube's own thumbnail.
 - Sizes: desktop **2000×1250**, phone **1080×1350**. The builder warns on anything else.
 - Two layouts, both supported:
   - FLAT: `18-CC-SKAGIT/` + `18-CC-SKAGIT-MOBILE/`. The gallery is worked out from each
@@ -108,7 +115,14 @@ Status: 7 galleries live (see the log). Still to come: 23-CC-SKAGIT, plus more
   - `%PURPOSE` (gallery wording): FIRE → Fire & Rescue · FIRE ONLY → Fire · USCG →
     U.S. Coast Guard · USFWS → U.S. Fish & Wildlife Service · NW ENERGY → NorthWestern
     Energy. Anything else = the token title-cased, keeping acronyms in `%ACRONYM`
-    (USCG USN USACE NOAA DNR WDFW ODFW USFWS FWS CBP DHS SAR EMS EMT FD PD LE).
+    (USCG USN USACE USGS NOAA DNR WDFW ODFW USFWS FWS CBP DHS SAR EMS EMT FD PD LE).
+    USGS ELECTROSHOCK reads "USGS Electroshock": Tyler gave that exact title, so USGS
+    stays an acronym here (not spelled out like USCG).
+  - `%VIDEO` (2026-10-06): gallery key → `{ yt => YouTube id, title => the YouTube title,
+    len => 'M:SS' }`. Get the title + length from YouTube (oEmbed / the watch page's
+    approxDurationMs). The dry run marks such boats "+ video", and refuses to build if
+    the page stops loading `assets/modelpage.js` (that's what plays the videos), if a
+    VIDEO-THUMB has no `%VIDEO` line, or if an id isn't 11 characters.
 
 ### How a gallery looks
 - `.agcards`: BIG cover cards, **2 across** (1 on phones); an odd last card is centred.
@@ -119,8 +133,19 @@ Status: 7 galleries live (see the log). Still to come: 23-CC-SKAGIT, plus more
 - Tap → gallery.js's shared full-screen viewer (`window.WBGallery.open`, via
   `assets/agency-gallery.js`). Phones (≤700px) get the -MOBILE portrait set. Viewer
   caption: "LEN′ Model · Config · Mission · Hull #…" (per-photo hull).
+- **A boat with a video** (Tyler, 2026-10-06): ONE full-width row instead of a card. The
+  mission title is centred over the pair: photo card LEFT, video card RIGHT, in the same
+  columns as the cards above. Both are 16:9 (the video's shape) so they sit level and
+  the thumbnail's lettering isn't cropped. Video card: "Video · 3:23" pill, play button
+  bottom-left + "Watch the video" ("Wooldridge Boats on YouTube" under it above 900px
+  only; it wrapped on narrower cards). Tap → the site's YouTube lightbox from
+  `assets/modelpage.js` (the page loads it since 2026-10-06), autoplay, Close/Esc stops
+  it. Phones (≤640px): title, photos, video, stacked. CSS: `.agvid` / `.agpair` /
+  `.agvidcard` in house.css.
+- `.agcards` is a wrapping FLEX row (was a grid until 2026-10-06), so any card alone on
+  its row centres itself: the odd last one, or one just before a video row.
 
-### Galleries live now (2026-10-05)
+### Galleries (7 live 2026-10-05; #8 built 2026-10-06)
 | Card title | Boat | Desktop / phone | Hull(s) |
 |---|---|---|---|
 | FIRE & RESCUE | 18′ Skagit | 13 / 14 | 4572 |
@@ -130,6 +155,7 @@ Status: 7 galleries live (see the log). Still to come: 23-CC-SKAGIT, plus more
 | NORTHWESTERN ENERGY | 20′ Skagit | 9 / 11 | 4669 + 5063 (card shows 4669) |
 | RESEARCH | 20′ Skagit | 7 / 7 | 5046 (desktop numbers skip 07-08; harmless) |
 | U.S. FISH & WILDLIFE SERVICE | 20′ Skagit | 7 / 8 | 4656 |
+| USGS ELECTROSHOCK (+ video) | 20′ Skagit | 18 / 20 | 5082 · video `LZEBC-i06WM` "Wooldridge 20' Skagit Electroshock \| Features, Layout & On-Water Look", 3:23, UNLISTED on YouTube (embeds fine) |
 
 To do: **23-CC-SKAGIT** (empty so far), more 20-CC-SKAGIT missions (e.g. WORK, which
 matches slider #02). Once the galleries are done, ask Tyler whether to delete the unused
@@ -160,3 +186,8 @@ cd <scratchpad>/site && python3 -m http.server 8813 --bind 127.0.0.1   # Bash ru
 ```
 Then `preview_start({url:'http://127.0.0.1:8813'})` and open /agency-work-boats/. Re-run
 the rsync after each build. The background server times out after ~30 min; just restart it.
+
+Screenshots for Tyler: use the in-app browser's screenshots (each is saved as a file
+under the session's tool-results/ folder; copy it, then send it). Do NOT run headless
+Google Chrome from the terminal: on 2026-10-06 it tripped macOS "App Management" (Chrome
+tried to touch its own app files and macOS blamed Claude Code). Tyler keeps that OFF.

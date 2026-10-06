@@ -20,13 +20,15 @@
 #   PURPOSE is the gallery title (blue caps above the card), shown as written
 #   (title-cased except acronyms like USCG) — except FIRE, which reads "Fire &
 #   Rescue" (write FIRE ONLY for just "Fire"); see %PURPOSE.
+#   A boat with a YouTube video: VIDEO-THUMB-HULL-LEN-CFG-MODEL-PURPOSE.jpg (16:9)
+#   in the desktop folder + the link in %VIDEO below; see there.
 #
 # ONE GALLERY (one big cover card) PER BOAT = LEN + CFG + MODEL + PURPOSE, so a
 # folder holding two missions (e.g. 20′ Skagit WORK and FIRE) becomes two cards.
 # Mixed hulls inside one gallery are fine — each photo's caption carries its own.
 #
 # Writes: assets/photos/agency-work/<key>/{NN files, thumbs/, cover.jpg,
-# mobile/, mobile/thumbs/} (each <key> dir is wiped + rebuilt from the master),
+# video.jpg, mobile/, mobile/thumbs/} (each <key> dir is wiped + rebuilt from the master),
 # the block between <!-- AGENCY-GALLERIES:BEGIN/END --> in the page, the
 # WB_VETTED keys, then runs stamp_assets.pl. Nothing is written if any file
 # fails the checks. Re-runs are safe; hand edits outside the markers survive.
@@ -74,7 +76,7 @@ my %MODEL = (
 my %CFG = ('CC' => 'Center Console', 'WS' => 'Windshield', 'TILLER' => 'Tiller',
            'CABIN' => 'Cabin', 'AFT-WS' => 'Aft Windshield', 'PYBUS' => 'Pybus',
            'OPEN' => 'Open', 'PH' => 'Pilothouse');
-my %ACRONYM = map { $_ => 1 } qw(USCG USN USACE NOAA DNR WDFW ODFW USFWS FWS CBP DHS SAR EMS EMT FD PD LE);
+my %ACRONYM = map { $_ => 1 } qw(USCG USN USACE USGS NOAA DNR WDFW ODFW USFWS FWS CBP DHS SAR EMS EMT FD PD LE);
 my @MCODES = sort { length($b) <=> length($a) } keys %MODEL;   # longest match first
 
 sub pretty {   # "FIRST RESPONDER" -> "First Responder", "USCG" stays "USCG"
@@ -87,7 +89,28 @@ my %PURPOSE = ('FIRE' => 'Fire & Rescue', 'FIRE ONLY' => 'Fire',
                'USCG' => 'U.S. Coast Guard',     # Tyler 2026-10-05: BSR SW gallery title
                'USFWS' => 'U.S. Fish & Wildlife Service',   # 20' Skagit USFWS (spelled out like USCG)
                'NW ENERGY' => 'NorthWestern Energy');       # 20' Skagit (Tyler: NW ENERGY = NorthWestern Energy, the company's own capitalisation)
+               # (USGS ELECTROSHOCK reads "USGS Electroshock": Tyler gave that title, so USGS stays an acronym, not spelled out)
 sub purpose_name { my $u = uc $_[0]; $u =~ s/ +/ /g; $PURPOSE{$u} // pretty($_[0]) }
+
+# ---- boats with a YouTube video (Tyler, 2026-10-06) ---------------------------
+# Such a boat gets ONE WIDE ROW instead of a card: its mission title centred over
+# the photo card (left) and a video card (right); phones stack title, photos,
+# video. Key = the gallery key the dry run prints. yt = the id from the link
+# (youtu.be/<id>); title = the YouTube title (heads the video player); len = the
+# running time shown on the card (optional). The card's picture is the boat's
+# VIDEO-THUMB-…jpg (desktop folder, 16:9 e.g. 1920x1080), else YouTube's own
+# thumbnail. Tapping it plays the video in the site's lightbox (assets/modelpage.js).
+my %VIDEO = (
+  '20-cc-skagit-usgs-electroshock' => { yt => 'LZEBC-i06WM', len => '3:23',    # unlisted on YouTube as of 2026-10-06
+    title => "Wooldridge 20' Skagit Electroshock | Features, Layout & On-Water Look" },
+);
+
+# ---- hand-picked spots ----------------------------------------------------------
+# The cards run length → model → mission. To move a boat, put it RIGHT AFTER another
+# one here (gallery keys, as the dry run prints them); everything else keeps its place.
+my %AFTER = (
+  '20-cc-skagit-usgs-electroshock' => '20-cc-skagit-fire',   # Tyler 2026-10-06: after 20' Skagit Fire & Rescue, above NorthWestern Energy
+);
 sub slug { (my $s = lc join '-', @_) =~ s/[^a-z0-9]+/-/g; $s =~ s/^-|-$//g; $s }
 sub esc  { (my $s = $_[0]) =~ s/&/&amp;/g; $s =~ s/</&lt;/g; $s =~ s/>/&gt;/g; $s =~ s/"/&quot;/g; $s }
 sub dims { my $o = `sips -g pixelWidth -g pixelHeight "$_[0]" 2>/dev/null`;
@@ -146,19 +169,22 @@ for my $d (@dirs) {
 sub scan_folder {
   my ($d, $mobile, $base, $fkey) = @_;   # $fkey = the gallery key when the folder IS the gallery
   my @files = list_dir("$SRC/$d", 0);
-  my @loose;   # GALLERY-THUMB files whose name doesn't say which boat (fine in a one-boat folder)
+  my @loose;   # GALLERY-THUMB / VIDEO-THUMB files, attached to their boat below
   for my $f (@files) {
     my $path = "$SRC/$d/$f";
-    if ($f =~ /^GALLERY-?THUMB-?(.*)$/i) {   # Tyler's model-folder habit: GALLERY-THUMB-<...>.jpg = the cover
-      my $rest = $1;
-      if ($mobile) { push @warn, "$d/$f: covers come from the desktop folder — ignored here"; next }
+    # Tyler's model-folder habit: GALLERY-THUMB-<...>.jpg = the cover; VIDEO-THUMB-<...>.jpg
+    # (2026-10-06) = the video card's picture for a boat listed in %VIDEO
+    if ($f =~ /^(GALLERY|VIDEO)-?THUMB-?(.*)$/i) {
+      my ($kind, $rest) = (uc($1) eq 'VIDEO' ? 'video' : 'cover', $2);
+      if ($mobile) { push @warn, "$d/$f: " . ($kind eq 'video' ? 'video thumbnails' : 'covers') . " come from the desktop folder — ignored here"; next }
       if (!-s $path) { push @err, "$d/$f: 0 bytes (cloud-only placeholder? open the folder so OneDrive downloads it)"; next }
       my $dim = dims($path);
-      push @warn, "$d/$f: $dim (expected 2000x1250)" if $dim ne '2000x1250';
+      if ($kind eq 'video') { my ($w, $h) = split /x/, $dim; push @warn, "$d/$f: $dim (expected 16:9, e.g. 1920x1080)" unless $h && abs($w / $h - 16 / 9) < .01 }
+      else { push @warn, "$d/$f: $dim (expected 2000x1250)" if $dim ne '2000x1250' }
       my ($p) = parse("00-$rest", 0);
-      if ($fkey)  { push @loose, [$f, $path, $fkey, ($p ? $p->{hull} : q{})] }   # in a gallery sub-folder: it's that gallery's cover
-      elsif ($p)  { push @loose, [$f, $path, slug($p->{len}, $p->{cfgc}, $p->{mcode}, $p->{purp}), $p->{hull}] }
-      else        { push @loose, [$f, $path, undef] }
+      if ($fkey)  { push @loose, [$f, $path, $fkey, ($p ? $p->{hull} : q{}), $kind] }   # in a gallery sub-folder: it belongs to that gallery
+      elsif ($p)  { push @loose, [$f, $path, slug($p->{len}, $p->{cfgc}, $p->{mcode}, $p->{purp}), $p->{hull}, $kind] }
+      else        { push @loose, [$f, $path, undef, q{}, $kind] }
       next;
     }
     my ($p, $why) = parse($f, $mobile);
@@ -187,13 +213,18 @@ sub scan_folder {
     }
     push @$list, $p;
   }
-  # attach this folder's GALLERY-THUMB cover(s) to their boat
+  # attach this folder's GALLERY-THUMB cover(s) and VIDEO-THUMB(s) to their boat
   my @here = grep { my $g = $G{$_}; lc("$g->{len}-$g->{cfgc}-$g->{mcode}") eq lc $base } keys %G;
   for my $c (@loose) {
-    my ($f, $path, $key, $chull) = @$c;
+    my ($f, $path, $key, $chull, $kind) = @$c;
     $key = $here[0] if !$key && @here == 1;
     if (!$key || !$G{$key}) {
-      push @err, "$d/$f: can't tell which boat this cover is for — name it GALLERY-THUMB-HULL-LEN-CFG-MODEL-PURPOSE.jpg"; next;
+      push @err, "$d/$f: can't tell which boat this " . ($kind eq 'video' ? 'video thumbnail' : 'cover') . " is for — name it "
+        . ($kind eq 'video' ? 'VIDEO' : 'GALLERY') . "-THUMB-HULL-LEN-CFG-MODEL-PURPOSE.jpg"; next;
+    }
+    if ($kind eq 'video') {
+      if ($G{$key}{vthumb}) { push @err, "$d/$f: a second video thumbnail for $key"; next }
+      $G{$key}{vthumb} = $path; next;
     }
     if ($G{$key}{cover}) { push @err, "$d/$f: a second cover for $key"; next }
     $G{$key}{cover} = $path; $G{$key}{cover_hull} = $chull;
@@ -204,12 +235,40 @@ for my $key (sort keys %G) {
   push @warn, "$key: phone photos but no desktop photos yet — skipped until the desktop set is in";
   delete $G{$key};
 }
+# videos: every %VIDEO line needs a real YouTube id + title, and a VIDEO-THUMB needs a %VIDEO line
+for my $k (sort keys %VIDEO) {
+  my $v = $VIDEO{$k};
+  push @err, "%VIDEO $k: '" . ($v->{yt} // '') . "' isn't a YouTube id (the 11 characters after youtu.be/)" unless ($v->{yt} // '') =~ /^[A-Za-z0-9_-]{11}$/;
+  push @err, "%VIDEO $k: no title" unless $v->{title};
+  if (!$G{$k}) { push @warn, "%VIDEO $k: no gallery by that name (renamed folder?) — its video isn't shown"; next }
+  push @warn, "$k: no VIDEO-THUMB in its folder — the video card uses YouTube's own thumbnail" unless $G{$k}{vthumb};
+}
+for my $k (sort keys %G) {
+  push @err, "$k: has a VIDEO-THUMB but no YouTube link — add the boat to %VIDEO in this script" if $G{$k}{vthumb} && !$VIDEO{$k};
+}
 
 my @keys = sort { $G{$a}{len} <=> $G{$b}{len} || $G{$a}{model} cmp $G{$b}{model} || $G{$a}{purpose} cmp $G{$b}{purpose} || $a cmp $b } keys %G;   # last: folder key, so twin missions keep a steady order
+my %moved;
+my $move_after; $move_after = sub {   # apply %AFTER; a boat whose target was itself moved waits for it
+  my $k = shift; return if $moved{$k}++;
+  my $t = $AFTER{$k};
+  if (!$G{$k}) { push @warn, "%AFTER: no gallery $k (renamed folder?)"; return }
+  if (!$G{$t}) { push @warn, "%AFTER: $k should follow $t, but there's no gallery $t — left in its usual spot"; return }
+  $move_after->($t) if $AFTER{$t};
+  @keys = grep { $_ ne $k } @keys;
+  my ($i) = grep { $keys[$_] eq $t } 0 .. $#keys;
+  splice @keys, $i + 1, 0, $k;
+};
+$move_after->($_) for sort keys %AFTER;
+if (grep { $VIDEO{$_} } @keys) {   # the video cards play through modelpage.js's lightbox
+  open my $pc, '<:raw', $PAGE or die "$PAGE: $!"; my $pg = do { local $/; <$pc> }; close $pc;
+  push @err, "the page doesn't load assets/modelpage.js (it plays the videos) — add <script defer src=\"../assets/modelpage.js\"></script> after gallery.js"
+    unless $pg =~ m{src="[^"]*/modelpage\.js};
+}
 print "Agency galleries from: $SRC\n";
 for my $k (@keys) {
   my $g = $G{$k};
-  printf "  %-28s %2d desktop, %2d phone  — %s′ %s %s%s\n", $k, scalar @{ $g->{d} }, scalar @{ $g->{mob} },
+  printf "  %-28s %2d desktop, %2d phone%s  — %s′ %s %s%s\n", $k, scalar @{ $g->{d} }, scalar @{ $g->{mob} }, ($VIDEO{$k} ? ' + video' : ''),
     $g->{len}, $g->{model}, $g->{cfg}, ($g->{purpose} ? " — $g->{purpose}" : '');
 }
 print "  (no gallery folders with photos yet)\n" unless @keys;
@@ -251,6 +310,12 @@ for my $k (@keys) {
   run_sips(1400, $coverSrc, "$dir/cover.jpg");      # big 2-across card: ~1200px wide on retina
   my $cv = ver("$dir/cover.jpg");
   push @prov, "$k/cover.jpg";
+  my ($v, $vimg) = ($VIDEO{$k});
+  if ($v && $g->{vthumb}) {                          # the video card is the same width as the cover card
+    run_sips(1400, $g->{vthumb}, "$dir/video.jpg");
+    $vimg = "$WEB/$k/video.jpg" . ver("$dir/video.jpg");
+    push @prov, "$k/video.jpg";
+  }
 
   my @h = sort keys %hulls;
   # the card shows ONE hull: the only one, or for a mixed-hull gallery the COVER photo's hull
@@ -273,10 +338,24 @@ for my $k (@keys) {
   push @sub, "Hull #$hull" if $hull;
   (my $altH = esc($alt)) =~ s/\x{2032}/&#8242;/g; $altH =~ s/\x{2014}/&#8212;/g;
   my $title = esc($g->{purpose} || $g->{model});
-  push @cards, qq{    <div class="agcell"><h2 class="agtitle">$title</h2>}
-    . qq{<a class="mcard" href="$WEB/$k/$d[0]{f}" data-gal="$k"><img src="$WEB/$k/cover.jpg$cv" alt="$altH" loading="lazy">$badge}
-    . qq{<span class="mcmeta"><b>$g->{len}&#8242; } . esc($g->{model}) . "</b><span>" . join(' &#183; ', @sub) . "</span></span></a></div>";
-  printf "  built %-28s -> %d + %d photos, cover %s\n", $k, $nd, $nm, ($g->{cover} ? "GALLERY-THUMB" : (split /\?/, $d[0]{f})[0]);
+  my $photo = qq{<a class="mcard" href="$WEB/$k/$d[0]{f}" data-gal="$k"><img src="$WEB/$k/cover.jpg$cv" alt="$altH" loading="lazy">$badge}
+    . qq{<span class="mcmeta"><b>$g->{len}&#8242; } . esc($g->{model}) . "</b><span>" . join(' &#183; ', @sub) . "</span></span></a>";
+  if ($v) {
+    # a boat with a video: ONE wide row — the mission title centred over the photo card
+    # (left) and the video card (right); phones stack them (house.css .agvid/.agpair).
+    # The video card is a .vidfacade, so modelpage.js plays it in the video lightbox.
+    my $vt = esc($v->{title});
+    my $img = $vimg ? qq{<img src="$vimg" alt="" loading="lazy">}
+      : qq{<img src="https://i.ytimg.com/vi/$v->{yt}/maxresdefault.jpg" alt="" loading="lazy" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/$v->{yt}/hqdefault.jpg'">};
+    my $video = qq{<button class="mcard vidfacade agvidcard" type="button" data-yt="$v->{yt}" data-vtitle="$vt" aria-label="Play video: $vt">$img}
+      . qq{<span class="mcbadge">Video} . ($v->{len} ? " &#183; " . esc($v->{len}) : '') . qq{</span><span class="vidplay"></span>}
+      . qq{<span class="mcmeta"><b>Watch the video</b><span>Wooldridge Boats on YouTube</span></span></button>};
+    push @cards, qq{    <div class="agcell agvid"><h2 class="agtitle">$title</h2><div class="agpair">$photo$video</div></div>};
+  } else {
+    push @cards, qq{    <div class="agcell"><h2 class="agtitle">$title</h2>$photo</div>};
+  }
+  printf "  built %-28s -> %d + %d photos, cover %s%s\n", $k, $nd, $nm, ($g->{cover} ? "GALLERY-THUMB" : (split /\?/, $d[0]{f})[0]),
+    ($v ? ", video $v->{yt} (" . ($vimg ? 'VIDEO-THUMB' : "YouTube's thumbnail") . ')' : '');
 }
 opendir my $xd, $DEST or die $!;
 my %want = map { $_ => 1 } @keys;
@@ -299,7 +378,7 @@ print "  page: " . scalar(@keys) . " gallery card(s) written\n";
 # ---- provenance (invisible "vetted" tag, same as the model builder) -----------
 open my $vf, '<', $PROV or die "$PROV: $!"; my $v = do { local $/; <$vf> }; close $vf;
 for my $k (@keys) { $v =~ s/"\Q$k\E\/[^"]*":[01],//g }
-my $ins = join '', map { "\"$_\":1," } @prov;
+my $ins = join '', map { "\"$_\":1," } sort @prov;   # sorted, so moving a card doesn't change this file (and every page's stamp)
 $v =~ s/(window\.WB_VETTED\s*=\s*\{)/$1$ins/ or die "no WB_VETTED anchor\n";
 open my $vo, '>', $PROV or die $!; print $vo $v; close $vo;
 print "  provenance: " . scalar(@prov) . " keys\n";

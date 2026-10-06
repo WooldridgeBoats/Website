@@ -1715,25 +1715,46 @@ html.blueprint .pagemast .mission{ color:#c6cdd3; }   /* "Night Run" easter-egg 
 
 /* Agency galleries (agency-gallery.js + _build/build_agency_galleries.pl): BIG
    .mcard cover cards, TWO across (Tyler: not the one-row strip of a multi-length
-   model page). An odd last card centres on its own row at the same size.
+   model page). A card alone on its row (the odd last one, or one just before a
+   video row) centres at the same size: flex-wrap + justify-content does that.
    No section heading over the set (Tyler: they read as galleries on their own),
    but EACH card has its mission above it as a blue Rockwell caps title
    (.agtitle, "FIRE & RESCUE" — Tyler, 2026-10-05). Cells bottom-align, so the
    cards stay level even if one title wraps to two lines. */
-.agcards{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:34px 20px; margin:34px 0 8px; }
-.agcell{ display:flex; flex-direction:column; justify-content:flex-end; }
-.agcards > .agcell:last-child:nth-child(odd){ grid-column:1 / -1; justify-self:center; width:calc(50% - 10px); }
+.agcards{ display:flex; flex-wrap:wrap; justify-content:center; gap:34px 20px; margin:34px 0 8px; }
+.agcell{ flex:0 0 calc(50% - 10px); min-width:0; display:flex; flex-direction:column; justify-content:flex-end; }
 .agtitle{ font-size:clamp(20px,2.3vw,30px); text-transform:uppercase; letter-spacing:.05em; text-align:center; margin:0 0 12px; }
 html.blueprint .agtitle{ color:#e8b64c; }   /* Night Run theme: gold, like the page title */
 .agcards .mcard{ text-decoration:none; }
 .agcards .mcard .mcmeta{ left:20px; right:20px; bottom:16px; }
 .agcards .mcard .mcmeta b{ font-size:23px; }
 .agcards .mcard .mcmeta span{ font-size:14px; font-weight:400; }
+/* A boat WITH a video (Tyler, 2026-10-06): one full-width row, its mission title
+   centred over the photo card (left) and the video card (right), in the same
+   columns as the cards above. Both are 16:9 (the video's shape) so they sit level
+   and the thumbnail's own lettering isn't cropped (the photo cover loses a sliver
+   top + bottom). The video card is a .vidfacade, so modelpage.js plays it in the
+   video lightbox; its play button sits bottom-left, clear of the thumbnail's title. */
+.agcards > .agvid{ flex-basis:100%; }
+.agpair{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; }
+.agpair .mcard{ aspect-ratio:16/9; box-shadow:var(--shadow); font:inherit; }
+.agpair .vidfacade img{ opacity:1; }
+.agpair .vidfacade:hover img{ transform:scale(1.05); }
+.agvidcard::after{ background:linear-gradient(180deg, rgba(10,14,18,0) 55%, rgba(10,14,18,.62) 100%); }
+.agvidcard .vidplay{ z-index:1; left:20px; top:auto; bottom:16px; margin:0; }
+.agcards .agvidcard .mcmeta{ left:110px; }
+@media (max-width:900px){   /* narrower cards: a smaller play button + just "Watch the video" (the small line wrapped and crowded the thumbnail) */
+  .agvidcard .vidplay{ width:62px; height:44px; }
+  .agcards .agvidcard .mcmeta{ left:96px; bottom:23px; }   /* level with the play button */
+  .agcards .agvidcard .mcmeta span{ display:none; }
+}
 @media (max-width:640px){
-  .agcards{ grid-template-columns:1fr; gap:28px; }
-  .agcards > .agcell:last-child:nth-child(odd){ width:100%; }
+  .agcards{ gap:28px; }
+  .agcell{ flex-basis:100%; }
+  .agpair{ grid-template-columns:1fr; gap:14px; }   /* phones: title, photos, video */
   .agtitle{ margin-bottom:10px; }
   .agcards .mcard .mcmeta b{ font-size:19px; }
+  .agcards .agvidcard .mcmeta{ bottom:26px; }   /* the smaller phone text, re-levelled with the play button */
 }
 
 /* blueprint (dark) theme support */
