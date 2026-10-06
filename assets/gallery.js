@@ -561,7 +561,16 @@
             var c = a.dataset.cfg;
             if (c && !seen[c]) { seen[c] = 1; names.push(shortCfg(c)); }
           });
-          if (!names.length) return modelName + ' builds';
+          if (!names.length) {
+            /* no-config gallery: a page can opt in (window.WB_CARD_HULL) to show the hull #
+               instead of "<Model> builds" (Canyon, Tyler 2026-10-06; other models unchanged) */
+            if (window.WB_CARD_HULL) {
+              var hulls = [];
+              list.forEach(function (a) { var h = a.dataset.hull; if (h && hulls.indexOf(h) === -1) hulls.push(h); });
+              if (hulls.length) return 'Hull #' + hulls.join(' & #');
+            }
+            return modelName + ' builds';
+          }
           if (names.length === 1) return names[0];
           /* Title Case list: "Console & Tiller Trims", "Windshield, Tiller & Console Trims" */
           var last = names[names.length - 1];
