@@ -24,6 +24,52 @@ plain English.
 
 ---
 
+## DEEPWATER status (started 2026-10-06, uncommitted)
+
+**Tyler's calls (2026-10-06):**
+- Build it around the **33′ Deepwater Charter** (outboard).
+- The features heading is **"Charter Features"**, not "Standard features".
+- Name stays **"Deepwater Series"** (menu + homepage card unchanged).
+- Kick line: `OFFSHORE · CUSTOM QUOTED · <span class="klgcy">LEGACY MODEL</span>` (Legacy goes AFTER Custom Quoted).
+- Two videos side by side like Sportster (`.vid2`): Charter `riE_upVU_ak` (left) + Explorer `m4ehkABeqEg`
+  (right). The Explorer has no full-size YouTube thumbnail (maxres 404s), so it uses the 480×360
+  `hqdefault`. Tyler may supply his own thumbnails for `assets/video-thumbs/`.
+- Feature sub-headings follow the MAIN models (Alaskan XL IB), all 5: Hull & Structure, Fuel System,
+  Interior & Exterior Features, Power & Performance, Helm & Electrical. (Not the 4-heading outboard pages.)
+
+**Done:** kick label; Brochure + Start a Quote plates (`assets/docs/DEEPWATER-CHARTER_Brochure_2024.pdf`, a copy
+of SALES TOOLS `BROCHURES/DEEPWATER CHARTER OB-BROCHURE-DIGITAL.pdf`, chmod 644); the two videos; empty
+`<!-- SPECS:deepwater -->` markers after the videos; Charter Features (66 lines from the brochure,
+13/4/24/2/23). Checked at 1440 + 390: no sideways scroll, 0 broken images, 0 console errors.
+
+**Sources:** the SALES TOOLS Charter brochure (above) and the live www page `/models/deepwater/`, which is a
+3-version series (Charter / Explorer / Angler, each with its own feature list, plus test results for twin
+Yamaha 300 and twin Suzuki 350). There's no Deepwater spec PDF in `SPECS-STANDARD FEATURES/` yet. The old site
+also has spec sheets: `wp-content/uploads/2020/01/2020-33-DEEPWATER-CENTER-PILOT-YAMAHA.pdf`,
+`…/2021-33-DEEPWATER-EXPLORER-TWIN-SUZUKI-350-2.pdf`, `…/2024/01/2024-Deepwater-Charter-white-1.pdf` (not downloaded).
+
+**OPEN: ask Tyler before building these:**
+1. **Spec conflicts** (brochure vs live page): length 33′ vs 33′ 6″; beam 98″ vs 10′ (120″); bottom width 84″
+   vs 114″; bottom gauge .250 vs .250 plus .375 in the center of the hull; weight 7,460 lbs (brochure only).
+   They AGREE on: side height 55″ bow / 44″ transom, side gauge .190, deadrise 20°, bow deadrise 50°, fuel
+   200 gal. No motor rating in either source, so ask if he wants a Power Ratings row at all. If the brochure
+   numbers turn out wrong, the linked brochure PDF needs fixing too.
+   Single length, so the specs-data entry is `"lengths":["33 ft."]` with `"summary"` set to fit
+   (no weight → "Dimensions &amp; Power", or "Dimensions" if no power row).
+2. **Power & Performance** has only the motor bracket + "Full reverse chine with delta pad bottom" (the Charter
+   has no standard engine). OK, or move the chine back to Hull & Structure?
+3. **Two live-page Charter lines** not in the brochure: "Wooldridge Full Support Structure System" and "Dual side
+   rub channels". Add them?
+4. **Spelling fixes made to the brochure text:** "panograph" → "pantograph", "VisonX" → "Vision-X", and the cut-off
+   "One SHOXS 6300 upholstered suspension" finished as "…suspension seat for captain" (from the live page).
+5. **Intro text** is still the generic series blurb ("sportfishing, expedition cruising, or working duty").
+   Offer a Charter-specific intro from the brochure text.
+6. **Photos ("Model Ready", folder not there yet):** add `['deepwater','Deepwater Series','Offshore',[33],undef]`
+   to `@MODELS` (check the display/caption name with Tyler: "Deepwater Series" vs "Deepwater Charter"); do the
+   bare-page inserts (§4 below); ask about `WB_CARD_HULL`; centre the 2nd intro paragraph once the hero is in.
+
+---
+
 ## The Canyon recipe (what we did, in order)
 
 ### 1. Boat Specifications (the fold-out table)
