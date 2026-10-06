@@ -106,11 +106,21 @@ my %VIDEO = (
     title => "Wooldridge 20' Skagit Electroshock | Features, Layout & On-Water Look" },
 );
 
-# ---- hand-picked spots ----------------------------------------------------------
-# The cards run length → model → mission. To move a boat, put it RIGHT AFTER another
-# one here (gallery keys, as the dry run prints them); everything else keeps its place.
-my %AFTER = (
-  '20-cc-skagit-usgs-electroshock' => '20-cc-skagit-fire',   # Tyler 2026-10-06: after 20' Skagit Fire & Rescue, above NorthWestern Energy
+# ---- card order: Tyler's pick (2026-10-06) -------------------------------------
+# The page shows the galleries in THIS order (gallery keys, as the dry run prints
+# them). A boat that isn't listed goes at the end, in the automatic order (length →
+# model → mission), and the dry run warns about it: ask Tyler where it goes, add it here.
+my @ORDER = qw(
+  20-cc-ak-xl-ib-first-responder
+  20-cc-bsr-sw-uscg
+  20-cc-skagit-work-boat
+  18-cc-skagit-fire
+  20-cc-skagit-usgs-electroshock
+  20-cc-skagit-fire
+  20-cc-skagit-nw-energy
+  23-cc-skagit-wdfw
+  20-cc-skagit-research
+  20-cc-skagit-usfws
 );
 sub slug { (my $s = lc join '-', @_) =~ s/[^a-z0-9]+/-/g; $s =~ s/^-|-$//g; $s }
 sub esc  { (my $s = $_[0]) =~ s/&/&amp;/g; $s =~ s/</&lt;/g; $s =~ s/>/&gt;/g; $s =~ s/"/&quot;/g; $s }
@@ -248,19 +258,11 @@ for my $k (sort keys %G) {
   push @err, "$k: has a VIDEO-THUMB but no YouTube link — add the boat to %VIDEO in this script" if $G{$k}{vthumb} && !$VIDEO{$k};
 }
 
-my @keys = sort { $G{$a}{len} <=> $G{$b}{len} || $G{$a}{model} cmp $G{$b}{model} || $G{$a}{purpose} cmp $G{$b}{purpose} || $a cmp $b } keys %G;   # last: folder key, so twin missions keep a steady order
-my %moved;
-my $move_after; $move_after = sub {   # apply %AFTER; a boat whose target was itself moved waits for it
-  my $k = shift; return if $moved{$k}++;
-  my $t = $AFTER{$k};
-  if (!$G{$k}) { push @warn, "%AFTER: no gallery $k (renamed folder?)"; return }
-  if (!$G{$t}) { push @warn, "%AFTER: $k should follow $t, but there's no gallery $t — left in its usual spot"; return }
-  $move_after->($t) if $AFTER{$t};
-  @keys = grep { $_ ne $k } @keys;
-  my ($i) = grep { $keys[$_] eq $t } 0 .. $#keys;
-  splice @keys, $i + 1, 0, $k;
-};
-$move_after->($_) for sort keys %AFTER;
+my %rank; @rank{@ORDER} = (1 .. @ORDER);
+my @keys = sort { ($rank{$a} // 1e9) <=> ($rank{$b} // 1e9)     # Tyler's @ORDER first; then, for any boat not listed:
+  || $G{$a}{len} <=> $G{$b}{len} || $G{$a}{model} cmp $G{$b}{model} || $G{$a}{purpose} cmp $G{$b}{purpose} || $a cmp $b } keys %G;   # last: folder key, so twin missions keep a steady order
+push @warn, "$_: not in \@ORDER — shown at the end for now; ask Tyler where it goes and add it there" for grep { !$rank{$_} } @keys;
+push @warn, "\@ORDER lists $_, but there's no such gallery (renamed folder?)" for grep { !$G{$_} } @ORDER;
 if (grep { $VIDEO{$_} } @keys) {   # the video cards play through modelpage.js's lightbox
   open my $pc, '<:raw', $PAGE or die "$PAGE: $!"; my $pg = do { local $/; <$pc> }; close $pc;
   push @err, "the page doesn't load assets/modelpage.js (it plays the videos) — add <script defer src=\"../assets/modelpage.js\"></script> after gallery.js"
