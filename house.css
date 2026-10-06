@@ -938,6 +938,8 @@ section{ padding:36px 0; }
   font-weight:500; font-size:12px; letter-spacing:.12em; text-transform:uppercase;
   color:var(--muted); margin-top:10px;
 }
+/* gold "Legacy Model" at the end of a custom build's kick line (Canyon, Tyler 2026-10-06) — same gold as .hlgcy / .lgcy */
+.pagemast .kick .klgcy{ color:#c37d0f; font-weight:700; white-space:nowrap; }   /* nowrap: phones wrap the line BEFORE it, never mid-phrase */
 .pagemast .tag{ font-weight:400; font-size:15.5px; color:var(--body); margin-top:6px; }
 .pagebody{ padding:38px 0 64px; }
 
