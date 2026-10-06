@@ -501,5 +501,28 @@
         {"label": "Fuel Tank", "values": ["50 gal.", "50 gal."]}
       ]}
     ]
+  },
+
+  "canyon": {
+    "name": "Canyon",
+    "lengths": ["21 ft.", "23 ft.", "25 ft.", "27 ft."],
+    "summary": "Dimensions &amp; Power",
+    "intro": "Full dimensions and power for each length.",
+    "categories": [
+      {"name": "Dimensions & Construction", "rows": [
+        {"label": "Length Overall", "values": ["21 ft. 6 in.", "23 ft. 6 in.", "25 ft. 6 in.", "27 ft. 6 in."]},
+        {"label": "Beam", "values": ["102 in.", "102 in.", "102 in.", "102 in."]},
+        {"label": "Bottom Width", "values": ["84 in.", "84 in.", "84 in.", "84 in."]},
+        {"label": "Side Height", "values": ["38 in.", "38 in.", "38 in.", "38 in."]},
+        {"label": "Bottom Gauge", "values": [".190 in.", ".190 in.", ".190 in.", ".190 in."]},
+        {"label": "Side Gauge", "values": [".125 in.", ".125 in.", ".125 in.", ".125 in."]},
+        {"label": "Deadrise", "values": ["12°", "12°", "12°", "12°"]},
+        {"label": "Deadrise At Bow", "values": ["18°", "17°", "17°", "17°"]},
+        {"label": "Fuel Tank", "values": ["77 gal.", "77 gal.", "77 gal.", "77 gal."]}
+      ]},
+      {"name": "Power Ratings", "rows": [
+        {"label": "Standard Motor", "values": ["V8", "V8", "V8", "V8"]}
+      ]}
+    ]
   }
 }
