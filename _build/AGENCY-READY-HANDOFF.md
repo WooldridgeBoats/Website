@@ -36,7 +36,7 @@ folder(s) from OneDrive …/MASTER-WEBSITE PHOTOS/AGENCY-WORK-WEB/ (the X Drive 
 Rules I set: one gallery card per boat, 2 across; the mission is a blue Rockwell
 caps title ABOVE each card; FIRE = "Fire & Rescue" (FIRE ONLY = "Fire"); spell out
 agencies (USCG → U.S. Coast Guard, USFWS → U.S. Fish & Wildlife Service, NW ENERGY →
-NorthWestern Energy, WDFW → Washington Department of Fish & Wildlife); a card shows ONE hull (the cover's if hulls are mixed); a boat
+NorthWestern Energy, WDFW → WA Dept. of Fish & Wildlife); a card shows ONE hull (the cover's if hulls are mixed); a boat
 WITH a video = photo card left, video card right, the title centred over both
 (phones: title, photos, video); fix my spelling; call me Bro; plain English.
 
@@ -120,8 +120,10 @@ Still to come: more 20-CC-SKAGIT/<mission> sub-folders. Ready — I'll drop the 
     Pilothouse.
   - `%PURPOSE` (gallery wording): FIRE → Fire & Rescue · FIRE ONLY → Fire · USCG →
     U.S. Coast Guard · USFWS → U.S. Fish & Wildlife Service · NW ENERGY → NorthWestern
-    Energy · WDFW → Washington Department of Fish & Wildlife (Tyler picked the spelled-out
-    form, 2026-10-06; it wraps to two lines, which is fine). Anything else = the token title-cased, keeping acronyms in `%ACRONYM`
+    Energy · WDFW → WA Dept. of Fish & Wildlife (2026-10-06: Tyler first picked the full
+    name, then shortened it so it fits on ONE line). Titles over ~27 characters wrap on a
+    desktop card (~586px at 30px), and Tyler wants one line, so when asking him to word a
+    new mission, say whether it fits. Anything else = the token title-cased, keeping acronyms in `%ACRONYM`
     (USCG USN USACE USGS NOAA DNR WDFW ODFW USFWS FWS CBP DHS SAR EMS EMT FD PD LE).
     USGS ELECTROSHOCK reads "USGS Electroshock": Tyler gave that exact title, so USGS
     stays an acronym here (not spelled out like USCG).
@@ -164,7 +166,7 @@ Still to come: more 20-CC-SKAGIT/<mission> sub-folders. Ready — I'll drop the 
 | U.S. FISH & WILDLIFE SERVICE | 20′ Skagit | 7 / 8 | 4656 |
 | USGS ELECTROSHOCK (+ video) | 20′ Skagit | 18 / 20 | 5082 · video `LZEBC-i06WM` "Wooldridge 20' Skagit Electroshock \| Features, Layout & On-Water Look", 3:23, UNLISTED on YouTube (embeds fine) |
 | WORK BOAT | 20′ Skagit | 28 / 16 | 5348 (same boat as hero slide 02, whose caption now says Work Boat too) |
-| WASHINGTON DEPARTMENT OF FISH & WILDLIFE | 23′ Skagit | 9 / 9 | 5059 (FLAT folders 23-CC-SKAGIT/ + -MOBILE/; the phone files have no -MOBILE suffix, which is fine because the folder says it) |
+| WA DEPT. OF FISH & WILDLIFE | 23′ Skagit | 9 / 9 | 5059 (FLAT folders 23-CC-SKAGIT/ + -MOBILE/; the phone files have no -MOBILE suffix, which is fine because the folder says it) |
 
 To do: more 20-CC-SKAGIT missions as Tyler adds them. Once the galleries are done, ask Tyler whether to delete the unused
 14 MB `assets/agency/` (the old case-study photos).
