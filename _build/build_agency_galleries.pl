@@ -88,7 +88,8 @@ sub pretty {   # "FIRST RESPONDER" -> "First Responder", "USCG" stays "USCG"
 my %PURPOSE = ('FIRE' => 'Fire & Rescue', 'FIRE ONLY' => 'Fire',
                'USCG' => 'U.S. Coast Guard',     # Tyler 2026-10-05: BSR SW gallery title
                'USFWS' => 'U.S. Fish & Wildlife Service',   # 20' Skagit USFWS (spelled out like USCG)
-               'NW ENERGY' => 'NorthWestern Energy');       # 20' Skagit (Tyler: NW ENERGY = NorthWestern Energy, the company's own capitalisation)
+               'NW ENERGY' => 'NorthWestern Energy',        # 20' Skagit (Tyler: NW ENERGY = NorthWestern Energy, the company's own capitalisation)
+               'WDFW' => 'Washington Department of Fish & Wildlife');   # 23' Skagit (Tyler 2026-10-06: spelled out, like USFWS)
                # (USGS ELECTROSHOCK reads "USGS Electroshock": Tyler gave that title, so USGS stays an acronym, not spelled out)
 sub purpose_name { my $u = uc $_[0]; $u =~ s/ +/ /g; $PURPOSE{$u} // pretty($_[0]) }
 
