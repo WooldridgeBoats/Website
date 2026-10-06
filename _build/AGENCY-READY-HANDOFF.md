@@ -102,7 +102,8 @@ Still to come: more 20-CC-SKAGIT/<mission> sub-folders. Ready — I'll drop the 
 - Per gallery: copies the full-size photos UNTOUCHED (byte-for-byte), makes thumbs
   (800px desktop / 400px phone, for the viewer's filmstrip) and `cover.jpg` (1400px from
   the GALLERY-THUMB) in `assets/photos/agency-work/<key>/`, rewrites the block between
-  `<!-- AGENCY-GALLERIES:BEGIN/END -->` in the page, updates WB_VETTED in
+  `<!-- AGENCY-GALLERIES:BEGIN/END -->` in the page (the cards) AND the bottom photo grid
+  between `<!-- AGENCY-PHOTOS:BEGIN/END -->`, updates WB_VETTED in
   `assets/media-provenance.js`, and runs `stamp_assets.pl`.
 - Image URLs carry a content hash `?v=` (`$VERLEN` = 10). Bump it to force fresh URLs
   if cached 404s ever need flushing.
@@ -153,6 +154,12 @@ Still to come: more 20-CC-SKAGIT/<mission> sub-folders. Ready — I'll drop the 
   `.agvidcard` in house.css.
 - `.agcards` is a wrapping FLEX row (was a grid until 2026-10-06), so any card alone on
   its row centres itself: the odd last one, or one just before a video row.
+- **Bottom "Photo gallery"** (Tyler, 2026-10-06; same look as the model pages' bottom grid),
+  after the "Start an Agency Spec" button:
+  - **Grid:** every boat's desktop thumbs in one captioned `.gallery.captioned.agrid` ("20′ Skagit / Work Boat"), written in ROUND-ROBIN order (each boat's 1st photo, then each 2nd…) so the opening rows show every boat.
+  - **agency-gallery.js:** one filter chip per boat, labelled with its mission (a repeated title gets the length, e.g. "18′ Fire & Rescue"). "All" opens at 20 photos with a "Show all N photos" link, and tapping a photo opens THAT boat's set at that photo.
+  - **Phones:** hide the whole section (`.agphotos`), since the cards open the portrait sets.
+  - **Hrefs keep `?v=`:** that also keeps gallery.js's model-page grid code (length chips, page-wide viewer) off this grid.
 
 ### Galleries (7 live 2026-10-05; USGS Electroshock + Work Boat 2026-10-06)
 | Card title | Boat | Desktop / phone | Hull(s) |

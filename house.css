@@ -1745,6 +1745,10 @@ html.blueprint .agtitle{ color:#e8b64c; }   /* Night Run theme: gold, like the p
 .agvidcard::after{ background:linear-gradient(180deg, rgba(10,14,18,0) 55%, rgba(10,14,18,.62) 100%); }
 .agvidcard .vidplay{ z-index:1; left:20px; top:auto; bottom:16px; margin:0; }
 .agcards .agvidcard .mcmeta{ left:110px; }
+/* Agency bottom "Photo gallery" (agency-gallery.js .agrid + chips): desktop only. Phones
+   hide the whole section, like the model pages hide their flat grid: there the cards
+   above open each boat's portrait set (Tyler, 2026-10-06). */
+@media (max-width:700px){ .agphotos{ display:none; } }
 @media (max-width:900px){   /* narrower cards: a smaller play button + just "Watch the video" (the small line wrapped and crowded the thumbnail) */
   .agvidcard .vidplay{ width:62px; height:44px; }
   .agcards .agvidcard .mcmeta{ left:96px; bottom:23px; }   /* level with the play button */
