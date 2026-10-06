@@ -32,6 +32,7 @@ my @MODELS = (
   ['skagit-x',                'Skagit-X',                   'Inboard Jet',  [21],       21],
   ['sportoffshore',           'Sport Offshore',             'Offshore',     [18,20],    undef],
   ['super-sport-offshore',    'Super Sport Offshore',       'Offshore',     [20,21,23,26], undef],
+  ['canyon',                  'Canyon',                     'Inboard Jet',  [21,23,25,27], undef],   # custom build / Legacy Model; galleries are 23/24/26 (all LM)
   ['landing-craft',           'Landing Craft',              'Specialty Workboat', [],   undef],
   ['agency-lc29',             "29' LC — In The Shop",       'Agency Build', [29],       29],
 );

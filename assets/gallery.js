@@ -620,8 +620,11 @@
           var badge = (mset && mset.length && mset.length !== list.length)
             ? '<span class="mcbadge"><span class="wbd">' + list.length + ' photos</span><span class="wbm">' + mset.length + ' photos</span></span>'
             : '<span class="mcbadge">' + list.length + ' photo' + (list.length === 1 ? '' : 's') + '</span>';
-          /* legacy tag: a length we still show but no longer build (not in MODEL.lens) */
-          var legacyTag = (by === 'length' && k !== 'x' && isLegacyLen(slug, k))
+          /* legacy tag: a length we still show but no longer build (not in MODEL.lens),
+             or a gallery whose EVERY photo is an "LM" shot, i.e. a whole Legacy Model
+             like the Canyon (Tyler, 2026-10-06). A mixed gallery (some LM) stays untagged. */
+          var allLM = list.every(function (a) { return metaFor(a).legacy; });
+          var legacyTag = (by === 'length' && k !== 'x' && (isLegacyLen(slug, k) || allLM))
             ? '<span class="mclegacy">Legacy Model</span>' : '';
           card.innerHTML =
             '<img src="' + coverSrc + '" alt="" loading="lazy">' + badge + legacyTag +
