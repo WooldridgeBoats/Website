@@ -38,15 +38,16 @@
   });
 
   /* Bottom "Photo gallery" (Tyler, 2026-10-06): the model pages' flat photo grid, made for
-     many boats. The builder writes every boat's thumbs into .agrid in round-robin order
-     (each boat's 1st photo, then each 2nd, ...). Here: one filter chip per boat (its
-     mission title; a repeated title gets the length, e.g. "18′ Fire & Rescue"), the "All"
-     view opens at PREVIEW photos with a "Show all" link, and tapping a photo opens THAT
-     boat's set at that photo. Phones hide the whole section (house.css .agphotos), like
-     the model pages: there the cards above open each boat's portrait set. */
+     many boats. The builder writes every boat's landscape thumbs into .agrid in
+     round-robin order (each boat's 1st photo, then each 2nd, ...). Here: one filter chip
+     per boat (its mission title; a repeated title gets the length, e.g. "18′ Fire &
+     Rescue"), "All" opens at a preview with a "Show all" link, and tapping a photo opens
+     THAT boat's set at that photo. PHONES (<=700px) get the same thing built from each
+     boat's PORTRAIT set (.mgrid, 2 across) in place of the landscape grid — like the model
+     pages (gallery.js). Chips carry both counts (.wbd desktop / .wbm phone). */
   var grid = document.querySelector('.agrid');
   if (!grid) return;
-  var PREVIEW = 20;
+  var PREVIEW = 20, PHONE_PREVIEW = 12;
   var all = [].slice.call(grid.querySelectorAll('a[data-agp]')), groups = {}, order = [];
   all.forEach(function (a) {
     var k = a.dataset.agp, g = DATA[k];
@@ -56,21 +57,58 @@
     groups[k].push(a);
   });
   if (!order.length) return;
-  var cur = 'all', expanded = false;
+  var cur = 'all', expanded = false, mOpen = false;
   var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); };
 
+  /* phone grid: each boat's portrait set, round-robin like the desktop grid */
+  var mgroups = {}, mall = [], mgrid = null, mmore = null, maxm = 0;
+  order.forEach(function (k) {
+    var g = DATA[k];
+    if (!g.mob || !g.mob.length) return;
+    mgroups[k] = anchors(g, true);
+    mgroups[k].forEach(function (a) {
+      a.dataset.agp = k;
+      var img = a.querySelector('img');
+      img.loading = 'lazy';
+      img.alt = g.alt || '';
+      var cap = document.createElement('span');
+      cap.className = 'gcap';
+      cap.innerHTML = '<b>' + g.len + '&#8242; ' + esc(g.m) + '</b>' + esc(g.t || g.m);
+      a.appendChild(cap);
+    });
+    maxm = Math.max(maxm, mgroups[k].length);
+  });
+  for (var i = 0; i < maxm; i++) order.forEach(function (k) { var a = mgroups[k] && mgroups[k][i]; if (a) mall.push(a); });
+  if (mall.length) {
+    mgrid = document.createElement('div');
+    mgrid.className = 'gallery captioned mgrid';
+    mall.forEach(function (a) { mgrid.appendChild(a); });
+    grid.classList.add('mobcards');              /* phones: the portrait grid replaces the landscape one */
+    mmore = document.createElement('p');
+    mmore.className = 'pmore mp';
+    mmore.innerHTML = '<a href="#" role="button">Show all ' + mall.length + ' photos &#8595;</a>';
+    mmore.firstChild.addEventListener('click', function (e) { e.preventDefault(); mOpen = true; apply(); });
+  }
+
   var more = document.createElement('p');
-  more.className = 'pmore';
+  more.className = 'pmore dp';
   more.innerHTML = '<a href="#" role="button">Show all ' + all.length + ' photos &#8595;</a>';
   more.firstChild.addEventListener('click', function (e) { e.preventDefault(); expanded = true; apply(); });
 
   function apply() {
-    var n = 0;
+    var n = 0, m = 0;
     all.forEach(function (a) {
-      var hide = cur === 'all' ? (!expanded && n++ >= PREVIEW) : a.dataset.agp !== cur;
-      a.classList.toggle('pfhide', hide);
+      a.classList.toggle('pfhide', cur === 'all' ? (!expanded && n++ >= PREVIEW) : a.dataset.agp !== cur);
     });
     more.hidden = !(cur === 'all' && !expanded && all.length > PREVIEW);
+    if (!mgrid) return;
+    mall.forEach(function (a) {
+      a.classList.toggle('pfhide', cur === 'all' ? (!mOpen && m++ >= PHONE_PREVIEW) : a.dataset.agp !== cur);
+    });
+    mmore.hidden = !(cur === 'all' && !mOpen && mall.length > PHONE_PREVIEW);
+  }
+  function count(d, m) {
+    return (!mgrid || d === m) ? String(d) : '<span class="wbd">' + d + '</span><span class="wbm">' + m + '</span>';
   }
 
   var bar = document.createElement('div');
@@ -90,21 +128,30 @@
   }
   var seen = {};
   order.forEach(function (k) { var t = DATA[k].t || DATA[k].m; seen[t] = (seen[t] || 0) + 1; });
-  chip('All &#183; ' + all.length, 'all');
+  chip('All &#183; ' + count(all.length, mall.length), 'all');
   order.forEach(function (k) {
     var g = DATA[k], t = g.t || g.m;
-    chip((seen[t] > 1 ? g.len + '&#8242; ' : '') + esc(t) + ' &#183; ' + groups[k].length, k);
+    chip((seen[t] > 1 ? g.len + '&#8242; ' : '') + esc(t) + ' &#183; ' + count(groups[k].length, (mgroups[k] || []).length), k);
   });
   grid.parentNode.insertBefore(bar, grid);
   grid.parentNode.insertBefore(more, grid.nextSibling);
+  if (mgrid) {
+    more.parentNode.insertBefore(mgrid, more.nextSibling);
+    mgrid.parentNode.insertBefore(mmore, mgrid.nextSibling);
+  }
 
-  grid.addEventListener('click', function (e) {
-    var a = e.target.closest ? e.target.closest('a[data-agp]') : null;
-    if (!a || !window.WBGallery || !groups[a.dataset.agp]) return;
-    e.preventDefault();
-    e.stopPropagation();          /* keep gallery.js's page-wide grid handler out of it */
-    var set = groups[a.dataset.agp];
-    window.WBGallery.open(set, set.indexOf(a));
-  });
+  /* a tap opens THAT boat's set (landscape on desktop, portrait on phones) at that photo */
+  function openFrom(sets) {
+    return function (e) {
+      var a = e.target.closest ? e.target.closest('a[data-agp]') : null;
+      var set = a && sets[a.dataset.agp];
+      if (!set || !window.WBGallery) return;
+      e.preventDefault();
+      e.stopPropagation();          /* keep gallery.js's page-wide grid handler out of it */
+      window.WBGallery.open(set, set.indexOf(a));
+    };
+  }
+  grid.addEventListener('click', openFrom(groups));
+  if (mgrid) mgrid.addEventListener('click', openFrom(mgroups));
   apply();
 })();

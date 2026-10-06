@@ -158,7 +158,7 @@ Still to come: more 20-CC-SKAGIT/<mission> sub-folders. Ready — I'll drop the 
   after the "Start an Agency Spec" button:
   - **Grid:** every boat's desktop thumbs in one captioned `.gallery.captioned.agrid` ("20′ Skagit / Work Boat"), written in ROUND-ROBIN order (each boat's 1st photo, then each 2nd…) so the opening rows show every boat.
   - **agency-gallery.js:** one filter chip per boat, labelled with its mission (a repeated title gets the length, e.g. "18′ Fire & Rescue"). "All" opens at 20 photos with a "Show all N photos" link, and tapping a photo opens THAT boat's set at that photo.
-  - **Phones:** hide the whole section (`.agphotos`), since the cards open the portrait sets.
+  - **Phones (≤700px):** the same section is built from each boat's PORTRAIT set (`.mgrid`, 2 across, round-robin). It opens at 12 photos with a "Show all", the chips show the phone counts, and tapping opens that boat's portrait set.
   - **Hrefs keep `?v=`:** that also keeps gallery.js's model-page grid code (length chips, page-wide viewer) off this grid.
 
 ### Galleries (7 live 2026-10-05; USGS Electroshock + Work Boat 2026-10-06)

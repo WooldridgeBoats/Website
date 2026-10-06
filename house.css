@@ -1556,6 +1556,28 @@ footer::before{
 
 /* "browse full gallery" link under model-page grids */
 .pmore{ margin-top:16px; font-weight:500; font-size:13.5px; }
+.pmore[hidden]{ display:none !important; }
+
+/* PHONE photo grid (Tyler, 2026-10-06). A page whose boats have their own portrait sets
+   (WB_MOBILE on model pages, WB_AGENCY mob on Agency & Work Boats) shows THOSE photos in
+   its bottom gallery on phones: gallery.js / agency-gallery.js build .gallery.mgrid next
+   to the landscape grid. Above 700px it's hidden; at <=700px the landscape grid hides
+   (.mobcards) and this shows 2 across at 4:5. Chips carry both counts (.wbd desktop /
+   .wbm phone); the "Show all" links are .dp (desktop) / .mp (phone). */
+.gallery.mgrid, .pmore.mp, .pfilter .wbm{ display:none; }
+@media (max-width:700px){
+  .gallery.mgrid{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+  .gallery.captioned.mgrid img{ aspect-ratio:4/5; }
+  .pmore.mp{ display:block; }
+  .pmore.dp, .pfilter .wbd{ display:none; }
+  .pfilter .wbm{ display:inline; }
+  /* chips: one swipeable row, edge to edge, instead of a tall wrapped stack */
+  .pfilter{ flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; margin-left:-24px; margin-right:-24px; padding:0 24px 4px; }
+  .pfilter::-webkit-scrollbar{ display:none; }
+  .pfilter .optchip{ flex:none; }
+  /* a page with no phone set yet: its landscape grid opens at 12 on phones (gallery.js .pcap = PHONE_PREVIEW) */
+  .gallery.pcap > a:nth-child(n+13){ display:none; }
+}
 
 /* back-to-top */
 .ptop{
@@ -1745,10 +1767,6 @@ html.blueprint .agtitle{ color:#e8b64c; }   /* Night Run theme: gold, like the p
 .agvidcard::after{ background:linear-gradient(180deg, rgba(10,14,18,0) 55%, rgba(10,14,18,.62) 100%); }
 .agvidcard .vidplay{ z-index:1; left:20px; top:auto; bottom:16px; margin:0; }
 .agcards .agvidcard .mcmeta{ left:110px; }
-/* Agency bottom "Photo gallery" (agency-gallery.js .agrid + chips): desktop only. Phones
-   hide the whole section, like the model pages hide their flat grid: there the cards
-   above open each boat's portrait set (Tyler, 2026-10-06). */
-@media (max-width:700px){ .agphotos{ display:none; } }
 @media (max-width:900px){   /* narrower cards: a smaller play button + just "Watch the video" (the small line wrapped and crowded the thumbnail) */
   .agvidcard .vidplay{ width:62px; height:44px; }
   .agcards .agvidcard .mcmeta{ left:96px; bottom:23px; }   /* level with the play button */

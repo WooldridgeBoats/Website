@@ -503,6 +503,65 @@
         .sort(function (a, b) { return a - b; });
       if (groups.x) keys.push('x');
 
+      /* PHONE photo grid (Tyler, 2026-10-06). On phones (<=700px) a model with its own
+         portrait set (WB_MOBILE) shows THOSE photos here instead of the landscape grid
+         (which .mobcards hides there): 2 across, captioned, filtered by the same chips,
+         "All" opens at PHONE_PREVIEW with a "Show all" link, and a tap opens that length's
+         portrait set at that photo. Hidden above 700px by CSS (.gallery.mgrid). */
+      var PHONE_PREVIEW = 12, mgrid = null, manchors = [], mmore = null, mKey = 'all', mOpen = false;
+      if (MOBILE && MOBILE[slug]) {
+        var mname = (MODEL[slug] && MODEL[slug].name) ||
+          ((document.querySelector('.pagemast h1') || {}).textContent || '');
+        mgrid = document.createElement('div');
+        mgrid.className = 'gallery captioned mgrid';
+        keys.forEach(function (k) {
+          if (k === 'x' || !mobileSet(slug, k)) return;
+          mobileAnchors(groups[k][0], slug, k).forEach(function (a) {
+            var img = a.querySelector('img'), c = a.dataset.cfg, h = a.dataset.hull;
+            img.loading = 'lazy';
+            img.alt = k + "' " + mname + (c ? ' — ' + c : '') + (h ? ' — hull ' + h : '');
+            var cap = document.createElement('span');
+            cap.className = 'gcap';
+            cap.innerHTML = '<b>' + k + '&#8242;' + (c ? ' ' + c : '') + '</b>' + mname;
+            a.appendChild(cap);
+            mgrid.appendChild(a);
+            manchors.push(a);
+          });
+        });
+        if (!manchors.length) mgrid = null;
+      }
+      function applyPhone() {
+        if (!mgrid) return;
+        var n = 0;
+        manchors.forEach(function (a) {
+          a.classList.toggle('pfhide', mKey === 'all' ? (!mOpen && n++ >= PHONE_PREVIEW) : a.dataset.len !== mKey);
+        });
+        mmore.hidden = !(mKey === 'all' && !mOpen && manchors.length > PHONE_PREVIEW);
+      }
+      /* No phone set yet (the landscape grid shows on phones too): phones still open at
+         PHONE_PREVIEW photos with a "Show all" link, via .pcap (CSS caps the grid at
+         12 children <=700px; keep the two in step). A length chip shows all of that length. */
+      var capMore = null, capOpen = false;
+      function applyCap() {
+        if (!capMore) return;
+        var on = mKey === 'all' && !capOpen;
+        grid.classList.toggle('pcap', on);
+        capMore.hidden = !on;
+      }
+      if (!mgrid && anchors.length > PHONE_PREVIEW) {
+        capMore = document.createElement('p');
+        capMore.className = 'pmore mp';
+        capMore.innerHTML = '<a href="#" role="button">Show all ' + anchors.length + ' photos &#8595;</a>';
+        capMore.firstChild.addEventListener('click', function (e) { e.preventDefault(); capOpen = true; applyCap(); });
+        grid.parentNode.insertBefore(capMore, grid.nextSibling);
+        applyCap();
+      }
+      /* a chip count: desktop and phone totals differ, so carry both (CSS shows one) */
+      function count(d, m) {
+        return (!mgrid || d === m) ? String(d) : '<span class="wbd">' + d + '</span><span class="wbm">' + m + '</span>';
+      }
+      function mcount(k) { return manchors.filter(function (a) { return a.dataset.len === k; }).length; }
+
       /* length filter chips — only when the grid actually spans groups */
       if (keys.length > 1) {
         var bar = document.createElement('div');
@@ -519,15 +578,36 @@
               var k = a.dataset.len || 'x';
               a.classList.toggle('pfhide', key !== 'all' && k !== key);
             });
+            mKey = key;
+            applyPhone();
+            applyCap();
           });
           return c;
         }
-        bar.appendChild(chip('All &#183; ' + anchors.length, 'all', true));
+        bar.appendChild(chip('All &#183; ' + count(anchors.length, manchors.length), 'all', true));
         keys.forEach(function (k) {
-          var label = (k === 'x' ? 'Unlisted' : k + '-Foot') + ' &#183; ' + groups[k].length;
+          var label = (k === 'x' ? 'Unlisted' : k + '-Foot') + ' &#183; ' + count(groups[k].length, mcount(k));
           bar.appendChild(chip(label, k, false));
         });
         grid.parentNode.insertBefore(bar, grid);
+      }
+
+      if (mgrid) {
+        grid.classList.add('mobcards');            /* phones: the portrait grid replaces the landscape one */
+        grid.parentNode.insertBefore(mgrid, grid.nextSibling);
+        mmore = document.createElement('p');
+        mmore.className = 'pmore mp';
+        mmore.innerHTML = '<a href="#" role="button">Show all ' + manchors.length + ' photos &#8595;</a>';
+        mmore.firstChild.addEventListener('click', function (e) { e.preventDefault(); mOpen = true; applyPhone(); });
+        mgrid.parentNode.insertBefore(mmore, mgrid.nextSibling);
+        mgrid.addEventListener('click', function (e) {
+          var a = e.target.closest ? e.target.closest('a') : null;
+          if (!a) return;
+          e.preventDefault();
+          e.stopPropagation();                     /* not the page-wide grid handler */
+          openLb(a, false, manchors.filter(function (x) { return x.dataset.len === a.dataset.len; }));
+        });
+        applyPhone();
       }
 
       /* grouped cover cards (hero-area gallery) — filled into .modelcards-slot */
@@ -660,7 +740,8 @@
         more.className = 'pmore';
         more.innerHTML = '<a href="../../photos/index.html#' + slug +
           '">Browse the full fleet gallery &#8594;</a>';
-        grid.parentNode.insertBefore(more, grid.nextSibling);
+        var tail = mmore || capMore || grid;       /* after the phone grid / "Show all" link, when there is one */
+        tail.parentNode.insertBefore(more, tail.nextSibling);
       }
     });
   }
