@@ -97,6 +97,13 @@ also has spec sheets: `wp-content/uploads/2020/01/2020-33-DEEPWATER-CENTER-PILOT
   files aren't right; he or I fix them (never a "b" suffix).
 - No LM tokens on the files, so no gold Legacy tags on the cards, captions or hero (only the kick line).
 - **Still open:** the spec table (item 1); the intro text (item 5); Tyler's message had a cut-off "Use the ." (ask).
+- **Deploy collision (2026-10-07, 13:38):** the Instagram bot pushed 17 s before Tyler's Deepwater push,
+  so two cPanel deploys overlapped. The live site ended up with the NEW pages but the OLD `assets/` (old
+  gallery.js + photo-data.js, no Deepwater photos), so it showed one 33′ card and broken images. The fix is
+  a clean re-push, or cPanel → Git Version Control → Manage → Pull or Deploy → "Deploy HEAD Commit". Then
+  Cloudflare → Purge Everything, because the host sends max-age=14400 even on 404s and Cloudflare kept the
+  "not found" answers. When checking a live deploy, request photo URLs WITH a unique `?nc=` query so the
+  check itself doesn't cache 404s on the real URLs.
 
 ---
 
