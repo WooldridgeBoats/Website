@@ -2463,6 +2463,28 @@ html.blueprint body{ background:transparent; }
   box-shadow:0 1px 2px rgba(20,30,40,.06), 0 6px 22px rgba(20,30,40,.14);
 }
 .wb-nudge-tab:hover{ background:var(--blue-dark); }
+/* Softened (Tyler, 2026-10-07): 80% on desktop, full strength on hover/focus.
+   The card it opens stays fully opaque - only the pill is see-through. */
+.wb-nudge-tab{ opacity:.8; transition:opacity .2s ease; }
+.wb-nudge-tab:focus-visible{ opacity:1; }
+@media (hover:hover){ .wb-nudge-tab:hover{ opacity:1; } }
+/* Phones: 70%. */
+@media (max-width:700px){ .wb-nudge-tab{ opacity:.7; } }
+/* After 10s on the site (tool-nudge.js adds .wb-corner-mini) the pill shrinks to
+   a small round "?" - click/tap it to open the card. Desktop AND phones (Tyler,
+   2026-10-07). The words stay in the button (font-size:0) so screen readers still
+   say "Not sure which boat?". 40px keeps it an easy tap. */
+.wb-corner-mini .wb-nudge-tab{
+  width:40px; height:40px; padding:0; border-radius:50%; font-size:0;
+  align-items:center; justify-content:center;
+  animation:wbNudgeMini .3s ease;
+}
+/* display only when the card is CLOSED - an unscoped display here would beat
+   .wb-nudge-open .wb-nudge-tab{display:none} and show the "?" beside the card */
+.wb-corner-mini .wb-nudge:not(.wb-nudge-open) .wb-nudge-tab{ display:flex; }
+.wb-corner-mini .wb-nudge-tab::after{ content:"?"; font-size:19px; line-height:1; }
+/* no "to" frame on purpose: it lands on the tab's own opacity (.8 desktop, .7 phone) */
+@keyframes wbNudgeMini{ from{ opacity:0; transform:scale(.6); } }
 .wb-nudge-panel{
   display:none;
   /* wrap: on a narrow phone the x can need to drop to a second row */
@@ -2497,6 +2519,7 @@ html.blueprint body{ background:transparent; }
 .wb-nudge-x:hover{ color:#23282d; }
 @media (prefers-reduced-motion:reduce){
   .wb-corner{ transition:none; }
+  .wb-corner-mini .wb-nudge-tab{ animation:none; }
 }
 @media print{
   .wb-corner,.wb-phnote{ display:none !important; }

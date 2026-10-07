@@ -27,11 +27,34 @@
  * localStorage snooze (old visitors may still carry the dead 'wbToolNudge'
  * key; nothing reads it now). Clicking outside an open card, or Escape, merely
  * collapses it back to a pill.
+ *
+ * It shrinks, per Tyler 2026-10-07 ("such a distracting button on the small
+ * phone screen", then "both mobile and desktop", 10s): after 10s on the site
+ * the pill becomes a small round "?" in the same corner, and tapping the "?"
+ * opens the same card. The 10s is per VISIT, not per page: the first page
+ * view's time sits in sessionStorage (cleared when the tab closes, so a new
+ * visit gets the full pill again). The look is .wb-corner-mini in house.css.
  */
 (function () {
   'use strict';
 
   var DELAY = 1200;   // let the page settle first; an instant pill reads as a popup ad
+  var SHRINK_AFTER = 10000;   // pill -> small "?" after 10s on the site
+
+  // When this visit started: the first page view's time, kept in
+  // sessionStorage so the clock runs across pages. Falls back to this page's
+  // load time if storage is blocked (private mode), which just restarts the
+  // 10s per page.
+  function visitStart() {
+    var now = Date.now();
+    try {
+      var t = +window.sessionStorage.getItem('wbNudgeT0');
+      if (t && t <= now) return t;
+      window.sessionStorage.setItem('wbNudgeT0', String(now));
+    } catch (e) {}
+    return now;
+  }
+  var T0 = visitStart();
 
   // Pages where the QUIZ nudge has nothing useful to offer. Matched as
   // path prefixes.
@@ -154,6 +177,12 @@
       if (corner.contains(e.target)) return;
       for (var i = 0; i < widgets.length; i++) widgets[i].collapse();
     });
+
+    // shrink to the "?" once the visit is 10s old (straight away if it
+    // already is, so later pages open with the "?")
+    var wait = SHRINK_AFTER - (Date.now() - T0);
+    function shrink() { corner.classList.add('wb-corner-mini'); }
+    if (wait <= 0) shrink(); else window.setTimeout(shrink, wait);
 
     document.body.appendChild(corner);
     // A tick later, so the entrance transition has a start state to animate
