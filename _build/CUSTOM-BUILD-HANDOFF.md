@@ -97,6 +97,13 @@ also has spec sheets: `wp-content/uploads/2020/01/2020-33-DEEPWATER-CENTER-PILOT
   files aren't right; he or I fix them (never a "b" suffix).
 - No LM tokens on the files, so no gold Legacy tags on the cards, captions or hero (only the kick line).
 - **Still open:** the spec table (item 1); the intro text (item 5); Tyler's message had a cut-off "Use the ." (ask).
+- **Bottom grid (Tyler, 2026-10-07: "mix them up a bit"):** the photos are mixed Angler/Explorer. Desktop opens at
+  16 (`window.WB_GRID_PREVIEW=16`) with "View all 85 photos", and phones open at 12 with "Show all". Photos listed in
+  `window.WB_GRID_LEAD` (by boat + order #, in the page) go first: on desktop the on-the-water shots, on phones the
+  ones WITHOUT black bands. The Angler phone photos 19–48 and Explorer phone photos 08–26 have black bands built into
+  Tyler's export (a landscape photo letterboxed into the 4:5 frame), so they only appear after "Show all". If he
+  re-exports them to fill the frame, re-run `apply_mobile_gallery.sh` and update the "m" list. A tap opens that
+  boat's full set.
 - **Deploy collision (2026-10-07, 13:38):** the Instagram bot pushed 17 s before Tyler's Deepwater push,
   so two cPanel deploys overlapped. The live site ended up with the NEW pages but the OLD `assets/` (old
   gallery.js + photo-data.js, no Deepwater photos), so it showed one 33′ card and broken images. The fix is

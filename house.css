@@ -1578,6 +1578,7 @@ footer::before{
 .pfilter .optchip:hover{ border-color:var(--blue); color:var(--blue); }
 .pfilter .optchip.on{ background:var(--blue); border-color:var(--blue); color:#fff; }
 .gallery a.pfhide{ display:none; }
+@media (min-width:701px){ .gallery a.pdhide{ display:none; } }   /* desktop "View all" preview (gallery.js WB_GRID_PREVIEW) */
 
 /* "browse full gallery" link under model-page grids */
 .pmore{ margin-top:16px; font-weight:500; font-size:13.5px; }

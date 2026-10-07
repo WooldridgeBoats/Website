@@ -532,6 +532,29 @@
       var PHONE_PREVIEW = 12, mgrid = null, manchors = [], mmore = null, mKey = 'all', mOpen = false;
       /* what the chips + phone taps split by: length, or config on a WB_CARDS_BY='cfg' page */
       function gkey(a) { return BYCFG ? (a.dataset.cfg || 'x') : (a.dataset.len || 'x'); }
+      /* round-robin by config, so a WB_CARDS_BY grid mixes the boats (A1, E1, A2, E2...) */
+      function mixCfg(list) {
+        var by = {}, ks = [], out = [], i, more = true;
+        list.forEach(function (a) { var k = gkey(a); if (!by[k]) { by[k] = []; ks.push(k); } by[k].push(a); });
+        for (i = 0; more; i++) {
+          more = false;
+          ks.forEach(function (k) { if (i < by[k].length) { out.push(by[k][i]); more = true; } });
+        }
+        return out;
+      }
+      /* window.WB_GRID_LEAD = {d:{Angler:[1,2,...]}, m:{...}}: photos listed by config + order #
+         (d = desktop set, m = phone set) lead the grid, e.g. the boats on the water before the
+         cabin shots (Tyler, 2026-10-07). Both groups are mixed by config. */
+      function leadMix(list, which) {
+        var L = window.WB_GRID_LEAD && window.WB_GRID_LEAD[which];
+        if (!L) return mixCfg(list);
+        var lead = [], rest = [];
+        list.forEach(function (a) {
+          var m = /-(\d+)\.jpe?g$/i.exec(a.getAttribute('href') || ''), ks = L[a.dataset.cfg || ''];
+          (m && ks && ks.indexOf(+m[1]) !== -1 ? lead : rest).push(a);
+        });
+        return mixCfg(lead).concat(mixCfg(rest));
+      }
       var fkeys = keys, fgroups = groups;
       if (BYCFG) {
         fkeys = []; fgroups = {};
@@ -557,6 +580,8 @@
           });
         });
         if (!manchors.length) mgrid = null;
+        /* WB_CARDS_BY page: mix the boats in the phone grid too */
+        if (mgrid && BYCFG) { manchors = leadMix(manchors, 'm'); manchors.forEach(function (a) { mgrid.appendChild(a); }); }
       }
       function applyPhone() {
         if (!mgrid) return;
@@ -584,6 +609,34 @@
         grid.parentNode.insertBefore(capMore, grid.nextSibling);
         applyCap();
       }
+      /* WB_CARDS_BY page (Deepwater): the desktop grid mixes the boats too and opens at
+         window.WB_GRID_PREVIEW photos with a "View all" link (Tyler, 2026-10-07: "Mix the
+         bottom grid up a bit ... show a bunch but not all"). A tap opens that boat's full set. */
+      var DESK_PREVIEW = BYCFG ? (+window.WB_GRID_PREVIEW || 0) : 0, dmore = null, dOpen = false;
+      if (BYCFG) {
+        leadMix(anchors, 'd').forEach(function (a) { grid.appendChild(a); });
+        grid.addEventListener('click', function (e) {
+          var a = e.target.closest ? e.target.closest('a') : null;
+          if (!a || a.parentNode !== grid) return;
+          e.preventDefault();
+          e.stopPropagation();                     /* not the page-wide grid handler */
+          openLb(a, false, anchors.filter(function (x) { return gkey(x) === gkey(a); }));
+        });
+      }
+      function applyDesk() {
+        if (!dmore) return;
+        var n = 0, on = mKey === 'all' && !dOpen;
+        Array.prototype.forEach.call(grid.children, function (a) { a.classList.toggle('pdhide', on && n++ >= DESK_PREVIEW); });
+        dmore.hidden = !on;
+      }
+      if (DESK_PREVIEW && anchors.length > DESK_PREVIEW) {
+        dmore = document.createElement('p');
+        dmore.className = 'pmore dp';
+        dmore.innerHTML = '<a href="#" role="button">View all ' + anchors.length + ' photos &#8595;</a>';
+        dmore.firstChild.addEventListener('click', function (e) { e.preventDefault(); dOpen = true; applyDesk(); });
+        grid.parentNode.insertBefore(dmore, grid.nextSibling);
+        applyDesk();
+      }
       /* a chip count: desktop and phone totals differ, so carry both (CSS shows one) */
       function count(d, m) {
         return (!mgrid || d === m) ? String(d) : '<span class="wbd">' + d + '</span><span class="wbm">' + m + '</span>';
@@ -608,6 +661,7 @@
             mKey = key;
             applyPhone();
             applyCap();
+            applyDesk();
           });
           return c;
         }
@@ -787,7 +841,7 @@
         more.className = 'pmore';
         more.innerHTML = '<a href="../../photos/index.html#' + slug +
           '">Browse the full fleet gallery &#8594;</a>';
-        var tail = mmore || capMore || grid;       /* after the phone grid / "Show all" link, when there is one */
+        var tail = dmore || mmore || capMore || grid;   /* after the "View all" / phone "Show all" link, when there is one */
         tail.parentNode.insertBefore(more, tail.nextSibling);
       }
     });
