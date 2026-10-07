@@ -71,9 +71,17 @@
     if (brand && brand.nextSibling) wrap.insertBefore(btn, brand.nextSibling);
     else wrap.appendChild(btn);
 
-    btn.addEventListener("click", function () {
-      var open = nav.classList.toggle("nav-open");
+    // html.navlock (house.css, 900px and down) stops the page scrolling under
+    // the open menu and hides the bottom-right pills while it's open
+    function setOpen(open) {
+      nav.classList.toggle("nav-open", open);
       btn.setAttribute("aria-expanded", open ? "true" : "false");
+      document.documentElement.classList.toggle("navlock", open);
+      if (open) nav.scrollTop = 0;   // always open at the top of the menu
+    }
+
+    btn.addEventListener("click", function () {
+      setOpen(!nav.classList.contains("nav-open"));
     });
 
     // "Our Boats" mega: tap toggles inline expansion on touch layouts
@@ -95,7 +103,7 @@
       var a = e.target.closest ? e.target.closest("a") : null;
       if (a && a.getAttribute("href") && a.getAttribute("href").charAt(0) !== "#" &&
           !a.classList.contains("brand")) {
-        nav.classList.remove("nav-open");
+        setOpen(false);
       }
     });
   }

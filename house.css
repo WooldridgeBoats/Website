@@ -302,6 +302,17 @@ h1,h2,h3,.h-serif{
   text-transform:uppercase; color:var(--ink); padding:7px 0; white-space:normal;
 }
 .mega .megaside a:hover{ color:var(--blue); }
+/* Desktop column order (Tyler, 2026-10-07): Offshore far left, then Inboard,
+   Outboard, Custom Builds, Tools. The hamburger menu (900px and down) keeps the
+   header.html order, Inboard first: phones read it top to bottom, and Tyler wants
+   the two layouts ordered for how people use each. */
+@media (min-width:901px){
+  .mega-in > .mcol-offshore{ order:1; }
+  .mega-in > .mcol-inboard{ order:2; }
+  .mega-in > .mcol-outboard{ order:3; }
+  .mega-in > .mcol-custom{ order:4; }
+  .mega-in > .megaside{ order:5; }
+}
 
 /* ── hero (background video) ───────────────────────────────────────────── */
 .hero{
@@ -1174,6 +1185,20 @@ html.blueprint img{ filter:none; }  /* photos stay true color */
   .hasmega .mega{ display:none; position:static; transform:none; padding-top:0; }
   .hasmega.mega-open .mega{ display:block; }
   .mega-in{ box-shadow:none; border:0; padding:8px 0 4px; width:100%; gap:14px; }
+  /* The open menu scrolls on its own (Tyler, 2026-10-07). It lives inside the
+     sticky nav, so with "Our Boats" expanded it ran 1,367px tall on an 844px
+     phone: a swipe scrolled the page BEHIND it, and Pre-Owned ... Build & Price
+     sat below the screen, out of reach. Capped at the screen height, it scrolls
+     itself; overscroll-behavior stops the swipe spilling onto the page, and
+     shop.js puts html.navlock on while it's open so the page can't scroll under it. */
+  .nav.nav-open{
+    max-height:100vh; max-height:100dvh; overflow-y:auto;
+    overscroll-behavior:contain; -webkit-overflow-scrolling:touch;
+  }
+  html.navlock{ overflow:hidden; }
+  /* the bottom-right pills ("Not sure which boat?", back-to-top) sat on top of
+     the open menu; hide them until it closes */
+  html.navlock #wb-corner,html.navlock .ptop{ display:none !important; }
 }
 
 /* ── print ─────────────────────────────────────────────────────────────── */

@@ -22,7 +22,8 @@
   /* ── nav height → CSS var (sticky toolbar offset) ─────────────────────── */
   var nav = document.querySelector('.nav');
   function setNavH() {
-    if (nav) document.documentElement.style.setProperty('--navh', nav.offsetHeight + 'px');
+    // skip while the phone menu is open: its height is the menu's, not the bar's
+    if (nav && !nav.classList.contains('nav-open')) document.documentElement.style.setProperty('--navh', nav.offsetHeight + 'px');
   }
   setNavH();
   window.addEventListener('resize', setNavH);
