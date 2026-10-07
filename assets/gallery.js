@@ -18,6 +18,11 @@
     });
   }
   var MOBILE = window.WB_MOBILE || null;   /* slug -> {len:[{f,cfg,hull},...]} — independent mobile gallery */
+  /* window.WB_CARDS_BY = 'cfg' (Deepwater, Tyler 2026-10-07): boats of the SAME length built for
+     different purposes (33' Angler + 33' Explorer) get one gallery card EACH, Agency-style (blue
+     title over each card), and the bottom grid's chips + phone taps split by config too.
+     Every other page groups by length exactly as before. */
+  var BYCFG = window.WB_CARDS_BY === 'cfg';
 
   /* ── nav height → CSS var (sticky toolbar offset) ─────────────────────── */
   var nav = document.querySelector('.nav');
@@ -80,14 +85,29 @@
   function mobileSet(slug, len) {
     return (MOBILE && MOBILE[slug] && MOBILE[slug][len]) ? MOBILE[slug][len] : null;
   }
-  function mobileAnchors(dirAnchor, slug, len) {
+  function mobileItems(slug, len) {
+    var s = mobileSet(slug, len);
+    return s ? s.map(function (p) { return { p: p, len: len }; }) : null;
+  }
+  /* WB_CARDS_BY='cfg': one config's portraits, across every length */
+  function mobileItemsCfg(slug, cfg) {
+    if (!MOBILE || !MOBILE[slug]) return null;
+    var out = [];
+    Object.keys(MOBILE[slug]).sort(function (a, b) { return a - b; }).forEach(function (L) {
+      MOBILE[slug][L].forEach(function (p) { if ((p.cfg || '') === cfg) out.push({ p: p, len: L }); });
+    });
+    return out.length ? out : null;
+  }
+  function mobileAnchors(dirAnchor, slug, len) { return anchorsFrom(dirAnchor, slug, mobileItems(slug, len)); }
+  function anchorsFrom(dirAnchor, slug, items) {
     /* Detached <a> elements the lightbox consumes, built from the mobile data.
-       dirAnchor is any desktop anchor for this length — used only to derive the
+       dirAnchor is any desktop anchor for this model — used only to derive the
        "…/assets/photos/<slug>/" relative prefix. Caption metadata rides on
        data-* because these files aren't in photo-data.js. */
     var dir = dirAnchor.getAttribute('href').replace(/[^\/]+$/, '');
     var name = (MODEL[slug] && MODEL[slug].name) || '';
-    return mobileSet(slug, len).map(function (p) {
+    return items.map(function (it) {
+      var p = it.p, len = it.len;
       var a = document.createElement('a');
       a.setAttribute('href', dir + 'mobile/' + p.f);
       a.dataset.len = len; a.dataset.cfg = p.cfg || ''; a.dataset.hull = p.hull || ''; a.dataset.m = name; a.dataset.slug = slug;
@@ -510,6 +530,13 @@
          "All" opens at PHONE_PREVIEW with a "Show all" link, and a tap opens that length's
          portrait set at that photo. Hidden above 700px by CSS (.gallery.mgrid). */
       var PHONE_PREVIEW = 12, mgrid = null, manchors = [], mmore = null, mKey = 'all', mOpen = false;
+      /* what the chips + phone taps split by: length, or config on a WB_CARDS_BY='cfg' page */
+      function gkey(a) { return BYCFG ? (a.dataset.cfg || 'x') : (a.dataset.len || 'x'); }
+      var fkeys = keys, fgroups = groups;
+      if (BYCFG) {
+        fkeys = []; fgroups = {};
+        anchors.forEach(function (a) { var k = gkey(a); if (!fgroups[k]) { fgroups[k] = []; fkeys.push(k); } fgroups[k].push(a); });
+      }
       if (MOBILE && MOBILE[slug]) {
         var mname = (MODEL[slug] && MODEL[slug].name) ||
           ((document.querySelector('.pagemast h1') || {}).textContent || '');
@@ -535,7 +562,7 @@
         if (!mgrid) return;
         var n = 0;
         manchors.forEach(function (a) {
-          a.classList.toggle('pfhide', mKey === 'all' ? (!mOpen && n++ >= PHONE_PREVIEW) : a.dataset.len !== mKey);
+          a.classList.toggle('pfhide', mKey === 'all' ? (!mOpen && n++ >= PHONE_PREVIEW) : gkey(a) !== mKey);
         });
         mmore.hidden = !(mKey === 'all' && !mOpen && manchors.length > PHONE_PREVIEW);
       }
@@ -561,10 +588,10 @@
       function count(d, m) {
         return (!mgrid || d === m) ? String(d) : '<span class="wbd">' + d + '</span><span class="wbm">' + m + '</span>';
       }
-      function mcount(k) { return manchors.filter(function (a) { return a.dataset.len === k; }).length; }
+      function mcount(k) { return manchors.filter(function (a) { return gkey(a) === k; }).length; }
 
-      /* length filter chips — only when the grid actually spans groups */
-      if (keys.length > 1) {
+      /* length (or config) filter chips — only when the grid actually spans groups */
+      if (fkeys.length > 1) {
         var bar = document.createElement('div');
         bar.className = 'pfilter';
         function chip(label, key, on) {
@@ -576,8 +603,7 @@
             bar.querySelectorAll('.optchip').forEach(function (x) { x.classList.remove('on'); });
             c.classList.add('on');
             anchors.forEach(function (a) {
-              var k = a.dataset.len || 'x';
-              a.classList.toggle('pfhide', key !== 'all' && k !== key);
+              a.classList.toggle('pfhide', key !== 'all' && gkey(a) !== key);
             });
             mKey = key;
             applyPhone();
@@ -586,8 +612,8 @@
           return c;
         }
         bar.appendChild(chip('All &#183; ' + count(anchors.length, manchors.length), 'all', true));
-        keys.forEach(function (k) {
-          var label = (k === 'x' ? 'Unlisted' : k + '-Foot') + ' &#183; ' + count(groups[k].length, mcount(k));
+        fkeys.forEach(function (k) {
+          var label = (k === 'x' ? 'Unlisted' : BYCFG ? k : k + '-Foot') + ' &#183; ' + count(fgroups[k].length, mcount(k));
           bar.appendChild(chip(label, k, false));
         });
         grid.parentNode.insertBefore(bar, grid);
@@ -606,7 +632,7 @@
           if (!a) return;
           e.preventDefault();
           e.stopPropagation();                     /* not the page-wide grid handler */
-          openLb(a, false, manchors.filter(function (x) { return x.dataset.len === a.dataset.len; }));
+          openLb(a, false, manchors.filter(function (x) { return gkey(x) === gkey(a); }));
         });
         applyPhone();
       }
@@ -621,7 +647,7 @@
            therefore ONE length card (uses its WB_COVERS thumb; mc-single caps it
            to a normal card size). Only fall back to grouping by config/all when
            there is NO length metadata at all. */
-        if (realLens.length < 1) {
+        if (realLens.length < 1 || BYCFG) {
           var gc = {}, kc = [];
           anchors.forEach(function (a) {
             var c = a.dataset.cfg || 'All builds';
@@ -636,6 +662,11 @@
           (document.querySelector('.pagemast h1') || {}).textContent || 'Wooldridge';
 
         function shortCfg(c) { return c === 'Center Console' ? 'Console' : c; }
+        function hullLine(list) {
+          var hulls = [];
+          list.forEach(function (a) { var h = a.dataset.hull; if (h && hulls.indexOf(h) === -1) hulls.push(h); });
+          return hulls.length ? 'Hull #' + hulls.join(' & #') : '';
+        }
         function cfgLine(list) {
           var seen = {}, names = [];
           list.forEach(function (a) {
@@ -646,9 +677,8 @@
             /* no-config gallery: a page can opt in (window.WB_CARD_HULL) to show the hull #
                instead of "<Model> builds" (Canyon, Tyler 2026-10-06; other models unchanged) */
             if (window.WB_CARD_HULL) {
-              var hulls = [];
-              list.forEach(function (a) { var h = a.dataset.hull; if (h && hulls.indexOf(h) === -1) hulls.push(h); });
-              if (hulls.length) return 'Hull #' + hulls.join(' & #');
+              var hl = hullLine(list);
+              if (hl) return hl;
             }
             return modelName + ' builds';
           }
@@ -679,7 +709,7 @@
         slot.appendChild(head);
 
         var cards = document.createElement('div');
-        cards.className = 'modelcards';
+        cards.className = (BYCFG && by === 'config') ? 'agcards' : 'modelcards';   /* per-config cards use the Agency page's 2-across layout */
         slot.appendChild(cards);
 
         ks.forEach(function (k) {
@@ -690,6 +720,12 @@
             title = (k === 'x' ? '' : k + '&#8242; ') + modelName +
               (k === 'x' ? ' &#8212; more shots' : '');
             sub = cfgLine(list);
+          } else if (by === 'config' && BYCFG) {
+            /* "33' Deepwater Angler" / "Hull #3981" (the blue title above says ANGLER) */
+            var lensIn = [];
+            list.forEach(function (a) { var L = a.dataset.len; if (L && lensIn.indexOf(L) === -1) lensIn.push(L); });
+            title = (lensIn.length === 1 ? lensIn[0] + '&#8242; ' : '') + modelName + ' ' + shortCfg(k);
+            sub = hullLine(list) || modelName;
           } else if (by === 'config') {
             title = shortCfg(k);
             sub = modelName;
@@ -706,7 +742,7 @@
           var card = document.createElement('button');
           card.type = 'button';
           card.className = 'mcard';
-          var mset = mobileSet(slug, k);
+          var mset = (by === 'config' && BYCFG) ? mobileItemsCfg(slug, k) : mobileItems(slug, k);
           var badge = (mset && mset.length && mset.length !== list.length)
             ? '<span class="mcbadge"><span class="wbd">' + list.length + ' photos</span><span class="wbm">' + mset.length + ' photos</span></span>'
             : '<span class="mcbadge">' + list.length + ' photo' + (list.length === 1 ? '' : 's') + '</span>';
@@ -721,10 +757,20 @@
             '<span class="mcmeta"><b>' + title + '</b><span>' + sub + '</span></span>';
           /* phones (<=700px) open this length's independent mobile set; desktop opens the desktop anchors */
           card.addEventListener('click', function () {
-            if (mqMobile.matches && mset && mset.length) { var ma = mobileAnchors(list[0], slug, k); openLb(ma[0], false, ma); }
+            if (mqMobile.matches && mset && mset.length) { var ma = anchorsFrom(list[0], slug, mset); openLb(ma[0], false, ma); }
             else openLb(list[0], false, list);
           });
-          cards.appendChild(card);
+          if (BYCFG && by === 'config') {
+            /* Agency-style cell: the config as a blue Rockwell caps title over its card */
+            var cell = document.createElement('div');
+            cell.className = 'agcell';
+            var ttl = document.createElement('h2');
+            ttl.className = 'agtitle';
+            ttl.textContent = k;
+            cell.appendChild(ttl);
+            cell.appendChild(card);
+            cards.appendChild(cell);
+          } else cards.appendChild(card);
         });
 
         /* a lone group would otherwise stretch full-width (grid-auto-columns:1fr);

@@ -33,8 +33,9 @@ plain English.
 - Kick line: `OFFSHORE · CUSTOM QUOTED · <span class="klgcy">LEGACY MODEL</span>` (Legacy goes AFTER Custom Quoted).
 - Two videos side by side like Sportster (`.vid2`): Charter `riE_upVU_ak` (left) + Explorer `m4ehkABeqEg`
   (right). The Explorer has no full-size YouTube thumbnail (maxres 404s), so on 2026-10-07 Tyler
-  supplied one: `assets/video-thumbs/deepwater-explorer.jpg` (1280×720, mozjpeg q82). The Charter
-  still uses YouTube's own maxres thumbnail.
+  supplied one: `assets/video-thumbs/deepwater-explorer.jpg`, used EXACTLY as he sent it (1920×1080,
+  no re-compression; the link carries `?v=3` to beat Cloudflare's cache). The Charter still uses YouTube's
+  own maxres thumbnail.
 - Feature sub-headings follow the MAIN models (Alaskan XL IB), all 5: Hull & Structure, Fuel System,
   Interior & Exterior Features, Power & Performance, Helm & Electrical. (Not the 4-heading outboard pages.)
 
@@ -70,9 +71,32 @@ also has spec sheets: `wp-content/uploads/2020/01/2020-33-DEEPWATER-CENTER-PILOT
    "One SHOXS 6300 upholstered suspension" finished as "…suspension seat for captain" (from the live page).
 5. **Intro text** is still the generic series blurb ("sportfishing, expedition cruising, or working duty").
    Offer a Charter-specific intro from the brochure text.
-6. **Photos ("Model Ready", folder not there yet):** add `['deepwater','Deepwater Series','Offshore',[33],undef]`
-   to `@MODELS` (check the display/caption name with Tyler: "Deepwater Series" vs "Deepwater Charter"); do the
-   bare-page inserts (§4 below); ask about `WB_CARD_HULL`; centre the 2nd intro paragraph once the hero is in.
+6. ~~Photos~~ DONE 2026-10-07, see below.
+
+**PHOTOS DONE (2026-10-07, "Model Ready", `DEEPWATER-WEB`):** two 33′ boats built for different purposes:
+**Angler** (hull 3981: 48 desktop / 48 phone) and **Explorer** (hull 3832: 37 desktop / 38 phone).
+- **Captions** (Tyler): "33′ Deepwater · Explorer · Hull #3832". Caption name is **"Deepwater"** (`@MODELS`
+  `['deepwater','Deepwater','Offshore',[33],33]`); the page title stays "Deepwater Series".
+- **New trims** `explorer` / `angler` in all 4 scripts. Tyler's files put the trim AFTER the model name
+  (`NN-3981-33-DEEPWATER-ANGLER.jpg`), so the parsers now fall back to the first known trim further along.
+- **Lengths up to 39′** in all 4 scripts (they stopped at 32).
+- **One gallery card PER BOAT** (Tyler: "same length but built for very different purposes"), Agency-style
+  with a blue Rockwell title (ANGLER / EXPLORER) above each: page switch `<script>window.WB_CARDS_BY='cfg';</script>`
+  + build with **`BYCFG=1`** (covers `cover-33-angler.jpg` / `cover-33-explorer.jpg`, WB_COVERS keyed by
+  "Angler"/"Explorer"). Card text "33′ Deepwater Angler / Hull #3981". The bottom grid's chips are All /
+  Angler / Explorer, and taps (phone grid too) stay inside one boat.
+- **Hero slider** like the Agency page (`assets/hero-slider.js`), hand-written in the page: 01 Angler
+  `hero-3981-33-angler.jpg`, 02 Explorer `hero-3832-33-explorer.jpg`. Tyler's numbered heroes
+  `01-HERO-…`/`02-HERO-…` are all copied by the builder; the first is `thumbs/hero.jpg`. The builder's
+  single-hero rewrite leaves the slider alone.
+- **Layout:** slider → intro (2nd paragraph centred) → gallery cards → Brochure/Quote buttons (Tyler: buttons
+  BELOW the galleries, like Canyon) → videos → specs slot → Photo gallery → fine print.
+- **Rebuild:** `BYCFG=1 _build/apply_model_photos.sh deepwater "Deepwater" "<…/DEEPWATER-WEB>"`.
+- **Checker now covers the phone folders** (2026-10-07): a double #19 in the Angler phone folder had slipped
+  past. Duplicates that would overwrite each other and leftover `-1` copies are errors. Tell Tyler which
+  files aren't right; he or I fix them (never a "b" suffix).
+- No LM tokens on the files, so no gold Legacy tags on the cards, captions or hero (only the kick line).
+- **Still open:** the spec table (item 1); the intro text (item 5); Tyler's message had a cut-off "Use the ." (ask).
 
 ---
 

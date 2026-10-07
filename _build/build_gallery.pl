@@ -33,11 +33,12 @@ my @MODELS = (
   ['sportoffshore',           'Sport Offshore',             'Offshore',     [18,20],    undef],
   ['super-sport-offshore',    'Super Sport Offshore',       'Offshore',     [20,21,23,26], undef],
   ['canyon',                  'Canyon',                     'Inboard Jet',  [21,23,25,27], undef],   # custom build / Legacy Model; galleries are 23/24/26 (all LM)
+  ['deepwater',               'Deepwater',                  'Offshore',     [33],       33],      # custom build; 33' Angler + 33' Explorer, one gallery card per boat (WB_CARDS_BY='cfg')
   ['landing-craft',           'Landing Craft',              'Specialty Workboat', [],   undef],
   ['agency-lc29',             "29' LC — In The Shop",       'Agency Build', [29],       29],
 );
 
-my %CFG  = ('cc','Center Console','ws','Windshield','tiller','Tiller','aft-ws','Aft Windshield','cabin','Cabin','pybus','Pybus','first-responder','First Responder');
+my %CFG  = ('cc','Center Console','ws','Windshield','tiller','Tiller','aft-ws','Aft Windshield','cabin','Cabin','pybus','Pybus','first-responder','First Responder','explorer','Explorer','angler','Angler');
 my %SHOT = ('product','Product','photo','Field','water','On the water','delivery','Delivery','finish','Finish work','build','In the shop');
 
 sub parse_file {
@@ -51,7 +52,7 @@ sub parse_file {
   elsif (@toks && $toks[0] =~ /^y?20\d\d$/) { ($year = shift @toks) =~ s/^y//; }
   my ($len, @rest);
   for my $t (@toks) {
-    if (!defined $len && $t =~ /^(1[4-9]|2[0-9]|3[0-2])$/) { $len = 0 + $t; }
+    if (!defined $len && $t =~ /^(1[4-9]|2[0-9]|3[0-9])$/) { $len = 0 + $t; }   # 14..39 (33' Deepwater, 2026-10-07)
     else { push @rest, $t; }
   }
   my $joined = join('-', @rest);

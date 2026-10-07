@@ -21,6 +21,13 @@
 # figcaption + WB_COVERS -> repoint homepage fleet card + compare thumb to the
 # hero -> regen provenance -> build_gallery.pl + stamp_assets.pl. Prints a
 # verification checklist.
+#
+# BYCFG=1 (Deepwater, 2026-10-07): two boats of the SAME length built for different
+# purposes (33' Angler + 33' Explorer). Covers become cover-<L>-<cfg>.jpg and
+# WB_COVERS is keyed by the config name ("Angler") instead of the length; pair it
+# with window.WB_CARDS_BY='cfg' on the page so gallery.js makes one card per boat.
+# Several numbered heroes (01-HERO-..., 02-HERO-...) are all copied for a hand-written
+# hero slider; the first one is the card thumb (thumbs/hero.jpg).
 # ------------------------------------------------------------------------------
 set -uo pipefail
 
@@ -46,7 +53,7 @@ if [ -x "$REPO/_build/check_model_photos.sh" ]; then
   else rm -f /tmp/pf.$$; say "pre-flight: PASS"; fi
 fi
 
-cfg_disp(){ case "$1" in ""|none)echo "";; cc)echo "Center Console";; ws)echo "Windshield";; tiller)echo "Tiller";; aft-ws)echo "Aft Windshield";; cabin)echo "Cabin";; pybus)echo "Pybus";; first-responder)echo "First Responder";; *)echo "?$1";; esac; }
+cfg_disp(){ case "$1" in ""|none)echo "";; cc)echo "Center Console";; ws)echo "Windshield";; tiller)echo "Tiller";; aft-ws)echo "Aft Windshield";; cabin)echo "Cabin";; pybus)echo "Pybus";; first-responder)echo "First Responder";; explorer)echo "Explorer";; angler)echo "Angler";; *)echo "?$1";; esac; }
 upper(){ printf '%s' "$1" | tr 'a-z' 'A-Z'; }
 
 # parse "NN-HULL-LEN-STYLE-..." -> "dest hull len cfg" (positional; hull optional)
@@ -61,7 +68,16 @@ parse_one(){
   else
     sl="$(printf %s "$style" | tr 'A-Z' 'a-z')"; nl="$(printf %s "$styn" | tr 'A-Z' 'a-z')"
     if [ "$sl" = "aft" ] && [ "$nl" = "ws" ]; then cfg=aft-ws   # two-token config "AFT-WS" -> Aft Windshield
-    else case "$sl" in cc)cfg=cc;; ws)cfg=ws;; tiller)cfg=tiller;; cabin)cfg=cabin;; pybus)cfg=pybus;; first-responder)cfg=first-responder;; *)cfg="?";; esac; fi
+    else case "$sl" in cc)cfg=cc;; ws)cfg=ws;; tiller)cfg=tiller;; cabin)cfg=cabin;; pybus)cfg=pybus;; first-responder)cfg=first-responder;; explorer)cfg=explorer;; angler)cfg=angler;; *)cfg="?";; esac; fi
+    # trim AFTER the model name (NN-HULL-33-DEEPWATER-ANGLER): first known trim further on
+    if [ "$cfg" = "?" ]; then
+      local j tj; if [ -n "$hull" ]; then j=4; else j=3; fi
+      while [ "$j" -lt "${#t[@]}" ]; do
+        tj="$(printf %s "${t[$j]}" | tr 'A-Z' 'a-z')"
+        case "$tj" in cc|ws|tiller|cabin|pybus|explorer|angler) cfg="$tj"; break;; esac
+        j=$((j+1))
+      done
+    fi
   fi
   local legacy=0; case "-$(printf %s "$stem" | tr 'a-z' 'A-Z')-" in *-LM-*) legacy=1;; esac   # "LM" token (after cfg, before model name) = Legacy Model
   local nn2; nn2="$(printf '%02d' "$((10#$nn))")"
@@ -72,7 +88,7 @@ parse_one(){
 
 # ---- 1) discover length subfolders (leading number) --------------------------
 LENDIRS=()
-for d in "$SRC"/*/; do bn="$(basename "$d")"; case "$(printf %s "$bn" | tr 'A-Z' 'a-z')" in *mobile*) continue;; esac; if printf '%s' "$bn" | grep -qE '^(1[4-9]|2[0-9]|3[0-2])'; then LENDIRS+=("$d"); fi; done
+for d in "$SRC"/*/; do bn="$(basename "$d")"; case "$(printf %s "$bn" | tr 'A-Z' 'a-z')" in *mobile*) continue;; esac; if printf '%s' "$bn" | grep -qE '^(1[4-9]|2[0-9]|3[0-9])'; then LENDIRS+=("$d"); fi; done
 [ "${#LENDIRS[@]}" -gt 0 ] || { echo "ERROR: no length subfolders in $SRC"; exit 1; }
 
 # ---- 2) assets: wipe + copy fulls/thumbs, build gallery HTML + covers list ----
@@ -89,12 +105,14 @@ while IFS= read -r _line; do LENDIRS_SORTED+=("${_line#*|}"); done < <(
 
 for d in "${LENDIRS_SORTED[@]}"; do
   L="$(basename "$d" | grep -oE '^[0-9]{2}')"
+  dircfg=""   # this folder's config (BYCFG covers are per config)
   # gallery photos in this length, sorted by filename (zero-padded order = numeric order)
   shopt -s nullglob
   for f in "$d"*.jpg; do
     case "$(basename "$f")" in GALLERY-THUMB*|GALLERY-thumb*|.*) continue;; esac
     read -r dest hull len cfg <<< "$(parse_one "$f")"
     [ "$cfg" = "?" ] && { echo "  SKIP unknown trim: $(basename "$f")"; continue; }
+    [ -z "$dircfg" ] && dircfg="$cfg"
     run "cp \"$f\" \"$DEST/$dest\""
     run "sips -s format jpeg -Z 800 \"$f\" --out \"$DEST/thumbs/$dest\" >/dev/null 2>&1"
     local_cd="$(cfg_disp "$cfg")"
@@ -106,18 +124,32 @@ for d in "${LENDIRS_SORTED[@]}"; do
   # cover for this length
   cov=""; for c in "$d"GALLERY-THUMB*.jpg "$d"GALLERY-thumb*.jpg; do [ -f "$c" ] && cov="$c" && break; done
   shopt -u nullglob
-  if [ -n "$cov" ]; then
+  if [ -n "$cov" ] && [ "${BYCFG:-0}" = 1 ] && [ -n "$dircfg" ]; then
+    # one cover per CONFIG (same-length boats, e.g. Deepwater Angler + Explorer), keyed by its display name
+    run "sips -s format jpeg -Z 800 \"$cov\" --out \"$DEST/thumbs/cover-$L-$dircfg.jpg\" >/dev/null 2>&1"
+    COVERKEYS="$COVERKEYS\"$(cfg_disp "$dircfg")\":\"../../assets/photos/$PSLUG/thumbs/cover-$L-$dircfg.jpg\","
+  elif [ -n "$cov" ]; then
     run "sips -s format jpeg -Z 800 \"$cov\" --out \"$DEST/thumbs/cover-$L.jpg\" >/dev/null 2>&1"
     COVERKEYS="$COVERKEYS\"$L\":\"../../assets/photos/$PSLUG/thumbs/cover-$L.jpg\","
   fi
 done
 
 # ---- 3) hero (full, NO thumb) + hero.jpg card thumb --------------------------
-shopt -s nullglob nocaseglob; HEROES=("$SRC"/HERO-*.jpg); shopt -u nocaseglob nullglob
+shopt -s nullglob nocaseglob; HEROES=("$SRC"/HERO-*.jpg "$SRC"/[0-9][0-9]-HERO-*.jpg); shopt -u nocaseglob nullglob   # NN-HERO-... = numbered slider heroes
 [ "${#HEROES[@]}" -gt 0 ] || { echo "ERROR: no HERO-*.jpg"; exit 1; }
 HERO="${HEROES[0]}"
+# several heroes = a hand-written hero SLIDER on the page (.modelhero.hslider). Copy every
+# one as hero-HULL-LEN[-cfg].jpg; the single-hero rewrite below leaves a slider alone.
+if [ "${#HEROES[@]}" -gt 1 ]; then
+  for hf in "${HEROES[@]:1}"; do
+    read -r _d sh sl sc <<< "$(parse_one "$(basename "$hf" | sed -E 's/^([0-9]{2}-)?HERO-/00-/')")"
+    if [ -n "$sc" ]; then sd="hero-${sh}-${sl}-${sc}.jpg"; else sd="hero-${sh}-${sl}.jpg"; fi
+    run "cp \"$hf\" \"$DEST/$sd\""
+    say "  slider hero: $sd  (from $(basename "$hf"))"
+  done
+fi
 HLEGACY=0; case "-$(basename "$HERO" | tr 'a-z' 'A-Z')-" in *-LM-*) HLEGACY=1;; esac   # LM token in the hero name -> Legacy Model build -> gold tag in the hero header
-read -r hdest hhull hlen hcfg <<< "$(parse_one "$(basename "$HERO" | sed 's/^HERO-/00-/')")"   # reuse parser (fake order 00)
+read -r hdest hhull hlen hcfg <<< "$(parse_one "$(basename "$HERO" | sed -E 's/^([0-9]{2}-)?HERO-/00-/')")"   # reuse parser (fake order 00)
 if [ -n "$hcfg" ]; then HERODEST="hero-${hhull}-${hlen}-${hcfg}.jpg"; else HERODEST="hero-${hhull}-${hlen}.jpg"; fi
 run "cp \"$HERO\" \"$DEST/$HERODEST\""
 run "sips -s format jpeg -Z 800 \"$HERO\" --out \"$DEST/thumbs/hero.jpg\" >/dev/null 2>&1"
@@ -145,7 +177,7 @@ my $altcfg = ($E{HCFG_DISP} ne '') ? " $E{HCFG_DISP}" : '';   # no-config models
 my $capcfg = ($E{HCFG_UP}   ne '') ? " $E{HCFG_UP}"   : '';
 my $hlgcy  = $E{HLEGACY} ? qq{<span class="hlgcy">Legacy Model</span> &#183; } : '';   # gold Legacy Model tag when the hero is an LM build (right-aligned group with the hull)
 my $hero=qq{<figure class="modelhero"><img src="../../assets/photos/$slug/$E{HERODEST}" alt="$model &#8212; $E{HLEN}&#8242;$altcfg, Hull $E{HHULL}"><figcaption>$E{MODEL_UP} &#8212; $E{HLEN}&#8242;$capcfg<span class="ref">${hlgcy}HULL #$E{HHULL}</span></figcaption></figure>};
-$h =~ s{<figure class="modelhero">.*?</figure>}{$hero}s or warn "  (no modelhero figure found)\n";
+$h =~ s{<figure class="modelhero">.*?</figure>}{$hero}s or warn "  (no single-hero figure found - a hero slider page keeps its hand-written slides)\n";
 # gallery block
 my $block=qq{<div class="gallery captioned">\n$gal\n        </div>};
 $h =~ s{<div class="gallery(?: captioned)?">.*?</div>}{$block}s or warn "  (no gallery block found)\n";

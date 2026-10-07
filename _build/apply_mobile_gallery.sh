@@ -34,7 +34,7 @@ DEST="$REPO/assets/photos/$PSLUG/mobile"
 MOBQ="${MOBQ:-75}"   # mozjpeg quality for the full portraits (keep-smaller: never enlarges, no visible loss on a phone)
 HAVE_MOZ=0; command -v cjpeg >/dev/null 2>&1 && command -v djpeg >/dev/null 2>&1 && HAVE_MOZ=1
 run(){ if [ "$DRY" = 1 ]; then echo "  [dry] $*"; else eval "$*"; fi; }
-cfg_disp(){ case "$1" in cc)echo "Center Console";; ws)echo "Windshield";; tiller)echo "Tiller";; aft-ws)echo "Aft Windshield";; cabin)echo "Cabin";; pybus)echo "Pybus";; first-responder)echo "First Responder";; *)echo "$1";; esac; }
+cfg_disp(){ case "$1" in cc)echo "Center Console";; ws)echo "Windshield";; tiller)echo "Tiller";; aft-ws)echo "Aft Windshield";; cabin)echo "Cabin";; pybus)echo "Pybus";; first-responder)echo "First Responder";; explorer)echo "Explorer";; angler)echo "Angler";; *)echo "$1";; esac; }
 
 # parse "NN-HULL-LEN-STYLE-..." -> echo "dest len cfgcode hull nn" (positional; hull optional)
 parse_row(){
@@ -48,7 +48,16 @@ parse_row(){
   else
     sl="$(printf %s "$style"|tr 'A-Z' 'a-z')"; nl="$(printf %s "$styn"|tr 'A-Z' 'a-z')"
     if [ "$sl" = "aft" ] && [ "$nl" = "ws" ]; then cfg=aft-ws
-    else case "$sl" in cc)cfg=cc;; ws)cfg=ws;; tiller)cfg=tiller;; cabin)cfg=cabin;; pybus)cfg=pybus;; first-responder)cfg=first-responder;; *)cfg="?";; esac; fi
+    else case "$sl" in cc)cfg=cc;; ws)cfg=ws;; tiller)cfg=tiller;; cabin)cfg=cabin;; pybus)cfg=pybus;; first-responder)cfg=first-responder;; explorer)cfg=explorer;; angler)cfg=angler;; *)cfg="?";; esac; fi
+    # trim AFTER the model name (NN-HULL-33-DEEPWATER-ANGLER-MOBILE): first known trim further on
+    if [ "$cfg" = "?" ]; then
+      local j tj; if [ -n "$hull" ]; then j=4; else j=3; fi
+      while [ "$j" -lt "${#t[@]}" ]; do
+        tj="$(printf %s "${t[$j]}"|tr 'A-Z' 'a-z')"
+        case "$tj" in cc|ws|tiller|cabin|pybus|explorer|angler) cfg="$tj"; break;; esac
+        j=$((j+1))
+      done
+    fi
   fi
   local legacy=0; case "-$(printf %s "$stem"|tr 'a-z' 'A-Z')-" in *-LM-*) legacy=1;; esac   # "LM" token anywhere = Legacy Model
   local nn2; nn2="$(printf '%02d' "$((10#$nn))")"
@@ -80,16 +89,22 @@ for d in "$SRC"/*/; do bn="$(basename "$d")"; case "$(printf %s "$bn"|tr 'A-Z' '
 echo "mobile gallery: $SLUG  <-  $(basename "$SRC")  (${#MOBDIRS[@]} folder(s))"
 [ "$HAVE_MOZ" = 1 ] && echo "  optimizing fulls: mozjpeg -quality $MOBQ (keep-smaller)" || echo "  (mozjpeg/cjpeg not found — fulls copied as-is)"
 run "rm -rf \"$DEST\"; mkdir -p \"$DEST/thumbs\""
-MAN="$(mktemp)"; n=0; skipped=0
+MAN="$(mktemp)"; n=0; skipped=0; fi=0; used=" "
 shopt -s nullglob
 for d in "${MOBDIRS[@]}"; do
+  fi=$((fi+1))   # folder index: two folders of one length (Deepwater Angler + Explorer) stay grouped, not interleaved
   for f in "$d"*.jpg; do
     case "$(basename "$f")" in GALLERY-THUMB*|GALLERY-thumb*|.*) continue;; esac
     IFS='|' read -r dest len cfg hull nn legacy <<< "$(parse_row "$f")"
     [ "$cfg" = "?" ] && { echo "  SKIP unknown trim: $(basename "$f")"; skipped=$((skipped+1)); continue; }
+    # same order# + hull + length + trim = same site name: the second would overwrite the
+    # first. Don't work around it (Tyler, 2026-10-07): skip it LOUDLY so the master gets
+    # renamed. check_model_photos.sh catches this before a Model Ready build.
+    case "$used" in *" $dest "*) echo "  ✗ DUPLICATE order #$nn: $(basename "$f") would overwrite $dest — NOT copied; renumber it in the master and re-run"; skipped=$((skipped+1)); continue;; esac
+    used="$used$dest "
     if [ "$DRY" = 1 ]; then echo "  [dry] optimize+copy $(basename "$f") -> $dest"; else opt_full "$f" "$DEST/$dest"; fi
     run "sips -s format jpeg -Z 400 \"$f\" --out \"$DEST/thumbs/$dest\" >/dev/null 2>&1"
-    printf '%s\t%s\t%s\t%s\n' "$len" "$nn" "$dest" "$(cfg_disp "$cfg")|$hull|$legacy" >> "$MAN"
+    printf '%s\t%s\t%s\t%s\t%s\n' "$len" "$fi" "$nn" "$dest" "$(cfg_disp "$cfg")|$hull|$legacy" >> "$MAN"
     n=$((n+1))
   done
 done
@@ -114,13 +129,13 @@ fi
 SLUG="$PSLUG" MAN="$MAN" perl - "$PAGE" <<'PERL'
 use strict; use warnings; my $page=shift;
 open my $m,'<',$ENV{MAN} or die $!; my %by;
-while(<$m>){ chomp; my ($len,$nn,$f,$rest)=split /\t/; my ($cfg,$hull,$leg)=split /\|/, ($rest//''), 3;
-  push @{$by{$len}}, [$nn+0,$f,$cfg//'',$hull//'',$leg//0]; }
+while(<$m>){ chomp; my ($len,$fi,$nn,$f,$rest)=split /\t/; my ($cfg,$hull,$leg)=split /\|/, ($rest//''), 3;
+  push @{$by{$len}}, [$nn+0,$f,$cfg//'',$hull//'',$leg//0,$fi+0]; }
 close $m;
 my @lens = sort { $a <=> $b } keys %by;
 my @lp;
 for my $L (@lens){
-  my @rows = sort { $a->[0] <=> $b->[0] } @{$by{$L}};
+  my @rows = sort { $a->[5] <=> $b->[5] || $a->[0] <=> $b->[0] || $a->[1] cmp $b->[1] } @{$by{$L}};   # folder, then order#, then name (19 before 19b)
   my @objs = map { '{"f":"'.$_->[1].'","cfg":"'.$_->[2].'","hull":"'.$_->[3].'"'.($_->[4] ? ',"legacy":1' : '').'}' } @rows;
   push @lp, '"'.$L.'":['.join(',',@objs).']';
 }
