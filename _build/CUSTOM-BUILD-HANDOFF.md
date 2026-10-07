@@ -39,8 +39,13 @@ plain English.
 
 **Done:** kick label; Brochure + Start a Quote plates (`assets/docs/DEEPWATER-CHARTER_Brochure_2024.pdf`, a copy
 of SALES TOOLS `BROCHURES/DEEPWATER CHARTER OB-BROCHURE-DIGITAL.pdf`, chmod 644); the two videos; empty
-`<!-- SPECS:deepwater -->` markers after the videos; Charter Features (66 lines from the brochure,
-13/4/24/2/23). Checked at 1440 + 390: no sideways scroll, 0 broken images, 0 console errors.
+`<!-- SPECS:deepwater -->` markers after the videos. Checked at 1440 + 390: no sideways scroll, 0 broken
+images, 0 console errors. Tyler committed this as `e43d7cbb`.
+
+**Charter Features REMOVED (Tyler, 2026-10-07):** "take the Charter Standard features off the Deepwater page
+for now." Don't add a features section back until he asks. The 66-line list (5 headings, 13/4/24/2/23) is
+saved in commit `e43d7cbb` (`git show e43d7cbb:models/deepwater/index.html`) if he wants it again. Open
+questions 2–4 below only matter if it comes back.
 
 **Sources:** the SALES TOOLS Charter brochure (above) and the live www page `/models/deepwater/`, which is a
 3-version series (Charter / Explorer / Angler, each with its own feature list, plus test results for twin
