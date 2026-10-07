@@ -34,6 +34,7 @@ my @MODELS = (
   ['super-sport-offshore',    'Super Sport Offshore',       'Offshore',     [20,21,23,26], undef],
   ['canyon',                  'Canyon',                     'Inboard Jet',  [21,23,25,27], undef],   # custom build / Legacy Model; galleries are 23/24/26 (all LM)
   ['deepwater',               'Deepwater',                  'Offshore',     [33],       33],      # custom build; 33' Angler + 33' Explorer, one gallery card per boat (WB_CARDS_BY='cfg')
+  ['riverrat-diy-kit',        'River Rat DIY Kit',          'Kit',          [],         undef],   # custom DIY kit: no length / hull / config, one gallery (build_riverrat.sh)
   ['landing-craft',           'Landing Craft',              'Specialty Workboat', [],   undef],
   ['agency-lc29',             "29' LC — In The Shop",       'Agency Build', [29],       29],
 );

@@ -202,3 +202,15 @@ also has spec sheets: `wp-content/uploads/2020/01/2020-33-DEEPWATER-CENTER-PILOT
   sportster, supersportdrifter, xlt. Re-run their Model Ready (or
   `apply_mobile_gallery.sh <slug> "<SRC>"`), and the phone grid turns on by itself.
 - **Agency & Work Boats:** its own handoff is `_build/AGENCY-READY-HANDOFF.md`.
+
+## RIVER RAT DIY KIT (done 2026-10-07, `models/riverrat-diy-kit/`)
+Minimal custom page (Tyler): one gallery, no length, no hull #, no configuration, no specs or standard
+features, video section removed. "Just a few photos to show kits customers have built."
+- Master `…/MASTER-WEBSITE PHOTOS/RIVER RAT-WEB/`: `HERO-RIVER RAT.jpg`, `RIVER RAT/NN-RIVER RAT.jpg` + `GALLERY-THUMB-RIVER RAT.jpg`,
+  `RIVER RAT-MOBILE/NN-RIVER RAT-MOBILE.jpg`.
+- **Build: `_build/build_riverrat.sh`.** The standard Model Ready needs a length on every photo, so it can't do this
+  one. Re-run it whenever Tyler adds photos: it rebuilds `assets/photos/riverrat-diy-kit/` (riverrat-NN.jpg, phone
+  photos copied as-is), the page's gallery block, WB_COVERS + WB_MOBILE (keyed "all"), provenance, photo-data, stamps.
+- **gallery.js no-length support:** WB_MOBILE key "all" feeds the card + phone grid. There's no "′" when a photo has no
+  length, and `window.WB_CARD_SUB='Customer builds'` sets the card's second line. The viewer caption is just "River Rat DIY Kit".
+- Hero strip: "RIVER RAT — DIY KIT" / "CUSTOMER BUILD". The card sits above the Start a Quote button.

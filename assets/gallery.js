@@ -110,7 +110,7 @@
       var p = it.p, len = it.len;
       var a = document.createElement('a');
       a.setAttribute('href', dir + 'mobile/' + p.f);
-      a.dataset.len = len; a.dataset.cfg = p.cfg || ''; a.dataset.hull = p.hull || ''; a.dataset.m = name; a.dataset.slug = slug;
+      a.dataset.len = /^\d+$/.test(len) ? len : ''; a.dataset.cfg = p.cfg || '';   /* "all" = no-length model (River Rat kit) */ a.dataset.hull = p.hull || ''; a.dataset.m = name; a.dataset.slug = slug;
       if (p.legacy) a.dataset.legacy = '1';
       var img = document.createElement('img'); img.src = dir + 'mobile/thumbs/' + p.f; img.alt = '';
       a.appendChild(img);
@@ -566,14 +566,17 @@
         mgrid = document.createElement('div');
         mgrid.className = 'gallery captioned mgrid';
         keys.forEach(function (k) {
-          if (k === 'x' || !mobileSet(slug, k)) return;
-          mobileAnchors(groups[k][0], slug, k).forEach(function (a) {
+          var mk = k === 'x' ? 'all' : k;   /* a model with no lengths (River Rat kit, 2026-10-07) keys its phone set "all" */
+          if (!mobileSet(slug, mk)) return;
+          var lenTxt = k === 'x' ? '' : k + '&#8242;';
+          mobileAnchors(groups[k][0], slug, mk).forEach(function (a) {
             var img = a.querySelector('img'), c = a.dataset.cfg, h = a.dataset.hull;
             img.loading = 'lazy';
-            img.alt = k + "' " + mname + (c ? ' — ' + c : '') + (h ? ' — hull ' + h : '');
+            img.alt = (k === 'x' ? '' : k + "' ") + mname + (c ? ' — ' + c : '') + (h ? ' — hull ' + h : '');
             var cap = document.createElement('span');
             cap.className = 'gcap';
-            cap.innerHTML = '<b>' + k + '&#8242;' + (c ? ' ' + c : '') + '</b>' + mname;
+            var lead = lenTxt + (c ? (lenTxt ? ' ' : '') + c : '');
+            cap.innerHTML = lead ? '<b>' + lead + '</b>' + mname : '<b>' + mname + '</b>';
             a.appendChild(cap);
             mgrid.appendChild(a);
             manchors.push(a);
@@ -734,6 +737,7 @@
               var hl = hullLine(list);
               if (hl) return hl;
             }
+            if (window.WB_CARD_SUB) return window.WB_CARD_SUB;   /* page's own line, e.g. River Rat "Customer builds" */
             return modelName + ' builds';
           }
           if (names.length === 1) return names[0];
