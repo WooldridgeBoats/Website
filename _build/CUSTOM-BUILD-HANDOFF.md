@@ -32,8 +32,9 @@ plain English.
 - Name stays **"Deepwater Series"** (menu + homepage card unchanged).
 - Kick line: `OFFSHORE · CUSTOM QUOTED · <span class="klgcy">LEGACY MODEL</span>` (Legacy goes AFTER Custom Quoted).
 - Two videos side by side like Sportster (`.vid2`): Charter `riE_upVU_ak` (left) + Explorer `m4ehkABeqEg`
-  (right). The Explorer has no full-size YouTube thumbnail (maxres 404s), so it uses the 480×360
-  `hqdefault`. Tyler may supply his own thumbnails for `assets/video-thumbs/`.
+  (right). The Explorer has no full-size YouTube thumbnail (maxres 404s), so on 2026-10-07 Tyler
+  supplied one: `assets/video-thumbs/deepwater-explorer.jpg` (1280×720, mozjpeg q82). The Charter
+  still uses YouTube's own maxres thumbnail.
 - Feature sub-headings follow the MAIN models (Alaskan XL IB), all 5: Hull & Structure, Fuel System,
   Interior & Exterior Features, Power & Performance, Helm & Electrical. (Not the 4-heading outboard pages.)
 
