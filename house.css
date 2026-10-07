@@ -2470,10 +2470,10 @@ html.blueprint body{ background:transparent; }
 @media (hover:hover){ .wb-nudge-tab:hover{ opacity:1; } }
 /* Phones: 70%. */
 @media (max-width:700px){ .wb-nudge-tab{ opacity:.7; } }
-/* After 10s on the site (tool-nudge.js adds .wb-corner-mini) the pill shrinks to
-   a small round "?" - click/tap it to open the card. Desktop AND phones (Tyler,
-   2026-10-07). The words stay in the button (font-size:0) so screen readers still
-   say "Not sure which boat?". 40px keeps it an easy tap. */
+/* After 10s on the site on a phone, 30s on desktop (tool-nudge.js adds
+   .wb-corner-mini), the pill shrinks to a small round "?" - click/tap it to open
+   the card (Tyler, 2026-10-07). The words stay in the button (font-size:0) so
+   screen readers still say "Not sure which boat?". 40px keeps it an easy tap. */
 .wb-corner-mini .wb-nudge-tab{
   width:40px; height:40px; padding:0; border-radius:50%; font-size:0;
   align-items:center; justify-content:center;

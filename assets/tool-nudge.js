@@ -29,22 +29,24 @@
  * collapses it back to a pill.
  *
  * It shrinks, per Tyler 2026-10-07 ("such a distracting button on the small
- * phone screen", then "both mobile and desktop", 10s): after 10s on the site
- * the pill becomes a small round "?" in the same corner, and tapping the "?"
- * opens the same card. The 10s is per VISIT, not per page: the first page
- * view's time sits in sessionStorage (cleared when the tab closes, so a new
- * visit gets the full pill again). The look is .wb-corner-mini in house.css.
+ * phone screen", then "both mobile and desktop"): after 10s on the site on a
+ * phone (700px and down), 30s on desktop, the pill becomes a small round "?"
+ * in the same corner, and tapping the "?" opens the same card. The clock is
+ * per VISIT, not per page: the first page view's time sits in sessionStorage
+ * (cleared when the tab closes, so a new visit gets the full pill again). The
+ * look is .wb-corner-mini in house.css.
  */
 (function () {
   'use strict';
 
   var DELAY = 1200;   // let the page settle first; an instant pill reads as a popup ad
-  var SHRINK_AFTER = 10000;   // pill -> small "?" after 10s on the site
+  var SHRINK_PHONE = 10000;     // pill -> small "?" after 10s on the site (700px and down)
+  var SHRINK_DESKTOP = 30000;   // ...and after 30s on desktop
 
   // When this visit started: the first page view's time, kept in
   // sessionStorage so the clock runs across pages. Falls back to this page's
   // load time if storage is blocked (private mode), which just restarts the
-  // 10s per page.
+  // clock per page.
   function visitStart() {
     var now = Date.now();
     try {
@@ -178,9 +180,10 @@
       for (var i = 0; i < widgets.length; i++) widgets[i].collapse();
     });
 
-    // shrink to the "?" once the visit is 10s old (straight away if it
-    // already is, so later pages open with the "?")
-    var wait = SHRINK_AFTER - (Date.now() - T0);
+    // shrink to the "?" once the visit is 10s old on a phone, 30s on desktop
+    // (straight away if it already is, so later pages open with the "?")
+    var after = window.matchMedia('(max-width:700px)').matches ? SHRINK_PHONE : SHRINK_DESKTOP;
+    var wait = after - (Date.now() - T0);
     function shrink() { corner.classList.add('wb-corner-mini'); }
     if (wait <= 0) shrink(); else window.setTimeout(shrink, wait);
 
