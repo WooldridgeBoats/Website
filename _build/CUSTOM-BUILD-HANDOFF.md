@@ -22,6 +22,13 @@ Fix my spelling; call me Bro; plain English.
 
 ---
 
+## NEXT UP (Monday 2026-10-12): keep building the Pybus Point Lodge page
+Done so far: name, kick line, fleet description, the lodge's two videos (all live once pushed).
+To do: Tyler sends the Pybus photo folder. The fleet is five 33′ Deepwaters, two 21′ Sport Offshores
+and three 20′ Sport center consoles, so ask how he wants the galleries split (one card per boat type
+is the likely fit, like the Agency page or Deepwater's WB_CARDS_BY), whether it gets a hero slider,
+and whether the tag line "Expedition-grade offshore hull, Alaska-proven." changes.
+
 ## Status (2026-10-08)
 
 | Page | Status | Notes |
