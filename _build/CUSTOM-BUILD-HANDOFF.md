@@ -17,8 +17,8 @@ I'll send a model's photo folder (OneDrive …/MASTER-WEBSITE PHOTOS/<MODEL>-WEB
 and tell you how that page should look. Custom pages are a mix of the Agency page and Canyon, and
 each one is a bit different, so don't force the main-model layout on them. Check my folder first and
 tell me which files aren't named right. Ask me before guessing. Check desktop 1440 + phone 390.
-LEAVE IT UNCOMMITTED: I commit + push in GitHub Desktop. Summary + Description only for new things
-or a wrap-up. Fix my spelling; call me Bro; plain English.
+When it's done and checked, COMMIT it and tell me when to push (I push in GitHub Desktop).
+Fix my spelling; call me Bro; plain English.
 
 ---
 
@@ -52,7 +52,8 @@ length, per boat, or one gallery? Hero or hero slider?
 - **Never guess** at specs, labels, names or videos: ask.
 - **Video thumbnails he supplies go in byte-for-byte** (no resizing or re-compressing). If one
   replaces a file already live, add `?v=N` to its `<img src>`.
-- **Leave work uncommitted.** He commits + pushes in GitHub Desktop.
+- **Commit, then tell him to push** (since 2026-10-08). Commit each finished, checked page on its own;
+  he pushes in GitHub Desktop. Never `git push`.
 - **Buttons sit BELOW the gallery cards** (`modelcards-slot` before `modelctas`), like Canyon.
 - **Center the 2nd+ intro paragraphs** (`.modelhero + p` only centers the first).
 - **Screenshots:** send them for new builds. Use the in-app browser or `_build/snap.swift`. NEVER headless Chrome.
@@ -63,7 +64,8 @@ length, per boat, or one gallery? Hero or hero slider?
   ONCE A DAY at 10:23 UTC (about 3 AM Pacific), so it shouldn't collide anymore; before that it ran hourly. If it pushes seconds before Tyler, GitHub Desktop errors with "newer commits on remote",
   he merges, and two cPanel deploys overlap. That left new pages with OLD `assets/`. Fix: a clean
   re-push, or cPanel → Git Version Control → Manage → Pull or Deploy → "Deploy HEAD Commit".
-  Before he pushes: `git fetch`, and if behind, `git pull --ff-only` (only with a clean tree).
+  Before telling him to push: `git fetch`, and if the bot pushed, `git pull --rebase` so our commits
+  sit on top (no merge commit, no overlapping deploys).
 - **Cloudflare keeps 404s for 4 hours** (the host sends max-age=14400 even on 404). Check live
   photo URLs with a unique `?nc=<time>` query, never the plain URL, while a deploy is running.
   Tell Tyler to wait for "it's live" before opening a new page. If stale files stick:

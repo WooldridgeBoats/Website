@@ -165,9 +165,9 @@ use read_page / javascript_tool geometry as the source of truth):
   centered as ONE group and hugs the image; Zoom↔Fit + magnify cursor work;
 - homepage: fleet card = hero, 0 broken images.
 
-Commit + push (Tyler drives the push):
+Commit, then tell Tyler to push (he pushes in GitHub Desktop; never `git push` from here):
 ```bash
-cd ~/Desktop/LOCAL-WEBSITE && git add -A && git commit -m "<Model>: 2026 photo set" && git push origin main
+cd ~/Desktop/LOCAL-WEBSITE && git add -A && git commit -m "<Model>: 2026 photo set"
 ```
 
 ---

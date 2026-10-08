@@ -27,9 +27,9 @@ folder(s) from OneDrive …/MASTER-WEBSITE PHOTOS/AGENCY-WORK-WEB/ (the X Drive 
 4. Check in the browser (desktop 1440 + phone 390): cover loads, the viewer count
    matches, the phone set opens. The local preview must be served from a scratchpad
    copy (see "Local preview" in the log). SEND me screenshots as files.
-5. LEAVE IT UNCOMMITTED; I commit and push in GitHub Desktop. Don't give me a Summary +
-   Description after every boat, only when it's something new (a new feature, layout
-   or rule) or when we're wrapping up for a new chat. After I push, check the live page
+5. COMMIT it when it's done and checked, then tell me when to push (I push in GitHub
+   Desktop). Before that, `git fetch` and `git pull --rebase` if the Instagram bot
+   pushed. After I push, check the live page
    (titles + every image URL = 200; never byte-compare the HTML, because Cloudflare
    rewrites the footer email).
 
@@ -179,9 +179,9 @@ To do: more 20-CC-SKAGIT missions as Tyler adds them. Once the galleries are don
 14 MB `assets/agency/` (the old case-study photos).
 
 ### Deploy + checking (gotchas that bit us)
-- Tyler commits AND pushes in GitHub Desktop. Leave work uncommitted. Give him a Summary +
-  Description only for something new or a wrap-up before a new chat, not after every
-  boat (Tyler, 2026-10-06). Never `git commit` / `git push` unless he asks.
+- Since 2026-10-08 I commit finished, checked work and tell Tyler when to push; he pushes
+  in GitHub Desktop. Never `git push`. (Before that he committed too and wanted work left
+  uncommitted.)
 - Push → cPanel deploy (`.cpanel.yml`). It copies `assets house.css favicon.ico` FIRST,
   then everything, so a page never goes live before its photos. (Before that fix a
   mid-deploy view cached 404s for 4h in Cloudflare + the browser.)

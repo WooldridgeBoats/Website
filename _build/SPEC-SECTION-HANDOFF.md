@@ -148,4 +148,4 @@ reconcile them into the final standard rather than duplicating.
 - Preview with `python3 -m http.server 8811`; verify with the browser pane (read_page / geometry /
   screenshots — geometry is source of truth when the pane is hidden).
 - Roll changes across ALL model pages consistently (the masthead `mp-tight` rollout is the template).
-- Commit + push is Tyler's to run.
+- Commit finished work, then tell Tyler when to push (he pushes; since 2026-10-08).
