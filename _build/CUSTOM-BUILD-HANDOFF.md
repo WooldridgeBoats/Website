@@ -6,9 +6,9 @@ file is the log the new chat reads: status, Tyler's rules, the toolbox, and how 
 ---
 
 Continuing the Wooldridge dev site (dev.wooldridgeboats.com) in ~/Desktop/LOCAL-WEBSITE: the
-CUSTOM BUILD pages. Canyon, Deepwater and River Rat are done and live. Still to do: SSO Angler
-(models/angler/), SSO Pilothouse (models/supersportoffshorepilothouse/), Pybus Offshore
-(models/pybus-offshore/) and Landing Craft (models/landing-craft/). FIRST read
+CUSTOM BUILD pages. Canyon, Deepwater, River Rat and Landing Craft are done. Still to do: SSO Angler
+(models/angler/), SSO Pilothouse (models/supersportoffshorepilothouse/) and Pybus Offshore
+(models/pybus-offshore/). FIRST read
 `_build/CUSTOM-BUILD-HANDOFF.md` and my memory notes `wooldridge-model-lineup`,
 `website-photo-replacement-workflow`, `model-ready-check-first`, `no-image-recompression`,
 `tyler-pushes-to-github`, `desktop-tcc-eperm` and `no-headless-chrome-app-management`.
@@ -32,10 +32,10 @@ Fix my spelling; call me Bro; plain English.
 | SSO Angler `models/angler/` | TO DO | Bare page (no photos), "video coming soon" block, a Build & Price button into the SSO configurator |
 | SSO Pilothouse `models/supersportoffshorepilothouse/` | TO DO | Bare page, REAL video `h6p-gE16A9s` "30' Wooldridge Super Sport Offshore Pilothouse", Build & Price button into the SSO configurator |
 | Pybus Offshore `models/pybus-offshore/` | TO DO | Bare page, "video coming soon" block |
-| Landing Craft `models/landing-craft/` | TO DO | Hero + gallery of 68 OLD placeholder photos (`5081-21-product-NNN.jpg`), "video coming soon" block, h1 "Landing Crafts" |
+| Landing Craft `models/landing-craft/` | DONE 2026-10-08 | Hero slider (24′ Cabin, 21′ CC), one card per length, per-length model names (LC-1292 / LC-1892) via `WB_LEN_NAME`. No video, no specs, no standard features |
 
-No master folders exist yet for the 4 to-do pages (MASTER-WEBSITE PHOTOS has CANYON-WEB,
-DEEPWATER-WEB, RIVER RAT-WEB plus the main models).
+No master folders exist yet for the 3 to-do pages (MASTER-WEBSITE PHOTOS has CANYON-WEB,
+DEEPWATER-WEB, RIVER RAT-WEB, LANDING CRAFT-WEB plus the main models).
 
 **Ask Tyler when each to-do page comes up:** Legacy Model label on the kick line? Keep, remove or
 "coming soon" the video (Pilothouse has a real one)? Keep the Build & Price button on Angler /
@@ -100,6 +100,8 @@ length, per boat, or one gallery? Hero or hero slider?
 - `window.WB_GRID_LEAD={d:{Angler:[1,2…]},m:{…}}`: those order #s lead the bottom grid (d = desktop,
   m = phone set) (Deepwater: on-water shots first; on phones, the ones without black bands).
 - `window.WB_CARD_SUB='Customer builds'`: the card's 2nd line for a no-trim, no-hull gallery (River Rat).
+- `window.WB_LEN_NAME={"21":"LC-1292",…}`: each length gets its own model name in the cover card title
+  and viewer caption, and the grid captions (desktop + phone) flip to "24′ LC-1892" over "Cabin" (Landing Craft).
 - WB_MOBILE keyed `"all"` = a no-length model's phone set (River Rat).
 
 **Hero slider:** `figure.modelhero.hslider` with `.hs-slide[data-cap][data-hull]` + `assets/hero-slider.js`
@@ -151,6 +153,21 @@ don't load and screenshots come out blank; check the DOM, or use `_build/snap.sw
 - Master `RIVER RAT-WEB/`: `HERO-RIVER RAT.jpg`, `RIVER RAT/NN-RIVER RAT.jpg` + GALLERY-THUMB,
   `RIVER RAT-MOBILE/NN-RIVER RAT-MOBILE.jpg`. Build: `_build/build_riverrat.sh` (re-run when photos are added).
 - Hero strip "RIVER RAT — DIY KIT" / "CUSTOMER BUILD"; card "River Rat DIY Kit / Customer builds".
+
+### Landing Craft (2026-10-08)
+- Tyler's calls: 2 lengths, a 21′ Center Console (hull 5081) and a 24′ Cabin (hull 4632); hero slider
+  like the Agency page (01 = 24′ Cabin, 02 = 21′ CC); video section removed; NO specs or standard
+  features ("super custom boats"). h1 stays "Landing Crafts", kick "WORKBOAT · CUSTOM QUOTED", no
+  Legacy label (not asked for). `@MODELS` lens is `[]`, so nothing auto-tags as legacy.
+- **Model names (Tyler, 2026-10-08):** each landing craft's MODEL NAME is `LC-NNNN` (the number is NOT the
+  hull): `NN-HULL-LEN-CFG-LC-1292.jpg` = LC-1292 (21′), `…-CABIN-LC-1892` = LC-1892 (24′). Hero caption:
+  "Landing Craft LC-1892 — 24′ Cabin". Photo captions: "24′ LC-1892 · Cabin · Hull #4632" (viewer),
+  "24′ LC-1892" over "Cabin" (cards + grid). The builder ignores tokens after the config, so the page
+  sets `WB_LEN_NAME` (see the switches).
+  The number sits after LC, so it can't be misread as a hull (hulls come right after NN, and 1xxx
+  isn't a hull pattern anyway).
+- Build: `_build/apply_model_photos.sh landing-craft "Landing Craft" "<…/LANDING CRAFT-WEB>"`. 30 + 26
+  desktop, 31 + 25 phone. The slider is hand-written; a re-run leaves it and `WB_LEN_NAME` alone.
 
 ## Other open threads
 - **Phone sets:** Tyler is making phone (-MOBILE) sets for the main models without them (alaskan-lt,

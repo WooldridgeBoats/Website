@@ -23,6 +23,11 @@
      title over each card), and the bottom grid's chips + phone taps split by config too.
      Every other page groups by length exactly as before. */
   var BYCFG = window.WB_CARDS_BY === 'cfg';
+  /* window.WB_LEN_NAME = {"21":"LC-1292", ...} (Landing Craft, Tyler 2026-10-08): each
+     length of the model has its own model name (LC-1292 / LC-1892), and the number is NOT the hull #. Captions,
+     cover cards and grid labels use it in place of the model name. Pages without it are unchanged. */
+  var LENNAME = window.WB_LEN_NAME || null;
+  function nameFor(len, fallback) { return (LENNAME && len && LENNAME[len]) || fallback; }
 
   /* ── nav height → CSS var (sticky toolbar offset) ─────────────────────── */
   var nav = document.querySelector('.nav');
@@ -42,11 +47,12 @@
     var loc = parseHref(a);
     var p = (loc && PHOTO[loc.slug]) ? PHOTO[loc.slug][loc.file] : null;
     var mdl = loc ? MODEL[loc.slug] : null;
+    var len = a.dataset.len || (p && p.len) || '';
     return {
       slug: loc ? loc.slug : (a.dataset.slug || ''),
       file: loc ? loc.file : '',
-      name: mdl ? mdl.name : (a.dataset.m || ''),
-      len: a.dataset.len || (p && p.len) || '',
+      name: nameFor(len, mdl ? mdl.name : (a.dataset.m || '')),
+      len: len,
       cfg: a.dataset.cfg || (p && p.cfg) || '',
       hull: a.dataset.hull || (p && p.hull) || '',
       shot: a.dataset.shot || (p && p.shot) || '',
@@ -516,6 +522,10 @@
           img.alt = (m.len && m.name.indexOf(m.len + "'") !== 0 ? m.len + "' " : '') + m.name +
             (m.cfg ? ' — ' + m.cfg : '') + (m.hull ? ' — hull ' + m.hull : '');
         }
+        if (LENNAME && LENNAME[m.len]) {   /* Tyler: "24′ LC-1892" over "Cabin" (the builder writes "24′ Cabin" over the model) */
+          var gc = a.querySelector('.gcap');
+          if (gc) gc.innerHTML = '<b>' + m.len + '&#8242; ' + LENNAME[m.len] + '</b>' + (m.cfg || '');
+        }
         var key = m.len || 'x';
         (groups[key] = groups[key] || []).push(a);
       });
@@ -572,11 +582,13 @@
           mobileAnchors(groups[k][0], slug, mk).forEach(function (a) {
             var img = a.querySelector('img'), c = a.dataset.cfg, h = a.dataset.hull;
             img.loading = 'lazy';
-            img.alt = (k === 'x' ? '' : k + "' ") + mname + (c ? ' — ' + c : '') + (h ? ' — hull ' + h : '');
+            var kname = nameFor(k, mname);
+            img.alt = (k === 'x' ? '' : k + "' ") + kname + (c ? ' — ' + c : '') + (h ? ' — hull ' + h : '');
             var cap = document.createElement('span');
             cap.className = 'gcap';
             var lead = lenTxt + (c ? (lenTxt ? ' ' : '') + c : '');
-            cap.innerHTML = lead ? '<b>' + lead + '</b>' + mname : '<b>' + mname + '</b>';
+            if (LENNAME && LENNAME[k]) cap.innerHTML = '<b>' + lenTxt + ' ' + kname + '</b>' + (c || '');   /* same order as the desktop grid above */
+            else cap.innerHTML = lead ? '<b>' + lead + '</b>' + kname : '<b>' + kname + '</b>';
             a.appendChild(cap);
             mgrid.appendChild(a);
             manchors.push(a);
@@ -775,7 +787,7 @@
           if (!list || !list.length) return;
           var title, sub;
           if (by === 'length') {
-            title = (k === 'x' ? '' : k + '&#8242; ') + modelName +
+            title = (k === 'x' ? '' : k + '&#8242; ') + nameFor(k, modelName) +
               (k === 'x' ? ' &#8212; more shots' : '');
             sub = cfgLine(list);
           } else if (by === 'config' && BYCFG) {
