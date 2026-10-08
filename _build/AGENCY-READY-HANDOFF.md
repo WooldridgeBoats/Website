@@ -40,7 +40,7 @@ NorthWestern Energy, WDFW → WA Dept. of Fish & Wildlife); a card shows ONE hul
 WITH a video = photo card left, video card right, the title centred over both
 (phones: title, photos, video); fix my spelling; call me Bro; plain English.
 
-Status: 10 galleries (see the log); 20′ Skagit USGS Electroshock has the first video.
+Status: 11 galleries (see the log); 20′ Skagit USGS Electroshock has the first video.
 Still to come: more 20-CC-SKAGIT/<mission> sub-folders. Ready — I'll drop the next boat.
 
 ---
@@ -63,17 +63,24 @@ Still to come: more 20-CC-SKAGIT/<mission> sub-folders. Ready — I'll drop the 
   Purpose & Water" tile uses `assets/photos/agency-work/thumbs/slide-01-5336-20-cc.jpg`.
 
 ### Hero slider (top of the page)
-- 6 photos, auto-advances every **4s**, loops; arrows (70% opacity), dots, swipe.
+- 8 photos (since 2026-10-08), auto-advances every **4s**, loops; arrows (70% opacity), dots, swipe.
   Code: `assets/hero-slider.js` + `.hslider` CSS in house.css.
 - The slides are **hand-written** in the page (`data-cap`, `data-hull`). They are NOT made
   by the builder. Files: `assets/photos/agency-work/slide-NN-HULL-LEN-cc.jpg`, copied
-  from the master's top-level `0N-HERO-…jpg`.
+  from the master's top-level `0N-HERO-…jpg` byte-for-byte. Each `<img src>` ends in
+  `?v=` + the first 10 of the photo's md5, so a re-exported photo gets a new URL
+  (Cloudflare caches images ~4h). Update the `agency-work/slide-…` keys in
+  `assets/media-provenance.js` by hand (the builder doesn't touch them), then run
+  `stamp_assets.pl`. Before swapping, md5 the master heroes against the live slides:
+  Tyler's "small change" on 2026-10-08 was 2 new photos + 2 re-edited ones + a re-order.
 - Caption format: `MODEL — LEN′ CONFIG — MISSION` + `HULL #` on the right (caps). Phone:
   row 1 = model + hull, row 2 = the rest. The slider uses the SAME mission wording as
   the galleries (Fire & Rescue, U.S. Coast Guard, …), so a new slide needs it typed in.
-- Current slides: 01 BSR SW USCG #5336 · 02 Skagit 20 Work Boat #5348 · 03 Alaskan XL
-  Inboard 20 First Responder #5320 · 04 Skagit 18 Fire & Rescue #4572 · 05 BSR SW
-  USCG #5335 · 06 Skagit 20 Fire & Rescue #4552.
+- Current slides (2026-10-08): 01 BSR SW USCG #5336 · 02 Skagit 20 Work Boat #5348 ·
+  03 Alaskan XL Inboard 20 First Responder #5320 · 04 Skagit 18 Fire & Rescue #4572 ·
+  05 BSR SW USCG #5335 · 06 Landing Craft Super Sport Drifter 23 Water Rescue #3938 ·
+  07 Skagit 20 Fire & Rescue #4552 · 08 Skagit 20 Work Boat #5348 (a second shot of 02's
+  boat; its master token is WORK BOAT, 02's is WORK, both caption "Work Boat").
 
 ### Master folders + file names
 - Source of truth: **OneDrive** `…/MASTER-WEBSITE PHOTOS/AGENCY-WORK-WEB/`. The X Drive
@@ -109,14 +116,16 @@ Still to come: more 20-CC-SKAGIT/<mission> sub-folders. Ready — I'll drop the 
   if cached 404s ever need flushing.
 - Re-runs are safe and identical (verified). Order of cards: Tyler's hand-picked `@ORDER`
   list at the top of the builder (2026-10-06): First Responder, U.S. Coast Guard, Work
-  Boat, 18′ Fire & Rescue, USGS Electroshock, 20′ Fire & Rescue, NorthWestern Energy,
-  WDFW, Research, USFWS. A boat not in the list goes at the end (auto order: length →
+  Boat, 18′ Fire & Rescue, USGS Electroshock, 20′ Fire & Rescue, Water Rescue (added
+  2026-10-08), NorthWestern Energy, WDFW, Research, USFWS. A boat not in the list goes at the end (auto order: length →
   model → mission) and the dry run warns. Ask Tyler where it goes, then add it. Moving
   cards only changes the page: the vetted-photo list is sorted, so no page restamps.
 - Lookup tables at the top (add a line for anything new):
   - `%MODEL`: SKAGIT, SKAGIT-IB, SKAGIT-X, AK, AK LT, AK XL, AK XL-IB, AK XLT, BSR SW
     (stays "BSR SW"), SCOUT, SCOUT WB, ROGUE, SPORT, SPORT-IB, SPORTSTER, SSD, SSD IB,
-    SO, SSO, LC.
+    SO, SSO, LC, LC-OBJ-SSD → "Landing Craft Super Sport Drifter" (Tyler 2026-10-08:
+    LC = Landing Craft, his word order, outboard jet not spelled out; it wraps to 2
+    lines on a phone card, which he accepted).
   - `%CFG`: CC Center Console, WS Windshield, TILLER, CABIN, AFT-WS, PYBUS, OPEN, PH
     Pilothouse.
   - `%PURPOSE` (gallery wording): FIRE → Fire & Rescue · FIRE ONLY → Fire · USCG →
@@ -161,7 +170,7 @@ Still to come: more 20-CC-SKAGIT/<mission> sub-folders. Ready — I'll drop the 
   - **Phones (≤700px):** the same section is built from each boat's PORTRAIT set (`.mgrid`, 2 across, round-robin). It opens at 12 photos with a "Show all", the chips show the phone counts, and tapping opens that boat's portrait set.
   - **Hrefs keep `?v=`:** that also keeps gallery.js's model-page grid code (length chips, page-wide viewer) off this grid.
 
-### Galleries (7 live 2026-10-05; USGS Electroshock + Work Boat 2026-10-06)
+### Galleries (7 live 2026-10-05; USGS Electroshock + Work Boat 2026-10-06; Water Rescue 2026-10-08)
 | Card title | Boat | Desktop / phone | Hull(s) |
 |---|---|---|---|
 | FIRE & RESCUE | 18′ Skagit | 13 / 14 | 4572 |
@@ -174,6 +183,7 @@ Still to come: more 20-CC-SKAGIT/<mission> sub-folders. Ready — I'll drop the 
 | USGS ELECTROSHOCK (+ video) | 20′ Skagit | 18 / 20 | 5082 · video `LZEBC-i06WM` "Wooldridge 20' Skagit Electroshock \| Features, Layout & On-Water Look", 3:23, UNLISTED on YouTube (embeds fine) |
 | WORK BOAT | 20′ Skagit | 28 / 16 | 5348 (same boat as hero slide 02, whose caption now says Work Boat too) |
 | WA DEPT. OF FISH & WILDLIFE | 23′ Skagit | 9 / 9 | 5059 (FLAT folders 23-CC-SKAGIT/ + -MOBILE/; the phone files have no -MOBILE suffix, which is fine because the folder says it) |
+| WATER RESCUE | 23′ Landing Craft Super Sport Drifter | 16 / 16 | 3938 (2026-10-08, FLAT folders 23-CC-LC-OBJ-SSD/ + -MOBILE/. Tyler's files came without the `CC` (`NN-3938-23-LC-OBJ-SSD-…`); I added it in the OneDrive master, all 34 incl. GALLERY-THUMB + hero 06. The X Drive copy may still have the old names) |
 
 To do: more 20-CC-SKAGIT missions as Tyler adds them. Once the galleries are done, ask Tyler whether to delete the unused
 14 MB `assets/agency/` (the old case-study photos).

@@ -73,6 +73,7 @@ my %MODEL = (
   'SPORT' => 'Sport',          'SPORT-IB' => 'Sport Inboard',   'SPORTSTER' => 'Sportster',
   'SSD' => 'Super Sport Drifter', 'SSD IB' => 'Super Sport Drifter Inboard',
   'SO' => 'Sport Offshore',    'SSO' => 'Super Sport Offshore', 'LC' => 'Landing Craft',
+  'LC-OBJ-SSD' => 'Landing Craft Super Sport Drifter',   # 23' Water Rescue (Tyler 2026-10-08: LC = Landing Craft; his word order; outboard jet not spelled out)
 );
 my %CFG = ('CC' => 'Center Console', 'WS' => 'Windshield', 'TILLER' => 'Tiller',
            'CABIN' => 'Cabin', 'AFT-WS' => 'Aft Windshield', 'PYBUS' => 'Pybus',
@@ -118,6 +119,7 @@ my @ORDER = qw(
   18-cc-skagit-fire
   20-cc-skagit-usgs-electroshock
   20-cc-skagit-fire
+  23-cc-lc-obj-ssd-water-rescue
   20-cc-skagit-nw-energy
   23-cc-skagit-wdfw
   20-cc-skagit-research
