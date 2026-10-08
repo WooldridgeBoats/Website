@@ -7,8 +7,8 @@ file is the log the new chat reads: status, Tyler's rules, the toolbox, and how 
 
 Continuing the Wooldridge dev site (dev.wooldridgeboats.com) in ~/Desktop/LOCAL-WEBSITE: the
 CUSTOM BUILD pages. Canyon, Deepwater, River Rat and Landing Craft are done. Still to do: SSO Angler
-(models/angler/), SSO Pilothouse (models/supersportoffshorepilothouse/) and Pybus Offshore
-(models/pybus-offshore/). FIRST read
+(models/angler/), SSO Pilothouse (models/supersportoffshorepilothouse/) and Pybus Point Lodge
+(models/pybus-offshore/; renamed from Pybus Offshore, the URL stays). FIRST read
 `_build/CUSTOM-BUILD-HANDOFF.md` and my memory notes `wooldridge-model-lineup`,
 `website-photo-replacement-workflow`, `model-ready-check-first`, `no-image-recompression`,
 `tyler-pushes-to-github`, `desktop-tcc-eperm` and `no-headless-chrome-app-management`.
@@ -31,7 +31,7 @@ Fix my spelling; call me Bro; plain English.
 | River Rat DIY Kit `models/riverrat-diy-kit/` | DONE, live | Minimal: one gallery, no length / hull / config, no video |
 | SSO Angler `models/angler/` | TO DO | Bare page (no photos), "video coming soon" block, a Build & Price button into the SSO configurator |
 | SSO Pilothouse `models/supersportoffshorepilothouse/` | TO DO | Bare page, REAL video `h6p-gE16A9s` "30' Wooldridge Super Sport Offshore Pilothouse", Build & Price button into the SSO configurator |
-| Pybus Offshore `models/pybus-offshore/` | TO DO | Bare page, "video coming soon" block |
+| Pybus Point Lodge `models/pybus-offshore/` | TO DO | Bare page, "video coming soon" block. Renamed from Pybus Offshore 2026-10-08: ONLY the h1, `<title>` and menu label changed; the URL, homepage card and intro copy ("The Pybus Offshore is…") were left as-is on purpose |
 | Landing Craft `models/landing-craft/` | DONE 2026-10-08 | Hero slider (24′ Cabin, 21′ CC), one card per length, per-length model names (LC-1292 / LC-1892) via `WB_LEN_NAME`. No video, no specs, no standard features |
 
 No master folders exist yet for the 3 to-do pages (MASTER-WEBSITE PHOTOS has CANYON-WEB,
@@ -168,6 +168,12 @@ don't load and screenshots come out blank; check the DOM, or use `_build/snap.sw
   isn't a hull pattern anyway).
 - Build: `_build/apply_model_photos.sh landing-craft "Landing Craft" "<…/LANDING CRAFT-WEB>"`. 30 + 26
   desktop, 31 + 25 phone. The slider is hand-written; a re-run leaves it and `WB_LEN_NAME` alone.
+
+## Menu (Tyler, 2026-10-08)
+- Our Boats → Custom Builds order: Agency & Work Boats, Landing Craft, SSO Angler, Pybus Point Lodge,
+  Deepwater Series, Canyon, SSO Pilothouse, River Rat DIY Kit (`header.html`, then
+  `perl _build/inject_partials.pl`). The model-page prev/next arrows follow it (`assets/pagenav.js` ORDER).
+- Column headings read INBOARD JET / OUTBOARD JET.
 
 ## Other open threads
 - **Phone sets:** Tyler is making phone (-MOBILE) sets for the main models without them (alaskan-lt,

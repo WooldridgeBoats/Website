@@ -35,14 +35,14 @@
     /* Offshore */
     ['sportoffshore',               'Sport Offshore'],
     ['super-sport-offshore',        'Super Sport Offshore'],
-    /* Custom Builds */
-    ['canyon',                      'Canyon'],
-    ['riverrat-diy-kit',            'River Rat DIY Kit'],
+    /* Custom Builds (Tyler's order, 2026-10-08; Agency & Work Boats leads the menu but isn't a model page) */
     ['landing-craft',               'Landing Craft'],
-    ['deepwater',                   'Deepwater Series'],
-    ['pybus-offshore',              'Pybus Offshore'],
     ['angler',                      'SSO Angler'],
-    ['supersportoffshorepilothouse','SSO Pilothouse']
+    ['pybus-offshore',              'Pybus Point Lodge'],
+    ['deepwater',                   'Deepwater Series'],
+    ['canyon',                      'Canyon'],
+    ['supersportoffshorepilothouse','SSO Pilothouse'],
+    ['riverrat-diy-kit',            'River Rat DIY Kit']
   ];
 
   function el(html){
