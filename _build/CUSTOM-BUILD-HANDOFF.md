@@ -31,7 +31,7 @@ Fix my spelling; call me Bro; plain English.
 | River Rat DIY Kit `models/riverrat-diy-kit/` | DONE, live | Minimal: one gallery, no length / hull / config, no video |
 | SSO Angler `models/angler/` | TO DO | Bare page (no photos), "video coming soon" block, a Build & Price button into the SSO configurator |
 | SSO Pilothouse `models/supersportoffshorepilothouse/` | TO DO | Bare page, REAL video `h6p-gE16A9s` "30' Wooldridge Super Sport Offshore Pilothouse", Build & Price button into the SSO configurator |
-| Pybus Point Lodge `models/pybus-offshore/` | TO DO | Bare page, "video coming soon" block. Renamed from Pybus Offshore 2026-10-08: ONLY the h1, `<title>` and menu label changed; the URL, homepage card and intro copy ("The Pybus Offshore is…") were left as-is on purpose |
+| Pybus Point Lodge `models/pybus-offshore/` | TO DO | Bare page, "video coming soon" block. Renamed from Pybus Offshore 2026-10-08: ONLY the h1, `<title>` and menu label changed; the URL and homepage card were left as-is on purpose. **It's a FLEET page** (Tyler): the boats Wooldridge built for Pybus Point Lodge (Admiralty Island, SE Alaska) = five 33′ Deepwaters, two 21′ Sport Offshores, three 20′ Sport center consoles. Intro rewritten to say so. Possible video: "Ultimate Alaska Fishing Boat Walkthrough - NEW Wooldridge 33' Deepwater Charter" `RvhoaaWAktg` (shot at the lodge; ask first) |
 | Landing Craft `models/landing-craft/` | DONE 2026-10-08 | Hero slider (24′ Cabin, 21′ CC), one card per length, per-length model names (LC-1292 / LC-1892) via `WB_LEN_NAME`. No video, no specs, no standard features |
 
 No master folders exist yet for the 3 to-do pages (MASTER-WEBSITE PHOTOS has CANYON-WEB,
