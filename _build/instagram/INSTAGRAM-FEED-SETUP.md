@@ -11,11 +11,11 @@ what's left is a one-time connection to your Instagram account.
 
 ```
    Instagram  ──►  a free robot on GitHub  ──►  a tiny file: feed.json  ──►  the website
-  (your posts)      (runs every hour)          (8 latest posts)          (shows them)
+  (your posts)      (runs once a day)          (8 latest posts)          (shows them)
 ```
 
 1. **The robot** is a scheduled job that runs on GitHub for free (a "GitHub Action").
-   Once an hour it asks Instagram for your 8 newest posts, saves the photos, and
+   Once a day (about 3 AM Pacific) it asks Instagram for your 8 newest posts, saves the photos, and
    writes a small file called `feed.json`.
 2. **feed.json** is served by jsDelivr, a free public delivery network, so the
    website can read it instantly from anywhere.
@@ -66,7 +66,7 @@ Settings → *Secrets and variables* → *Actions* → **New repository secret**
 - **Name:** `IG_TOKEN`
 - **Value:** the token from Step 2
 
-That's it. Within the hour the robot runs, `feed.json` appears, and the strip goes
+That's it. The next nightly run (or a Run workflow click) makes `feed.json`, and the strip goes
 live. (You can also hit **Run workflow** on the Actions tab to fire it immediately.)
 
 ### Step 4 — (Optional) Make it truly set-and-forget
@@ -84,7 +84,8 @@ add it as a second secret named `GH_PAT`.
 ## Cost & upkeep
 - **$0/month.** GitHub Actions and jsDelivr are free at this scale.
 - With Step 4 done, **zero** upkeep. Without it, a 2-minute token paste every ~2 months.
-- Posts appear on the site within about an hour of going up on Instagram.
+- Posts appear on the site by the next morning (it runs once a day since 2026-10-08, so a feed
+  commit can't collide with a daytime push). Click **Run workflow** on the Actions tab to show a new post right away.
 
 ## About Smash Balloon
 Smash Balloon is a **WordPress plugin**, and this new site is plain HTML (no

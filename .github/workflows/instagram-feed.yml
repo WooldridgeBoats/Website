@@ -8,7 +8,12 @@ name: Instagram feed
 
 on:
   schedule:
-    - cron: '17 * * * *'      # once an hour, at :17 past
+    # Once a day, in the middle of the night Pacific (Tyler, 2026-10-08: "We don't update our
+    # instagram that much"). 10:23 UTC = 3:23 AM PDT / 2:23 AM PST: a feed commit triggers a site
+    # deploy, and at this hour it can't collide with a push from GitHub Desktop. Daily is plenty
+    # for the token renewal below (the token lasts ~60 days). After posting, use the Actions tab's
+    # "Run workflow" button to update the homepage right away.
+    - cron: '23 10 * * *'
   workflow_dispatch:            # a "Run workflow" button in the Actions tab
 
 # Let the built-in token push the refreshed feed back to the repo.
