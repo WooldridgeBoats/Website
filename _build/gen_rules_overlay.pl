@@ -25,6 +25,8 @@ my %APPROVED = map { $_ => 1 } qw(
   AUD-TYPO-01
   AUD-TYPO-02
   Q-CFG-13
+  CANON-2026-10-10-A
+  CANON-2026-10-10-B
 );
 # ───────────────────────────────────────────────────────
 
@@ -234,6 +236,53 @@ for my $m (@$models){
   }
 }
 
+# ── CANON-2026-10-10-A / -B: Stephen's two rulings of 2026-10-10 (PRICING CANON
+#    README, CHANGE LOG entry of that date). Canon changed FIRST; this makes the
+#    configurator follow it. No price moves.
+#    A. "Heater/defroster with circulation pump" ($1,999, Rigging) is renamed
+#       "Inboard heater/defroster" on every INBOARD that carries it (xlib scout
+#       scoutwb skagitib sportib ssdib skagitx). The new wording is what the
+#       QuickBooks item was hand-edited to, so canon, the assemblies and the
+#       website now all say the same thing; codeify() makes
+#       ^OPTIONS:^RIGGING:^INBOARD-HEATER-DEFROSTER of it.
+#    B. The Sportster (an outboard jet) no longer offers that heater, nor the
+#       marine-treated plywood floors. hideItems removes both outright
+#       (sportster_rigging_6_65, sportster_floor_1_7). The 14 inboard plywood
+#       options are untouched.
+#    Derived, not typed: every catalogue item carrying the old heater name is
+#    walked - on the Sportster it is hidden, everywhere else renamed - and the
+#    plywood item is found by name on the Sportster only. The expected ids are
+#    ASSERTED below so a regenerated catalogue that drifts dies here instead of
+#    silently renaming or hiding the wrong thing.
+my $HEATER_OLD = 'Heater/defroster with circulation pump';
+my $HEATER_NEW = 'Inboard heater/defroster';
+my (%heaterRename, @sportsterHide);
+for my $m (@$models){
+  for my $c (@{$m->{cats}}){
+    for my $it (@{$c->{items}}){
+      if ($it->{nm} eq $HEATER_OLD){
+        if ($m->{id} eq 'sportster') { push @sportsterHide, $it->{id} }
+        else                         { $heaterRename{$it->{id}} = $HEATER_NEW }
+      }
+      if ($m->{id} eq 'sportster' && $it->{nm} =~ /^Marine treated plywood floors/i){
+        push @sportsterHide, $it->{id};
+      }
+    }
+  }
+}
+{
+  my @wantRename = qw(xlib_rigging_6_63 scout_rigging_6_67 scoutwb_rigging_6_64
+                      skagitib_rigging_6_66 sportib_rigging_6_65 ssdib_rigging_7_66
+                      skagitx_rigging_6_65);
+  my @wantHide   = qw(sportster_rigging_6_65 sportster_floor_1_7);
+  my $got  = join(',', sort keys %heaterRename);
+  my $want = join(',', sort @wantRename);
+  die "CANON-2026-10-10-A: heater rename set drifted\n  got  $got\n  want $want\n" unless $got eq $want;
+  $got  = join(',', sort @sportsterHide);
+  $want = join(',', sort @wantHide);
+  die "CANON-2026-10-10-B: Sportster hide set drifted\n  got  $got\n  want $want\n" unless $got eq $want;
+}
+
 # ── blocks, each keyed to its question ──
 my @BLOCKS = (
   { q => 'AUD-TYPO-01', t => 'de-double "helm-seat seat" -> "helm-seat" (the clean spelling the other price sheets use for the same product)',
@@ -278,6 +327,10 @@ my @BLOCKS = (
     live => { styleTags => { map { ($_ . '_powdercoat_0_1' => 'occ') }
         qw(xlib skagitib sportib ssdib skagitx)
     } } },
+  { q => 'CANON-2026-10-10-A', t => q{"Heater/defroster with circulation pump" -> "Inboard heater/defroster" on the 7 inboards (Stephen, 2026-10-10, PRICING CANON change log). Name only; $1,999 unchanged; QB code becomes ^OPTIONS:^RIGGING:^INBOARD-HEATER-DEFROSTER},
+    live => { renameItems => \%heaterRename } },
+  { q => 'CANON-2026-10-10-B', t => q{Sportster (outboard jet) no longer offers the circulation-pump heater or the marine-treated plywood floors (Stephen, 2026-10-10, PRICING CANON change log); the 14 inboard plywood options stay},
+    live => { hideItems => \@sportsterHide } },
 );
 
 # ── merge approved blocks into the live keys ──
