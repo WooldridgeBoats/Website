@@ -2663,8 +2663,8 @@ html.blueprint body{ background:transparent; }
 .hrope{ width:min(760px,92%); margin:44px auto 8px; opacity:.9; }
 .hrope img{ width:100%; height:auto; }
 .hintro .hkick{
-  font-weight:600; font-size:12px; letter-spacing:.2em; text-transform:uppercase;
-  color:var(--muted); margin:0 auto;
+  font-weight:500; font-size:clamp(16px,1.5vw,19px); letter-spacing:.16em; text-transform:uppercase;
+  color:var(--ink); margin:4px auto 0;
 }
 
 /* timeline: each date hangs off a rope that draws itself in blue as you scroll */
