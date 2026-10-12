@@ -1,0 +1,63 @@
+# Our History timeline: the source for the /our-history/ page timeline.
+# Approved by Glen Wooldridge Jr. (2026-10). Rebuild after any edit:
+#
+#   perl _build/build_history.pl
+#
+# FORMAT
+#   == YEAR        starts an entry. YEAR is what shows in blue Rockwell, AND the
+#                  name of its photo folder (1947, 1920s, ...). A folder may carry
+#                  a description after the year: "1947-RUNNING THE ROGUE" still
+#                  matches 1947. The numbers are DATES, never hull numbers.
+#   text lines     the caption under the year. Light HTML is fine (<i>, <b>).
+#   video: URL | Title     a YouTube video, shown as the first tile in the
+#                          carousel; flips with the photos in the lightbox.
+#   link: URL | Label      a button under the caption.
+#
+# Entries appear on the page in the order written here.
+
+== 1915
+Glen Wooldridge builds his first river boat and makes the first-ever float down Oregon’s Rogue River. The company is born.
+link: https://store.wooldridgeboats.com/products/the-rogue-a-river-to-run-book | Read the Whole Story: <i>The Rogue: A River to Run</i>
+
+== 1920s
+Glen takes a boat through the Coffee Pot in the early 1920s, photographed by Louise Stokes of the <i>Grants Pass Courier</i>.
+
+== 1940s
+Glen develops a method of stacking wood strips over a form, allowing better hull shapes without sacrificing strength. That boat is still on display at Rand Ranger Station.
+
+== 1947
+Running the Rogue: the first-ever trip up the Rogue River from Gold Beach to Grants Pass, with a 22-horsepower Evinrude.
+
+== 1948
+Glen and Ruell Hawkins make the first trip up Idaho’s Salmon River, “The River of No Return.”
+
+== 1949
+Glen starts a boat tour from the city park to Hell Gate: a 50-mile run in a 26-foot boat at $5.50 a person.
+
+== 1950s
+Glen Wooldridge Sr. develops the first Jackass lift for an outboard motor. The lift lets the boat run in shallower water.
+
+== 1970s
+Bob Wooldridge brings drift boats to Seattle and sells them. Bruce Wooldridge is building them in Grants Pass with Mike and Mark.
+
+== 1973
+Bob opens a boat shop in Seattle to build boats in Washington.
+
+== 1975
+At age 79, Grandpa Glen is the first to run up Hells Gate on BC’s Fraser River.
+video: https://youtu.be/38WCO1ykWy0 | First Jet Boat to Run Up Hells Gate
+
+== 1977
+Glen Wooldridge develops the outboard jet tunnel.
+
+== 1978
+Glen Wooldridge and Dave Devore develop the first stainless steel outboard impeller.
+
+== 1979
+Four generations of boat builders working side by side.
+
+== 2010
+The Wooldridge family, leading the way in custom aluminum boats.
+
+== 2026
+The 2026 fleet: 18 production models from a 16′ tiller sled to a 26′ offshore boat, all still built in Seattle.
