@@ -364,7 +364,7 @@
     "name": "Sportster",
     "lengths": ["21 ft.", "23 ft.", "25 ft."],
     "intro": "Configuration-specific differences are labeled below.",
-    "footnote": "Weight shown open and with windshield.",
+    "footnote": "Weight shown open and with windshield. Not listed = no value published for that length.",
     "categories": [
       {"name": "Dimensions & Construction", "rows": [
         {"label": "Length Overall", "values": ["21 ft. 8 in.", "23 ft. 8 in.", "25 ft. 8 in."]},
@@ -387,7 +387,8 @@
       {"name": "Power Ratings", "rows": [
         {"label": "Max Jet HP", "values": ["250 hp", "250 hp", "250 hp"]},
         {"label": "Max Prop HP", "values": ["200 hp", "225 hp", "225 hp"]},
-        {"label": "Max Tiller HP", "values": ["250 hp", "250 hp", "250 hp"]}
+        {"label": "Max Jet Tiller HP", "values": ["Not listed", "250 hp", "Not listed"]},
+        {"label": "Max Tiller HP", "values": ["250 hp", "250 hp", "Not listed"]}
       ]}
     ]
   },
