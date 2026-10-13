@@ -123,3 +123,4 @@ Typos fixed and a few sentences smoothed. Meaning unchanged:
 - The **1948 carousel photo duplicates the hero** (same scan). Drop it when real 1948 photos come in.
 - The **1975 video thumbnail** has black side bars (YouTube's own frame). Could crop it tighter.
 - Ideas not built yet: a sticky current-year chip on phones, captions per photo.
+- Year rail (right edge, wide screens) was bumped bigger 2026-10-13 (Tyler likes it). With ~25+ dates it will get taller than a short laptop screen; tighten its spacing or let it scroll then.
