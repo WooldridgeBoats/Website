@@ -32,7 +32,7 @@ our @EXPORT_OK = qw(slurp_bytes slurp_text detect_eol write_text read_csv parse_
                     read_xlsx_tabs tabs_to_csv_text load_canon load_canon_from_tabs
                     render_std_json models_std_spans models_field_spans render_stdgrid render_specs_block
                     render_spec_data_js tagline_html intro_html check_surfaces fmt_len
-                    CANON_TABS DRIVEN_TABS);
+                    read_overlay apply_overlay CANON_TABS DRIVEN_TABS);
 
 use constant CANON_TABS  => ('STD FEATURES', 'SPECS', 'LINEUP', 'DESCRIPTIONS', 'SPEC DISCREPANCIES', 'SPEC PROVENANCE');
 use constant DRIVEN_TABS => ('STD FEATURES', 'SPECS', 'LINEUP', 'DESCRIPTIONS');
@@ -571,6 +571,80 @@ sub check_surfaces {
     else { $add->('tools/SPEC_DATA.js', 1, 1, 'file missing') }
   }
   return \@R;
+}
+
+# ------------------------------------------------------- rules overlay ----
+# The configurator applies tools/RULES_OVERLAY.js at load; what it SELLS is
+# const MODELS + the overlay. These two functions reproduce that for a decoded
+# catalogue, as a verbatim port of QB IMPORT\_build\extract_catalog.pl (itself
+# a port of gen_pricesheets.pl), plus the two per-model fields the
+# configurator's own lenRename also re-keys (stdPodLens, stdSwimCombos).
+# Keys that matter for the canon: catalogPatches (model/style display names,
+# lenRename), addStyles (a hull style copied from another). addItems,
+# hideItems and renameItems touch option lists only. NOTHING in the overlay
+# touches a model's std list - verified against the configurator's
+# applyRulesOverlay on 2026-10-13 - so gen_from_canon.pl's std writer is
+# overlay-independent.
+sub read_overlay {                   # path to RULES_OVERLAY.js -> { key => decoded live value }
+  my ($path) = @_;
+  my $ovl = slurp_text($path);
+  my %OV;
+  for my $k (qw(catalogPatches addStyles addItems hideItems renameItems styleTags)) {
+    $OV{$k} = $ovl =~ /^\s*\Q$k\E:\s*([\[\{].*?[\]\}]),\r?$/m ? JSON::PP->new->decode($1) : undef;
+  }
+  return \%OV;
+}
+sub apply_overlay {                  # (decoded const MODELS arrayref, read_overlay result) -> same arrayref, patched in place
+  my ($models, $OV) = @_;
+  my %by_id = map { $_->{id} => $_ } @$models;
+  for my $p (@{ $OV->{catalogPatches} || [] }) {
+    my $mo = $by_id{$p->{m}} or next;
+    if ($p->{lenRename}) {
+      my ($from, $to) = @{ $p->{lenRename} }{qw(from to)};
+      $mo->{lengths} = [ map { $_ == $from ? $to : $_ } @{ $mo->{lengths} } ];
+      for my $s (@{ $mo->{styles} }) { for my $k (qw(hulls hullNotes)) { next unless $s->{$k} && exists $s->{$k}{$from}; $s->{$k}{$to} = delete $s->{$k}{$from} } }
+      my %ne; $ne{ ($_ =~ /^(.*?)\Q$from\E$/) ? "$1$to" : $_ } = $mo->{engines}{$_} for keys %{ $mo->{engines} || {} }; $mo->{engines} = \%ne;
+      $mo->{tag} =~ s/\b\Q$from\E\b/$to/ if $mo->{tag};
+      $mo->{stdPodLens} = [ map { $_ == $from ? $to : $_ } @{ $mo->{stdPodLens} } ] if $mo->{stdPodLens};
+      $_->{len} = $to for grep { $_->{len} == $from } @{ $mo->{stdSwimCombos} || [] };
+      for my $c (@{ $mo->{cats} }) { for my $it (@{ $c->{items} }) {
+        $it->{lens} = [ map { $_ == $from ? $to : $_ } @{ $it->{lens} } ] if $it->{lens};
+        if (ref $it->{price} eq 'HASH' && exists $it->{price}{$from}) { $it->{price}{$to} = delete $it->{price}{$from} }
+      } }
+      $mo->{adder}{lens} = [ map { $_ == $from ? $to : $_ } @{ $mo->{adder}{lens} } ] if $mo->{adder} && $mo->{adder}{lens};
+      next;
+    }
+    if ($p->{styleId}) { my ($s) = grep { $_->{id} eq $p->{styleId} } @{ $mo->{styles} }; $s->{ $p->{prop} } = $p->{v} if $s }
+    else { $mo->{ $p->{prop} } = $p->{v} }
+  }
+  for my $s (@{ $OV->{addStyles} || [] }) {
+    my $mo = $by_id{$s->{m}} or next;
+    next if grep { $_->{id} eq $s->{id} } @{ $mo->{styles} };
+    my ($src) = grep { $_->{id} eq $s->{copyHullsFrom} } @{ $mo->{styles} };
+    next unless $src;
+    push @{ $mo->{styles} }, { id => $s->{id}, nm => $s->{nm}, hulls => { %{ $src->{hulls} } }, hullNotes => { %{ $src->{hullNotes} || {} } } };
+    for my $len (@{ $mo->{lengths} }) {
+      my ($f, $t) = ($s->{copyHullsFrom} . $len, $s->{id} . $len);
+      $mo->{engines}{$t} = $mo->{engines}{$f} if $mo->{engines}{$f} && !$mo->{engines}{$t};
+    }
+    my @copies = grep { $_->{style} eq $s->{copyHullsFrom} } @{ $mo->{stdSwimCombos} || [] };
+    push @{ $mo->{stdSwimCombos} }, { style => $s->{id}, len => $_->{len} } for @copies;
+  }
+  for my $a (@{ $OV->{addItems} || [] }) {
+    my $mo = $by_id{$a->{m}} or next;
+    my ($cat) = grep { $_->{name} eq $a->{cat} } @{ $mo->{cats} };
+    next if !$cat || grep { $_->{id} eq $a->{id} } @{ $cat->{items} };
+    my $row = { id => $a->{id}, nm => $a->{nm}, price => $a->{price} }; $row->{qty} = JSON::PP::true if $a->{qty};
+    my ($at) = grep { $cat->{items}[$_]{id} eq ($a->{after} // '') } 0 .. $#{ $cat->{items} };
+    if (defined $at) { splice @{ $cat->{items} }, $at + 1, 0, $row } else { push @{ $cat->{items} }, $row }
+  }
+  my %hide = map { $_ => 1 } @{ $OV->{hideItems} || [] };
+  my %ren  = %{ $OV->{renameItems} || {} };
+  for my $mo (@$models) { for my $c (@{ $mo->{cats} }) {
+    $c->{items} = [ grep { !$hide{ $_->{id} } } @{ $c->{items} } ];
+    $_->{nm} = $ren{ $_->{id} } for grep { $ren{ $_->{id} } } @{ $c->{items} };
+  } }
+  return $models;
 }
 
 1;
