@@ -11,10 +11,9 @@
 #   photo folders, one per date/era    named by the DATE ("1947", "1920s",
 #                                      "1947-RUNNING THE ROGUE"). Four-digit
 #                                      numbers here are years, never hull numbers.
-#   Sources are tried in order; the first one with photos for a date wins:
-#     1. Tyler's master:  OneDrive .../MASTER-WEBSITE PHOTOS/ABOUT | HISTORY/
-#     2. the archive:     /Volumes/X Drive/HERITAGE MEDIA/HERITAGE PHOTOS/
-#   So as Tyler fills a date folder in the master, it replaces the archive set.
+#   Source: Tyler's master, OneDrive .../MASTER-WEBSITE PHOTOS/ABOUT | HISTORY/
+#   (only, since 2026-10-13). The X Drive HERITAGE PHOTOS archive seeded V1;
+#   --src can still point at it, or at several folders tried in order.
 #   The hero comes from the master: the file starting "01-HERO".
 #
 # WRITES
@@ -40,7 +39,7 @@ my $ARCHIVE = '/Volumes/X Drive/HERITAGE MEDIA/HERITAGE PHOTOS';
 my @src;
 my $list_caps = 0;
 while (@ARGV) { my $a = shift @ARGV; if ($a eq '--src') { push @src, shift @ARGV } elsif ($a eq '--captions') { $list_caps = 1 } }
-@src = ($MASTER, $ARCHIVE) unless @src;
+@src = ($MASTER) unless @src;   # Tyler's master only (2026-10-13); the X Drive archive was the seed set
 @src = grep { -d $_ or (warn "  (skipping missing source: $_)\n", 0) } @src;
 sub where { my $p = shift; $p =~ s{^\Q$MASTER\E}{ABOUT | HISTORY}; $p =~ s{^\Q$ARCHIVE\E}{X Drive HERITAGE PHOTOS}; $p }
 
@@ -61,6 +60,10 @@ while (my $l = <$tf>) {
 }
 close $tf;
 die "no timeline entries\n" unless @eras;
+# Page order is automatic (Tyler, 2026-10-13): dates in order, and an era
+# ("1970s") goes at the END of its decade, after 1973, 1975 ... 1979.
+sub when { my $k = shift; $k =~ /^(\d{4})(s?)$/i or return 1e9; $1 + ($2 ? 9.5 : 0) }
+@eras = map { $_->[1] } sort { $a->[0] <=> $b->[0] || $a->[2] <=> $b->[2] } map { [when($eras[$_]{key}), $eras[$_], $_] } 0..$#eras;
 
 sub ytid { my $u = shift; return $1 if $u =~ m{(?:youtu\.be/|v=|embed/|shorts/)([\w-]{11})}; die "bad YouTube URL: $u\n"; }
 sub esc  { my $s = shift; $s =~ s/&/&amp;/g; $s =~ s/</&lt;/g; $s =~ s/>/&gt;/g; $s =~ s/"/&quot;/g; $s }
@@ -74,8 +77,8 @@ sub info {   # (width, height, Description metadata)
   close $p; return ($w, $h, $d);
 }
 
-# Finder "Comments" (Get Info). Tyler's preferred spot for captions, since it's
-# quick to edit. It is NOT inside the JPEG: macOS keeps it in an extended
+# Finder "Comments" (Get Info): the fallback caption source (Tyler tried it
+# 2026-10-13, then settled on Description). It is NOT inside the JPEG: macOS keeps it in an extended
 # attribute beside the file, so it survives Finder copies between Mac drives but
 # not an export/re-save, email or download. Read straight from the xattr so
 # Spotlight indexing doesn't matter.
@@ -95,8 +98,8 @@ sub finder_comment {
   return $c;
 }
 
-# Photo captions: Finder Comments first, else the Description metadata baked
-# into the file (Preview / Photoshop / Lightroom export write that). Cleaned for
+# Photo captions: the Description metadata baked into the file first (Tyler's
+# call, 2026-10-13), else Finder Comments. Cleaned for
 # the web here; his files are never touched. --captions lists what each got.
 sub caption {
   my ($d, $key) = @_;
@@ -105,19 +108,22 @@ sub caption {
   # his usual slips (customer-facing, so fixed here)
   $d =~ s/\bSlamon\b/Salmon/g; $d =~ s/\b1sr\b/1st/gi; $d =~ s/\bAuxilary\b/Auxiliary/gi;
   $d =~ s/(^|[-\s])len,/$1Glen,/; $d =~ s/\b(shop)\d\b/$1/gi; $d =~ s/\bwate$/water/;
-  # a leading date that just repeats this entry's date comes off (the year is
-  # already on screen); a more specific one ("1964" in 1960s, "Late 1970s") stays
-  if ($d =~ /^((?:(?:late|early|mid)[\s-]+)?\d{4}s?)(?:\s*[-\x{2013}\x{2014}:]\s*|\s+|$)(.*)$/is) {
+  $d =~ s/\bDamn\b/Dam/g; $d =~ s/^ly (\d{4}s?)\b/Early $1/;
+  # Dates in captions (Tyler, 2026-10-13): in an ERA ("1980s") every photo keeps
+  # its own date as typed ("1984 — ...", or just "1980s"). On a single-year date
+  # the repeat comes off, since the year is already big above it.
+  if ($key !~ /s$/i && $d =~ /^(\d{4})(?:\s*[-\x{2013}\x{2014}:]\s*|\s+|$)(.*)$/s) {
     my ($tok, $rest) = ($1, $2);
-    if ($rest eq '')                  { $d = lc $tok eq lc $key ? '' : $tok; }
-    elsif ($rest =~ /^[A-Z0-9"\x{201C}]/) { $d = lc $tok eq lc $key ? $rest : "$tok - $rest"; }
+    $d = $rest if $tok eq $key && ($rest eq '' || $rest =~ /^[A-Z0-9"\x{201C}]/);
   }
   return '' if $d eq '';
   # dashes used as separators ("Rogue River-Left") become " · "; real hyphens
   # ("first-ever", "22-horsepower") are followed by lowercase and stay
   $d =~ s/\s+-\s+/ \x{00B7} /g;
-  $d =~ s/(?<=\S)-(?=[A-Z0-9])/ \x{00B7} /g;
+  $d =~ s/(?<=\S)-(?=[A-Z][a-z])/ \x{00B7} /g;   # a word after it, so "C-130" stays
   $d =~ s/,(?=[^\s\d])/, /g;
+  # a date leading the caption always reads "1984 — ..." (Tyler's style)
+  $d =~ s/^((?:(?:Early|Late|Mid)\s+)?\d{4}s?)\s*(?:\x{2014}|\x{2013}|\x{00B7}|-)\s*(?=\S)/$1 \x{2014} /i;
   # mostly-caps captions get title case (acronyms kept)
   my $up = () = $d =~ /[A-Z]/g; my $lo = () = $d =~ /[a-z]/g;
   if ($up > 2 * $lo) {
@@ -158,6 +164,20 @@ sub photos_for {
   return ();
 }
 
+# ── face-finder for thumbnail framing (_build/history_focus.swift) ──
+my $FOCUS = ($ENV{TMPDIR} || '/tmp') . '/wb-history-focus';
+my $FOCUS_SRC = "$root/_build/history_focus.swift";
+if (!-x $FOCUS || -M $FOCUS > -M $FOCUS_SRC) {
+  print "compiling history_focus.swift (once) ...\n";
+  system('swiftc', '-O', $FOCUS_SRC, '-o', $FOCUS) == 0 or do { warn "  face-finder didn't build; thumbs crop from the centre\n"; $FOCUS = '' };
+}
+sub focus_for {   # object-position for each thumb, in order
+  my @files = @_; return map { '50% 50%' } @files unless $FOCUS && @files;
+  open my $p, '-|', $FOCUS, @files or return map { '50% 50%' } @files;
+  chomp(my @pos = <$p>); close $p;
+  return map { $pos[$_] // '50% 50%' } 0..$#files;
+}
+
 # ── hero ──
 make_path("$root/assets/history");
 my $hero_v = '';
@@ -188,13 +208,13 @@ for my $e (@eras) {
   }
   if (@imgs) {
     make_path("$out/thumbs");
-    my $i = 0; my $N = @imgs;
+    my $i = 0; my $N = @imgs; my @shots;
     my $short = plain(join ' ', @{$e->{text}}); $short =~ s/[.:].*$//s;
     for my $f (@imgs) {
       $i++; my $nn = sprintf '%02d', $i;
       my ($w, $h, $desc) = info("$dir/$f");
       my $com = finder_comment("$dir/$f");
-      my $cap = caption($com =~ /\S/ ? $com : $desc, $key);
+      my $cap = caption(defined $desc && $desc =~ /\S/ ? $desc : $com, $key);
       printf "    %-22s %s\n", $f, ($cap eq '' ? '(no caption)' : $cap) if $list_caps;
       my $long = $w > $h ? $w : $h;
       sips_out("$dir/$f", "$out/$nn.jpg", ($long > $FULL ? ('-Z', $FULL) : ()));
@@ -204,9 +224,16 @@ for my $e (@eras) {
       my ($fw, $fh) = dims("$out/$nn.jpg");
       my ($tw, $th) = dims("$out/thumbs/$nn.jpg");
       my $alt = esc($cap ne '' ? "$key: $cap" : "$key: $short (photo $i of $N)");
-      push @tiles, sprintf qq{    <a class="htile" href="/assets/history/%s/%s.jpg?v=%s" data-w="%d" data-h="%d"><span class="hpic"><img src="/assets/history/%s/thumbs/%s.jpg?v=%s" alt="%s" width="%d" height="%d" loading="lazy" decoding="async"></span><span class="hpc">%s</span></a>},
-        $slug, $nn, ver("$out/$nn.jpg"), $fw, $fh, $slug, $nn, ver("$out/thumbs/$nn.jpg"), $alt, $tw, $th, esc($cap);
+      push @shots, [$nn, $fw, $fh, $tw, $th, $alt, $cap];
       $n_photos++;
+    }
+    # square tiles crop the thumb; keep people's heads in frame (Tyler, 2026-10-13)
+    my @pos = focus_for(map { "$out/thumbs/$_->[0].jpg" } @shots);
+    for my $k (0..$#shots) {
+      my ($nn, $fw, $fh, $tw, $th, $alt, $cap) = @{$shots[$k]};
+      my $op = $pos[$k] eq '50% 50%' ? '' : qq{ style="object-position:$pos[$k]"};
+      push @tiles, sprintf qq{    <a class="htile" href="/assets/history/%s/%s.jpg?v=%s" data-w="%d" data-h="%d"><span class="hpic"><img src="/assets/history/%s/thumbs/%s.jpg?v=%s" alt="%s" width="%d" height="%d" loading="lazy" decoding="async"%s></span><span class="hpc">%s</span></a>},
+        $slug, $nn, ver("$out/$nn.jpg"), $fw, $fh, $slug, $nn, ver("$out/thumbs/$nn.jpg"), $alt, $tw, $th, $op, esc($cap);
     }
   }
   printf "%-9s %2d photo(s)%s%s\n", $key, scalar(@imgs), (@{$e->{videos}} ? ' + ' . @{$e->{videos}} . ' video' : ''), ($dir ? '  <- ' . where($dir) : '');
@@ -215,7 +242,7 @@ for my $e (@eras) {
   $html .= qq{<article class="hera" id="y$slug" data-yr="$key">\n};
   $html .= qq{  <div class="hseg" aria-hidden="true"><i></i></div>\n};
   $html .= qq{  <div class="hhead"><span class="hghost" aria-hidden="true">$key</span><span class="hnode" aria-hidden="true"></span><h2 class="hyr">$key</h2></div>\n};
-  $html .= qq{  <p class="hcap">$cap</p>\n};
+  $html .= qq{  <p class="hcap">$cap</p>\n} if @{$e->{text}};
   for my $l (@{$e->{links}}) {
     my ($u, $label) = @$l; my $ext = $u =~ /^https?:/ ? ' target="_blank" rel="noopener"' : '';
     $html .= qq{  <p class="hlink"><a class="plate ghost" href="} . esc($u) . qq{"$ext>$label</a></p>\n};
