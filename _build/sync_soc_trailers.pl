@@ -24,7 +24,7 @@
 # separate blobs, two separate syncs - running one does not run the other.
 #
 # STANDING RULE (Stephen, 2026-09-01): every price change anywhere must also be
-# reflected in Desktop\PRICING CANON. This script only moves numbers between the
+# reflected in SQUIRREL HOLE\CANON. This script only moves numbers between the
 # configurator and the SOC; it does not touch canon. If you changed a PRICE to
 # get here, canon needs the same edit.
 use strict; use warnings;
