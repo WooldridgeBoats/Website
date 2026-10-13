@@ -2832,25 +2832,39 @@ body.hlb-open{ overflow:hidden; }
 .hlb-prev:hover,.hlb-next:hover{ background:var(--blue); border-color:var(--blue); }
 .hlb-prev:disabled,.hlb-next:disabled{ opacity:.2; pointer-events:none; }
 
-/* year rail: wide screens only, fades in while you're in the timeline */
+/* year rail: small and quiet on laptops, bigger on wide screens, gone on
+   tablets/phones (900px and under, where the nav goes mobile too). Fades in
+   only while you're in the timeline. */
 .hrail{ display:none; }
-@media (min-width:1380px){
+@media (min-width:901px){
   .hrail{
-    display:flex; flex-direction:column; gap:2px; position:fixed; right:18px; top:50%; z-index:800;
+    display:flex; flex-direction:column; gap:1px; position:fixed; right:10px; top:50%; z-index:800;
     transform:translate(14px,-50%); opacity:0; pointer-events:none; transition:opacity .4s, transform .4s;
   }
-  .hrail.on{ opacity:1; pointer-events:auto; transform:translate(0,-50%); }
+  .hrail.on{ opacity:.72; pointer-events:auto; transform:translate(0,-50%); }
+  .hrail.on:hover{ opacity:1; }
   .hrail a{
-    display:block; text-align:right; padding:2px 0 2px 14px; font-weight:600; font-size:11px;
-    letter-spacing:.08em; color:var(--muted); position:relative; transition:color .2s, font-size .2s;
+    display:block; text-align:right; padding:1px 0 1px 14px; font-weight:600; font-size:11px;
+    letter-spacing:.06em; color:var(--muted); position:relative; transition:color .2s, font-size .2s;
   }
   .hrail a::before{
     content:""; position:absolute; right:calc(100% - 8px); top:50%; width:0; height:2px; background:var(--blue);
     transition:width .3s;
   }
   .hrail a:hover{ color:var(--blue); }
-  .hrail a.on{ color:var(--blue); font-family:var(--serif); font-weight:700; font-size:15px; }
-  .hrail a.on::before{ width:16px; }
+  .hrail a.on{ color:var(--blue); font-family:var(--serif); font-weight:700; font-size:14px; }
+  .hrail a.on::before{ width:12px; }
+  /* keep the photo rows clear of the rail; even padding keeps everything centered */
+  .htl .wrap{ padding-left:64px; padding-right:64px; }
+}
+@media (min-width:1380px){
+  .hrail{ gap:3px; right:22px; }
+  .hrail.on{ opacity:1; }
+  .hrail a{ padding:2px 0 2px 18px; font-size:14px; letter-spacing:.08em; }
+  .hrail a::before{ right:calc(100% - 10px); }
+  .hrail a.on{ font-size:20px; }
+  .hrail a.on::before{ width:20px; }
+  .htl .wrap{ padding-left:24px; padding-right:24px; }
 }
 
 /* phones + small tablets: title stays on the photo, the first line drops under it */
