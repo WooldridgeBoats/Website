@@ -28,7 +28,7 @@ to get right... interactive and captivating." Expect many more rounds.
 - **Flip-through viewer**: click any print or video and flip with arrows, keys or swipe,
   with a page-turn animation. It's one continuous book: "next" at the end of 1947 turns
   into 1948. Shows the year, caption, "Photo 3 of 10". Videos play in it (youtube-nocookie).
-- **Year rail** (screens ≥1380px): a jump list of years on the right edge, current one
+- **Year rail**: a jump list of years on the right edge (big on wide screens, small on laptops, hidden on tablets/phones), current one
   highlighted, shown only while you're in the timeline.
 - The **"The 2026 Fleet / Build & Price Yours" button is removed** (Tyler).
 
@@ -123,4 +123,4 @@ Typos fixed and a few sentences smoothed. Meaning unchanged:
 - The **1948 carousel photo duplicates the hero** (same scan). Drop it when real 1948 photos come in.
 - The **1975 video thumbnail** has black side bars (YouTube's own frame). Could crop it tighter.
 - Ideas not built yet: a sticky current-year chip on phones, captions per photo.
-- Year rail (right edge, wide screens) was bumped bigger 2026-10-13 (Tyler likes it). With ~25+ dates it will get taller than a short laptop screen; tighten its spacing or let it scroll then.
+- Year rail (right edge; Tyler likes it): bigger on wide screens (1380px+), small and faded until hover on 901-1379px (timeline gets 64px side padding there so it never covers the photo rows), hidden at 900px and under. Set 2026-10-13. With ~25+ dates it will get taller than a short laptop screen; tighten its spacing or let it scroll then.
