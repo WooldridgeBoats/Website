@@ -70,6 +70,7 @@ sub info {   # (width, height, Description metadata)
   my $f = shift; my ($w, $h, $d);
   open my $p, '-|:encoding(UTF-8)', 'sips', '-g', 'pixelWidth', '-g', 'pixelHeight', '-g', 'description', $f or die;
   while (<$p>) { $w = $1 if /pixelWidth:\s*(\d+)/; $h = $1 if /pixelHeight:\s*(\d+)/; $d = $1 if /^\s*description:\s*(.*?)\s*$/; }
+  $d = undef if defined $d && $d eq "<nil>";   # sips says <nil> when there is none
   close $p; return ($w, $h, $d);
 }
 
@@ -103,7 +104,7 @@ sub caption {
   $d =~ s/^\s+|\s+$//g; $d =~ s/\s+/ /g;
   # his usual slips (customer-facing, so fixed here)
   $d =~ s/\bSlamon\b/Salmon/g; $d =~ s/\b1sr\b/1st/gi; $d =~ s/\bAuxilary\b/Auxiliary/gi;
-  $d =~ s/(^|[-\s])len,/$1Glen,/; $d =~ s/\b(shop)\d\b/$1/gi;
+  $d =~ s/(^|[-\s])len,/$1Glen,/; $d =~ s/\b(shop)\d\b/$1/gi; $d =~ s/\bwate$/water/;
   # a leading date that just repeats this entry's date comes off (the year is
   # already on screen); a more specific one ("1964" in 1960s, "Late 1970s") stays
   if ($d =~ /^((?:(?:late|early|mid)[\s-]+)?\d{4}s?)(?:\s*[-\x{2013}\x{2014}:]\s*|\s+|$)(.*)$/is) {
@@ -225,6 +226,17 @@ for my $e (@eras) {
     $html .= qq{  </div>\n} if @tiles == 1;
   }
   $html .= qq{</article>\n};
+}
+
+# ── image folders for dates no longer on the timeline go away ──
+{
+  my %live = map { lc $_->{key} => 1 } @eras;
+  opendir my $ad, "$root/assets/history" or die;
+  for my $dd (grep { !/^\./ && -d "$root/assets/history/$_" } readdir $ad) {
+    next if $live{$dd};
+    remove_tree("$root/assets/history/$dd"); print "  removed old images: assets/history/$dd\n";
+  }
+  closedir $ad;
 }
 
 # ── write into the page ──
