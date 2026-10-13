@@ -5,6 +5,7 @@
    3. one flip-through viewer for every photo and video on the page, in order,
       so "next" runs from the end of one date into the start of the next
    4. the year rail on wide screens
+   5. the closing Rogue River map: its route upriver draws itself on scroll
    Markup comes from _build/build_history.pl; styles are the OUR HISTORY block
    in house.css. Without JS everything still shows and tiles open the image. */
 (function () {
@@ -28,6 +29,23 @@
     return { el: e, seg: e.querySelector('.hseg'), fill: e.querySelector('.hseg i'),
              head: e.querySelector('.hhead'), ghost: e.querySelector('.hghost') };
   });
+  // the closing map: rope into it, then the route upriver draws as it comes up the screen
+  var map = document.querySelector('.hmap'), mapLine, mapGlow, mapArt, mapRope, mapLen = 0;
+  if (map) {
+    mapLine = map.querySelector('.hmap-line'); mapGlow = map.querySelector('.hmap-glow');
+    mapArt = map.querySelector('.hmap-art'); mapRope = map.querySelector('.hseg i');
+    mapLen = mapLine.getTotalLength();
+    [mapLine, mapGlow].forEach(function (p) { p.style.strokeDasharray = mapLen; });
+  }
+  function drawMap(vh, reach) {
+    var s = mapRope.parentNode.getBoundingClientRect();
+    mapRope.style.height = (Math.max(0, Math.min(1, (reach - s.top) / s.height)) * 100).toFixed(2) + '%';
+    var r = mapArt.getBoundingClientRect();
+    var f = reduce ? 1 : Math.max(0, Math.min(1, (vh * 0.85 - r.top) / (vh * 0.45 + r.height * 0.35)));
+    var off = (mapLen * (1 - f)).toFixed(1);
+    mapLine.style.strokeDashoffset = off; mapGlow.style.strokeDashoffset = off;
+    map.classList.toggle('done', f >= 0.995);
+  }
   var queued = false;
   function frame() {
     queued = false;
@@ -44,6 +62,7 @@
         if (c > -1.2 && c < 1.2) p.ghost.style.transform = 'translate(-50%,-50%) translateY(' + (c * 46).toFixed(1) + 'px)';
       }
     });
+    if (map) drawMap(vh, reach);
     if (rail) {
       railLinks.forEach(function (a, i) { a.classList.toggle('on', i === cur); });
       var t = tl.getBoundingClientRect();

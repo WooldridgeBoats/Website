@@ -82,6 +82,37 @@ The builder cleans captions for the web and never touches Tyler's files:
 Tyler was re-exporting all the photos with descriptions on 2026-10-13, and some need
 their order swapped.
 
+## Round 2 (2026-10-13 afternoon)
+
+- **Photos:** Tyler's master `ABOUT | HISTORY/<date>` folders are the ONLY source now (the
+  X Drive seed set is retired; `--src` can still point elsewhere). 155 photos, 23 dates.
+- **Order is automatic:** dates in order, an era ("1970s") at the END of its decade.
+  Photos inside a folder run in filename order (1947-001, 1947-002 ...).
+- **Captions:** Description metadata first (Tyler's call), Finder Comments as fallback.
+  In an era, each photo keeps its own date ("1984 — ..." or "1980s — ..."); on a single-year
+  date the repeated year comes off. Fixes: Dam (was "Damn"), "ly 1980s" → Early 1980s,
+  C-130 stays intact, "2023—" spacing, a leading date always reads "1984 — ".
+- **Photo-only dates** (no text under the year yet): 1930s, 1951, 1960s, 1980s, 1990s, 2020s.
+- **Face-aware thumbs:** `_build/history_focus.swift` (macOS Vision) finds faces / upper
+  bodies and the builder sets each square thumb's object-position so heads aren't cut off.
+  Compiled once into `$TMPDIR/wb-history-focus` by the builder.
+- **Map finale:** after the last date the rope runs into "Where It All Began / The Rogue
+  River, Oregon": Glen's hand-drawn Rogue River Basin map laid on like a book page, with the
+  route upriver from Gold Beach to Grants Pass (1947 + 1962 firsts) drawing itself in blue on
+  scroll, Grants Pass pulsing at the end, then "Four Generations. One River at a time."
+  - Source: `ABOUT | HISTORY/GENERAL HISTORICAL-UNKOWN DATES/ROGUE RIVER BASIN.JPG`
+  - `_build/history_map.swift` cleans the scan (crop off the book edge + page number,
+    flatten the lighting, white paper) into `assets/history/rogue-map.jpg` AND traces the
+    river (cheapest path over thick ink) → the SVG path pasted into the page's `.hmap`
+    section. That section is hand-placed OUTSIDE the HIST markers, so the builder never
+    touches it. Re-run the map tool only if the scan changes, then paste the new path.
+- **Not placed yet:** the other 8 photos in `GENERAL HISTORICAL-UNKOWN DATES` (1914 Grants
+  Pass, bar blasting, Glen on the Rogue x2, TV star Truman Bradley, hauling wood, Grants Pass).
+  Ask Tyler where they go (a "From the Archives" gallery before the map?).
+- **Caption flags for Tyler:** 2026-008 "...in his 20-foot Alaskan XLT" (whose?);
+  2026-009 is a 2022 photo in the 2026 folder; 2026-011's description is cut off ("wate",
+  page shows "water").
+
 ## How to update
 
 ```

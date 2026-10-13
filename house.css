@@ -2908,3 +2908,44 @@ body.hlb-open{ overflow:hidden; }
   .hlb-fig.fn,.hlb-fig.fp{ animation:none; }
   .htrack{ scroll-behavior:auto; }
 }
+
+/* finale: Glen's Rogue River map. The rope runs down into it, and the route upriver
+   (Gold Beach to Grants Pass, the 1947 and 1962 firsts) draws itself in blue as you
+   scroll. The scan is cleaned to white paper by _build/history_map.swift and laid on
+   with multiply so it reads as ink on the page. */
+.hmap{ text-align:center; padding:0 0 96px; }
+.hmap .hseg{ margin-bottom:18px; }
+.hmap-kick{
+  font-weight:500; font-size:clamp(16px,1.5vw,19px); letter-spacing:.16em; text-transform:uppercase;
+  color:var(--ink);
+}
+.hmap-h{ font-size:clamp(28px,2.6vw,36px); line-height:1.1; letter-spacing:.035em; margin-top:8px; }
+.hmap-fig{ max-width:1120px; margin:32px auto 0; }
+.hmap-page{
+  background:#fbf9f4; padding:clamp(10px,2.4vw,32px); border-radius:2px; transform:rotate(-.4deg);
+  box-shadow:0 2px 4px rgba(20,30,40,.1), 0 26px 64px rgba(20,30,40,.18);
+}
+.hmap-art{ position:relative; }
+.hmap-art img{ width:100%; height:auto; mix-blend-mode:multiply; }
+.hmap-route{ position:absolute; left:0; top:0; width:100%; height:100%; overflow:visible; }
+.hmap-glow,.hmap-line{ fill:none; stroke-linecap:round; stroke-linejoin:round; }
+.hmap-glow{ stroke:rgba(27,117,187,.2); stroke-width:30; }
+.hmap-line{ stroke:var(--blue); stroke-width:10; }
+.hmap-dot{ fill:var(--blue); stroke:#fbf9f4; stroke-width:6; transition:opacity .4s; }
+.hmap-ping{ fill:none; stroke:var(--blue); stroke-width:5; opacity:0; transform-box:fill-box; transform-origin:center; }
+.hjs .hmap-dot.b{ opacity:0; }
+.hmap.done .hmap-dot.b{ opacity:1; }
+.hmap.done .hmap-ping{ animation:hping 2.4s ease-out infinite; }
+@keyframes hping{ 0%{ opacity:.75; transform:scale(1); } 100%{ opacity:0; transform:scale(3.4); } }
+.hmap-fig figcaption{
+  max-width:720px; margin:26px auto 0; font-size:15px; line-height:1.7; color:var(--muted);
+}
+.hmap-close{
+  font-family:var(--serif); font-weight:700; color:var(--blue); letter-spacing:.012em;
+  font-size:clamp(26px,2.8vw,40px); line-height:1.25; margin-top:60px;
+}
+@media (max-width:900px){
+  .hmap-page{ transform:none; }
+  .hmap-fig figcaption{ font-size:14px; padding:0 4px; }
+}
+@media (prefers-reduced-motion: reduce){ .hmap.done .hmap-ping{ animation:none; } }

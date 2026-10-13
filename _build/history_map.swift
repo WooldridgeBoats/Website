@@ -30,12 +30,21 @@ let OUTW = 2200
 let k = Double(OUTW) / Double(crop.width)
 let OUTH = Int((Double(crop.height) * k).rounded())
 
-// grayscale, scaled, then levels: paper (~0.80 and up) -> white, ink (~0.18 and down) -> black
+// grayscale, scaled, lighting flattened, then levels: paper -> white, ink -> black
 var ci = CIImage(cgImage: scan).cropped(to: CGRect(x: crop.minX, y: SH - crop.maxY, width: crop.width, height: crop.height))
 ci = ci.transformed(by: CGAffineTransform(translationX: -crop.minX, y: -(SH - crop.maxY)))
 ci = ci.applyingFilter("CIColorControls", parameters: ["inputSaturation": 0])
 ci = ci.applyingFilter("CILanczosScaleTransform", parameters: ["inputScale": k, "inputAspectRatio": 1])
-let lo = 0.18, hi = 0.80, g = 1.0 / (hi - lo)
+// flatten the lighting: the scan is a photo of a book page, shadowed toward the
+// lower right. Estimate the bare paper (spread the light paper over the ink, then
+// blur) and divide it out, so the whole sheet reads the same white.
+let full = CGRect(x: 0, y: 0, width: Double(OUTW), height: (Double(crop.height) * k).rounded())
+let paper = ci.clampedToExtent()
+  .applyingFilter("CIMorphologyMaximum", parameters: ["inputRadius": 9])
+  .applyingFilter("CIGaussianBlur", parameters: ["inputRadius": 28])
+  .cropped(to: full)
+ci = ci.applyingFilter("CIDivideBlendMode", parameters: ["inputBackgroundImage": ci, kCIInputImageKey: paper]).cropped(to: full)
+let lo = 0.30, hi = 0.86, g = 1.0 / (hi - lo)
 ci = ci.applyingFilter("CIColorMatrix", parameters: [
   "inputRVector": CIVector(x: g, y: 0, z: 0, w: 0), "inputGVector": CIVector(x: 0, y: g, z: 0, w: 0),
   "inputBVector": CIVector(x: 0, y: 0, z: g, w: 0), "inputBiasVector": CIVector(x: -lo * g, y: -lo * g, z: -lo * g, w: 0)])
