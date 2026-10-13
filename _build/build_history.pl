@@ -73,9 +73,30 @@ sub info {   # (width, height, Description metadata)
   close $p; return ($w, $h, $d);
 }
 
-# Photo captions: Tyler types each one into the photo's Description metadata
-# (Finder Get Info / Preview / Photoshop all write it). Cleaned for the web here;
-# his files are never touched. Run with --captions to list what each photo got.
+# Finder "Comments" (Get Info). Tyler's preferred spot for captions, since it's
+# quick to edit. It is NOT inside the JPEG: macOS keeps it in an extended
+# attribute beside the file, so it survives Finder copies between Mac drives but
+# not an export/re-save, email or download. Read straight from the xattr so
+# Spotlight indexing doesn't matter.
+sub finder_comment {
+  my $f = shift;
+  open my $err, '>&', \*STDERR or die; open STDERR, '>', '/dev/null';   # "No such xattr" = no comment
+  open my $x, '-|', 'xattr', '-px', 'com.apple.metadata:kMDItemFinderComment', $f;
+  my $hex = $x ? do { local $/; <$x> } // '' : ''; close $x if $x;
+  open STDERR, '>&', $err;
+  $hex =~ s/\s+//g; return '' if $hex eq '';
+  my $tmp = "/tmp/wb-hist-comment-$$.plist";
+  open my $o, '>:raw', $tmp or return ''; print $o pack('H*', $hex); close $o;
+  open my $p, '-|:encoding(UTF-8)', 'plutil', '-convert', 'xml1', '-o', '-', $tmp or return '';
+  my $xml = do { local $/; <$p> } // ''; close $p; unlink $tmp;
+  my ($c) = $xml =~ m{<string>(.*?)</string>}s or return '';
+  $c =~ s/&lt;/</g; $c =~ s/&gt;/>/g; $c =~ s/&quot;/"/g; $c =~ s/&apos;/'/g; $c =~ s/&amp;/&/g;
+  return $c;
+}
+
+# Photo captions: Finder Comments first, else the Description metadata baked
+# into the file (Preview / Photoshop / Lightroom export write that). Cleaned for
+# the web here; his files are never touched. --captions lists what each got.
 sub caption {
   my ($d, $key) = @_;
   return '' unless defined $d;
@@ -171,7 +192,8 @@ for my $e (@eras) {
     for my $f (@imgs) {
       $i++; my $nn = sprintf '%02d', $i;
       my ($w, $h, $desc) = info("$dir/$f");
-      my $cap = caption($desc, $key);
+      my $com = finder_comment("$dir/$f");
+      my $cap = caption($com =~ /\S/ ? $com : $desc, $key);
       printf "    %-22s %s\n", $f, ($cap eq '' ? '(no caption)' : $cap) if $list_caps;
       my $long = $w > $h ? $w : $h;
       sips_out("$dir/$f", "$out/$nn.jpg", ($long > $FULL ? ('-Z', $FULL) : ()));

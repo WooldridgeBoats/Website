@@ -59,9 +59,14 @@ So as Tyler fills a date folder in the master, it replaces the archive photos fo
 
 ## Photo captions (2026-10-13)
 
-Tyler puts each photo's caption in its **Description** metadata when he exports (it
-lands in EXIF ImageDescription, IPTC Caption and XMP Description; the builder reads it
-with `sips -g description`). It shows in the white margin under each print (2 lines
+Captions come from, in order: the photo's **Finder Comments** (Get Info; Tyler's
+preferred spot, quick to edit), else its **Description** metadata (EXIF ImageDescription /
+IPTC Caption / XMP Description, read with `sips -g description`).
+Finder Comments are NOT inside the JPEG; macOS keeps them in an extended attribute
+(`com.apple.metadata:kMDItemFinderComment`, read straight from the xattr). They survive
+Finder copies between Mac drives and work on the OneDrive files on this Mac (checked
+2026-10-13), but an export/re-save, email or download drops them. So: export first,
+then type the comments on the files in the date folders. It shows in the white margin under each print (2 lines
 max, album-style) and leads in the viewer, with the date's caption under it. It's also
 the photo's alt text. `perl _build/build_history.pl --captions` lists what each photo got.
 
