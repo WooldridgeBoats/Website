@@ -57,6 +57,26 @@ in order, and the first source with photos for a date wins:
 
 So as Tyler fills a date folder in the master, it replaces the archive photos for that date.
 
+## Photo captions (2026-10-13)
+
+Tyler puts each photo's caption in its **Description** metadata when he exports (it
+lands in EXIF ImageDescription, IPTC Caption and XMP Description; the builder reads it
+with `sips -g description`). It shows in the white margin under each print (2 lines
+max, album-style) and leads in the viewer, with the date's caption under it. It's also
+the photo's alt text. `perl _build/build_history.pl --captions` lists what each photo got.
+
+The builder cleans captions for the web and never touches Tyler's files:
+- a leading date that repeats the entry's date comes off ("1947-Rogue No. 2" in 1947 → "Rogue No. 2");
+  a more specific one stays ("1964" in 1960s, "Late 1970s")
+- a caption that's only the date ("1977", "1980s") shows nothing
+- separator dashes become " · " ("Rogue No. 2-Gold Beach" → "Rogue No. 2 · Gold Beach");
+  real hyphens followed by lowercase ("first-ever") stay
+- mostly-caps captions get title case; known slips are fixed (Slamon, 1sr, Auxilary, "len,")
+- photo **order = filename order** inside each folder (natural sort, so 2 comes before 10)
+
+Tyler was re-exporting all the photos with descriptions on 2026-10-13, and some need
+their order swapped.
+
 ## How to update
 
 ```

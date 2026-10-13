@@ -4,6 +4,7 @@
 #
 #   perl _build/build_history.pl                 # default photo sources
 #   perl _build/build_history.pl --src <dir> ... # override (repeatable, in order)
+#   perl _build/build_history.pl --captions      # also list each photo's caption
 #
 # READS
 #   _build/history_timeline.txt        the approved dates + captions + videos
@@ -37,9 +38,11 @@ my $MASTER = '/Users/tylerlee/Library/CloudStorage/OneDrive-WooldridgeBoatsInc/W
 my $ARCHIVE = '/Volumes/X Drive/HERITAGE MEDIA/HERITAGE PHOTOS';
 
 my @src;
-while (@ARGV) { my $a = shift @ARGV; push @src, shift @ARGV if $a eq '--src'; }
+my $list_caps = 0;
+while (@ARGV) { my $a = shift @ARGV; if ($a eq '--src') { push @src, shift @ARGV } elsif ($a eq '--captions') { $list_caps = 1 } }
 @src = ($MASTER, $ARCHIVE) unless @src;
 @src = grep { -d $_ or (warn "  (skipping missing source: $_)\n", 0) } @src;
+sub where { my $p = shift; $p =~ s{^\Q$MASTER\E}{ABOUT | HISTORY}; $p =~ s{^\Q$ARCHIVE\E}{X Drive HERITAGE PHOTOS}; $p }
 
 my $FULL  = 2000;   # long side of the lightbox image
 my $THUMB = 720;    # short side of the carousel tile (tiles are ~340px square)
@@ -62,11 +65,46 @@ die "no timeline entries\n" unless @eras;
 sub ytid { my $u = shift; return $1 if $u =~ m{(?:youtu\.be/|v=|embed/|shorts/)([\w-]{11})}; die "bad YouTube URL: $u\n"; }
 sub esc  { my $s = shift; $s =~ s/&/&amp;/g; $s =~ s/</&lt;/g; $s =~ s/>/&gt;/g; $s =~ s/"/&quot;/g; $s }
 sub plain { my $s = shift; $s =~ s/<[^>]+>//g; $s }
-sub dims {
-  my $f = shift; my ($w, $h);
-  open my $p, '-|', 'sips', '-g', 'pixelWidth', '-g', 'pixelHeight', $f or die;
-  while (<$p>) { $w = $1 if /pixelWidth:\s*(\d+)/; $h = $1 if /pixelHeight:\s*(\d+)/; }
-  close $p; return ($w, $h);
+sub dims { my @i = info(shift); @i[0, 1] }
+sub info {   # (width, height, Description metadata)
+  my $f = shift; my ($w, $h, $d);
+  open my $p, '-|:encoding(UTF-8)', 'sips', '-g', 'pixelWidth', '-g', 'pixelHeight', '-g', 'description', $f or die;
+  while (<$p>) { $w = $1 if /pixelWidth:\s*(\d+)/; $h = $1 if /pixelHeight:\s*(\d+)/; $d = $1 if /^\s*description:\s*(.*?)\s*$/; }
+  close $p; return ($w, $h, $d);
+}
+
+# Photo captions: Tyler types each one into the photo's Description metadata
+# (Finder Get Info / Preview / Photoshop all write it). Cleaned for the web here;
+# his files are never touched. Run with --captions to list what each photo got.
+sub caption {
+  my ($d, $key) = @_;
+  return '' unless defined $d;
+  $d =~ s/^\s+|\s+$//g; $d =~ s/\s+/ /g;
+  # his usual slips (customer-facing, so fixed here)
+  $d =~ s/\bSlamon\b/Salmon/g; $d =~ s/\b1sr\b/1st/gi; $d =~ s/\bAuxilary\b/Auxiliary/gi;
+  $d =~ s/(^|[-\s])len,/$1Glen,/; $d =~ s/\b(shop)\d\b/$1/gi;
+  # a leading date that just repeats this entry's date comes off (the year is
+  # already on screen); a more specific one ("1964" in 1960s, "Late 1970s") stays
+  if ($d =~ /^((?:(?:late|early|mid)[\s-]+)?\d{4}s?)(?:\s*[-\x{2013}\x{2014}:]\s*|\s+|$)(.*)$/is) {
+    my ($tok, $rest) = ($1, $2);
+    if ($rest eq '')                  { $d = lc $tok eq lc $key ? '' : $tok; }
+    elsif ($rest =~ /^[A-Z0-9"\x{201C}]/) { $d = lc $tok eq lc $key ? $rest : "$tok - $rest"; }
+  }
+  return '' if $d eq '';
+  # dashes used as separators ("Rogue River-Left") become " · "; real hyphens
+  # ("first-ever", "22-horsepower") are followed by lowercase and stay
+  $d =~ s/\s+-\s+/ \x{00B7} /g;
+  $d =~ s/(?<=\S)-(?=[A-Z0-9])/ \x{00B7} /g;
+  $d =~ s/,(?=[^\s\d])/, /g;
+  # mostly-caps captions get title case (acronyms kept)
+  my $up = () = $d =~ /[A-Z]/g; my $lo = () = $d =~ /[a-z]/g;
+  if ($up > 2 * $lo) {
+    my %keep = map { $_ => 1 } qw(SE NW NE SW BC US USA II III);
+    my %small = map { $_ => 1 } qw(a an and at by for in of on or the to up);
+    my $first = 1;
+    $d =~ s{\b([A-Z][A-Z']+)\b}{ my $w = $1; my $o = $keep{$w} ? $w : ($small{lc $w} && !$first) ? lc $w : ucfirst lc $w; $first = 0; $o }ge;
+  }
+  return $d;
 }
 sub sips_out {   # sips to JPEG, only ever shrinking (its chatter goes to /dev/null)
   my ($in, $out, @resize) = @_;
@@ -108,7 +146,7 @@ for my $s (@src) {
   my ($w) = dims("$s/$h");
   sips_out("$s/$h", "$root/assets/history/hero.jpg", ($w > 2400 ? ('-Z', 2400) : ()));
   $hero_v = ver("$root/assets/history/hero.jpg");
-  print "hero      <- $s/$h\n"; last;
+  print "hero      <- ", where("$s/$h"), "\n"; last;
 }
 
 # ── per-date photos + markup ──
@@ -123,8 +161,8 @@ for my $e (@eras) {
   for my $v (@{$e->{videos}}) {
     my ($id, $title) = @$v;
     push @tiles, qq{    <button type="button" class="htile vid" data-yt="$id" data-vtitle="} . esc(plain($title)) . qq{">}
-      . qq{<img src="https://i.ytimg.com/vi/$id/sddefault.jpg" alt="" loading="lazy" decoding="async">}
-      . qq{<span class="hplay" aria-hidden="true"></span><span class="hvt">Watch · } . esc(plain($title)) . qq{</span></button>};
+      . qq{<span class="hpic"><img src="https://i.ytimg.com/vi/$id/sddefault.jpg" alt="" loading="lazy" decoding="async"><span class="hplay" aria-hidden="true"></span></span>}
+      . qq{<span class="hpc"><b>Watch</b> } . esc(plain($title)) . qq{</span></button>};
   }
   if (@imgs) {
     make_path("$out/thumbs");
@@ -132,7 +170,9 @@ for my $e (@eras) {
     my $short = plain(join ' ', @{$e->{text}}); $short =~ s/[.:].*$//s;
     for my $f (@imgs) {
       $i++; my $nn = sprintf '%02d', $i;
-      my ($w, $h) = dims("$dir/$f");
+      my ($w, $h, $desc) = info("$dir/$f");
+      my $cap = caption($desc, $key);
+      printf "    %-22s %s\n", $f, ($cap eq '' ? '(no caption)' : $cap) if $list_caps;
       my $long = $w > $h ? $w : $h;
       sips_out("$dir/$f", "$out/$nn.jpg", ($long > $FULL ? ('-Z', $FULL) : ()));
       my @tr = $w >= $h ? ('--resampleHeight', $THUMB) : ('--resampleWidth', $THUMB);
@@ -140,13 +180,13 @@ for my $e (@eras) {
       sips_out("$dir/$f", "$out/thumbs/$nn.jpg", @tr);
       my ($fw, $fh) = dims("$out/$nn.jpg");
       my ($tw, $th) = dims("$out/thumbs/$nn.jpg");
-      my $alt = esc("$key: $short (photo $i of $N)");
-      push @tiles, sprintf qq{    <a class="htile" href="/assets/history/%s/%s.jpg?v=%s" data-w="%d" data-h="%d"><img src="/assets/history/%s/thumbs/%s.jpg?v=%s" alt="%s" width="%d" height="%d" loading="lazy" decoding="async"></a>},
-        $slug, $nn, ver("$out/$nn.jpg"), $fw, $fh, $slug, $nn, ver("$out/thumbs/$nn.jpg"), $alt, $tw, $th;
+      my $alt = esc($cap ne '' ? "$key: $cap" : "$key: $short (photo $i of $N)");
+      push @tiles, sprintf qq{    <a class="htile" href="/assets/history/%s/%s.jpg?v=%s" data-w="%d" data-h="%d"><span class="hpic"><img src="/assets/history/%s/thumbs/%s.jpg?v=%s" alt="%s" width="%d" height="%d" loading="lazy" decoding="async"></span><span class="hpc">%s</span></a>},
+        $slug, $nn, ver("$out/$nn.jpg"), $fw, $fh, $slug, $nn, ver("$out/thumbs/$nn.jpg"), $alt, $tw, $th, esc($cap);
       $n_photos++;
     }
   }
-  printf "%-9s %2d photo(s)%s%s\n", $key, scalar(@imgs), (@{$e->{videos}} ? ' + ' . @{$e->{videos}} . ' video' : ''), ($dir ? "  <- $dir" : '');
+  printf "%-9s %2d photo(s)%s%s\n", $key, scalar(@imgs), (@{$e->{videos}} ? ' + ' . @{$e->{videos}} . ' video' : ''), ($dir ? '  <- ' . where($dir) : '');
 
   my $cap = join "</p>\n  <p class=\"hcap\">", @{$e->{text}};
   $html .= qq{<article class="hera" id="y$slug" data-yr="$key">\n};
@@ -174,11 +214,13 @@ open my $po, '>:encoding(UTF-8)', $page or die; print $po $src; close $po;
 
 # ── folders with photos but no spot on the timeline (so nothing gets lost) ──
 my %keys = map { lc $_->{key} => 1 } @eras;
+my %told;
 for my $s (@src) {
   opendir my $d, $s or next;
   for my $dir (sort grep { !/^\./ && -d "$s/$_" } readdir $d) {
     my ($k) = $dir =~ /^(\d{4}s?)/ or next;
-    print "  no timeline entry for folder: $s/$dir\n" unless $keys{lc $k} || $used_dirs{"$s/$dir"};
+    next if $keys{lc $k} || $used_dirs{"$s/$dir"} || $told{lc $dir}++;
+    print "  no timeline entry yet for folder: $dir\n";
   }
   closedir $d;
 }

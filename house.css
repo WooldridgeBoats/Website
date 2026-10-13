@@ -2726,8 +2726,9 @@ html.blueprint body{ background:transparent; }
 .hcar.more-l.more-r .htrack{ -webkit-mask-image:linear-gradient(to right,transparent,#000 90px,#000 calc(100% - 90px),transparent); mask-image:linear-gradient(to right,transparent,#000 90px,#000 calc(100% - 90px),transparent); }
 .htile{
   --t:clamp(250px,27vw,340px);
-  flex:none; position:relative; display:block; width:var(--t); height:var(--t);
-  scroll-snap-align:center; background:#fdfcf9; padding:10px; border:0; border-radius:2px;
+  flex:none; position:relative; display:flex; flex-direction:column; width:var(--t);
+  scroll-snap-align:center; background:#fdfcf9; padding:10px 10px 12px; border:0; border-radius:2px;
+  text-align:left; font:inherit; color:inherit;
   box-shadow:0 1px 2px rgba(20,30,40,.14), 0 12px 28px rgba(20,30,40,.16);
   transform:rotate(-.8deg); transition:transform .4s cubic-bezier(.2,.7,.2,1), box-shadow .4s;
   cursor:zoom-in;
@@ -2739,9 +2740,18 @@ html.blueprint body{ background:transparent; }
   box-shadow:0 2px 4px rgba(20,30,40,.14), 0 22px 44px rgba(20,30,40,.24);
 }
 .htile:focus-visible{ box-shadow:0 0 0 3px var(--blue), 0 22px 44px rgba(20,30,40,.24); }
-.htile img{ width:100%; height:100%; object-fit:cover; filter:sepia(.14) contrast(1.03); }
-.htile.vid{ width:auto; aspect-ratio:16/9; cursor:pointer; }
-.htile.vid img{ filter:none; }
+.hpic{ display:block; position:relative; width:100%; aspect-ratio:1; overflow:hidden; background:#e9e6df; }
+.hpic img{ width:100%; height:100%; object-fit:cover; filter:sepia(.14) contrast(1.03); }
+/* the caption, written in the white margin under the print (photo's Description metadata) */
+.hpc{
+  display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden;
+  height:2.8em; margin-top:9px; padding:0 2px; font-weight:500; font-size:13px; line-height:1.4; color:#3f454a;
+}
+.hpc b{ font-weight:700; color:var(--blue); text-transform:uppercase; letter-spacing:.08em; font-size:11.5px; margin-right:4px; }
+/* a video sits on the same row height as the prints, just wider */
+.htile.vid{ width:calc((var(--t) - 20px) * 16 / 9 + 20px); cursor:pointer; }
+.htile.vid .hpic{ aspect-ratio:16/9; }
+.htile.vid .hpic img{ filter:none; }
 .hplay{
   position:absolute; left:50%; top:50%; width:74px; height:74px; margin:-37px 0 0 -37px;
   border-radius:50%; background:var(--blue); box-shadow:0 6px 22px rgba(0,0,0,.35);
@@ -2752,11 +2762,6 @@ html.blueprint body{ background:transparent; }
   border-style:solid; border-width:15px 0 15px 24px; border-color:transparent transparent transparent #fff;
 }
 .htile.vid:hover .hplay{ transform:scale(1.08); }
-.hvt{
-  position:absolute; left:10px; right:10px; bottom:10px; padding:26px 14px 10px; text-align:left;
-  background:linear-gradient(to top, rgba(10,14,18,.82), transparent); color:#fff;
-  font-weight:600; font-size:12px; letter-spacing:.1em; text-transform:uppercase;
-}
 .hcarui{ display:flex; align-items:center; justify-content:center; gap:18px; }
 .hcar.fits .hcarui,.hcar.fits .hbar{ display:none; }
 .hbar{
@@ -2804,7 +2809,9 @@ body.hlb-open{ overflow:hidden; }
 @keyframes hlbp{ from{ opacity:0; transform:rotateY(24deg) translateX(-60px); } to{ opacity:1; transform:none; } }
 .hlb-cap{ flex:none; text-align:center; padding:14px 24px 26px; max-width:780px; margin:0 auto; }
 .hlb-yr{ font-family:var(--serif); font-weight:700; font-size:30px; line-height:1; color:#5aa7e6; letter-spacing:.04em; }
-.hlb-txt{ font-size:15px; line-height:1.6; color:#cfccc6; margin-top:8px; }
+.hlb-txt{ font-weight:500; font-size:17px; line-height:1.55; color:#f3f0ea; margin-top:8px; }
+.hlb-sub{ font-size:13.5px; line-height:1.6; color:#a9a49b; margin-top:6px; }
+.hlb-sub:empty{ display:none; }
 .hlb-n{ font-weight:600; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#8f8a82; margin-top:10px; }
 .hlb-x{
   position:absolute; top:16px; right:18px; z-index:2; background:none; color:#fff;
@@ -2860,7 +2867,7 @@ body.hlb-open{ overflow:hidden; }
   .hintro p{ font-size:17px; }
   .hcap{ font-size:17px; }
   .htile{ --t:min(74vw,330px); }
-  .htile.vid{ width:min(88vw,520px); height:auto; }
+  .htile.vid{ width:min(88vw,520px); }
   .hlb-stage{ padding:62px 10px 6px; }
   .hlb-fig{ padding:8px; }
   .hlb-fig img{ max-width:calc(100vw - 36px); max-height:calc(100svh - 250px); }

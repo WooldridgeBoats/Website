@@ -73,6 +73,7 @@
       items.push({
         yt: t.getAttribute('data-yt'), src: t.getAttribute('href'),
         title: t.getAttribute('data-vtitle'), alt: (t.querySelector('img') || {}).alt || '',
+        pc: t.hasAttribute('data-yt') ? '' : ((t.querySelector('.hpc') || {}).textContent || ''),
         yr: e.getAttribute('data-yr'), cap: cap ? cap.innerHTML : '', n: n + 1, of: tiles.length
       });
     });
@@ -125,7 +126,7 @@
   });
 
   /* ── 3: the viewer ── */
-  var lb, fig, yrEl, txtEl, nEl, bPrev, bNext, at = -1, lastFocus = null;
+  var lb, fig, yrEl, txtEl, subEl, nEl, bPrev, bNext, at = -1, lastFocus = null;
   function build() {
     lb = document.createElement('div');
     lb.className = 'hlb'; lb.setAttribute('role', 'dialog'); lb.setAttribute('aria-modal', 'true');
@@ -134,10 +135,10 @@
       '<button type="button" class="hlb-x">CLOSE &#10005;</button>' +
       '<div class="hlb-stage"><button type="button" class="hlb-prev" aria-label="Previous"></button>' +
       '<div class="hlb-fig"></div><button type="button" class="hlb-next" aria-label="Next"></button></div>' +
-      '<div class="hlb-cap"><div class="hlb-yr"></div><div class="hlb-txt"></div><div class="hlb-n"></div></div>';
+      '<div class="hlb-cap"><div class="hlb-yr"></div><div class="hlb-txt"></div><div class="hlb-sub"></div><div class="hlb-n"></div></div>';
     document.body.appendChild(lb);
     fig = lb.querySelector('.hlb-fig'); yrEl = lb.querySelector('.hlb-yr');
-    txtEl = lb.querySelector('.hlb-txt'); nEl = lb.querySelector('.hlb-n');
+    txtEl = lb.querySelector('.hlb-txt'); subEl = lb.querySelector('.hlb-sub'); nEl = lb.querySelector('.hlb-n');
     bPrev = lb.querySelector('.hlb-prev'); bNext = lb.querySelector('.hlb-next');
     lb.querySelector('.hlb-x').addEventListener('click', close);
     bPrev.addEventListener('click', function () { go(-1); });
@@ -161,7 +162,10 @@
     fig.classList.remove('fn', 'fp'); void fig.offsetWidth;
     if (dir && !reduce) fig.classList.add(dir > 0 ? 'fn' : 'fp');
     yrEl.textContent = it.yr;
-    txtEl.innerHTML = it.yt ? (it.title || '') : it.cap;
+    // the photo's own caption leads; the date's story sits under it
+    var own = it.yt ? (it.title || '') : it.pc;
+    if (own) { txtEl.textContent = own; subEl.innerHTML = it.cap; }
+    else { txtEl.innerHTML = it.cap; subEl.innerHTML = ''; }
     nEl.textContent = it.of > 1 ? (it.yt ? 'Video' : 'Photo') + ' ' + it.n + ' of ' + it.of : (it.yt ? 'Video' : '');
     bPrev.disabled = i === 0; bNext.disabled = i === items.length - 1;
     [i - 1, i + 1].forEach(function (j) { if (items[j] && !items[j].yt) { var p = new Image(); p.src = items[j].src; } });
