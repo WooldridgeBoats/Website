@@ -19,7 +19,6 @@ my %APPROVED = map { $_ => 1 } qw(
   Q-CFG-08
   Q-CFG-09
   Q-CFG-10
-  Q-CFG-11
   Q-CFG-12
   Q-E-4
   AUD-TYPO-01
@@ -283,6 +282,31 @@ for my $m (@$models){
   die "CANON-2026-10-10-B: Sportster hide set drifted\n  got  $got\n  want $want\n" unless $got eq $want;
 }
 
+# ── CANON-2026-10-13: Q-CFG-11 RETIRED. The Super Sport Drifter Inboard's
+#    shortest hull is 21 ft in the RAW catalogue now (Stephen, 2026-10-13:
+#    "21 ft; fix the configurator and fact row"). The lenRename 20->21 patch that
+#    used to do it at load time (Q-CFG-11, Luke doc 4; the 20 ft hull price
+#    carried to the 21 unchanged - canon BOATS.csv SSDIB-21-WS is the same
+#    129,999) is gone: lengths, hulls, hullNotes, engines, the seven per-length
+#    option prices and the tag were re-keyed in const MODELS itself (count-
+#    guarded, proven equal to lenRename's result). ASSERTED here so a
+#    regenerated catalogue that brings the 20 back dies instead of silently
+#    selling a 20 ft hull again. Do NOT re-add the patch - fix the catalogue.
+{
+  my ($ssdib) = grep { $_->{id} eq 'ssdib' } @$models;
+  die "CANON-2026-10-13: no ssdib model in the catalogue\n" unless $ssdib;
+  my $lens = join(',', @{$ssdib->{lengths}});
+  die "CANON-2026-10-13: ssdib lengths are [$lens], expected 21,23,25 - the raw catalogue regressed to the 20 ft hull\n" unless $lens eq '21,23,25';
+  for my $s (@{$ssdib->{styles}}) {
+    for my $k (qw(hulls hullNotes)) { die "CANON-2026-10-13: ssdib style $s->{id} $k still keyed on 20\n" if $s->{$k} && exists $s->{$k}{20} }
+  }
+  die "CANON-2026-10-13: ssdib engines still keyed on 20\n" if grep { /20$/ } keys %{$ssdib->{engines}};
+  for my $c (@{$ssdib->{cats}}) { for my $it (@{$c->{items}}) {
+    die "CANON-2026-10-13: ssdib option $it->{id} still priced under key 20\n" if ref $it->{price} eq 'HASH' && exists $it->{price}{20};
+  } }
+  die "CANON-2026-10-13: ssdib tag still advertises 20 ft ($ssdib->{tag})\n" if ($ssdib->{tag} || '') =~ /\b20\b/;
+}
+
 # ── blocks, each keyed to its question ──
 my @BLOCKS = (
   { q => 'AUD-TYPO-01', t => 'de-double "helm-seat seat" -> "helm-seat" (the clean spelling the other price sheets use for the same product)',
@@ -314,8 +338,8 @@ my @BLOCKS = (
       { m => 'skagitx', prop => 'nm', v => 'Skagit-X Inboard' },
       { m => 'scoutwb', styleId => 'ws', prop => 'nm', v => 'Cabin with Idaho deck' },
     ] } },
-  { q => 'Q-CFG-11', t => 'Drifter Inboard 20ft retired -> 21/23/25 (Luke, doc 4). Stephen confirmed the 20ft hull price carries to the 21 — it is the same boat remeasured, not a bigger one',
-    live => { catalogPatches => [ { m => 'ssdib', lenRename => { from => 20, to => 21 } } ] } },
+  # Q-CFG-11 ('Drifter Inboard 20ft retired -> 21/23/25', lenRename 20->21) was
+  # RETIRED 2026-10-13: the raw catalogue now says 21 (see CANON-2026-10-13 above).
   { q => q{Q-E-4}, t => q{Christian: Garmin Striker budget option, non-US maps, Folbe Advantage Junior, extra rod holder bases w/ location note (SOC-09..12) - built UNPRICED, "Priced on request" until Stephen has numbers from Christian},
     live => { addItems => \@qe4 } },
   { q => 'Q-CFG-12', t => 'Center Console hull style on the five inboards that lack it (CFG-M-08) — priced identically to the windshield hull, which is Grant\'s own stated rule',
