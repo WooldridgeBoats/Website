@@ -283,7 +283,19 @@ h1,h2,h3,.h-serif{
      dropped in front of it. */
   border-top:0; border-radius:0 0 var(--rad) var(--rad);
   box-shadow:var(--shadow-lg);
-  display:grid; grid-template-columns:repeat(4,minmax(150px,1fr)) 170px;
+  /* minmax(0,1fr), not minmax(150px,1fr) (2026-10-13, Tyler): the 150px floors
+     never fit. 4x150 + 170 + 4x28 gap + 60 padding + 2 border = 944px of
+     minimum grid inside a panel that is at most 920px (92vw below 1000px), so
+     the grid always overflowed. Measured on /our-history/: at 1440 the Tools
+     column ended 7px from the panel edge instead of 31; from 901 to ~1000 it
+     hung outside the white panel; and from 901 to 927 (classic 15px scrollbar)
+     its right edge sat at 913px, past the viewport. The panel is
+     visibility:hidden on desktop, not display:none, so it still counted for
+     layout and the WHOLE PAGE scrolled sideways even with the menu closed.
+     The 761-880 hamburger menu had the same overflow inside the open nav.
+     The model columns now share whatever width the panel has (144px at 920,
+     121px at 901); long names already wrap (white-space:normal). */
+  display:grid; grid-template-columns:repeat(4,minmax(0,1fr)) 170px;
   gap:8px 28px; padding:26px 30px; width:min(920px,92vw);
 }
 .mega h5{
