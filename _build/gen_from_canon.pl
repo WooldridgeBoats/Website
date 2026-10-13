@@ -24,8 +24,17 @@
 #                                   (markers are added around the existing elements on the
 #                                   first run, count-guarded one per page)
 #   4. tools/SPEC_DATA.js           the compare page's figures (from SPECS)
-#   5. perl _build/stamp_assets.pl  re-stamps ?v= on changed assets
-#   6. perl _build/verify_spec_canon.pl  proves the result and prints its table
+#   5. WB CANON DATA.json           ONE machine-readable file of everything the canon says,
+#                                   for readers outside this repo (the Sales Order Creator reads
+#                                   it instead of carrying re-synced private copies - Stephen,
+#                                   2026-10-13). Default path: beside the workbook, i.e.
+#                                   <folder given by --canon>/../WB CANON DATA.json; --out <file>
+#                                   overrides. Keys sorted, 2-space indent, LF, UTF-8. "pricing"
+#                                   is null today and is reserved for the later pricing phase.
+#                                   SPECS "list" rows (the per-configuration weights) carry a
+#                                   "values" array of {note, value} instead of one value/note.
+#   6. perl _build/stamp_assets.pl  re-stamps ?v= on changed assets
+#   7. perl _build/verify_spec_canon.pl  proves the result and prints its table
 #
 # NOT touched here, by design (P3-only or report-only; printed at the end):
 #   the Sales Order Creator copy, the branded price sheets and SALES TOOLS
@@ -45,23 +54,27 @@ use WBSpecCanon qw(slurp_bytes slurp_text write_text read_xlsx_tabs tabs_to_csv_
                    render_std_json models_std_spans render_stdgrid render_specs_block render_spec_data_js
                    tagline_html intro_html check_surfaces CANON_TABS DRIVEN_TABS);
 use JSON::PP;
+use Digest::SHA qw(sha256_hex);
+use Encode qw(encode);
 
-my ($canon_dir, $xlsx, $repo, $dry);
-GetOptions('canon=s' => \$canon_dir, 'xlsx=s' => \$xlsx, 'repo=s' => \$repo, 'dry-run' => \$dry) or die "see the header of $0 for usage\n";
+our $VERSION = '1.1';
+my ($canon_dir, $xlsx, $repo, $dry, $out);
+GetOptions('canon=s' => \$canon_dir, 'xlsx=s' => \$xlsx, 'repo=s' => \$repo, 'dry-run' => \$dry, 'out=s' => \$out) or die "see the header of $0 for usage\n";
 die "--canon <folder> is required (the CSV mirrors live there)\n" unless defined $canon_dir;
 $repo = dirname(dirname(abs_path(__FILE__))) unless defined $repo;
 $repo =~ s{[\\/]+$}{}; $canon_dir =~ s{[\\/]+$}{};
 die "repo not found (no build-and-price/index.html under $repo)\n" unless -f "$repo/build-and-price/index.html";
+die "--canon folder not found: $canon_dir\n" unless -d $canon_dir;
+$out = dirname($canon_dir) . '/WB CANON DATA.json' unless defined $out;
 my $build = dirname(abs_path(__FILE__));
 my $mode = defined $xlsx ? 'xlsx' : 'csv';
-print "mode : $mode", ($dry ? ' (DRY RUN - nothing written)' : ''), "\nrepo : $repo\ncanon: $canon_dir\n";
+print "mode : $mode", ($dry ? ' (DRY RUN - nothing written)' : ''), "\nrepo : $repo\ncanon: $canon_dir\nout  : $out\n";
 
 # ----------------------------------------------- 0. workbook -> CSV mirrors ----
-my $C;
+my $C; my %texts;
 if ($mode eq 'xlsx') {
   print "xlsx : $xlsx\n";
   my $tabs = read_xlsx_tabs($xlsx);
-  my %texts;
   for my $t (CANON_TABS) {
     unless ($tabs->{$t}) { die "workbook has no tab named '$t'\n" if grep { $_ eq $t } DRIVEN_TABS; printf "  %-20s (tab absent, CSV left alone)\n", $t; next }
     my $csv = tabs_to_csv_text($tabs->{$t}, $t);
@@ -192,7 +205,51 @@ for my $m (@{ $C->{lineup} }) {
   if ($dry) { $changed_files++ if $have ne $want } else { write_text($p, $want, $eol) if $have ne $want }
 }
 
-# ------------------------------------------------------ 4. stamp + verify ----
+# ---------------------------------------------------- 4. WB CANON DATA.json ----
+{
+  my %sha;
+  for my $t (CANON_TABS) {
+    if ($mode eq 'xlsx' && defined $texts{$t}) { $sha{"$t.csv"} = sha256_hex(encode('UTF-8', $texts{$t})) }
+    elsif (-f "$canon_dir/$t.csv")             { $sha{"$t.csv"} = sha256_hex(slurp_bytes("$canon_dir/$t.csv")) }
+  }
+  my $commit = 'unknown';
+  { my $c = `git -C "$repo" rev-parse HEAD 2>&1`; $commit = $1 if defined $c && $c =~ /^([0-9a-f]{40})/ }
+  my @t = gmtime(time);
+  my %std; my %specs; my %desc;
+  for my $m (@{ $C->{lineup} }) {
+    my $id = $m->{model_id};
+    $std{$id} = [ map { { h => $_->{h}, items => [ map { my %e = (t => $_->{t}); $e{tag} = $_->{tag} if defined $_->{tag} && length $_->{tag}; \%e } @{ $_->{items} } ] } } @{ $C->{std}{$id} || [] } ];
+    if (my $s = $C->{specs}{$id}) {
+      for my $cat (@{ $s->{categories} }) { for my $row (@{ $cat->{rows} }) { for my $i (0 .. $#{ $s->{lengths} }) {
+        my $c = $row->{cells}[$i]; my %e = (category => $cat->{name}, layout => $row->{layout});
+        if ($row->{layout} eq 'list') { $e{values} = [ map { { note => $_->[0], value => $_->[1] } } @$c ] }
+        elsif (ref $c)                { $e{value} = $c->{v}; $e{note} = $c->{badge} }
+        else                          { $e{value} = $c; $e{note} = '' }
+        $specs{$id}{ $s->{lengths}[$i] }{ $row->{label} } = \%e;
+      } } }
+    }
+    my $d = $C->{desc}{$id} || {};
+    $desc{$id} = { tagline => ($d->{tagline} // ''), intro => ($d->{page_intro} // ''),
+                   map { $_ => $d->{$_} } grep { $_ ne 'tagline' && $_ ne 'page_intro' } sort keys %$d };
+  }
+  my $data = {
+    generated_utc => sprintf('%04d-%02d-%02dT%02d:%02d:%02dZ', $t[5]+1900, $t[4]+1, $t[3], $t[2], $t[1], $t[0]),
+    generator     => "gen_from_canon.pl $VERSION",
+    source        => { mode => $mode, workbook_or_folder => ($mode eq 'xlsx' ? $xlsx : $canon_dir), repo_commit => $commit, sha256 => \%sha },
+    lineup        => [ map { my %r = %$_; \%r } @{ $C->{lineup} } ],
+    std_features  => \%std,
+    specs         => \%specs,
+    descriptions  => \%desc,
+    pricing       => undef,
+  };
+  my $json = JSON::PP->new->canonical(1)->indent(1)->indent_length(2)->space_after(1)->encode($data);
+  $json .= "\n" unless $json =~ /\n$/;
+  my $bytes = length(encode('UTF-8', $json));
+  if ($dry) { printf "WB CANON DATA.json: would write %s (%d bytes, %d models)\n", $out, $bytes, scalar @{ $C->{lineup} } }
+  else { write_text($out, $json, "\n"); printf "WB CANON DATA.json: wrote %s (%d bytes, %d models, sha256 %s)\n", $out, $bytes, scalar @{ $C->{lineup} }, sha256_hex(encode('UTF-8', $json)) }
+}
+
+# ------------------------------------------------------ 5. stamp + verify ----
 printf "\nsummary: %d file(s) %s, %d content change(s) against the canon, %d marker set(s) %s\n",
   $changed_files, ($dry ? 'would change' : 'written'), $content_changes, $marker_adds, ($dry ? 'would be added' : 'added');
 unless ($dry) {

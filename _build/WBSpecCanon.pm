@@ -30,7 +30,7 @@ use IO::Uncompress::Unzip qw($UnzipError);
 use Exporter 'import';
 our @EXPORT_OK = qw(slurp_bytes slurp_text detect_eol write_text read_csv parse_csv_text csv_text
                     read_xlsx_tabs tabs_to_csv_text load_canon load_canon_from_tabs
-                    render_std_json models_std_spans render_stdgrid render_specs_block
+                    render_std_json models_std_spans models_field_spans render_stdgrid render_specs_block
                     render_spec_data_js tagline_html intro_html check_surfaces fmt_len
                     CANON_TABS DRIVEN_TABS);
 
@@ -273,33 +273,86 @@ sub render_std_json {                # [ {h, items=>[{t,tag}]} ] -> the exact "s
     } @{ $_->{items} }) . ']}'
   } @$groups) . ']';
 }
-sub models_std_spans {               # const MODELS line text -> [ {id, start, len} ] of each model's std array
-  my ($line, $ids) = @_;
+# --- const MODELS, written PER FIELD ----------------------------------------
+# The configurator's const MODELS is one 376 KB JSON line that nothing else
+# may reformat (other generators and the SOC sync read it by shape). So a
+# canon-driven field is written by SPLICING: locate the exact character span
+# of that top-level member in each model object and replace just that span
+# with the canon's rendering in the line's own style (js_str: ASCII, \uXXXX
+# lowercase, "/" unescaped). An unchanged canon therefore yields an identical
+# line, byte for byte.
+#
+# HOW A SECOND FIELD WRITER PLUGS IN (the pricing phase, later) - no
+# restructuring needed:
+#   my $spans = models_field_spans($line, \@ids, 'styles');   # or 'engines', 'lengths', ...
+#   for my $sp (@$spans) { $want = render_<field>($canon...); splice as gen_from_canon.pl section 1 does }
+# models_field_spans() returns the span of ANY top-level member of each model
+# object (string, number, array or object value), found by a real walk of the
+# object at depth 1, so nested keys of the same name can never be mistaken for
+# it. Write a render_<field>() that emits the member's value in the same JSON
+# style, and splice spans from the END of the line backwards (or rebuild the
+# line left to right as section 1 does) so earlier offsets stay valid.
+# NOTHING here knows about prices today; models_std_spans() is the std wrapper.
+sub value_end {                      # index of the last character of the JSON value starting at $i
+  my ($line, $i) = @_;
+  my $n = length $line;
+  my $c = substr($line, $i, 1);
+  if ($c eq '"') {
+    my $j = $i + 1;
+    while ($j < $n) { my $d = substr($line, $j, 1); if ($d eq "\\") { $j += 2; next } return $j if $d eq '"'; $j++ }
+    die "const MODELS: unterminated string at $i\n";
+  }
+  if ($c eq '[' || $c eq '{') {
+    my ($depth, $instr) = (0, 0);
+    for (my $j = $i; $j < $n; $j++) {
+      my $d = substr($line, $j, 1);
+      if ($instr) { if ($d eq "\\") { $j++; next } $instr = 0 if $d eq '"'; next }
+      if ($d eq '"') { $instr = 1; next }
+      if ($d eq '[' || $d eq '{') { $depth++ } elsif ($d eq ']' || $d eq '}') { $depth--; return $j if $depth == 0 }
+    }
+    die "const MODELS: unbalanced value at $i\n";
+  }
+  my $j = $i;                         # number / true / false / null
+  $j++ while $j < $n && substr($line, $j, 1) !~ /[,\]}]/;
+  return $j - 1;
+}
+sub model_top_fields {               # object starting at $p -> ({ key => {start,len} } of its depth-1 members, index of its '}')
+  my ($line, $p) = @_;
+  die "const MODELS: expected '{' at $p\n" unless substr($line, $p, 1) eq '{';
+  my $n = length $line; my $i = $p + 1; my %f;
+  while ($i < $n) {
+    my $c = substr($line, $i, 1);
+    if ($c eq '}') { return (\%f, $i) }
+    if ($c eq ',' || $c =~ /\s/) { $i++; next }
+    die "const MODELS: expected a key at $i, found '$c'\n" unless $c eq '"';
+    my $ke = value_end($line, $i);
+    my $key = substr($line, $i + 1, $ke - $i - 1);
+    $i = $ke + 1;
+    $i++ while substr($line, $i, 1) =~ /\s/;
+    die "const MODELS: expected ':' after key '$key'\n" unless substr($line, $i, 1) eq ':';
+    $i++; $i++ while substr($line, $i, 1) =~ /\s/;
+    my $ve = value_end($line, $i);
+    die "const MODELS: key '$key' appears twice in one model object\n" if $f{$key};
+    $f{$key} = { start => $i, len => $ve - $i + 1 };
+    $i = $ve + 1;
+  }
+  die "const MODELS: unterminated model object at $p\n";
+}
+sub models_field_spans {             # (line, [ids in line order], field) -> [ {id, start, len} ] of that top-level member per model
+  my ($line, $ids, $field) = @_;
   my @spans; my $cur = 0;
-  for my $n (0 .. $#$ids) {
-    my $id = $ids->[$n];
+  for my $id (@$ids) {
     my $lit = '{"id":' . js_str($id) . ',"nm":';
     my $p = index($line, $lit, $cur);
     die "const MODELS: model '$id' not found after offset $cur\n" if $p < 0;
-    my $end = $n < $#$ids ? index($line, '{"id":' . js_str($ids->[$n + 1]) . ',"nm":', $p + 1) : length $line;
-    die "const MODELS: model '$ids->[$n+1]' not found after '$id'\n" if $end < 0;
-    my $seg = substr($line, $p, $end - $p);
-    my $cnt = () = $seg =~ /"std":\[/g;
-    die "const MODELS: model '$id' has $cnt \"std\":[ occurrences (need exactly 1)\n" unless $cnt == 1;
-    my $q = index($line, '"std":[', $p) + length('"std":');
-    my ($depth, $instr, $j) = (0, 0, $q);
-    for (; $j < $end; $j++) {
-      my $c = substr($line, $j, 1);
-      if ($instr) { if ($c eq "\\") { $j++; next } $instr = 0 if $c eq '"'; next }
-      if ($c eq '"') { $instr = 1; next }
-      if ($c eq '[') { $depth++ } elsif ($c eq ']') { $depth--; last if $depth == 0 }
-    }
-    die "const MODELS: unbalanced std array for '$id'\n" unless $depth == 0;
-    push @spans, { id => $id, start => $q, len => $j - $q + 1 };
-    $cur = $end;
+    my ($f, $end) = model_top_fields($line, $p);
+    die "const MODELS: model '$id' has no top-level \"$field\" member\n" unless $f->{$field};
+    push @spans, { id => $id, start => $f->{$field}{start}, len => $f->{$field}{len} };
+    $cur = $end + 1;
   }
   return \@spans;
 }
+sub models_std_spans { my ($line, $ids) = @_; return models_field_spans($line, $ids, 'std') }
 sub render_stdgrid {                 # groups -> the page's one-line grid (no indent, raw text, no escaping - the page convention)
   my ($groups) = @_;
   return '<div class="stdgrid">' . join('', map {
