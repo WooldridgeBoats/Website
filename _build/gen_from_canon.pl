@@ -56,7 +56,8 @@
 #      the branded price sheets (built, verified, placed with the old ones archived, published to
 #      SALES TOOLS - needs Rockwell); the ITEM CODE LOOKUP page (P3); the used-boat appraiser;
 #      the prop selector; the "Boat facts" view in CANON.html (CANON/_build/BOAT FACTS/
-#      build_boat_facts.pl, every real run, a failure is loud but not fatal). Then the QuickBooks typing list (QB IMPORT/1 - NEXT IMPORT on the P3),
+#      build_boat_facts.pl, every real run, a failure is loud but not fatal); the Pricing data half of CANON.html
+#      (QB IMPORT/_build/census/run_census.ps1 - P3 only, when a pricing mirror changed). Then the QuickBooks typing list (QB IMPORT/1 - NEXT IMPORT on the P3),
 #      a final check of everything, and the CHANGE LOG entry in CANON/README.md.
 #   7. What it cannot do from where it runs is printed as OWED, naming the machine.
 #
@@ -584,6 +585,19 @@ if ($mode eq 'xlsx' && !$dry) {
               push @owed, 'Boat facts view (CANON.html): build_boat_facts.pl failed - read its message above and re-run it' }
     else { push @done, 'Boat facts view (CANON.html) rebuilt' }
   } else { printf "  %-28s not installed yet (CANON/_build/BOAT FACTS/build_boat_facts.pl)\n", 'Boat facts view' }
+
+  # h. the Pricing data half of CANON.html - canon vs the latest QuickBooks export, including "Prices to type in
+  #    QuickBooks" (owned by the "CANON - one viewer" session; command agreed 2026-10-14). P3 only (PowerShell 5.1),
+  #    only when a pricing mirror changed: it re-runs the census on the newest export against today's mirrors.
+  my @pm = grep { $mirror_changed->($_) } ('BOATS', 'ENGINES', 'OPTIONS', 'TRAILERS', 'PACKAGES', 'CARRY OUT');   # the tabs the census reads
+  my $rc = "$qb_import/_build/census/run_census.ps1";
+  if (!@pm) { printf "  %-28s no pricing mirror changed - not refreshed\n", 'CANON.html pricing data' }
+  elsif ($is_win && -f $rc) {
+    print "  CANON.html pricing data: re-running the census on the newest QuickBooks export (" . join(', ', @pm) . " changed)\n";
+    my $r = system('powershell.exe', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', winpath($rc));
+    if ($r) { push @owed, 'CANON.html pricing data: run_census.ps1 failed (exit ' . ($r >> 8) . ') - read its message above, then run it again on the P3' }
+    else { push @done, 'CANON.html pricing data refreshed against the newest QuickBooks export (census re-run)' }
+  } else { push @owed, 'CANON.html pricing data (incl. "Prices to type in QuickBooks"): run QB IMPORT\_build\census\run_census.ps1 on the P3 - ' . join(', ', @pm) . ' changed' }
 }
 
 # ------------------------------------------------- 7. the QuickBooks typing list ----
