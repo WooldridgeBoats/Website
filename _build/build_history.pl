@@ -32,7 +32,8 @@ use utf8;
 use File::Basename qw(dirname);
 use File::Path qw(make_path remove_tree);
 use Digest::MD5 qw(md5_hex);
-use File::Copy qw(copy);
+use File::Copy qw(copy move);
+use File::Find qw(find finddepth);
 use Cwd qw(abs_path);
 
 binmode STDOUT, ':encoding(UTF-8)';
@@ -185,6 +186,26 @@ sub cap_date {   # "1964 — ..." -> 1964; "Late 1960s — ..." -> Late 1960s; n
   return $key;
 }
 sub ver { my $f = shift; open my $h, '<:raw', $f or die; local $/; substr(md5_hex(<$h>), 0, 8) }
+# Folders are built in $TMP and then published: only files whose bytes changed are swapped
+# in, files no longer made are removed, unchanged files are never touched. So git / GitHub
+# Desktop never see a folder half-built (a Desktop commit mid-rebuild once deleted the 1915
+# thumbs from git, 2026-10-14).
+sub publish_dir {
+  my ($stage, $final) = @_; my %want;
+  if (-d $stage) {
+    find({ no_chdir => 1, wanted => sub {
+      return unless -f $_; (my $rel = $_) =~ s{^\Q$stage\E/}{}; $want{$rel} = 1;
+      my $dst = "$final/$rel"; make_path(dirname($dst));
+      return if -f $dst && -s $dst == -s $_ && ver($dst) eq ver($_);
+      move($_, $dst) or die "publish $rel: $!\n";
+    } }, $stage);
+  }
+  if (-d $final) {
+    find({ no_chdir => 1, wanted => sub { return unless -f $_; (my $rel = $_) =~ s{^\Q$final\E/}{}; unlink $_ unless $want{$rel}; } }, $final);
+    finddepth({ no_chdir => 1, wanted => sub { rmdir $_ if -d $_ } }, $final);   # empty folders only
+  }
+  remove_tree($stage);
+}
 sub natural { my ($x, $y) = @_; my @a = split /(\d+)/, lc $x; my @b = split /(\d+)/, lc $y;
   while (@a && @b) { my ($p, $q) = (shift @a, shift @b); next if $p eq $q;
     return ($p =~ /^\d+$/ && $q =~ /^\d+$/) ? $p <=> $q : $p cmp $q; } @a <=> @b }
@@ -244,7 +265,7 @@ my $squeezed = 0; my %small;
 my $TMP = ($ENV{TMPDIR} || '/tmp') . "/wb-history-$$"; make_path($TMP);
 for my $e (@eras) {
   my $key = $e->{key}; my $slug = lc $key;
-  my $out = "$root/assets/history/$slug";
+  my $out = "$TMP/stage/$slug";   # published to assets/history/$slug at the end of this date
   remove_tree($out);
   my ($dir, @imgs) = photos_for($key);
   my @tiles; my @vids; my @after;   # @after: the photo filename each tile came from
@@ -307,6 +328,7 @@ for my $e (@eras) {
     }
     splice @tiles, $at, 0, $tile; splice @after, $at, 0, undef;
   }
+  publish_dir($out, "$root/assets/history/$slug");
   printf "%-9s %2d photo(s)%s%s\n", $key, scalar(@imgs), (@{$e->{videos}} ? ' + ' . @{$e->{videos}} . ' video' : ''), ($dir ? '  <- ' . where($dir) : '');
 
   my $cap = join "</p>\n  <p class=\"hcap\">", @{$e->{text}};
@@ -332,7 +354,7 @@ for my $e (@eras) {
 my $ARCH_DIR = 'HERITAGE BROCHURES-ADS';
 my $arch_html = '';
 {
-  my $out = "$root/assets/history/archives"; remove_tree($out);
+  my $out = "$TMP/stage/archives"; remove_tree($out);   # published below
   my ($base) = grep { -d "$_/$ARCH_DIR" } @src;
   my @imgs;
   if ($base) {
@@ -384,6 +406,7 @@ my $arch_html = '';
       . qq{    <div class="hcarui"><button type="button" class="hprev" aria-label="Previous brochure"></button><span class="hcount"></span><button type="button" class="hnext" aria-label="Next brochure"></button></div>\n}
       . qq{  </div>\n</div></section>\n};
   }
+  publish_dir($out, "$root/assets/history/archives");
   printf "archives  %2d piece(s)%s\n", scalar(@imgs), ($base && @imgs ? '  <- ' . where("$base/$ARCH_DIR") : '');
 }
 
@@ -396,7 +419,7 @@ if (@hvids) {
   # Tyler's own thumbnail ("thumb=FILE" in history_videos.txt): from the master's sibling folder
   # MASTER-WEBSITE PHOTOS/YT-VIDEO-THUMBS, copied BYTE-FOR-BYTE (never re-compress a video thumb
   # he supplies) to assets/history/videos/<id>.jpg; it fills the 4:3 tile (Tyler, 2026-10-14)
-  my $vt_dir = dirname($MASTER) . '/YT-VIDEO-THUMBS'; my $vt_out = "$root/assets/history/videos";
+  my $vt_dir = dirname($MASTER) . '/YT-VIDEO-THUMBS'; my $vt_out = "$TMP/stage/videos";
   remove_tree($vt_out); my %own;
   for my $id (map { $_->[0] } @hvids) {
     my ($file) = ($vcrop{$id} // '') =~ /^thumb\s*=\s*(.+)$/i or next;
@@ -404,6 +427,7 @@ if (@hvids) {
     make_path($vt_out); copy($from, "$vt_out/$id.jpg") or die "copy $from: $!\n";
     $own{$id} = "/assets/history/videos/$id.jpg?v=" . ver("$vt_out/$id.jpg");
   }
+  publish_dir($vt_out, "$root/assets/history/videos");
   my @t = map { my ($id, $title, $len) = @$_;
     my ($cls, $sty) = ('', '');
     if ($own{$id}) { $cls = ' own'; }
