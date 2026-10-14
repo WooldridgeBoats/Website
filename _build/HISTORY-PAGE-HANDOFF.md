@@ -155,7 +155,7 @@ Tyler: fast loads, but NO softening, and keep the pixel sizes. What the builder 
   the caption's own date in blue, the rest of the caption under it.
 - **Brochures are one sideways strip** (19 pieces would bury the timeline as a wall). It's a
   real `.hcar`, so it gets the arrows / counter / scroll bar. Pieces share a HEIGHT (wide
-  spreads sit beside tall pages); clip images are 680px tall. Order = by the date in each
+  spreads sit beside tall pages); clip images are 760px tall (pieces show up to 360px; bumped 2026-10-14). Order = by the date in each
   caption, oldest first (generic decade, Early, the years, Mid, Late), not alphabetical.
   A garbled caption date borrows the filename's (a fallback; the one case, "!908s", Tyler fixed
   by renaming it 1980s-DEEP WATER PLUS BROCHURE).

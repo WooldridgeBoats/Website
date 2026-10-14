@@ -335,8 +335,8 @@ my $arch_html = '';
       printf "    %-34s %s\n", $f, ($cap eq '' ? '(no caption)' : $cap) if $list_caps;
       my $long = $w > $h ? $w : $h;
       budget_jpeg("$dir/$f", "$out/$nn.jpg", $FULL_KB, ($long > $FULL ? ('-Z', $FULL) : ()));
-      # the strip sizes pieces by HEIGHT (up to ~325px), so 680px tall covers 2x screens
-      budget_jpeg("$dir/$f", "$out/clip/$nn.jpg", 260, ($h > 680 ? ('--resampleHeight', 680) : ()));
+      # the strip sizes pieces by HEIGHT (up to 360px), so 760px tall covers 2x screens
+      budget_jpeg("$dir/$f", "$out/clip/$nn.jpg", 300, ($h > 760 ? ('--resampleHeight', 760) : ()));
       my ($cw, $ch) = dims("$out/clip/$nn.jpg");
       # on the page just the date, like the carousels; the caption waits for the viewer (Tyler, 2026-10-14)
       push @c, sprintf qq{      <a class="hclip" href="/assets/history/archives/%s.jpg?v=%s" data-yr="%s" data-cap="%s"><img src="/assets/history/archives/clip/%s.jpg?v=%s" alt="%s" width="%d" height="%d" loading="lazy" decoding="async"><span class="hclip-cap">%s</span></a>},
