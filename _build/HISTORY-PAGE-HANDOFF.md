@@ -130,7 +130,7 @@ Tyler: fast loads, but NO softening, and keep the pixel sizes. What the builder 
 
 ## From the Archives + pill (2026-10-14)
 
-- **Brochures & Ads** stop between the timeline and the map, from the master's
+- **Brochures & Ads** stop AFTER the map (Tyler moved it below the map 2026-10-14; the closing "Four Generations. One River at a time." line now sits in its own `.hend` block, last on the page), from the master's
   `HERITAGE BROCHURES-ADS` folder (built by the builder between `<!-- HIST:archives -->`
   markers). Pieces are taped in like a scrapbook: five rotating tilts/offsets
   (`.hclip:nth-child(5n+k)` in house.css) so any number of pieces still looks hand-placed;
