@@ -62,7 +62,7 @@ while (my $l = <$tf>) {
   chomp $l; next if $l =~ /^\s*#/;
   if ($l =~ /^==\s*(\S+)/) { push @eras, { key => $1, text => [], videos => [], links => [] }; next; }
   next unless @eras;
-  if    ($l =~ /^video:\s*(\S+)\s*\|\s*(.+?)\s*$/) { push @{$eras[-1]{videos}}, [ytid($1), $2]; }
+  if    ($l =~ /^video:\s*(\S+)\s*\|\s*(.+?)\s*(?:\|\s*after\s+(.+?)\s*)?$/i) { push @{$eras[-1]{videos}}, [ytid($1), $2, $3]; }
   elsif ($l =~ /^link:\s*(\S+)\s*\|\s*(.+?)\s*$/)  { push @{$eras[-1]{links}},  [$1, $2]; }
   elsif ($l =~ /\S/) { push @{$eras[-1]{text}}, $l; }
 }
@@ -229,12 +229,12 @@ for my $e (@eras) {
   my $out = "$root/assets/history/$slug";
   remove_tree($out);
   my ($dir, @imgs) = photos_for($key);
-  my @tiles;
+  my @tiles; my @vids; my @after;   # @after: the photo filename each tile came from
   for my $v (@{$e->{videos}}) {
-    my ($id, $title) = @$v;
-    push @tiles, qq{    <button type="button" class="htile vid" data-yt="$id" data-vtitle="} . esc(plain($title)) . qq{">}
+    my ($id, $title, $anchor) = @$v;
+    push @vids, [$anchor, qq{    <button type="button" class="htile vid" data-yt="$id" data-vtitle="} . esc(plain($title)) . qq{">}
       . qq{<span class="hpic"><img src="https://i.ytimg.com/vi/$id/sddefault.jpg" alt="" loading="lazy" decoding="async"><span class="hplay" aria-hidden="true"></span></span>}
-      . qq{<span class="hpc"><b>Watch</b> } . esc(plain($title)) . qq{</span></button>};
+      . qq{<span class="hpc"><b>Watch</b> } . esc(plain($title)) . qq{</span></button>}];
   }
   if (@imgs) {
     make_path("$out/thumbs");
@@ -257,7 +257,7 @@ for my $e (@eras) {
         open STDOUT, ">&", $keep; binmode STDOUT, ':encoding(UTF-8)'; }
       my ($fw, $fh) = dims("$out/$nn.jpg");
       my $alt = esc($cap ne '' ? "$key: $cap" : "$key: $short (photo $i of $N)");
-      push @shots, [$nn, $fw, $fh, $png, $alt, $cap];
+      push @shots, [$nn, $fw, $fh, $png, $alt, $cap, $f];
       $n_photos++;
       $small{"$key/$f"} = ($w < $h ? $w : $h) if ($w < $h ? $w : $h) < 600;
     }
@@ -268,13 +268,26 @@ for my $e (@eras) {
       square_cut(map { [$_->[3], "$_->[3].sq.png"] } @shots);
       open STDOUT, ">&", $keep; binmode STDOUT, ':encoding(UTF-8)'; }
     for my $k (0..$#shots) {
-      my ($nn, $fw, $fh, $png, $alt, $cap) = @{$shots[$k]};
+      my ($nn, $fw, $fh, $png, $alt, $cap, $src) = @{$shots[$k]};
+      push @after, $src;
       my ($S) = dims("$png.sq.png");
       budget_jpeg("$png.sq.png", "$out/thumbs/$nn.jpg", $TILE_KB);
       unlink $png, "$png.sq.png";
       push @tiles, sprintf qq{    <a class="htile" href="/assets/history/%s/%s.jpg?v=%s" data-w="%d" data-h="%d" data-cap="%s"><span class="hpic"><img src="/assets/history/%s/thumbs/%s.jpg?v=%s" alt="%s" width="%d" height="%d" loading="lazy" decoding="async"></span><span class="hpc">%s</span></a>},
         $slug, $nn, ver("$out/$nn.jpg"), $fw, $fh, esc($cap), $slug, $nn, ver("$out/thumbs/$nn.jpg"), $alt, $S, $S, esc($cap);
     }
+  }
+  # Videos go first, unless the timeline line says "| after 1970s-005" (Tyler,
+  # 2026-10-14): then right after that photo (its filename, with or without .JPG).
+  for my $v (reverse @vids) {
+    my ($anchor, $tile) = @$v; my $at = 0;
+    if (defined $anchor) {
+      (my $a = lc $anchor) =~ s/\.(jpe?g|png|tiff?|heic)$//;
+      my ($k) = grep { (my $b = lc $after[$_]) =~ s/\.(jpe?g|png|tiff?|heic)$//; $b eq $a } 0..$#after;
+      if (defined $k) { $at = $k + 1 + scalar(grep { !defined } @after[0..$k]); }
+      else { warn "  $key: video placed first, no photo named \"$anchor\"\n" }
+    }
+    splice @tiles, $at, 0, $tile; splice @after, $at, 0, undef;
   }
   printf "%-9s %2d photo(s)%s%s\n", $key, scalar(@imgs), (@{$e->{videos}} ? ' + ' . @{$e->{videos}} . ' video' : ''), ($dir ? '  <- ' . where($dir) : '');
 

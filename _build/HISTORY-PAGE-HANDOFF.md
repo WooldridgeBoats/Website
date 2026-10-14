@@ -183,7 +183,9 @@ perl _build/stamp_assets.pl       # only if house.css or history.js changed
 - **New date or era:** add a `== YEAR` block to `history_timeline.txt` (order on the page
   = order in the file), then rebuild.
 - **YouTube video:** `video: https://youtu.be/ID | Title` under the date. It becomes the
-  first tile in that date's carousel.
+  first tile in that date's carousel, or add `| after 1970s-005` (a photo's filename) to put
+  it right after that photo (since 2026-10-14; the 1970s Snake River + Coast Guard videos use it).
+  If the named photo is gone, the builder warns and puts the video first.
 - The builder lists archive/master folders that have **no timeline entry** so nothing is
   silently dropped. Right now: 1930s, 1951, 1960s, 1980s, 1990s.
 

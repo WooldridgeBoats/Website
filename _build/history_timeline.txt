@@ -11,6 +11,8 @@
 #   text lines     the caption under the year. Light HTML is fine (<i>, <b>).
 #   video: URL | Title     a YouTube video, shown as the first tile in the
 #                          carousel; flips with the photos in the lightbox.
+#   video: URL | Title | after 1970s-005
+#                          ...or right after that photo (its filename).
 #   link: URL | Label      a button under the caption.
 #
 # Page order is automatic: dates in order, and an era ("1970s") opens its decade,
@@ -50,6 +52,8 @@ First outboard jet run up the Rogue River from Gold Beach to Grants Pass, Oregon
 
 == 1970s
 Bob Wooldridge began bringing drift boats from Grants Pass to Seattle to sell, opening a new chapter for the family business. The boats were built by Bruce Wooldridge with Mike and Mark in Grants Pass.
+video: https://youtu.be/N0NOx3ofM5E | Running the Snake River in the Old Days | after 1970s-002
+video: https://youtu.be/h1jTteRKO_k | U.S. Coast Guard Auxiliary Boat, 22′ x 6′ Bottom | after 1970s-005
 
 == 1973
 Bob Wooldridge opens the company’s first Seattle boat shop, bringing Wooldridge boatbuilding to Washington.
