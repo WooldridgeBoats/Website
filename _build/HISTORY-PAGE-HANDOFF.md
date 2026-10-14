@@ -177,7 +177,8 @@ Tyler: fast loads, but NO softening, and keep the pixel sizes. What the builder 
 ## Heritage Videos (2026-10-14)
 
 - Between the map and the closing photo: "From the Film Archive / Heritage Videos", a strip of
-  small 16:9 video thumbs (title, run time, play button) with the carousel arrows / counter /
+  small 16:9 video thumbs styled like the boat-model video walls (no white print frame, rounded,
+  soft shadow, zoom on hover, ~60% see-through play button that turns blue; title, run time) with the carousel arrows / counter /
   scroll bar; a click plays it in the viewer (after the timeline in flip order).
 - Source list: `_build/history_videos.txt` (ID | page title | length | thumb), built from the
   YouTube "Heritage" playlist (PLsmduxnezQpiuW-Q7alDpB5_vQ473uZN1, 19 videos). YouTube's RSS

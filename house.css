@@ -2964,16 +2964,31 @@ body.hlb-open{ overflow:hidden; }
 .hvids{ text-align:center; padding:0 0 10px; }
 .hvids .hseg{ margin-bottom:18px; }
 .hvidcar{ margin-top:16px; }
-.hvidcar .htile{ --t:clamp(150px,13vw,178px); }
-.hvidcar .htile.vid .hpic img{ filter:none; }
-.hvidcar .hplay{ width:52px; height:52px; margin:-26px 0 0 -26px; }
-.hvidcar .hplay::after{ left:20px; top:15px; border-width:11px 0 11px 17px; }
-.hvidcar .hpc{ text-align:left; }
-.hdur{
-  position:absolute; right:6px; bottom:6px; padding:2px 6px; border-radius:3px;
-  background:rgba(10,14,18,.78); color:#fff; font-weight:600; font-size:11px; letter-spacing:.04em;
+/* clean thumbs like the boat-model video walls (.vidrailitem): no white print frame, rounded
+   corners, soft shadow, slight zoom on hover, a see-through play button (Tyler, 2026-10-14) */
+.hvidcar .htrack{ padding:14px 8px 22px; }
+.hvidcar .htile,.hvidcar .htile:nth-child(n){
+  width:clamp(240px,22vw,300px); background:none; padding:0; border-radius:0; box-shadow:none; transform:none;
 }
-@media (max-width:900px){ .hvidcar .htile.vid{ width:min(72vw,300px); } }
+.hvidcar .htile:hover,.hvidcar .htile:focus-visible{ transform:none; box-shadow:none; }
+.hvidcar .htile .hpic{
+  aspect-ratio:16/9; border-radius:var(--rad); overflow:hidden; background:#12171c; box-shadow:var(--shadow);
+}
+.hvidcar .htile .hpic img{ filter:none; opacity:.92; transition:opacity .25s, transform .35s; }
+.hvidcar .htile:hover .hpic img{ opacity:1; transform:scale(1.04); }
+.hvidcar .htile:focus-visible .hpic{ box-shadow:0 0 0 3px var(--blue), var(--shadow); }
+.hvidcar .hplay{
+  width:56px; height:40px; margin:-20px 0 0 -28px; border-radius:11px;
+  background:rgba(18,23,28,.6); box-shadow:none; transition:background .2s;
+}
+.hvidcar .hplay::after{ left:50%; top:50%; transform:translate(-40%,-50%); border-width:9px 0 9px 15px; }
+.hvidcar .htile:hover .hplay{ background:var(--blue); transform:none; }
+.hvidcar .hpc{ height:auto; min-height:2.8em; margin-top:9px; padding:0 2px; text-align:left; color:var(--body); font-size:13.5px; }
+.hdur{
+  position:absolute; right:8px; bottom:8px; padding:2px 7px; border-radius:4px;
+  background:rgba(10,15,20,.85); color:#fff; font-weight:600; font-size:11px; letter-spacing:.02em;
+}
+@media (max-width:900px){ .hvidcar .htile,.hvidcar .htile:nth-child(n){ width:min(72vw,300px); } }
 
 /* the closing photo (01-END CAP), full width after the map, with the hero's title on
    it the same way. The page fades down into its top, so the blue title sits on light
