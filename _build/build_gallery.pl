@@ -36,10 +36,11 @@ my @MODELS = (
   ['deepwater',               'Deepwater',                  'Offshore',     [33],       33],      # custom build; 33' Angler + 33' Explorer, one gallery card per boat (WB_CARDS_BY='cfg')
   ['riverrat-diy-kit',        'River Rat DIY Kit',          'Kit',          [],         undef],   # custom DIY kit: no length / hull / config, one gallery (build_riverrat.sh)
   ['landing-craft',           'Landing Craft',              'Specialty Workboat', [],   undef],
+  ['pybus-offshore',          'Pybus Point Lodge',          'Lodge Fleet',        [],   undef],   # Tyler 2026-10-14: the lodge's fleet (Deepwater Charter, Sport, Sport Offshore); empty lens = never legacy
   ['agency-lc29',             "29' LC — In The Shop",       'Agency Build', [29],       29],
 );
 
-my %CFG  = ('cc','Center Console','ws','Windshield','tiller','Tiller','aft-ws','Aft Windshield','cabin','Cabin','pybus','Pybus','first-responder','First Responder','explorer','Explorer','angler','Angler');
+my %CFG  = ('cc','Center Console','ws','Windshield','tiller','Tiller','aft-ws','Aft Windshield','cabin','Cabin','pybus','Pybus','first-responder','First Responder','explorer','Explorer','angler','Angler','charter','Charter');
 my %SHOT = ('product','Product','photo','Field','water','On the water','delivery','Delivery','finish','Finish work','build','In the shop');
 
 sub parse_file {

@@ -34,12 +34,16 @@ DEST="$REPO/assets/photos/$PSLUG/mobile"
 MOBQ="${MOBQ:-75}"   # mozjpeg quality for the full portraits (keep-smaller: never enlarges, no visible loss on a phone)
 HAVE_MOZ=0; command -v cjpeg >/dev/null 2>&1 && command -v djpeg >/dev/null 2>&1 && HAVE_MOZ=1
 run(){ if [ "$DRY" = 1 ]; then echo "  [dry] $*"; else eval "$*"; fi; }
-cfg_disp(){ case "$1" in cc)echo "Center Console";; ws)echo "Windshield";; tiller)echo "Tiller";; aft-ws)echo "Aft Windshield";; cabin)echo "Cabin";; pybus)echo "Pybus";; first-responder)echo "First Responder";; explorer)echo "Explorer";; angler)echo "Angler";; *)echo "$1";; esac; }
+cfg_disp(){ case "$1" in cc)echo "Center Console";; ws)echo "Windshield";; tiller)echo "Tiller";; aft-ws)echo "Aft Windshield";; cabin)echo "Cabin";; pybus)echo "Pybus";; first-responder)echo "First Responder";; explorer)echo "Explorer";; angler)echo "Angler";; charter)echo "Charter";; *)echo "$1";; esac; }
 
 # parse "NN-HULL-LEN-STYLE-..." -> echo "dest len cfgcode hull nn" (positional; hull optional)
 parse_row(){
   local base stem; base="$(basename "$1")"; stem="${base%.jpg}"
   local -a t; IFS='-' read -r -a t <<< "$stem"
+  # "PPL" / "PPL5" (Tyler 2026-10-14: Pybus Point Lodge + his own boat number) sits where a hull would. It is NOT a hull: drop it.
+  if printf '%s' "${t[1]:-}" | grep -qiE '^PPL[0-9]*$'; then   # shift the rest down one, element by element
+    local k=1; while [ "$k" -lt $(( ${#t[@]} - 1 )) ]; do t[$k]="${t[$((k+1))]}"; k=$((k+1)); done; unset "t[$k]"
+  fi
   local nn="${t[0]:-}" hull len style styn
   if printf '%s' "${t[1]:-}" | grep -qE '^[03-9][0-9]{3}$'; then hull="${t[1]:-}"; len="${t[2]:-}"; style="${t[3]:-}"; styn="${t[4]:-}";
   else hull=""; len="${t[1]:-}"; style="${t[2]:-}"; styn="${t[3]:-}"; fi
@@ -48,13 +52,13 @@ parse_row(){
   else
     sl="$(printf %s "$style"|tr 'A-Z' 'a-z')"; nl="$(printf %s "$styn"|tr 'A-Z' 'a-z')"
     if [ "$sl" = "aft" ] && [ "$nl" = "ws" ]; then cfg=aft-ws
-    else case "$sl" in cc)cfg=cc;; ws)cfg=ws;; tiller)cfg=tiller;; cabin)cfg=cabin;; pybus)cfg=pybus;; first-responder)cfg=first-responder;; explorer)cfg=explorer;; angler)cfg=angler;; *)cfg="?";; esac; fi
+    else case "$sl" in cc)cfg=cc;; ws)cfg=ws;; tiller)cfg=tiller;; cabin)cfg=cabin;; pybus)cfg=pybus;; first-responder)cfg=first-responder;; explorer)cfg=explorer;; angler)cfg=angler;; charter)cfg=charter;; *)cfg="?";; esac; fi
     # trim AFTER the model name (NN-HULL-33-DEEPWATER-ANGLER-MOBILE): first known trim further on
     if [ "$cfg" = "?" ]; then
       local j tj; if [ -n "$hull" ]; then j=4; else j=3; fi
       while [ "$j" -lt "${#t[@]}" ]; do
         tj="$(printf %s "${t[$j]}"|tr 'A-Z' 'a-z')"
-        case "$tj" in cc|ws|tiller|cabin|pybus|explorer|angler) cfg="$tj"; break;; esac
+        case "$tj" in cc|ws|tiller|cabin|pybus|explorer|angler|charter) cfg="$tj"; break;; esac
         j=$((j+1))
       done
     fi

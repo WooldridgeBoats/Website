@@ -33,7 +33,7 @@ SRC="${1:-}"
 [ -n "$SRC" ] || { echo "usage: $0 \"/path/to/<MODEL>-WEB\""; exit 2; }
 [ -d "$SRC" ] || { echo "ERROR: folder not found: $SRC"; exit 2; }
 
-KNOWN_TRIMS="cc ws tiller aft-ws cabin pybus first-responder explorer angler"
+KNOWN_TRIMS="cc ws tiller aft-ws cabin pybus first-responder explorer angler charter"
 errs=0; warns=0
 err(){  echo "  ✗ $*"; errs=$((errs+1)); }
 warn(){ echo "  ! $*"; warns=$((warns+1)); }
@@ -61,6 +61,10 @@ check_file(){
   local base stem nn hull flen style styn stylelc nlc j tj dim last key
   base="$(basename "$f")"; stem="${base%.jpg}"
   local -a t; IFS='-' read -r -a t <<< "$stem"
+  # "PPL" / "PPL5" (Tyler 2026-10-14: Pybus Point Lodge + his own boat number) sits where a hull would. It is NOT a hull: drop it.
+  if printf '%s' "${t[1]:-}" | grep -qiE '^PPL[0-9]*$'; then   # shift the rest down one, element by element
+    local k=1; while [ "$k" -lt $(( ${#t[@]} - 1 )) ]; do t[$k]="${t[$((k+1))]}"; k=$((k+1)); done; unset "t[$k]"
+  fi
   nn="${t[0]:-}"
   if [[ "${t[1]:-}" =~ ^[03-9][0-9]{3}$ ]]; then hull="${t[1]:-}"; flen="${t[2]:-}"; style="${t[3]:-}"; styn="${t[4]:-}";
   else hull=""; flen="${t[1]:-}"; style="${t[2]:-}"; styn="${t[3]:-}"; fi
@@ -128,6 +132,9 @@ for d in "$SRC"/*/; do
   done
   shopt -u nullglob
 
+  if [ "$pass" = desktop ] && [ "${#gal[@]}" -eq 0 ] && [ "${#covers[@]}" -eq 0 ]; then
+    echo "--- ${L}ft  ($bn) ---"; warn "${L}ft: empty folder (photos not exported yet) - skipped"; continue   # Pybus 2026-10-14
+  fi
   if [ "$pass" = desktop ]; then
     lensfound=$((lensfound+1))
     echo "--- ${L}ft  ($bn) ---"

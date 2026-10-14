@@ -53,13 +53,17 @@ if [ -x "$REPO/_build/check_model_photos.sh" ]; then
   else rm -f /tmp/pf.$$; say "pre-flight: PASS"; fi
 fi
 
-cfg_disp(){ case "$1" in ""|none)echo "";; cc)echo "Center Console";; ws)echo "Windshield";; tiller)echo "Tiller";; aft-ws)echo "Aft Windshield";; cabin)echo "Cabin";; pybus)echo "Pybus";; first-responder)echo "First Responder";; explorer)echo "Explorer";; angler)echo "Angler";; *)echo "?$1";; esac; }
+cfg_disp(){ case "$1" in ""|none)echo "";; cc)echo "Center Console";; ws)echo "Windshield";; tiller)echo "Tiller";; aft-ws)echo "Aft Windshield";; cabin)echo "Cabin";; pybus)echo "Pybus";; first-responder)echo "First Responder";; explorer)echo "Explorer";; angler)echo "Angler";; charter)echo "Charter";; *)echo "?$1";; esac; }
 upper(){ printf '%s' "$1" | tr 'a-z' 'A-Z'; }
 
 # parse "NN-HULL-LEN-STYLE-..." -> "dest hull len cfg" (positional; hull optional)
 parse_one(){
   local base stem; base="$(basename "$1")"; stem="${base%.jpg}"
   local -a t; IFS='-' read -r -a t <<< "$stem"
+  # "PPL" / "PPL5" (Tyler 2026-10-14: Pybus Point Lodge + his own boat number) sits where a hull would. It is NOT a hull: drop it.
+  if printf '%s' "${t[1]:-}" | grep -qiE '^PPL[0-9]*$'; then   # shift the rest down one, element by element
+    local k=1; while [ "$k" -lt $(( ${#t[@]} - 1 )) ]; do t[$k]="${t[$((k+1))]}"; k=$((k+1)); done; unset "t[$k]"
+  fi
   local nn="${t[0]:-}" hull len style styn
   if printf '%s' "${t[1]:-}" | grep -qE '^[03-9][0-9]{3}$'; then hull="${t[1]:-}"; len="${t[2]:-}"; style="${t[3]:-}"; styn="${t[4]:-}";
   else hull=""; len="${t[1]:-}"; style="${t[2]:-}"; styn="${t[3]:-}"; fi
@@ -68,13 +72,13 @@ parse_one(){
   else
     sl="$(printf %s "$style" | tr 'A-Z' 'a-z')"; nl="$(printf %s "$styn" | tr 'A-Z' 'a-z')"
     if [ "$sl" = "aft" ] && [ "$nl" = "ws" ]; then cfg=aft-ws   # two-token config "AFT-WS" -> Aft Windshield
-    else case "$sl" in cc)cfg=cc;; ws)cfg=ws;; tiller)cfg=tiller;; cabin)cfg=cabin;; pybus)cfg=pybus;; first-responder)cfg=first-responder;; explorer)cfg=explorer;; angler)cfg=angler;; *)cfg="?";; esac; fi
+    else case "$sl" in cc)cfg=cc;; ws)cfg=ws;; tiller)cfg=tiller;; cabin)cfg=cabin;; pybus)cfg=pybus;; first-responder)cfg=first-responder;; explorer)cfg=explorer;; angler)cfg=angler;; charter)cfg=charter;; *)cfg="?";; esac; fi
     # trim AFTER the model name (NN-HULL-33-DEEPWATER-ANGLER): first known trim further on
     if [ "$cfg" = "?" ]; then
       local j tj; if [ -n "$hull" ]; then j=4; else j=3; fi
       while [ "$j" -lt "${#t[@]}" ]; do
         tj="$(printf %s "${t[$j]}" | tr 'A-Z' 'a-z')"
-        case "$tj" in cc|ws|tiller|cabin|pybus|explorer|angler) cfg="$tj"; break;; esac
+        case "$tj" in cc|ws|tiller|cabin|pybus|explorer|angler|charter) cfg="$tj"; break;; esac
         j=$((j+1))
       done
     fi
@@ -86,9 +90,13 @@ parse_one(){
   if [ -n "$hull" ]; then echo "${hull}-${len}-${seg}${lmseg}${nn2}.jpg $hull $len $cfg"; else echo "${len}-${seg}${lmseg}${nn2}.jpg  $len $cfg"; fi
 }
 
+# does a hero file carry a real hull right after HERO- (a PPL tag doesn't count)?
+hero_has_hull(){ basename "$1" | grep -qE '^([0-9]{2}-)?HERO-[03-9][0-9]{3}-'; }
+
 # ---- 1) discover length subfolders (leading number) --------------------------
 LENDIRS=()
-for d in "$SRC"/*/; do bn="$(basename "$d")"; case "$(printf %s "$bn" | tr 'A-Z' 'a-z')" in *mobile*) continue;; esac; if printf '%s' "$bn" | grep -qE '^(1[4-9]|2[0-9]|3[0-9])'; then LENDIRS+=("$d"); fi; done
+for d in "$SRC"/*/; do bn="$(basename "$d")"; case "$(printf %s "$bn" | tr 'A-Z' 'a-z')" in *mobile*) continue;; esac; if printf '%s' "$bn" | grep -qE '^(1[4-9]|2[0-9]|3[0-9])'; then
+  if compgen -G "${d}*.[jJ][pP][gG]" >/dev/null || compgen -G "${d}*.[jJ][pP][eE][gG]" >/dev/null; then LENDIRS+=("$d"); else say "  (skipping $bn: no photos yet)"; fi; fi; done   # (a glob, not ls|grep -q: pipefail + SIGPIPE made that fail on big folders)   # empty folder = photos not exported yet (Pybus, 2026-10-14)
 [ "${#LENDIRS[@]}" -gt 0 ] || { echo "ERROR: no length subfolders in $SRC"; exit 1; }
 
 # ---- 2) assets: wipe + copy fulls/thumbs, build gallery HTML + covers list ----
@@ -144,6 +152,9 @@ if [ "${#HEROES[@]}" -gt 1 ]; then
   for hf in "${HEROES[@]:1}"; do
     read -r _d sh sl sc <<< "$(parse_one "$(basename "$hf" | sed -E 's/^([0-9]{2}-)?HERO-/00-/')")"
     if [ -n "$sc" ]; then sd="hero-${sh}-${sl}-${sc}.jpg"; else sd="hero-${sh}-${sl}.jpg"; fi
+    # no hull (Pybus PPL boats, 2026-10-14): several heroes of one boat type would share a name -> use the slide
+    # number. (parse_one's output has an empty hull field, so read shifts: sh = length, sl = config.)
+    if ! hero_has_hull "$hf"; then hn="$(basename "$hf" | grep -oE '^[0-9]{2}')"; sd="hero-${hn:-00}-${sh}${sl:+-$sl}.jpg"; fi
     run "cp \"$hf\" \"$DEST/$sd\""
     say "  slider hero: $sd  (from $(basename "$hf"))"
   done
@@ -151,6 +162,10 @@ fi
 HLEGACY=0; case "-$(basename "$HERO" | tr 'a-z' 'A-Z')-" in *-LM-*) HLEGACY=1;; esac   # LM token in the hero name -> Legacy Model build -> gold tag in the hero header
 read -r hdest hhull hlen hcfg <<< "$(parse_one "$(basename "$HERO" | sed -E 's/^([0-9]{2}-)?HERO-/00-/')")"   # reuse parser (fake order 00)
 if [ -n "$hcfg" ]; then HERODEST="hero-${hhull}-${hlen}-${hcfg}.jpg"; else HERODEST="hero-${hhull}-${hlen}.jpg"; fi
+if ! hero_has_hull "$HERO"; then   # no hull: the read above shifted (hhull = length, hlen = config); put them back, then the slider rule
+  hcfg="$hlen"; hlen="$hhull"; hhull=""
+  hn="$(basename "$HERO" | grep -oE '^[0-9]{2}')"; HERODEST="hero-${hn:-00}-${hlen}${hcfg:+-$hcfg}.jpg"
+fi
 run "cp \"$HERO\" \"$DEST/$HERODEST\""
 run "sips -s format jpeg -Z 800 \"$HERO\" --out \"$DEST/thumbs/hero.jpg\" >/dev/null 2>&1"
 HCFG_DISP="$(cfg_disp "$hcfg")"

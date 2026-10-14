@@ -1975,6 +1975,12 @@ html.blueprint .pcarbtn{ background:rgba(21,31,40,.94); border-color:#22303b; co
 .vid2 .vidfacade{ aspect-ratio:16/9; }           /* video-native 16:9 at the 2-up cover-card WIDTH (588px) — clean, no letterbox */
 .vid2 .vidsec figcaption .ref{ display:none; }   /* per-video titles need the room */
 @media (max-width:760px){ .vid2{ grid-template-columns:1fr; gap:14px; } }
+/* gallery cards the size of the YouTube thumbnails above (window.WB_CARDS_VIDEO; Pybus Point Lodge, Tyler
+   2026-10-14): 2 across at the .vid2 width (588px), 16:9, an odd last card centred; one column under 760px */
+.modelcards.vidcards{ display:flex; flex-wrap:wrap; justify-content:center; gap:16px; }
+.modelcards.vidcards.mc-single{ max-width:none; }
+.modelcards.vidcards .mcard{ flex:0 0 calc(50% - 8px); aspect-ratio:16/9; }
+@media (max-width:760px){ .modelcards.vidcards .mcard{ flex-basis:100%; } }
 
 /* ── video gallery: big main player + scrollable rail of more videos (Rogue etc.) ── */
 .vidgallery{ display:grid; grid-template-columns:2.1fr 1fr; gap:18px; align-items:stretch; max-width:1120px; margin:0 auto; }

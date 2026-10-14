@@ -710,6 +710,12 @@
       var slot = document.querySelector('.modelcards-slot');
       if (slot) {
         var by = 'length', g = groups, ks = keys.slice();
+        /* window.WB_CARD_ORDER = ['33','20','21'] (Pybus Point Lodge, Tyler 2026-10-14): the length cards in
+           this order; a length that isn't listed follows in the usual order. Pages without it are unchanged. */
+        if (window.WB_CARD_ORDER) {
+          var co = window.WB_CARD_ORDER.map(String);
+          ks.sort(function (a, b) { var ia = co.indexOf(a), ib = co.indexOf(b); return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib); });
+        }
         var realLens = ks.filter(function (k) { return k !== 'x'; });
         /* One card per LENGTH is the gallery unit (trims are listed in the card
            sub-line, e.g. "Windshield & Console Trims"). A single-length model is
@@ -780,6 +786,9 @@
 
         var cards = document.createElement('div');
         cards.className = (BYCFG && by === 'config') ? 'agcards' : 'modelcards';   /* per-config cards use the Agency page's 2-across layout */
+        /* window.WB_CARDS_VIDEO = true (Pybus Point Lodge, Tyler 2026-10-14): cards the size of the page's
+           YouTube thumbnails (.vid2): 2 across, 16:9, an odd last card centred (CSS .modelcards.vidcards) */
+        if (window.WB_CARDS_VIDEO && cards.className === 'modelcards') cards.classList.add('vidcards');
         slot.appendChild(cards);
 
         ks.forEach(function (k) {
