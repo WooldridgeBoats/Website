@@ -2767,6 +2767,7 @@ html.blueprint body{ background:transparent; }
 .hpc b{ font-weight:700; color:var(--blue); text-transform:uppercase; letter-spacing:.08em; font-size:11.5px; margin-right:4px; }
 /* a video sits on the same row height as the prints, just wider */
 .htile.vid{ width:calc((var(--t) - 20px) * 16 / 9 + 20px); cursor:pointer; }
+.htile.vid{ align-self:center; }   /* phones make it wider than tall prints: no stretching into an empty white block */
 .htile.vid .hpic{ aspect-ratio:16/9; }
 .htile.vid .hpic img{ filter:none; }
 .hplay{
