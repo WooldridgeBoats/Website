@@ -2729,7 +2729,9 @@ html.blueprint body{ background:transparent; }
 .hcar{ position:relative; max-width:1140px; margin:28px auto 0; }
 .htrack{
   display:flex; gap:clamp(16px,2vw,28px); overflow-x:auto; scroll-snap-type:x mandatory;
-  scroll-behavior:smooth; padding:16px 8px 26px; scrollbar-width:none; overscroll-behavior-x:contain;
+  scroll-behavior:smooth; padding:16px 8px 58px; scrollbar-width:none; overscroll-behavior-x:contain;
+  /* 58px under the prints: a scroller clips at its edge, so the drop shadow needs room to fade out
+     fully, or it ends in a hard line (Tyler, 2026-10-14). The scroll bar is pulled up into it. */
 }
 .htrack::-webkit-scrollbar{ display:none; }
 .htrack > :first-child{ margin-left:auto; }
@@ -2779,8 +2781,9 @@ html.blueprint body{ background:transparent; }
 .htile.vid:hover .hplay{ transform:scale(1.08); }
 .hcarui{ display:flex; align-items:center; justify-content:center; gap:18px; }
 .hcar.fits .hcarui,.hcar.fits .hbar{ display:none; }
+.hcar.fits .htrack{ padding-bottom:44px; }   /* no scroll bar to tuck in: just room for the shadow */
 .hbar{
-  position:relative; width:min(420px,70%); height:16px; margin:0 auto 10px; cursor:pointer; touch-action:none;
+  position:relative; width:min(420px,70%); height:16px; margin:-32px auto 10px; cursor:pointer; touch-action:none;
 }
 .hbar::before{ content:""; position:absolute; left:0; right:0; top:7px; height:2px; border-radius:2px; background:rgba(35,40,45,.14); }
 .hbar i{   /* the pale outlined blue of the big ghost years behind each date (Tyler, 2026-10-14) */
@@ -2967,7 +2970,7 @@ body.hlb-open{ overflow:hidden; }
 .hvidcar{ margin-top:16px; }
 /* clean thumbs like the boat-model video walls (.vidrailitem): no white print frame, rounded
    corners, soft shadow, slight zoom on hover, a see-through play button (Tyler, 2026-10-14) */
-.hvidcar .htrack{ padding:14px 8px 22px; }
+.hvidcar .htrack{ padding:14px 8px 54px; }
 .hvidcar .htile,.hvidcar .htile:nth-child(n){
   width:clamp(240px,22vw,300px); background:none; padding:0; border-radius:0; box-shadow:none; transform:none;
 }
@@ -3023,7 +3026,7 @@ main.hist + footer::before{
    Pieces share a height, not a width, so tall pages and wide spreads sit together;
    five rotating tilts/heights/offsets keep any number looking hand-placed. */
 .hclipcar{ margin-top:8px; }
-.hclipcar .htrack{ align-items:center; gap:clamp(22px,2.6vw,36px); padding:36px 26px 40px; }
+.hclipcar .htrack{ align-items:center; gap:clamp(22px,2.6vw,36px); padding:36px 26px 70px; }
 .hclip{
   --r:-3.5deg; --y:10px; --h:clamp(255px,26.5vw,345px);
   position:relative; display:block; flex:none; scroll-snap-align:center;
@@ -3066,7 +3069,7 @@ main.hist + footer::before{
 }
 @media (max-width:900px){
   .hclip,.hclip:nth-child(n){ --h:min(68vw,300px); }
-  .hclipcar .htrack{ padding:38px 18px 34px; }
+  .hclipcar .htrack{ padding:38px 18px 64px; }
   .hclip-cap{ font-size:16px; }
 }
 @media (prefers-reduced-motion: reduce){
