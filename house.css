@@ -3010,7 +3010,19 @@ body.hlb-open{ overflow:hidden; }
   position:absolute; right:8px; bottom:8px; padding:2px 7px; border-radius:4px;
   background:rgba(10,15,20,.85); color:#fff; font-weight:600; font-size:11px; letter-spacing:.02em;
 }
-@media (max-width:900px){ .hvidcar{ --hvh:min(54vw,225px); } }
+/* phones: each video sits flush left with a clean edge, the next one peeks in on the right
+   under a light fade (no fade on the left), and tiles are sized so the wide one fits
+   (Tyler, 2026-10-14) */
+@media (max-width:900px){
+  .hvidcar{ --hvh:min(40vw,225px); }   /* the wide one leaves room for the next to peek in */
+  .hvidcar .htile,.hvidcar .htile:nth-child(n){ scroll-snap-align:start; }
+  .hvidcar .htrack{ scroll-padding-inline:8px; gap:12px; }
+  .hvidcar.more-r .htrack,.hvidcar.more-l.more-r .htrack{
+    -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 24px),transparent);
+            mask-image:linear-gradient(to right,#000 calc(100% - 24px),transparent);
+  }
+  .hvidcar.more-l:not(.more-r) .htrack{ -webkit-mask-image:none; mask-image:none; }
+}
 
 /* the closing photo (01-END CAP), full width after the map, with the hero's title on
    it the same way. The page fades down into its top, so the blue title sits on light
