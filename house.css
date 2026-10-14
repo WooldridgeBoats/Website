@@ -2783,11 +2783,12 @@ html.blueprint body{ background:transparent; }
   position:relative; width:min(420px,70%); height:16px; margin:0 auto 10px; cursor:pointer; touch-action:none;
 }
 .hbar::before{ content:""; position:absolute; left:0; right:0; top:7px; height:2px; border-radius:2px; background:rgba(35,40,45,.14); }
-.hbar i{
-  position:absolute; top:5px; height:6px; border-radius:6px; background:var(--blue);
-  transition:left .12s linear, height .2s, top .2s;
+.hbar i{   /* the pale outlined blue of the big ghost years behind each date (Tyler, 2026-10-14) */
+  position:absolute; top:5px; height:6px; border-radius:6px;
+  background:rgba(27,117,187,.2); box-shadow:inset 0 0 0 1px rgba(27,117,187,.34);
+  transition:left .12s linear, height .2s, top .2s, background .2s;
 }
-.hbar:hover i,.hcar.drag .hbar i{ top:4px; height:8px; }
+.hbar:hover i,.hcar.drag .hbar i{ top:4px; height:8px; background:rgba(27,117,187,.32); }
 .hcar.drag .htrack{ scroll-behavior:auto; scroll-snap-type:none; }
 .hprev,.hnext{
   width:44px; height:44px; border-radius:50%; background:#fff; border:1px solid var(--line);
