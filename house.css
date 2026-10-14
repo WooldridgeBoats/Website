@@ -2996,6 +2996,7 @@ body.hlb-open{ overflow:hidden; }
 }
 .hvidcar .htile.wide .hpic{ aspect-ratio:16/9; }
 .hvidcar .htile .hpic img[style]{ position:absolute; max-width:none; object-fit:fill; }
+.hvidcar .htile.own .hpic img{ object-position:50% 0; }   /* Tyler's own thumb (square): keep the top (Glen's hat), trim the bottom */
 .hvidcar .htile .hpic img{ filter:none; opacity:.92; transition:opacity .25s, transform .35s; }
 .hvidcar .htile:hover .hpic img{ opacity:1; transform:scale(1.04); }
 .hvidcar .htile:focus-visible .hpic{ box-shadow:0 0 0 3px var(--blue), var(--shadow); }
@@ -3014,7 +3015,7 @@ body.hlb-open{ overflow:hidden; }
    under a light fade (no fade on the left), and tiles are sized so the wide one fits
    (Tyler, 2026-10-14) */
 @media (max-width:900px){
-  .hvidcar{ --hvh:min(40vw,225px); }   /* the wide one leaves room for the next to peek in */
+  .hvidcar{ --hvh:min(50vw,225px); }   /* 250px tiles at 375: the next one peeks in ~50px */
   .hvidcar .htile,.hvidcar .htile:nth-child(n){ scroll-snap-align:start; }
   .hvidcar .htrack{ scroll-padding-inline:8px; gap:12px; }
   .hvidcar.more-r .htrack,.hvidcar.more-l.more-r .htrack{

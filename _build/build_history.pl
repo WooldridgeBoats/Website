@@ -32,6 +32,7 @@ use utf8;
 use File::Basename qw(dirname);
 use File::Path qw(make_path remove_tree);
 use Digest::MD5 qw(md5_hex);
+use File::Copy qw(copy);
 use Cwd qw(abs_path);
 
 binmode STDOUT, ':encoding(UTF-8)';
@@ -392,15 +393,27 @@ if (@hvids) {
   # old 4:3 footage: YouTube pads the thumbnail with black bars, so the tile is 4:3 and shows
   # only the picture box from history_videos.txt; a true 16:9 video ("wide") keeps a wide tile
   my %tsize = (maxres => [1280, 720], sd => [640, 480], hq => [480, 360]);
+  # Tyler's own thumbnail ("thumb=FILE" in history_videos.txt): from the master's sibling folder
+  # MASTER-WEBSITE PHOTOS/YT-VIDEO-THUMBS, copied BYTE-FOR-BYTE (never re-compress a video thumb
+  # he supplies) to assets/history/videos/<id>.jpg; it fills the 4:3 tile (Tyler, 2026-10-14)
+  my $vt_dir = dirname($MASTER) . '/YT-VIDEO-THUMBS'; my $vt_out = "$root/assets/history/videos";
+  remove_tree($vt_out); my %own;
+  for my $id (map { $_->[0] } @hvids) {
+    my ($file) = ($vcrop{$id} // '') =~ /^thumb\s*=\s*(.+)$/i or next;
+    my $from = "$vt_dir/$file"; -s $from or die "heritage video $id: thumbnail not found: YT-VIDEO-THUMBS/$file\n";
+    make_path($vt_out); copy($from, "$vt_out/$id.jpg") or die "copy $from: $!\n";
+    $own{$id} = "/assets/history/videos/$id.jpg?v=" . ver("$vt_out/$id.jpg");
+  }
   my @t = map { my ($id, $title, $len) = @$_;
     my ($cls, $sty) = ('', '');
-    if (($vcrop{$id} // '') =~ /^(\d+),(\d+),(\d+),(\d+)$/) {
+    if ($own{$id}) { $cls = ' own'; }
+    elsif (($vcrop{$id} // '') =~ /^(\d+),(\d+),(\d+),(\d+)$/) {
       my ($x, $y, $w, $h) = ($1, $2, $3, $4); my ($W, $H) = @{ $tsize{$thumbq{$id}} // $tsize{sd} };
       $sty = sprintf ' style="width:%.2f%%;height:%.2f%%;left:%.2f%%;top:%.2f%%"', 100*$W/$w, 100*$H/$h, -100*$x/$w, -100*$y/$h;
     } elsif (($vcrop{$id} // '') eq 'wide') { $cls = ' wide'; }
     else { warn "  heritage video $id has no crop in history_videos.txt (shows as-is in a 4:3 tile)\n"; }
     qq{      <button type="button" class="htile vid hv$cls" data-yt="$id" data-vtitle="} . esc($title) . qq{">}
-    . qq{<span class="hpic"><img src="} . yt_thumb($id) . qq{"$sty alt="" loading="lazy" decoding="async"><span class="hplay" aria-hidden="true"></span>}
+    . qq{<span class="hpic"><img src="} . ($own{$id} // yt_thumb($id)) . qq{"$sty alt="" loading="lazy" decoding="async"><span class="hplay" aria-hidden="true"></span>}
     . ($len ne '' ? qq{<span class="hdur">$len</span>} : '') . qq{</span><span class="hpc">} . esc($title) . qq{</span></button>} } @hvids;
   $vids_html = qq{\n<section class="hvids" aria-labelledby="hvids-h"><div class="wrap">\n}
     . qq{  <div class="hseg" aria-hidden="true"><i></i></div>\n}
@@ -413,7 +426,7 @@ printf "videos    %2d heritage video(s)\n", scalar @hvids;
 
 # ── image folders for dates no longer on the timeline go away ──
 {
-  my %live = map { lc $_->{key} => 1 } @eras; $live{archives} = 1;
+  my %live = map { lc $_->{key} => 1 } @eras; $live{archives} = 1; $live{videos} = 1;
   opendir my $ad, "$root/assets/history" or die;
   for my $dd (grep { !/^\./ && -d "$root/assets/history/$_" } readdir $ad) {
     next if $live{$dd};

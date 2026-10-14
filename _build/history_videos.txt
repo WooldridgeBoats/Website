@@ -7,10 +7,11 @@
 #   | crop: "wide" for a true 16:9 video, or x,y,w,h = the 4:3 picture inside that thumbnail
 #   with YouTube's black bars cut off (old 4:3 footage). Tile shows exactly that box (Tyler,
 #   2026-10-14). Measure new ones with _build/history_vidcrop.js (see the handoff).
+#   Or "thumb=FILE": Tyler's own thumbnail from MASTER-WEBSITE PHOTOS/YT-VIDEO-THUMBS (used as-is).
 # Titles are the playlist's, with typos fixed for the page (Slamon, Ranie, "Glen Seniors").
 # Rebuild after editing: perl _build/build_history.pl
 
-gCxOoaZ27j8 | Glen Wooldridge Was a Whitewater GOAT! | 2:28 | maxres | wide
+gCxOoaZ27j8 | Glen Wooldridge Was a Whitewater GOAT! | 2:28 | maxres | thumb=01-HERITAGE VIDEO-THUMB.jpg
 N0NOx3ofM5E | Footage from the Old Days Running the Snake River | 6:41 | maxres | 179,14,922,691
 38WCO1ykWy0 | Glen Wooldridge Sr.: First Jet Boat to Run Up Hells Gate on the Fraser River | 5:44 | sd | 93,70,454,341
 oroO5hUnmOU | 18′ Inboard Classic Running on the Rogue | 1:26 | sd | 90,67,461,346

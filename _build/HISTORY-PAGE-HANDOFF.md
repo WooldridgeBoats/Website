@@ -100,6 +100,10 @@ Tyler: "Wooldridge Boats is an American Legacy brand, so this page is very impor
 - **Heritage Videos:** the page doesn't watch the playlist live. Say "update heritage videos".
   Old 4:3 videos show as squarer 4:3 tiles with YouTube's black bars cut off; true 16:9 ones stay
   wide. New videos need their crop measured (`_build/history_vidcrop.js`) or they warn on rebuild.
+  Own thumbnail instead: put it in `MASTER-WEBSITE PHOTOS/YT-VIDEO-THUMBS/` and set the video's last
+  field to `thumb=FILE.jpg`; the builder copies it byte-for-byte to `assets/history/videos/<id>.jpg`
+  (top-anchored in the 4:3 tile). First video uses `01-HERITAGE VIDEO-THUMB.jpg` (Glen in his hat).
+  Phones: tiles snap flush left (clean edge), light fade on the right only, next tile peeks in.
 - **Brochures:** drop/rename in `HERITAGE BROCHURES-ADS`; the date in the caption sets the order
   (in a decade: Early first, then plain "1980s", the years, Mid, Late). Same date = filename order,
   so number them to force it: `EARLY 1980s-1-WORK BOATS BROCHURE.JPG`, `EARLY 1980s-2-ALASKAN…`.
