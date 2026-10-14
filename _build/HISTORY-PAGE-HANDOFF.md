@@ -157,8 +157,8 @@ Tyler: fast loads, but NO softening, and keep the pixel sizes. What the builder 
   real `.hcar`, so it gets the arrows / counter / scroll bar. Pieces share a HEIGHT (wide
   spreads sit beside tall pages); clip images are 680px tall. Order = by the date in each
   caption, oldest first (generic decade, Early, the years, Mid, Late), not alphabetical.
-  A garbled caption date borrows the filename's (LATE 1980s-BROCHURE says "!908s" — Tyler
-  to fix in the file).
+  A garbled caption date borrows the filename's (a fallback; the one case, "!908s", Tyler fixed
+  by renaming it 1980s-DEEP WATER PLUS BROCHURE).
 - The viewer runs in page order: brochures first, then 1915 onward.
 
 ## How to update
