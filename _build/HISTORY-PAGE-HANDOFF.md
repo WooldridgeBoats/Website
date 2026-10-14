@@ -170,7 +170,8 @@ Tyler: fast loads, but NO softening, and keep the pixel sizes. What the builder 
   The footer's 40px top margin is zeroed on this page only (`main.hist + footer`), and `.hend`
   sets padding:0 to beat the site-wide `section{padding:36px 0}` (that rule only bites on wider
   screens, which is why the gap hid at the ~900px preview width). The footer's compass star is
-  bigger on this page (52px white badge, 28px star) since it sits on the photo/footer seam.
+  bigger on this page (48px, just the blue star, no badge; Tyler 2026-10-14) since it sits
+  on the photo/footer seam.
 - Page order now: hero → about → Brochures & Ads strip → timeline → map → closing photo.
 
 ## How to update
