@@ -609,14 +609,17 @@ if ($mode eq 'xlsx' && !$dry) {
   my $soc_after = soc_blobs($repo);
   my @chg = grep { $soc_before->{$_} ne $soc_after->{$_} } qw(models rules_overlay trailer_data);
   my $socp = dirname($sqh) . '/BUILD HUB/MISC NECESSARY CONTENT/SALES ORDER CREATOR/SALES ORDER CREATOR.html';
-  my $shadow = -f $socp ? (slurp_bytes($socp) =~ /^[ \t]*const MODELS = /m ? 1 : 0) : -1;   # -1 = cannot see it from here
+  # The cut to canon-only happened 2026-10-14 (Build Hub a913ea9): the live SOC has no built-in const MODELS, so this
+  # stays quiet. It only speaks again if the cut is rolled back (git revert a913ea9) - seen from the P3. A machine
+  # that cannot see the SOC (Tyler's Mac) says nothing: after the cut there is nothing to re-sync.
+  my $shadow = (-f $socp && slurp_bytes($socp) =~ /^[ \t]*const MODELS = /m) ? 1 : 0;
   if (@chg && $shadow) {
     require Digest::MD5;
     my %line = (models        => qq{perl "$canon_root/_build/sync_soc_models_2026-10-13.pl" "$repo/build-and-price/index.html" "$socp" } . Digest::MD5::md5_hex($soc_before->{models}),
                 rules_overlay => qq{perl "$repo/_build/sync_soc_rules.pl"},
                 trailer_data  => qq{perl "$repo/_build/sync_soc_trailers.pl"});
-    push @owed, 'Sales Order Creator (SHADOW period, until Stephen cuts it to canon-only' . ($shadow < 0 ? '; not visible from this machine' : '')
-      . '): its built-in prices now differ from WB CANON SOC.json, so it shows RED until re-synced. On the P3: commit the Build Hub repo, run '
+    push @owed, 'Sales Order Creator (SHADOW build is live again - the canon-only cut was rolled back)'
+      . ': its built-in prices now differ from WB CANON SOC.json, so it shows RED until re-synced. On the P3: commit the Build Hub repo, run '
       . join(' ; ', map { $line{$_} } @chg) . ' ; then commit the Build Hub repo again.';
   }
 }
