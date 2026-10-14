@@ -130,7 +130,7 @@ perl _build/stamp_assets.pl               # REQUIRED after any house.css / histo
 - Section headings: blue title first, the small black line (`.hmap-kick`, 13–15px) UNDER it.
 - Timeline prints show captions under them (dates-only was tried and reverted). Brochures show
   dates only. The viewer shows only the photo's caption, date pulled into the blue title.
-- Brochures above the timeline, as one sideways strip that runs nearly side to side (24px in from each edge, `.hclipcar` breaks out of `.wrap`). Heritage Videos (`.hvidcar`) does the same. Heritage Videos between map and closing photo.
+- Brochures above the timeline, as one sideways strip that runs nearly side to side (44px in from each edge, 24px on phones; `.hclipcar` breaks out of `.wrap`). Heritage Videos (`.hvidcar`) does the same. Heritage Videos between map and closing photo.
 - No Build & Price button, no book cover, no pill, no pagemast.
 - Scroll bars pale ghost-year blue. Drop shadows must fade out fully (tracks have extra bottom room).
 - Images: fast but NEVER visibly softer, and keep pixel sizes. Tiles 720px square (cut to what's
