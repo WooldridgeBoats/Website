@@ -683,7 +683,10 @@
         bar.appendChild(chip('All &#183; ' + count(anchors.length, manchors.length), 'all', true));
         fkeys.forEach(function (k) {
           var label = (k === 'x' ? 'Unlisted' : BYCFG ? k : k + '-Foot') + ' &#183; ' + count(fgroups[k].length, mcount(k));
-          bar.appendChild(chip(label, k, false));
+          var ch = chip(label, k, false);
+          /* a group with no phone photos yet (Pybus 33', 2026-10-14) would be a dead "· 0" chip on phones: hide it there */
+          if (mgrid && !mcount(k)) ch.classList.add('nophone');
+          bar.appendChild(ch);
         });
         grid.parentNode.insertBefore(bar, grid);
       }

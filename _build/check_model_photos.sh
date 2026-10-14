@@ -62,8 +62,9 @@ check_file(){
   base="$(basename "$f")"; stem="${base%.jpg}"
   local -a t; IFS='-' read -r -a t <<< "$stem"
   # "PPL" / "PPL5" (Tyler 2026-10-14: Pybus Point Lodge + his own boat number) sits where a hull would. It is NOT a hull: drop it.
+  local ppl=0
   if printf '%s' "${t[1]:-}" | grep -qiE '^PPL[0-9]*$'; then   # shift the rest down one, element by element
-    local k=1; while [ "$k" -lt $(( ${#t[@]} - 1 )) ]; do t[$k]="${t[$((k+1))]}"; k=$((k+1)); done; unset "t[$k]"
+    ppl=1; local k=1; while [ "$k" -lt $(( ${#t[@]} - 1 )) ]; do t[$k]="${t[$((k+1))]}"; k=$((k+1)); done; unset "t[$k]"
   fi
   nn="${t[0]:-}"
   if [[ "${t[1]:-}" =~ ^[03-9][0-9]{3}$ ]]; then hull="${t[1]:-}"; flen="${t[2]:-}"; style="${t[3]:-}"; styn="${t[4]:-}";
@@ -96,7 +97,7 @@ check_file(){
     seen_dest="$seen_dest$key"; seen_order="$seen_order$((10#$nn)) "
   fi
   # hull
-  if [ -z "$hull" ]; then warn "$base: no hull# — caption will omit it (ok only if truly unknown)"; fi
+  if [ -z "$hull" ] && [ "$ppl" = 0 ]; then warn "$base: no hull# — caption will omit it (ok only if truly unknown)"; fi   # a PPL boat has no hull # on purpose
   # length matches folder
   [ "$flen" = "$L" ] || err "$base: length token '$flen' != folder ${L}ft"
   # trim code

@@ -23,7 +23,10 @@ Fix my spelling; call me Bro; plain English.
 ---
 
 ## NEXT UP: Pybus Point Lodge, the 33′ Deepwater Charter + 21′ Cabin Sport Offshore galleries
-Built 2026-10-14: 11-slide hero, the 20′ Sport gallery (15 desktop / 15 phone, hulls 4543/4544/4545).
+Built 2026-10-14: 11-slide hero, the 20′ Sport gallery (15 desktop / 15 phone, hulls 4543/4544/4545) and the
+33′ Deepwater Charter desktop gallery (23 photos, top-left card). Still to come: the 33′ phone set and the 21′
+Cabin Sport Offshore (desktop + phone). Until a length has a phone set, phones open its regular photos and its
+"· 0" filter chip is hidden (gallery.js `nophone`).
 When Tyler fills `PYBUS-WEB/33-DEEPWATER-CHARTER(-MOBILE)` and `21-CABIN-SPORT OFFSHORE(-MOBILE)`, just re-run:
 `_build/apply_model_photos.sh pybus-offshore "Pybus Point Lodge" "<…/PYBUS-WEB>"` (check first). The cards then
 show 33′ Deepwater + 20′ Sport on top and the 21′ Sport Offshore centred below, with no page edits.

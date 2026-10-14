@@ -1981,6 +1981,7 @@ html.blueprint .pcarbtn{ background:rgba(21,31,40,.94); border-color:#22303b; co
 .modelcards.vidcards.mc-single{ max-width:none; }
 .modelcards.vidcards .mcard{ flex:0 0 calc(50% - 8px); aspect-ratio:16/9; }
 @media (max-width:760px){ .modelcards.vidcards .mcard{ flex-basis:100%; } }
+@media (max-width:700px){ .pfilter .optchip.nophone{ display:none; } }   /* a length with no phone photos yet (gallery.js) */
 
 /* ── video gallery: big main player + scrollable rail of more videos (Rogue etc.) ── */
 .vidgallery{ display:grid; grid-template-columns:2.1fr 1fr; gap:18px; align-items:stretch; max-width:1120px; margin:0 auto; }
