@@ -294,6 +294,8 @@ const BLURB = {
 };
 
 /* Scoring matrix. Higher = better fit for that answer. Edit freely — the engine just sums weighted scores. */
+/* MATRIX:BEGIN - THE matrix. request-a-quote/index.html carries a copy; after any edit run
+   perl _build/sync_quiz_matrix.pl, then node _build/audit_quiz_reach.js (it fails if the copies differ). */
 const T = {
   lt:       {water:{skinny:3,rivers:2,big:0,salt:0}, shallow:{extreme:2,some:2,rarely:1}, use:{riverfish:2,saltfish:0,hunt:3,family:1,haul:1}, crew:{solo:3,small:2,big:0}, rough:{never:2,some:0,often:-2}, helm:{tiller:3,console:3,windshield:2,cabin:0}, tow:{mid:3,full:2,hd:1}, load:{light:3,mid:1,heavy:0}},
   xlt:      {water:{skinny:3,rivers:2,big:0,salt:0}, shallow:{extreme:3,some:2,rarely:0}, use:{riverfish:2,saltfish:0,hunt:3,family:1,haul:2}, crew:{solo:3,small:2,big:0}, rough:{never:2,some:0,often:-2}, helm:{tiller:3,console:3,windshield:1,cabin:0}, tow:{mid:3,full:2,hd:1}, load:{light:2,mid:3,heavy:1}},
@@ -314,6 +316,7 @@ const T = {
   so:       {water:{skinny:0,rivers:1,big:3,salt:3}, shallow:{extreme:0,some:1,rarely:3}, use:{riverfish:1,saltfish:3,hunt:0,family:1,haul:1}, crew:{solo:1,small:3,big:1}, rough:{never:0,some:2,often:3}, helm:{tiller:0,console:3,windshield:3,cabin:0}, tow:{mid:0,full:3,hd:2}, load:{light:1,mid:3,heavy:1}},
   sso:      {water:{skinny:0,rivers:0,big:3,salt:3}, shallow:{extreme:0,some:0,rarely:3}, use:{riverfish:0,saltfish:3,hunt:0,family:2,haul:2}, crew:{solo:0,small:2,big:3}, rough:{never:0,some:2,often:3}, helm:{tiller:0,console:2,windshield:3,cabin:0}, tow:{mid:0,full:1,hd:3}, load:{light:0,mid:2,heavy:3}}
 };
+/* MATRIX:END */
 
 const DIM_WEIGHT = {water:3, shallow:2, use:2, crew:1.5, rough:1.5, helm:1.5, tow:1, load:1.5};
 const BUDGET = [
