@@ -2916,7 +2916,7 @@ body.hlb-open{ overflow:hidden; }
    (Gold Beach to Grants Pass, the 1947 and 1962 firsts) draws itself in blue as you
    scroll. The scan is cleaned to white paper by _build/history_map.swift and laid on
    with multiply so it reads as ink on the page. */
-.hmap{ text-align:center; padding:0 0 20px; }
+.hmap{ text-align:center; padding:0 0 10px; }
 .hmap .hseg{ margin-bottom:18px; }
 .hmap-kick{
   font-weight:500; font-size:clamp(16px,1.5vw,19px); letter-spacing:.16em; text-transform:uppercase;
@@ -2958,9 +2958,28 @@ body.hlb-open{ overflow:hidden; }
    one of five tilts/offsets in turn, so any number of pieces still looks hand-placed.
    They drift down and settle in one after another when the section arrives. */
 .harch{ text-align:center; padding:12px 0 0; }
-/* the closing line, last thing on the page (after the map and the scrapbook) */
-.hend{ text-align:center; padding:0 0 96px; }
-.hend .hmap-close{ margin-top:50px; }
+/* the closing photo (01-END CAP), full width after the map, with the hero's title on
+   it the same way. The page fades down into its top, so the blue title sits on light
+   ground over a dark forest, the way the hero's sits on sky. */
+.hend{ position:relative; display:grid; margin-top:40px; }
+.hend-media,.hend-title{ grid-area:1/1; }
+main.hist + footer{ margin-top:0; }   /* the photo meets the footer, no grey strip (this page only) */
+.hend-media{ position:relative; overflow:hidden; background:#2a2c2e; height:min(66.17vw, max(520px, 100svh)); }
+.hend-media img{ width:100%; height:100%; object-fit:cover; object-position:50% 50%; }
+.hend-media::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(to bottom, var(--bg) 0%, rgba(242,242,242,.82) 14%, rgba(242,242,242,0) 40%);
+}
+.hend-title{
+  position:relative; z-index:1; align-self:start; text-align:center; padding-top:4.4vw;
+  font-family:var(--serif); font-weight:700; color:var(--blue); letter-spacing:.012em;
+  font-size:clamp(28px,3.1vw,64px); line-height:1.2; text-shadow:0 0 26px rgba(255,255,255,.6);
+}
+@media (max-width:900px){
+  .hend-media{ height:auto; aspect-ratio:4/3.4; }
+  .hend-media img{ object-position:62% 50%; }
+  .hend-title{ padding-top:22px; font-size:clamp(26px,7vw,40px); }
+}
 /* One sideways strip (19+ pieces would be a wall that buries the timeline). It IS a
    carousel (.hcar/.htrack), so history.js gives it the arrows, counter and scroll bar.
    Pieces share a height, not a width, so tall pages and wide spreads sit together;

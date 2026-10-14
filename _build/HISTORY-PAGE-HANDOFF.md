@@ -161,6 +161,16 @@ Tyler: fast loads, but NO softening, and keep the pixel sizes. What the builder 
   by renaming it 1980s-DEEP WATER PLUS BROCHURE).
 - The viewer runs in page order: brochures first, then 1915 onward.
 
+## Closing photo (2026-10-14)
+
+- After the map: Tyler's `01-END CAP IMAGE.jpg` (master root) full width, with "Four
+  Generations. / One River at a time." on it like the hero title (`.hend`). The builder makes
+  `assets/history/endcap.jpg` the same way as `hero.jpg` and stamps both. The page fades down
+  into the photo's top so the blue title sits on light ground (the photo's top is dark forest).
+  The footer's 40px top margin is zeroed on this page only (`main.hist + footer`), so the
+  photo meets the footer.
+- Page order now: hero → about → Brochures & Ads strip → timeline → map → closing photo.
+
 ## How to update
 
 ```

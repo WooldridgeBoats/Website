@@ -17,7 +17,7 @@
 #   The hero comes from the master: the file starting "01-HERO".
 #
 # WRITES
-#   assets/history/hero.jpg
+#   assets/history/hero.jpg, assets/history/endcap.jpg   (from 01-HERO... / 01-END CAP...)
 #   assets/history/<date>/NN.jpg + thumbs/NN.jpg   (rebuilt from scratch each run)
 #   assets/history/archives/NN.jpg + clip/NN.jpg   (From the Archives: brochures & ads)
 #   our-history/index.html, between <!-- HIST:timeline --> and <!-- /HIST:timeline -->
@@ -203,17 +203,20 @@ sub square_cut {   # cut each [in.png, out.png] square, aimed at faces; falls ba
     system('sips', '-c', $S, $S, $pr->[0], '--out', $pr->[1]) }
 }
 
-# ── hero ──
+# ── the two full-width photos: hero (01-HERO...) and the closing end cap (01-END CAP...) ──
 make_path("$root/assets/history");
-my $hero_v = '';
-for my $s (@src) {
-  opendir my $d, $s or next;
-  my ($h) = grep { /^01-HERO.*\.(jpe?g|png|tiff?)$/i } readdir $d; closedir $d;
-  next unless $h;
-  my ($w) = dims("$s/$h");
-  sips_out("$s/$h", "$root/assets/history/hero.jpg", ($w > 2400 ? ('-Z', 2400) : ()));
-  $hero_v = ver("$root/assets/history/hero.jpg");
-  print "hero      <- ", where("$s/$h"), "\n"; last;
+my %wide_v;
+for my $w (['hero', qr/^01-HERO.*\.(jpe?g|png|tiff?)$/i], ['endcap', qr/^01-END.*\.(jpe?g|png|tiff?)$/i]) {
+  my ($name, $re) = @$w;
+  for my $s (@src) {
+    opendir my $d, $s or next;
+    my ($h) = grep { $_ =~ $re } readdir $d; closedir $d;
+    next unless $h;
+    my ($pw) = dims("$s/$h");
+    sips_out("$s/$h", "$root/assets/history/$name.jpg", ($pw > 2400 ? ('-Z', 2400) : ()));
+    $wide_v{$name} = ver("$root/assets/history/$name.jpg");
+    printf "%-9s <- %s\n", $name, where("$s/$h"); last;
+  }
 }
 
 # ── per-date photos + markup ──
@@ -368,7 +371,7 @@ my $page = "$root/our-history/index.html";
 open my $pf, '<:encoding(UTF-8)', $page or die; local $/; my $src = <$pf>; close $pf;
 $src =~ s{(<!-- HIST:timeline -->).*?(<!-- /HIST:timeline -->)}{$1$html$2}s or die "markers missing in $page\n";
 $src =~ s{(<!-- HIST:archives -->).*?(<!-- /HIST:archives -->)}{$1$arch_html$2}s or die "archives markers missing in $page\n";
-$src =~ s{(/assets/history/hero\.jpg)(\?v=\w+)?}{$1?v=$hero_v}g if $hero_v;
+for my $name (keys %wide_v) { $src =~ s{(/assets/history/\Q$name\E\.jpg)(\?v=\w+)?}{$1?v=$wide_v{$name}}g; }
 open my $po, '>:encoding(UTF-8)', $page or die; print $po $src; close $po;
 
 # ── folders with photos but no spot on the timeline (so nothing gets lost) ──
