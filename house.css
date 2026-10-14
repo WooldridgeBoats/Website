@@ -2650,7 +2650,10 @@ html.blueprint body{ background:transparent; }
 .hhero-media,.hhero-in{ grid-area:1/1; }
 .hhero-media{
   position:relative; overflow:hidden; background:#2a2c2e;
-  height:min(66.17vw, max(560px, calc(100svh - 92px)));
+  /* the WHOLE photo, never cropped: Glen's hand on the tiller is in the bottom 7%, and a
+     wide-but-short screen used to cut it off (Tyler, 2026-10-14). The photo can run past
+     the first screen on big monitors; that's fine, you scroll to it. */
+  aspect-ratio:1200/794;
 }
 .hhero-media img{ width:100%; height:100%; object-fit:cover; object-position:50% 0; }
 .hhero-media::after{

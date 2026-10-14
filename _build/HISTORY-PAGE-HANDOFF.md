@@ -125,6 +125,8 @@ perl _build/stamp_assets.pl               # REQUIRED after any house.css / histo
 ## 5. Decisions Tyler made (don't undo)
 
 - Hero + closing title: blue Rockwell, centered; hero white line centered and clear of Glen's head.
+- Hero photo is NEVER cropped on desktop (`aspect-ratio`, no screen-height cap): Glen's hand on the
+  tiller is in the bottom 7% and is part of the shot. If the hero image is replaced, update the ratio.
 - Viewer on phones must stay steady: same date spot for every photo (sized to the longest caption).
 - Date titles small (28–36px); ghost years behind them; rope skinny (9px).
 - Section headings: blue title first, the small black line (`.hmap-kick`, 13–15px) UNDER it.
