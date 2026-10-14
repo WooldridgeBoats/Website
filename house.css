@@ -2818,15 +2818,15 @@ html.blueprint body{ background:transparent; }
 body.hlb-open{ overflow:hidden; }
 .hlb-stage{
   position:relative; flex:1; min-height:0; display:flex; align-items:center; justify-content:center;
-  padding:66px 78px 8px; perspective:1800px;
+  padding:66px 78px 8px;   /* no perspective here: it would trap the phone's fixed arrow row; the turn carries its own */
 }
 .hlb-fig{ background:#fbf9f4; padding:12px; box-shadow:0 24px 70px rgba(0,0,0,.55); display:flex; }
 .hlb-fig img{ display:block; max-width:calc(100vw - 180px); max-height:calc(100svh - 230px); width:auto; height:auto; }
 .hlb-fig iframe{ display:block; border:0; background:#000; width:min(1120px, calc(100vw - 180px)); aspect-ratio:16/9; max-height:calc(100svh - 230px); }
 .hlb-fig.fn{ animation:hlbn .6s cubic-bezier(.2,.75,.25,1); transform-origin:left center; }
 .hlb-fig.fp{ animation:hlbp .6s cubic-bezier(.2,.75,.25,1); transform-origin:right center; }
-@keyframes hlbn{ from{ opacity:0; transform:rotateY(-24deg) translateX(60px); } to{ opacity:1; transform:none; } }
-@keyframes hlbp{ from{ opacity:0; transform:rotateY(24deg) translateX(-60px); } to{ opacity:1; transform:none; } }
+@keyframes hlbn{ from{ opacity:0; transform:perspective(1800px) rotateY(-24deg) translateX(60px); } to{ opacity:1; transform:perspective(1800px) rotateY(0) translateX(0); } }
+@keyframes hlbp{ from{ opacity:0; transform:perspective(1800px) rotateY(24deg) translateX(-60px); } to{ opacity:1; transform:perspective(1800px) rotateY(0) translateX(0); } }
 .hlb-cap{ flex:none; text-align:center; padding:14px 24px 26px; max-width:780px; margin:0 auto; }
 .hlb-yr{ font-family:var(--serif); font-weight:700; font-size:30px; line-height:1; color:#5aa7e6; letter-spacing:.04em; }
 .hlb-txt{ font-weight:500; font-size:17px; line-height:1.55; color:#f3f0ea; margin-top:8px; }
@@ -2902,14 +2902,18 @@ body.hlb-open{ overflow:hidden; }
   .hcap{ font-size:17px; }
   .htile{ --t:min(74vw,330px); }
   .htile.vid{ width:min(88vw,520px); }
-  .hlb-stage{ padding:62px 10px 6px; }
+  /* steady viewer on phones: the photo sits right on the date, the date never moves (the
+     caption box is sized by history.js to the longest caption), and the arrows + counter
+     are one fixed row at the bottom (Tyler, 2026-10-14) */
+  .hlb-stage{ padding:62px 10px 12px; align-items:flex-end; }
   .hlb-fig{ padding:8px; }
-  .hlb-fig img{ max-width:calc(100vw - 36px); max-height:calc(100svh - 250px); }
-  .hlb-fig iframe{ width:calc(100vw - 36px); }
-  .hlb-prev,.hlb-next{ top:auto; bottom:22px; margin:0; width:46px; height:46px; }
-  .hlb-cap{ padding:12px 70px 24px; }
+  .hlb-fig img{ max-width:calc(100vw - 36px); max-height:calc(100svh - 90px - var(--caph, 230px)); }
+  .hlb-fig iframe{ width:calc(100vw - 36px); max-height:calc(100svh - 90px - var(--caph, 230px)); }
+  .hlb-prev,.hlb-next{ position:fixed; top:auto; bottom:14px; margin:0; width:44px; height:44px; }
+  .hlb-cap{ width:100%; padding:2px 20px 0; }
   .hlb-yr{ font-size:24px; }
   .hlb-txt{ font-size:14px; }
+  .hlb-n{ display:flex; align-items:center; justify-content:center; height:72px; margin-top:4px; }
 }
 @media (prefers-reduced-motion: reduce){
   .hjs .hera .hyr,.hjs .hera .hcap,.hjs .hera .hlink,.hjs .hera .hcar{ opacity:1; transform:none; transition:none; }

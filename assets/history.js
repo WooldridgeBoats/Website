@@ -198,6 +198,28 @@
       if (Math.abs(dx) > 45) go(dx < 0 ? 1 : -1);
     });
   }
+  function split(it) {   // { yr: the blue date, txt: the caption without it }
+    var own = (it.yt ? (it.title || '') : it.pc).trim();
+    var m = own.match(/^((?:(?:Early|Late|Mid)\s+)?\d{4}s?|[A-Z][a-z]+\.?\s+\d{1,2},\s+\d{4})(?:\s*[\u2014\u2013-]\s*([\s\S]*))?$/);
+    return { yr: m ? m[1] : it.yr, txt: m ? (m[2] || '') : own };
+  }
+  // Phones (Tyler, 2026-10-14): the caption box is as tall as the LONGEST caption in the
+  // whole book at this screen width, so the date sits in the same spot on every photo and
+  // nothing bounces as you flip. Photos sit right on top of the date (see house.css).
+  var capFor = 0;
+  function sizeCaption() {
+    if (window.innerWidth > 900) { txtEl.style.minHeight = ''; lb.style.removeProperty('--caph'); capFor = 0; return; }
+    if (capFor === window.innerWidth) return;
+    var probe = txtEl.cloneNode(false);
+    probe.style.cssText = 'position:absolute;visibility:hidden;left:0;right:0;min-height:0;width:' + txtEl.clientWidth + 'px';
+    txtEl.parentNode.appendChild(probe);
+    var tallest = 0;
+    items.forEach(function (it) { probe.textContent = split(it).txt; tallest = Math.max(tallest, probe.offsetHeight); });
+    probe.remove();
+    txtEl.style.minHeight = tallest + 'px'; capFor = window.innerWidth;
+    lb.style.setProperty('--caph', lb.querySelector('.hlb-cap').offsetHeight + 'px');   // the photo gets the rest
+  }
+  window.addEventListener('resize', function () { if (lb && lb.classList.contains('on')) { capFor = 0; sizeCaption(); } });
   function show(i, dir) {
     at = i; var it = items[i];
     if (it.yt) {
@@ -212,10 +234,9 @@
     // ("1964 — ...", "Late 1960s — ...", "October 31, 1977 — ...") becomes the blue
     // date and comes off the text, so it never shows twice; no date in the caption
     // means the section's own year.
-    var own = (it.yt ? (it.title || '') : it.pc).trim();
-    var m = own.match(/^((?:(?:Early|Late|Mid)\s+)?\d{4}s?|[A-Z][a-z]+\.?\s+\d{1,2},\s+\d{4})(?:\s*[\u2014\u2013-]\s*([\s\S]*))?$/);
-    yrEl.textContent = m ? m[1] : it.yr;
-    txtEl.textContent = m ? (m[2] || '') : own;
+    var c = split(it);
+    yrEl.textContent = c.yr;
+    txtEl.textContent = c.txt;
     nEl.textContent = it.of > 1 ? (it.yt ? 'Video' : 'Photo') + ' ' + it.n + ' of ' + it.of : (it.yt ? 'Video' : '');
     bPrev.disabled = i === 0; bNext.disabled = i === items.length - 1;
     [i - 1, i + 1].forEach(function (j) { if (items[j] && !items[j].yt) { var p = new Image(); p.src = items[j].src; } });
@@ -225,7 +246,7 @@
     if (!lb) build();
     lastFocus = document.activeElement;
     lb.classList.add('on'); document.body.classList.add('hlb-open');
-    show(i, 0); lb.querySelector('.hlb-x').focus();
+    sizeCaption(); show(i, 0); lb.querySelector('.hlb-x').focus();
   }
   function close() {
     lb.classList.remove('on'); document.body.classList.remove('hlb-open');

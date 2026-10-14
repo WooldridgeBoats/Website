@@ -50,6 +50,13 @@ Tyler: "Wooldridge Boats is an American Legacy brand, so this page is very impor
   Shows ONLY the photo's caption: a date leading the caption ("1964 —", "Late 1960s —",
   "October 31, 1977 —") becomes the blue date above it and comes off the text; no date in the
   caption = that section's year. Videos play in it (youtube-nocookie).
+  **Phones: nothing bounces as you flip.** history.js measures the LONGEST caption in the whole
+  book at that screen width and makes the caption box that tall, so the date sits in the same spot
+  on every photo; each photo sits right on top of the date (the stage aligns to the bottom, photo
+  max-height = screen minus the caption box, passed as `--caph`); the ‹ › arrows and "Photo 4 of
+  10" are one fixed row at the very bottom. (The page-turn's 3D perspective lives in the keyframes,
+  not on `.hlb-stage`, because a perspective there traps the fixed arrow row.) Desktop: arrows on
+  the sides, photo centered, as before.
 - **Year rail** on the right: big on wide screens (1380px+), small and faded until hover on
   laptops (901–1379px; the timeline gets 64px side padding there so it never covers photos),
   hidden on tablets/phones. Shows only while you're in the timeline.
@@ -118,6 +125,7 @@ perl _build/stamp_assets.pl               # REQUIRED after any house.css / histo
 ## 5. Decisions Tyler made (don't undo)
 
 - Hero + closing title: blue Rockwell, centered; hero white line centered and clear of Glen's head.
+- Viewer on phones must stay steady: same date spot for every photo (sized to the longest caption).
 - Date titles small (28–36px); ghost years behind them; rope skinny (9px).
 - Timeline prints show captions under them (dates-only was tried and reverted). Brochures show
   dates only. The viewer shows only the photo's caption, date pulled into the blue title.
