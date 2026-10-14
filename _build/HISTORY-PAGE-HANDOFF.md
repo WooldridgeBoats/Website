@@ -113,6 +113,21 @@ their order swapped.
   2026-009 is a 2022 photo in the 2026 folder; 2026-011's description is cut off ("wate",
   page shows "water").
 
+## Image weight (2026-10-14)
+
+Tyler: fast loads, but NO softening, and keep the pixel sizes. What the builder does:
+- **Tiles** are cut to the exact square shown (720px, or the original's short side if
+  smaller), aimed at faces by `history_focus.swift --crop` (sips can't do it: it ignores a
+  `--cropOffset 0 0` and centre-crops). Resized losslessly to PNG first, compressed once.
+  33 MB → 23 MB total; median 154 KB, max ~250 KB.
+- **Full-size viewer photos** stay 2000px on the long side. A file-size budget (tiles 200 KB,
+  fulls 800 KB) steps quality 82 → 78 → 75 only when over budget, never lower. Grainy film
+  scans still land up to ~1.2 MB at 75; checked at 100% against a lossless copy: no visible
+  change. Fulls only load when someone opens the viewer.
+- Opening the page downloads about 2 MB (hero + the first rows of tiles); the rest lazy-loads.
+- The builder prints a **low-res originals** list (short side under 600px): those tiles get
+  stretched a little and can look soft. Only a bigger scan fixes that.
+
 ## How to update
 
 ```

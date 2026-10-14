@@ -6,17 +6,29 @@
 // prints a CSS object-position that keeps them in the square. A tall photo with
 // nobody found anchors near the top, where heads usually are.
 //
-// Built and run by _build/build_history.pl:  history_focus <image> ...
-// Prints one line per image: "<x>% <y>%"  (the order the images were given)
+// Built and run by _build/build_history.pl:
+//   history_focus <image> ...                      prints "<x>% <y>%" per image (CSS object-position)
+//   history_focus --crop <in> <out.png> [<in> <out.png> ...]
+//                                                  also CUTS each one square at that spot (lossless PNG)
+// (The cut happens here, not in sips: sips ignores a --cropOffset of 0 0 and centre-crops,
+//  which is exactly the "keep the top" case for a tall photo.)
 import Foundation
 import Vision
 import ImageIO
+import UniformTypeIdentifiers
 
-func focus(_ path: String) -> String {
+func focus(_ path: String, cropTo out: String? = nil) -> String {
   guard let src = CGImageSourceCreateWithURL(URL(fileURLWithPath: path) as CFURL, nil),
         let img = CGImageSourceCreateImageAtIndex(src, 0, nil) else { return "50% 50%" }
   let W = Double(img.width), H = Double(img.height)
-  if abs(W - H) < 2 { return "50% 50%" }
+  func cut(_ x: Double, _ y: Double) {
+    guard let out = out else { return }
+    let S = min(img.width, img.height)
+    let sq = img.cropping(to: CGRect(x: Int(x.rounded()), y: Int(y.rounded()), width: S, height: S)) ?? img
+    let d = CGImageDestinationCreateWithURL(URL(fileURLWithPath: out) as CFURL, UTType.png.identifier as CFString, 1, nil)!
+    CGImageDestinationAddImage(d, sq, nil); CGImageDestinationFinalize(d)
+  }
+  if abs(W - H) < 2 { cut(0, 0); return "50% 50%" }
   let faces = VNDetectFaceRectanglesRequest()
   let people = VNDetectHumanRectanglesRequest(); people.upperBodyOnly = true
   try? VNImageRequestHandler(cgImage: img, options: [:]).perform([faces, people])
@@ -38,12 +50,18 @@ func focus(_ path: String) -> String {
       top = min(u.midY - S * 0.42, u.minY - S * (fromBody ? 0.04 : 0.08))
     } else { top = room * 0.12 }
     top = max(0, min(room, top))
+    cut(0, top)
     return String(format: "50%% %.0f%%", top / room * 100)
   } else {     // wide: choose how far across
-    guard let u = boxes.reduce(nil as CGRect?, { $0 == nil ? $1 : $0!.union($1) }) else { return "50% 50%" }
     let room = W - S
+    guard let u = boxes.reduce(nil as CGRect?, { $0 == nil ? $1 : $0!.union($1) }) else { cut(room / 2, 0); return "50% 50%" }
     let left = max(0, min(room, u.midX - S / 2))
+    cut(left, 0)
     return String(format: "%.0f%% 50%%", left / room * 100)
   }
 }
-for p in CommandLine.arguments.dropFirst() { print(focus(p)) }
+var a = Array(CommandLine.arguments.dropFirst())
+if a.first == "--crop" {
+  a.removeFirst()
+  for k in stride(from: 0, to: a.count - 1, by: 2) { print(focus(a[k], cropTo: a[k + 1])) }
+} else { for p in a { print(focus(p)) } }

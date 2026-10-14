@@ -44,8 +44,14 @@ while (@ARGV) { my $a = shift @ARGV; if ($a eq '--src') { push @src, shift @ARGV
 sub where { my $p = shift; $p =~ s{^\Q$MASTER\E}{ABOUT | HISTORY}; $p =~ s{^\Q$ARCHIVE\E}{X Drive HERITAGE PHOTOS}; $p }
 
 my $FULL  = 2000;   # long side of the lightbox image
-my $THUMB = 720;    # short side of the carousel tile (tiles are ~340px square)
+my $THUMB = 720;    # side of the square carousel tile (tiles show at up to ~320px; 720 covers 2x screens)
 my $Q     = 82;
+# File-size budgets (Tyler, 2026-10-14: fast loads, but NO visible softening). Pixel
+# sizes never change for this; a photo only steps down the quality ladder if it is
+# still over budget, and never below the last rung.
+my @LADDER  = (82, 78, 75);
+my $FULL_KB = 800;
+my $TILE_KB = 200;
 
 # ── timeline data ──
 my @eras;
@@ -141,6 +147,18 @@ sub sips_out {   # sips to JPEG, only ever shrinking (its chatter goes to /dev/n
   open STDOUT, ">&", $keep or die; binmode STDOUT, ':encoding(UTF-8)';
   $rc == 0 or die "sips failed on $in\n";
 }
+sub sips_q {   # sips to JPEG at a given quality, chatter to /dev/null
+  my ($in, $out, $q, @ops) = @_;
+  open my $keep, ">&", \*STDOUT or die; open STDOUT, ">", "/dev/null" or die;
+  my $rc = system('sips', '-s', 'format', 'jpeg', '-s', 'formatOptions', $q, @ops, $in, '--out', $out);
+  open STDOUT, ">&", $keep or die; binmode STDOUT, ':encoding(UTF-8)';
+  $rc == 0 or die "sips failed on $in\n";
+}
+sub budget_jpeg {   # encode from the ORIGINAL each time (never re-compress a JPEG we made)
+  my ($in, $out, $kb, @ops) = @_;
+  for my $q (@LADDER) { sips_q($in, $out, $q, @ops); return $q if -s $out <= $kb * 1024; }
+  return $LADDER[-1];
+}
 sub ver { my $f = shift; open my $h, '<:raw', $f or die; local $/; substr(md5_hex(<$h>), 0, 8) }
 sub natural { my ($x, $y) = @_; my @a = split /(\d+)/, lc $x; my @b = split /(\d+)/, lc $y;
   while (@a && @b) { my ($p, $q) = (shift @a, shift @b); next if $p eq $q;
@@ -171,11 +189,11 @@ if (!-x $FOCUS || -M $FOCUS > -M $FOCUS_SRC) {
   print "compiling history_focus.swift (once) ...\n";
   system('swiftc', '-O', $FOCUS_SRC, '-o', $FOCUS) == 0 or do { warn "  face-finder didn't build; thumbs crop from the centre\n"; $FOCUS = '' };
 }
-sub focus_for {   # object-position for each thumb, in order
-  my @files = @_; return map { '50% 50%' } @files unless $FOCUS && @files;
-  open my $p, '-|', $FOCUS, @files or return map { '50% 50%' } @files;
-  chomp(my @pos = <$p>); close $p;
-  return map { $pos[$_] // '50% 50%' } 0..$#files;
+sub square_cut {   # cut each [in.png, out.png] square, aimed at faces; falls back to a centre cut
+  my @pairs = @_; return unless @pairs;
+  if ($FOCUS) { system($FOCUS, '--crop', map { @$_ } @pairs) == 0 and return; }
+  for my $pr (@pairs) { my ($w, $h) = dims($pr->[0]); my $S = $w < $h ? $w : $h;
+    system('sips', '-c', $S, $S, $pr->[0], '--out', $pr->[1]) }
 }
 
 # ── hero ──
@@ -194,6 +212,8 @@ for my $s (@src) {
 # ── per-date photos + markup ──
 my $html = "\n";
 my $n_photos = 0;
+my $squeezed = 0; my %small;
+my $TMP = ($ENV{TMPDIR} || '/tmp') . "/wb-history-$$"; make_path($TMP);
 for my $e (@eras) {
   my $key = $e->{key}; my $slug = lc $key;
   my $out = "$root/assets/history/$slug";
@@ -217,23 +237,33 @@ for my $e (@eras) {
       my $cap = caption(defined $desc && $desc =~ /\S/ ? $desc : $com, $key);
       printf "    %-22s %s\n", $f, ($cap eq '' ? '(no caption)' : $cap) if $list_caps;
       my $long = $w > $h ? $w : $h;
-      sips_out("$dir/$f", "$out/$nn.jpg", ($long > $FULL ? ('-Z', $FULL) : ()));
+      my $qf = budget_jpeg("$dir/$f", "$out/$nn.jpg", $FULL_KB, ($long > $FULL ? ('-Z', $FULL) : ()));
+      $squeezed++ if $qf < $LADDER[0];
       my @tr = $w >= $h ? ('--resampleHeight', $THUMB) : ('--resampleWidth', $THUMB);
       @tr = () if ($w < $h ? $w : $h) <= $THUMB;
-      sips_out("$dir/$f", "$out/thumbs/$nn.jpg", @tr);
+      my $png = "$TMP/$slug-$nn.png";   # lossless stop-over, so the tile is only compressed once
+      { open my $keep, ">&", \*STDOUT; open STDOUT, ">", "/dev/null";
+        system('sips', '-s', 'format', 'png', @tr, "$dir/$f", '--out', $png);
+        open STDOUT, ">&", $keep; binmode STDOUT, ':encoding(UTF-8)'; }
       my ($fw, $fh) = dims("$out/$nn.jpg");
-      my ($tw, $th) = dims("$out/thumbs/$nn.jpg");
       my $alt = esc($cap ne '' ? "$key: $cap" : "$key: $short (photo $i of $N)");
-      push @shots, [$nn, $fw, $fh, $tw, $th, $alt, $cap];
+      push @shots, [$nn, $fw, $fh, $png, $alt, $cap];
       $n_photos++;
+      $small{"$key/$f"} = ($w < $h ? $w : $h) if ($w < $h ? $w : $h) < 600;
     }
-    # square tiles crop the thumb; keep people's heads in frame (Tyler, 2026-10-13)
-    my @pos = focus_for(map { "$out/thumbs/$_->[0].jpg" } @shots);
+    # Tiles are square, so the thumb is cut square, aimed at people's faces
+    # (_build/history_focus.swift) so heads aren't cut off (Tyler, 2026-10-13).
+    # Cutting it square also drops the part no one ever sees: 20-47% lighter.
+    { open my $keep, ">&", \*STDOUT; open STDOUT, ">", "/dev/null";
+      square_cut(map { [$_->[3], "$_->[3].sq.png"] } @shots);
+      open STDOUT, ">&", $keep; binmode STDOUT, ':encoding(UTF-8)'; }
     for my $k (0..$#shots) {
-      my ($nn, $fw, $fh, $tw, $th, $alt, $cap) = @{$shots[$k]};
-      my $op = $pos[$k] eq '50% 50%' ? '' : qq{ style="object-position:$pos[$k]"};
-      push @tiles, sprintf qq{    <a class="htile" href="/assets/history/%s/%s.jpg?v=%s" data-w="%d" data-h="%d"><span class="hpic"><img src="/assets/history/%s/thumbs/%s.jpg?v=%s" alt="%s" width="%d" height="%d" loading="lazy" decoding="async"%s></span><span class="hpc">%s</span></a>},
-        $slug, $nn, ver("$out/$nn.jpg"), $fw, $fh, $slug, $nn, ver("$out/thumbs/$nn.jpg"), $alt, $tw, $th, $op, esc($cap);
+      my ($nn, $fw, $fh, $png, $alt, $cap) = @{$shots[$k]};
+      my ($S) = dims("$png.sq.png");
+      budget_jpeg("$png.sq.png", "$out/thumbs/$nn.jpg", $TILE_KB);
+      unlink $png, "$png.sq.png";
+      push @tiles, sprintf qq{    <a class="htile" href="/assets/history/%s/%s.jpg?v=%s" data-w="%d" data-h="%d"><span class="hpic"><img src="/assets/history/%s/thumbs/%s.jpg?v=%s" alt="%s" width="%d" height="%d" loading="lazy" decoding="async"></span><span class="hpc">%s</span></a>},
+        $slug, $nn, ver("$out/$nn.jpg"), $fw, $fh, $slug, $nn, ver("$out/thumbs/$nn.jpg"), $alt, $S, $S, esc($cap);
     }
   }
   printf "%-9s %2d photo(s)%s%s\n", $key, scalar(@imgs), (@{$e->{videos}} ? ' + ' . @{$e->{videos}} . ' video' : ''), ($dir ? '  <- ' . where($dir) : '');
@@ -285,4 +315,12 @@ for my $s (@src) {
   }
   closedir $d;
 }
+remove_tree($TMP);
+my ($tot, $big) = (0, 0); my @heavy;
+for my $e (@eras) { my $d = "$root/assets/history/" . lc $e->{key}; next unless -d $d;
+  for my $f (glob("$d/*.jpg"), glob("$d/thumbs/*.jpg")) { my $z = -s $f; $tot += $z; push @heavy, [$z, $f] } }
+@heavy = sort { $b->[0] <=> $a->[0] } @heavy;
+printf "sizes: %.1f MB of web images; biggest %s (%.0f KB); %d full-size photo(s) stepped down the quality ladder to fit %d KB\n",
+  $tot / 1048576, ($heavy[0][1] =~ s{^\Q$root/\E}{}r), $heavy[0][0] / 1024, $squeezed, $FULL_KB if @heavy;
+print "  low-res originals (short side under 600px; can look soft, ask for a bigger scan): ", join(', ', map { "$_ ($small{$_}px)" } sort keys %small), "\n" if %small;
 print "done: ", scalar(@eras), " dates, $n_photos photos\n";
