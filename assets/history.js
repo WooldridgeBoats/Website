@@ -86,7 +86,7 @@
     eras.forEach(function (e) { io.observe(e); });
     var arch = document.querySelector('.harch .hclips');
     if (arch) new IntersectionObserver(function (es, o) {
-      es.forEach(function (en) { if (en.isIntersecting) { en.target.parentNode.parentNode.classList.add('seen'); o.disconnect(); } });
+      es.forEach(function (en) { if (en.isIntersecting) { en.target.closest('.harch').classList.add('seen'); o.disconnect(); } });
     }, { rootMargin: '0px 0px -18% 0px' }).observe(arch);
   } else {
     eras.forEach(function (e) { e.classList.add('seen'); });

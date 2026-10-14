@@ -149,9 +149,16 @@ Tyler: fast loads, but NO softening, and keep the pixel sizes. What the builder 
 - Page order now: hero → about copy → **From the Archives: Brochures & Ads** (scrapbook, no rope
   above it) → rope divider + "The Timeline · 1915 – Today" (moved into the top of `.htl`) →
   the dates → the Rogue River map → "Four Generations. One River at a time." (`.hend`).
-- Under each carousel print and each brochure: **just the date**, black Rockwell (`.hpc`,
-  `.hclip-cap`), from the caption's leading date or else the section's year. The full caption
-  rides in `data-cap` and shows only in the viewer (Tyler: captions only in gallery mode).
+- Under each **brochure**: just the date, black Rockwell (`.hclip-cap`); the caption rides in
+  `data-cap` and shows only in the viewer. Under each **timeline print**: the caption (Tyler
+  tried dates-only there too, then went back to captions the same day). Viewer for both:
+  the caption's own date in blue, the rest of the caption under it.
+- **Brochures are one sideways strip** (19 pieces would bury the timeline as a wall). It's a
+  real `.hcar`, so it gets the arrows / counter / scroll bar. Pieces share a HEIGHT (wide
+  spreads sit beside tall pages); clip images are 680px tall. Order = by the date in each
+  caption, oldest first (generic decade, Early, the years, Mid, Late), not alphabetical.
+  A garbled caption date borrows the filename's (LATE 1980s-BROCHURE says "!908s" — Tyler
+  to fix in the file).
 - The viewer runs in page order: brochures first, then 1915 onward.
 
 ## How to update

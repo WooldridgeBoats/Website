@@ -2756,12 +2756,13 @@ html.blueprint body{ background:transparent; }
 .hpic{ display:block; position:relative; width:100%; aspect-ratio:1; overflow:hidden; background:#e9e6df; }
 .hpic img{ width:100%; height:100%; object-fit:cover; filter:sepia(.14) contrast(1.03); }
 /* the caption, written in the white margin under the print (photo's Description metadata) */
-/* under each print: just its date, in black Rockwell, like a date pencilled under an album
-   photo (Tyler, 2026-10-14). The full caption is in the viewer and the alt text. */
+/* the caption, written in the white margin under the print (photo's Description metadata).
+   Tyler tried dates-only here on 2026-10-14 and went back to captions; the brochures keep dates. */
 .hpc{
-  display:block; margin-top:9px; padding:0 2px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  font-family:var(--serif); font-weight:700; font-size:18px; line-height:1.3; letter-spacing:.05em; color:var(--ink);
+  display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden;
+  height:2.8em; margin-top:9px; padding:0 2px; font-weight:500; font-size:13px; line-height:1.4; color:#3f454a;
 }
+.hpc b{ font-weight:700; color:var(--blue); text-transform:uppercase; letter-spacing:.08em; font-size:11.5px; margin-right:4px; }
 /* a video sits on the same row height as the prints, just wider */
 .htile.vid{ width:calc((var(--t) - 20px) * 16 / 9 + 20px); cursor:pointer; }
 .htile.vid .hpic{ aspect-ratio:16/9; }
@@ -2960,58 +2961,58 @@ body.hlb-open{ overflow:hidden; }
 /* the closing line, last thing on the page (after the map and the scrapbook) */
 .hend{ text-align:center; padding:0 0 96px; }
 .hend .hmap-close{ margin-top:50px; }
-.harch .hseg{ margin-bottom:18px; }
-.hclips{
-  display:flex; flex-wrap:wrap; justify-content:center; align-items:center;
-  max-width:1120px; margin:34px auto 0; padding:10px 0 20px;
-}
+/* One sideways strip (19+ pieces would be a wall that buries the timeline). It IS a
+   carousel (.hcar/.htrack), so history.js gives it the arrows, counter and scroll bar.
+   Pieces share a height, not a width, so tall pages and wide spreads sit together;
+   five rotating tilts/heights/offsets keep any number looking hand-placed. */
+.hclipcar{ margin-top:18px; }
+.hclipcar .htrack{ align-items:center; gap:clamp(22px,2.6vw,36px); padding:42px 26px 40px; }
 .hclip{
-  --r:-3.5deg; --y:10px;
-  position:relative; display:block; flex:none; width:24%; margin:14px -.3%;
+  --r:-3.5deg; --y:10px; --h:clamp(230px,24vw,310px);
+  position:relative; display:block; flex:none; scroll-snap-align:center;
   background:#fff; padding:8px 8px 10px; border-radius:1px; cursor:zoom-in; color:inherit;
   box-shadow:0 1px 2px rgba(20,30,40,.14), 0 14px 34px rgba(20,30,40,.2);
   transform:translateY(var(--y)) rotate(var(--r));
   transition:transform .5s cubic-bezier(.2,.7,.2,1), box-shadow .4s, opacity .6s;
 }
-.hclip:nth-child(5n+2){ --r:3deg;    --y:-26px; width:22%; z-index:2; }
-.hclip:nth-child(5n+3){ --r:-1.6deg; --y:24px;  width:26%; z-index:1; }
-.hclip:nth-child(5n+4){ --r:2.4deg;  --y:-14px; width:20%; }
-.hclip:nth-child(5n+5){ --r:-2.8deg; --y:16px;  width:20%; }
+.hclip:nth-child(5n+2){ --r:3deg;    --y:-20px; --h:clamp(210px,22vw,285px); z-index:2; }
+.hclip:nth-child(5n+3){ --r:-1.6deg; --y:18px;  --h:clamp(240px,25.5vw,325px); }
+.hclip:nth-child(5n+4){ --r:2.4deg;  --y:-12px; --h:clamp(220px,23vw,295px); }
+.hclip:nth-child(5n+5){ --r:-2.8deg; --y:14px;  --h:clamp(225px,23.5vw,300px); }
 /* a strip of tape across the top of each piece */
 .hclip::before{
   content:""; position:absolute; left:50%; top:-12px; width:84px; height:24px; margin-left:-42px; z-index:2;
   background:rgba(246,240,214,.72); box-shadow:0 1px 2px rgba(20,30,40,.12);
   transform:rotate(calc(var(--r) * -1.4));
 }
-.hclip img{ width:100%; height:auto; }
+.hclip img{ height:var(--h); width:auto; max-width:none; }
 .hclip-cap{   /* just the date, black Rockwell, like the carousel prints */
-  display:block; margin-top:8px; padding:0 2px; text-align:center;
+  display:block; margin-top:8px; padding:0 2px; text-align:center; white-space:nowrap;
   font-family:var(--serif); font-weight:700; font-size:18px; line-height:1.3; letter-spacing:.05em; color:var(--ink);
 }
 .hclip-cap:empty{ display:none; }
 .hclip:hover,.hclip:focus-visible{
-  z-index:5; outline:none; transform:translateY(calc(var(--y) - 8px)) rotate(0deg) scale(1.04);
-  box-shadow:0 2px 4px rgba(20,30,40,.14), 0 26px 54px rgba(20,30,40,.28);
+  z-index:5; outline:none; transform:translateY(calc(var(--y) - 6px)) rotate(0deg) scale(1.03);
+  box-shadow:0 2px 4px rgba(20,30,40,.14), 0 24px 50px rgba(20,30,40,.28);
 }
-.hclip:focus-visible{ box-shadow:0 0 0 3px var(--blue), 0 26px 54px rgba(20,30,40,.28); }
+.hclip:focus-visible{ box-shadow:0 0 0 3px var(--blue), 0 24px 50px rgba(20,30,40,.28); }
 /* drift in once the section arrives (JS adds .seen); no-JS visitors just see them */
-.hjs .harch .hclip{ opacity:0; transform:translateY(calc(var(--y) - 60px)) rotate(calc(var(--r) * 3)); }
+.hjs .harch .hclip{ opacity:0; transform:translateY(calc(var(--y) - 40px)) rotate(calc(var(--r) * 3)); }
 .hjs .harch.seen .hclip{ opacity:1; transform:translateY(var(--y)) rotate(var(--r)); }
-.hjs .harch.seen .hclip:nth-child(2){ transition-delay:.12s; }
-.hjs .harch.seen .hclip:nth-child(3){ transition-delay:.24s; }
-.hjs .harch.seen .hclip:nth-child(4){ transition-delay:.36s; }
-.hjs .harch.seen .hclip:nth-child(5){ transition-delay:.48s; }
-.hjs .harch.seen .hclip:nth-child(n+6){ transition-delay:.6s; }
+.hjs .harch.seen .hclip:nth-child(2){ transition-delay:.1s; }
+.hjs .harch.seen .hclip:nth-child(3){ transition-delay:.2s; }
+.hjs .harch.seen .hclip:nth-child(4){ transition-delay:.3s; }
+.hjs .harch.seen .hclip:nth-child(5){ transition-delay:.4s; }
+.hjs .harch.seen .hclip:nth-child(n+6){ transition-delay:.5s; }
 .hjs .harch.seen .hclip:hover,.hjs .harch.seen .hclip:focus-visible{
-  transition-delay:0s; transform:translateY(calc(var(--y) - 8px)) rotate(0deg) scale(1.04);
+  transition-delay:0s; transform:translateY(calc(var(--y) - 6px)) rotate(0deg) scale(1.03);
 }
 @media (max-width:900px){
-  .hclips{ display:grid; grid-template-columns:1fr 1fr; gap:26px 18px; padding:10px 6px 10px; align-items:start; }
-  .hclip,.hclip:nth-child(n){ width:auto; margin:0; --y:0px; }
-  .hclip:nth-child(even){ margin-top:22px; }
+  .hclip,.hclip:nth-child(n){ --h:min(62vw,270px); }
+  .hclipcar .htrack{ padding:38px 18px 34px; }
   .hclip-cap{ font-size:16px; }
-  .hpc{ font-size:17px; }
 }
 @media (prefers-reduced-motion: reduce){
   .hjs .harch .hclip,.hjs .harch.seen .hclip{ opacity:1; transform:translateY(var(--y)) rotate(var(--r)); transition:none; }
 }
+

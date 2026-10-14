@@ -231,7 +231,7 @@ for my $e (@eras) {
     my ($id, $title) = @$v;
     push @tiles, qq{    <button type="button" class="htile vid" data-yt="$id" data-vtitle="} . esc(plain($title)) . qq{">}
       . qq{<span class="hpic"><img src="https://i.ytimg.com/vi/$id/sddefault.jpg" alt="" loading="lazy" decoding="async"><span class="hplay" aria-hidden="true"></span></span>}
-      . qq{<span class="hpc">$key</span></button>};
+      . qq{<span class="hpc"><b>Watch</b> } . esc(plain($title)) . qq{</span></button>};
   }
   if (@imgs) {
     make_path("$out/thumbs");
@@ -270,7 +270,7 @@ for my $e (@eras) {
       budget_jpeg("$png.sq.png", "$out/thumbs/$nn.jpg", $TILE_KB);
       unlink $png, "$png.sq.png";
       push @tiles, sprintf qq{    <a class="htile" href="/assets/history/%s/%s.jpg?v=%s" data-w="%d" data-h="%d" data-cap="%s"><span class="hpic"><img src="/assets/history/%s/thumbs/%s.jpg?v=%s" alt="%s" width="%d" height="%d" loading="lazy" decoding="async"></span><span class="hpc">%s</span></a>},
-        $slug, $nn, ver("$out/$nn.jpg"), $fw, $fh, esc($cap), $slug, $nn, ver("$out/thumbs/$nn.jpg"), $alt, $S, $S, esc(cap_date($cap, $key));
+        $slug, $nn, ver("$out/$nn.jpg"), $fw, $fh, esc($cap), $slug, $nn, ver("$out/thumbs/$nn.jpg"), $alt, $S, $S, esc($cap);
     }
   }
   printf "%-9s %2d photo(s)%s%s\n", $key, scalar(@imgs), (@{$e->{videos}} ? ' + ' . @{$e->{videos}} . ' video' : ''), ($dir ? '  <- ' . where($dir) : '');
@@ -308,26 +308,46 @@ my $arch_html = '';
   }
   if (@imgs) {
     my $dir = "$base/$ARCH_DIR"; make_path("$out/clip");
-    my @c; my $i = 0;
+    # Tyler names these by date ("1984-BROCHURE", "EARLY 1980s-BROCHURE"), so the scrapbook
+    # runs oldest to newest by that date, not alphabetically. Within a decade the generic
+    # era comes first (as on the timeline), then Early, the specific years, Mid, Late.
+    my $dkey = sub { my $d = shift // ''; $d =~ /^(?:(early|mid|late)\s+)?(\d{4})(s?)$/i or return 1e9;
+      return $2 + ($3 ? { '' => 0, early => .2, mid => 5, late => 8 }->{lc($1 // '')} : 0) };
+    my @pieces;
     for my $f (@imgs) {
-      $i++; my $nn = sprintf '%02d', $i;
       my ($w, $h, $desc) = info("$dir/$f");
       my $com = finder_comment("$dir/$f");
       my $cap = caption(defined $desc && $desc =~ /\S/ ? $desc : $com, 'archives');
-      printf "    %-22s %s\n", $f, ($cap eq '' ? '(no caption)' : $cap) if $list_caps;
+      my ($fdate) = $f =~ /^((?:(?:early|mid|late)\s+)?\d{4}s?)\b/i;
+      $fdate = join ' ', map { /^\d/ ? $_ : ucfirst lc } split ' ', $fdate if defined $fdate;
       my ($yr) = $cap =~ /^((?:(?:Early|Late|Mid)\s+)?\d{4}s?)\b/i;
+      if (!defined $yr && defined $fdate) {   # a garbled caption date ("!908s-...") borrows the filename's
+        $cap =~ s/^\S*\d\S*?s?\s*(?:[-\x{2014}\x{2013}\x{00B7}]\s*)?//;
+        $cap = $cap eq '' ? $fdate : "$fdate \x{2014} $cap"; $yr = $fdate;
+      }
+      push @pieces, { f => $f, w => $w, h => $h, cap => $cap, yr => $yr, k => $dkey->($yr // $fdate) };
+    }
+    @pieces = sort { $a->{k} <=> $b->{k} || natural($a->{f}, $b->{f}) } @pieces;
+    my @c; my $i = 0;
+    for my $pc (@pieces) {
+      my ($f, $w, $h, $cap, $yr) = @$pc{qw(f w h cap yr)};
+      $i++; my $nn = sprintf '%02d', $i;
+      printf "    %-34s %s\n", $f, ($cap eq '' ? '(no caption)' : $cap) if $list_caps;
       my $long = $w > $h ? $w : $h;
       budget_jpeg("$dir/$f", "$out/$nn.jpg", $FULL_KB, ($long > $FULL ? ('-Z', $FULL) : ()));
-      budget_jpeg("$dir/$f", "$out/clip/$nn.jpg", 260, ($w > 760 ? ('--resampleWidth', 760) : ()));
+      # the strip sizes pieces by HEIGHT (up to ~325px), so 680px tall covers 2x screens
+      budget_jpeg("$dir/$f", "$out/clip/$nn.jpg", 260, ($h > 680 ? ('--resampleHeight', 680) : ()));
       my ($cw, $ch) = dims("$out/clip/$nn.jpg");
       # on the page just the date, like the carousels; the caption waits for the viewer (Tyler, 2026-10-14)
-      push @c, sprintf qq{    <a class="hclip" href="/assets/history/archives/%s.jpg?v=%s" data-yr="%s" data-cap="%s"><img src="/assets/history/archives/clip/%s.jpg?v=%s" alt="%s" width="%d" height="%d" loading="lazy" decoding="async"><span class="hclip-cap">%s</span></a>},
+      push @c, sprintf qq{      <a class="hclip" href="/assets/history/archives/%s.jpg?v=%s" data-yr="%s" data-cap="%s"><img src="/assets/history/archives/clip/%s.jpg?v=%s" alt="%s" width="%d" height="%d" loading="lazy" decoding="async"><span class="hclip-cap">%s</span></a>},
         $nn, ver("$out/$nn.jpg"), esc($yr // ''), esc($cap), $nn, ver("$out/clip/$nn.jpg"), esc($cap ne '' ? $cap : 'Wooldridge Boats brochure'), $cw, $ch, esc($yr // '');
     }
     # sits between the about copy and the timeline (Tyler, 2026-10-14), so no rope above it
     $arch_html = qq{\n<section class="harch" aria-labelledby="harch-h"><div class="wrap">\n}
       . qq{  <p class="hmap-kick">From the Archives</p>\n  <h2 class="hmap-h" id="harch-h">Brochures &amp; Ads</h2>\n}
-      . qq{  <div class="hclips">\n} . join("\n", @c) . qq{\n  </div>\n</div></section>\n};
+      . qq{  <div class="hcar hclipcar">\n    <div class="htrack hclips">\n} . join("\n", @c) . qq{\n    </div>\n}
+      . qq{    <div class="hcarui"><button type="button" class="hprev" aria-label="Previous brochure"></button><span class="hcount"></span><button type="button" class="hnext" aria-label="Next brochure"></button></div>\n}
+      . qq{  </div>\n</div></section>\n};
   }
   printf "archives  %2d piece(s)%s\n", scalar(@imgs), ($base && @imgs ? '  <- ' . where("$base/$ARCH_DIR") : '');
 }
