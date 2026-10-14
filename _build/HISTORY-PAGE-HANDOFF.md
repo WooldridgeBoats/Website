@@ -1,236 +1,160 @@
 # OUR HISTORY PAGE: HANDOFF
 
-Rebuild of **/our-history/** (dev.wooldridgeboats.com/our-history/). Started 2026-10-12.
-Tyler: "Wooldridge Boats is an American Legacy brand, so this page is very important
-to get right... interactive and captivating." Expect many more rounds.
+**Page:** dev.wooldridgeboats.com/our-history/ (repo `~/Desktop/LOCAL-WEBSITE`, file `our-history/index.html`)
+**Status:** finished and checked on desktop + phone, 2026-10-14. Built 2026-10-12 to 10-14 with Tyler.
+Tyler: "Wooldridge Boats is an American Legacy brand, so this page is very important to get right."
 
-## What's built (first pass, 2026-10-12)
+---
 
-- **Hero** = Tyler's `01-HERO-TITLE IMAGE.jpg`, laid out like his mockup
-  `EXAMPLE-HERO-TITLE IMAGE.jpg` (both in the OneDrive folder below): blue Rockwell
-  "Four Generations. / One River at a time." centered on the sky, the first line of
-  the about copy in white, right-aligned, on the photo. Phones: the title stays on the
-  photo and that first line drops under it. The old pagemast ("Wooldridge Boats Â·
-  Seattle", HOME / OUR HISTORY crumb, "EST. 1915" kick) is gone, per Tyler.
-- **About copy** (Tyler's 4 paragraphs) centered under the photo. The book title links
-  to the store: https://store.wooldridgeboats.com/products/the-rogue-a-river-to-run-book
-  (store is password-protected while in dev; the link is Tyler's). Link only, no cover
-  image (Tyler's call).
-- **Rope divider** (assets/brand/rope.png) + "THE TIMELINE Â· 1915 â TODAY" kicker.
-- **Timeline**: every date centered. A vertical **rope** (cut from the WEB ROPE GRAPHIC.ai
-  vector into `assets/history/rope-v.png`, used as a CSS mask) connects each date and
-  **draws itself in blue as you scroll**; each date's **compass star** lights blue when
-  the rope reaches it; a faint outlined **ghost year** drifts behind each date. Years
-  are blue Rockwell, kept small (Tyler: "much smaller"), with the caption under them.
-- **Carousels**: square photo-print tiles (white border, slight tilt, light sepia),
-  next one peeking, arrows, "3 / 10" counter, and a **scroll bar** under each one
-  (click or drag it). One photo = one centered print, no controls.
-- **Flip-through viewer**: click any print or video and flip with arrows, keys or swipe,
-  with a page-turn animation. It's one continuous book: "next" at the end of 1947 turns
-  into 1948. Shows the year, caption, "Photo 3 of 10". Videos play in it (youtube-nocookie).
-- **Year rail**: a jump list of years on the right edge (big on wide screens, small on laptops, hidden on tablets/phones), current one
-  highlighted, shown only while you're in the timeline.
-- The **"The 2026 Fleet / Build & Price Yours" button is removed** (Tyler).
+## PASTE THIS INTO A NEW CHAT
 
-## Files
+> We're making tweaks to the Our History page on dev.wooldridgeboats.com
+> (LOCAL-WEBSITE repo, our-history/index.html). It has custom pieces no other page has.
+> Read `_build/HISTORY-PAGE-HANDOFF.md` first and follow it, then wait for my changes.
+> Photos come from my OneDrive folder MASTER-WEBSITE PHOTOS/ABOUT | HISTORY.
 
+---
+
+## 1. What's on the page (top to bottom)
+
+1. **Hero** — Tyler's `01-HERO-TITLE IMAGE.jpg`. "Four Generations. / One River at a time." in blue
+   Rockwell, centered at the top; the first about line in white, centered under it (his mockup
+   `EXAMPLE-HERO-TITLE IMAGE.jpg`). Phones: title on the photo, that first line drops below it,
+   bold (SemiBold, 20px). No pagemast / breadcrumb / "EST. 1915" line (removed on purpose).
+2. **About copy** — Tyler's paragraphs, centered. The book title links to the store:
+   https://store.wooldridgeboats.com/products/the-rogue-a-river-to-run-book (link only, no cover).
+3. **From the Archives / Brochures & Ads** — 19 brochures and ads taped in like a scrapbook
+   (tilted, staggered, a strip of tape on each) in ONE sideways-scrolling strip with arrows,
+   counter and scroll bar. Under each piece: just its date in black Rockwell. Full caption only
+   in the viewer. Oldest to newest by the date in each caption.
+4. **Rope divider + "The Timeline · 1915 – Today"** (Inter Medium).
+5. **The timeline** — 24 dates/eras. A vertical rope connects them and draws itself in blue as you
+   scroll; each date's compass star lights up; a faint outlined "ghost" year sits behind each
+   date (small blue Rockwell year on top), then the date's text, then a carousel:
+   - square photo-print tiles (white border, slight tilt, light sepia), caption under each print
+   - arrows, "3 / 11" counter, a pale blue scroll bar (same pale blue as the ghost years)
+   - videos can sit in a carousel (play button, "WATCH" + title)
+6. **Where It All Began / The Rogue River, Oregon** — Glen's hand-drawn map, laid on like a book
+   page; a blue line traces the river upriver from Gold Beach to Grants Pass as you scroll
+   (the 1947 and 1962 firsts) and Grants Pass pulses at the end.
+7. **From the Film Archive / Heritage Videos** — all 19 videos of the YouTube "Heritage" playlist
+   as small clean thumbs (model-page video-wall look: no white frame, rounded, see-through play
+   button that turns blue, run time), scrolling sideways; play in the viewer.
+8. **Closing photo** — `01-END CAP IMAGE.jpg` full width with "Four Generations. / One River at a
+   time." on it like the hero (the page fades into its top so the blue reads). It meets the footer
+   with no gap; the footer's compass star is bigger here (48px, plain blue star).
+
+**Everywhere:**
+- **The viewer** (click any photo, brochure or video): one continuous book in page order
+  (brochures → 1915 … 2026 → heritage videos). Arrows / keys / swipe, page-turn animation.
+  Shows ONLY the photo's caption: a date leading the caption ("1964 —", "Late 1960s —",
+  "October 31, 1977 —") becomes the blue date above it and comes off the text; no date in the
+  caption = that section's year. Videos play in it (youtube-nocookie).
+- **Year rail** on the right: big on wide screens (1380px+), small and faded until hover on
+  laptops (901–1379px; the timeline gets 64px side padding there so it never covers photos),
+  hidden on tablets/phones. Shows only while you're in the timeline.
+- **No "Not sure which boat?" pill** on this page (tool-nudge.js skips `/our-history/`).
+
+## 2. Where things live
+
+**Tyler's side (OneDrive):** `…/70 MARKETING AND BRAND/WEBSITE/MASTER-WEBSITE PHOTOS/ABOUT | HISTORY/`
 | What | Where |
 |---|---|
-| Page | `our-history/index.html` (timeline is generated between `<!-- HIST:timeline -->` markers; don't hand-edit inside them) |
-| Dates, captions, videos, links | `_build/history_timeline.txt` |
+| Hero photo | `01-HERO-TITLE IMAGE.jpg` (root) |
+| Closing photo | `01-END CAP IMAGE.jpg` (root) |
+| Timeline photos | one folder per date or era: `1915`, `1920s`, `1947`, `1982` … (4-digit numbers are YEARS, never hull numbers; a folder may add words: `1947-RUNNING THE ROGUE`) |
+| Brochures & ads | `HERITAGE BROCHURES-ADS/` (named by date: `1984-BROCHURE.JPG`, `EARLY 1980s-BROCHURE.JPG`) |
+| Map scan | `GENERAL HISTORICAL-UNKOWN DATES/ROGUE RIVER BASIN.JPG` |
+
+**Repo side (`~/Desktop/LOCAL-WEBSITE`):**
+| What | Where |
+|---|---|
+| Page | `our-history/index.html`. Generated between markers, DON'T hand-edit inside: `<!-- HIST:archives -->`, `<!-- HIST:timeline -->`, `<!-- HIST:videos -->`. The map section is hand-placed (outside markers). |
+| Dates, date text, timeline videos, links | `_build/history_timeline.txt` |
+| Heritage Videos list | `_build/history_videos.txt` (ID \| page title \| length \| thumbnail size) |
 | Builder | `_build/build_history.pl` |
+| Face-aware thumbnail cropper | `_build/history_focus.swift` (macOS Vision; the builder compiles it once to `$TMPDIR/wb-history-focus`) |
+| Map cleaner + river tracer | `_build/history_map.swift` (only re-run if the map scan changes; paste its new path into the `.hmap` SVG) |
 | Behaviour | `assets/history.js` |
-| Styles | `house.css`, the "OUR HISTORY" block at the end (all `.h*` classes) |
-| Built images | `assets/history/<date>/NN.jpg` + `thumbs/NN.jpg`, `assets/history/hero.jpg`, `assets/history/rope-v.png` |
+| Styles | `house.css`, the "OUR HISTORY" blocks near the end (every class starts with `h`: `.hhero .hera .htile .hcar .hclip .hvids .hend …`, plus `main.hist + footer`) |
+| Web images | `assets/history/<date>/NN.jpg` (viewer) + `thumbs/NN.jpg` (square tiles); `archives/` + `archives/clip/`; `hero.jpg`, `endcap.jpg`, `rogue-map.jpg`, `rope-v.png` |
 
-## Photo sources (dates, NOT hull numbers)
+## 3. How Tyler updates things (his side)
 
-Four-digit numbers in history folders and filenames are **years**. The builder tries,
-in order, and the first source with photos for a date wins:
+- **Photos:** drop them in the date/era folder. **Order = filename order** (`1947-001`, `1947-002` …).
+- **Captions:** type them in each photo's **Description** metadata (Finder Get Info comments also
+  work as a fallback, but they're lost on export/re-save, so Description is the main one).
+  Start with the date: "1964 — Glen…", "Early 1980s — …". In a single-year folder the repeat of
+  that year is dropped automatically; in an era folder the photo's own date stays.
+- **New date/era:** make the folder, then tell Claude the year and its line of text (or "no text",
+  like 1982). Eras automatically **open** their decade (1970s comes before 1973 … 1979).
+- **Video in a date's carousel:** send the YouTube link + where ("after the 2nd photo").
+- **Heritage Videos:** the page doesn't watch the playlist live. Say "update heritage videos".
+- **Brochures:** drop/rename in `HERITAGE BROCHURES-ADS`; the date in the caption sets the order.
+- Then say "rebuild" (or "update 1970s"), check the browser pane, and **Push origin** in GitHub Desktop.
 
-1. **Tyler's master:** `OneDrive .../70 MARKETING AND BRAND/WEBSITE/MASTER-WEBSITE PHOTOS/ABOUT | HISTORY/`
-   One folder per date or era, named by it: `1915`, `1920s`, `1947`, or with a
-   description, `1947-RUNNING THE ROGUE`. Photos show in filename order.
-   The hero is the file starting `01-HERO`.
-2. **The archive (seed set for now):** `/Volumes/X Drive/HERITAGE MEDIA/HERITAGE PHOTOS/<year>/`
-   (19 photos in total: 1920s 1, 1947 10, 1948 1, 1950s 1, 1970s-LATE 2, 1977 3, 1979 1).
-
-So as Tyler fills a date folder in the master, it replaces the archive photos for that date.
-
-## Photo captions (2026-10-13)
-
-Captions come from, in order: the photo's **Finder Comments** (Get Info; Tyler's
-preferred spot, quick to edit), else its **Description** metadata (EXIF ImageDescription /
-IPTC Caption / XMP Description, read with `sips -g description`).
-Finder Comments are NOT inside the JPEG; macOS keeps them in an extended attribute
-(`com.apple.metadata:kMDItemFinderComment`, read straight from the xattr). They survive
-Finder copies between Mac drives and work on the OneDrive files on this Mac (checked
-2026-10-13), but an export/re-save, email or download drops them. So: export first,
-then type the comments on the files in the date folders. It shows in the white margin under each print (2 lines
-max, album-style). In the viewer it is the ONLY text (Tyler, 2026-10-14): a date leading the
-caption ("1964 —", "Late 1960s —", "October 31, 1977 —") becomes the blue date and comes off the
-text; no date in the caption = the section’s year. The section’s own description is not shown there. It's also
-the photo's alt text. `perl _build/build_history.pl --captions` lists what each photo got.
-
-The builder cleans captions for the web and never touches Tyler's files:
-- a leading date that repeats the entry's date comes off ("1947-Rogue No. 2" in 1947 â "Rogue No. 2");
-  a more specific one stays ("1964" in 1960s, "Late 1970s")
-- a caption that's only the date ("1977", "1980s") shows nothing
-- separator dashes become " Â· " ("Rogue No. 2-Gold Beach" â "Rogue No. 2 Â· Gold Beach");
-  real hyphens followed by lowercase ("first-ever") stay
-- mostly-caps captions get title case; known slips are fixed (Slamon, 1sr, Auxilary, "len,")
-- photo **order = filename order** inside each folder (natural sort, so 2 comes before 10)
-
-Tyler was re-exporting all the photos with descriptions on 2026-10-13, and some need
-their order swapped.
-
-## Round 2 (2026-10-13 afternoon)
-
-- **Photos:** Tyler's master `ABOUT | HISTORY/<date>` folders are the ONLY source now (the
-  X Drive seed set is retired; `--src` can still point elsewhere). 155 photos, 23 dates.
-- **Order is automatic:** dates in order, an era ("1970s") OPENS its decade, ahead of 1973 ... 1979 (Tyler, 2026-10-14; it was the end of the decade for a day).
-  Photos inside a folder run in filename order (1947-001, 1947-002 ...).
-- **Captions:** Description metadata first (Tyler's call), Finder Comments as fallback.
-  In an era, each photo keeps its own date ("1984 â ..." or "1980s â ..."); on a single-year
-  date the repeated year comes off. Fixes: Dam (was "Damn"), "ly 1980s" â Early 1980s,
-  C-130 stays intact, "2023â" spacing, a leading date always reads "1984 â ".
-- **Photo-only dates** (no text under the year yet): 1930s, 1951, 1960s, 1980s, 1990s, 2020s, 1982 (Tyler split it out of the busy 1980s folder 2026-10-14; photo captions carry it, no text wanted).
-- **Face-aware thumbs:** `_build/history_focus.swift` (macOS Vision) finds faces / upper
-  bodies and the builder sets each square thumb's object-position so heads aren't cut off.
-  Compiled once into `$TMPDIR/wb-history-focus` by the builder.
-- **Map finale:** after the last date the rope runs into "Where It All Began / The Rogue
-  River, Oregon": Glen's hand-drawn Rogue River Basin map laid on like a book page, with the
-  route upriver from Gold Beach to Grants Pass (1947 + 1962 firsts) drawing itself in blue on
-  scroll, Grants Pass pulsing at the end, then "Four Generations. One River at a time."
-  - Source: `ABOUT | HISTORY/GENERAL HISTORICAL-UNKOWN DATES/ROGUE RIVER BASIN.JPG`
-  - `_build/history_map.swift` cleans the scan (crop off the book edge + page number,
-    flatten the lighting, white paper) into `assets/history/rogue-map.jpg` AND traces the
-    river (cheapest path over thick ink) â the SVG path pasted into the page's `.hmap`
-    section. That section is hand-placed OUTSIDE the HIST markers, so the builder never
-    touches it. Re-run the map tool only if the scan changes, then paste the new path.
-- **Not placed yet:** the other 8 photos in `GENERAL HISTORICAL-UNKOWN DATES` (1914 Grants
-  Pass, bar blasting, Glen on the Rogue x2, TV star Truman Bradley, hauling wood, Grants Pass).
-  Ask Tyler where they go (a "From the Archives" gallery before the map?).
-- **Caption flags for Tyler:** 2026-008 "...in his 20-foot Alaskan XLT" (whose?);
-  2026-009 is a 2022 photo in the 2026 folder; 2026-011's description is cut off ("wate",
-  page shows "water").
-
-## Image weight (2026-10-14)
-
-Tyler: fast loads, but NO softening, and keep the pixel sizes. What the builder does:
-- **Tiles** are cut to the exact square shown (720px, or the original's short side if
-  smaller), aimed at faces by `history_focus.swift --crop` (sips can't do it: it ignores a
-  `--cropOffset 0 0` and centre-crops). Resized losslessly to PNG first, compressed once.
-  33 MB â 23 MB total; median 154 KB, max ~250 KB.
-- **Full-size viewer photos** stay 2000px on the long side. A file-size budget (tiles 200 KB,
-  fulls 800 KB) steps quality 82 â 78 â 75 only when over budget, never lower. Grainy film
-  scans still land up to ~1.2 MB at 75; checked at 100% against a lossless copy: no visible
-  change. Fulls only load when someone opens the viewer.
-- Opening the page downloads about 2 MB (hero + the first rows of tiles); the rest lazy-loads.
-- The builder prints a **low-res originals** list (short side under 600px): those tiles get
-  stretched a little and can look soft. Only a bigger scan fixes that.
-
-## From the Archives + pill (2026-10-14)
-
-- **Brochures & Ads** stop AFTER the map (Tyler moved it below the map 2026-10-14; the closing "Four Generations. One River at a time." line now sits in its own `.hend` block, last on the page), from the master's
-  `HERITAGE BROCHURES-ADS` folder (built by the builder between `<!-- HIST:archives -->`
-  markers). Pieces are taped in like a scrapbook: five rotating tilts/offsets
-  (`.hclip:nth-child(5n+k)` in house.css) so any number of pieces still looks hand-placed;
-  they drift in one after another; hover straightens + lifts; click opens the viewer, where
-  they follow the last timeline photo. Phones: 2-column scrapbook. Web copies:
-  `assets/history/archives/NN.jpg` (viewer) + `clip/NN.jpg` (760px wide).
-  These 4 pieces ALSO sit in their date galleries (1951, 1960s x2, 1970s); ask Tyler if he
-  wants them only in the scrapbook.
-- **"Not sure which boat?" pill** is off this page (and so off its photo viewer):
-  `/our-history/` is in tool-nudge.js's SKIP list.
-
-## Layout + labels (2026-10-14, later)
-
-- Page order now: hero → about copy → **From the Archives: Brochures & Ads** (scrapbook, no rope
-  above it) → rope divider + "The Timeline · 1915 – Today" (moved into the top of `.htl`) →
-  the dates → the Rogue River map → "Four Generations. One River at a time." (`.hend`).
-- Under each **brochure**: just the date, black Rockwell (`.hclip-cap`); the caption rides in
-  `data-cap` and shows only in the viewer. Under each **timeline print**: the caption (Tyler
-  tried dates-only there too, then went back to captions the same day). Viewer for both:
-  the caption's own date in blue, the rest of the caption under it.
-- **Brochures are one sideways strip** (19 pieces would bury the timeline as a wall). It's a
-  real `.hcar`, so it gets the arrows / counter / scroll bar. Pieces share a HEIGHT (wide
-  spreads sit beside tall pages); clip images are 760px tall (pieces show up to 360px; bumped 2026-10-14). Order = by the date in each
-  caption, oldest first (generic decade, Early, the years, Mid, Late), not alphabetical.
-  A garbled caption date borrows the filename's (a fallback; the one case, "!908s", Tyler fixed
-  by renaming it 1980s-DEEP WATER PLUS BROCHURE).
-- The viewer runs in page order: brochures first, then 1915 onward.
-
-## Closing photo (2026-10-14)
-
-- After the map: Tyler's `01-END CAP IMAGE.jpg` (master root) full width, with "Four
-  Generations. / One River at a time." on it like the hero title (`.hend`). The builder makes
-  `assets/history/endcap.jpg` the same way as `hero.jpg` and stamps both. The page fades down
-  into the photo's top so the blue title sits on light ground (the photo's top is dark forest).
-  The footer's 40px top margin is zeroed on this page only (`main.hist + footer`), and `.hend`
-  sets padding:0 to beat the site-wide `section{padding:36px 0}` (that rule only bites on wider
-  screens, which is why the gap hid at the ~900px preview width). The footer's compass star is
-  bigger on this page (48px, just the blue star, no badge; Tyler 2026-10-14) since it sits
-  on the photo/footer seam.
-- Page order now: hero → about → Brochures & Ads strip → timeline → map → closing photo.
-
-## Heritage Videos (2026-10-14)
-
-- Between the map and the closing photo: "From the Film Archive / Heritage Videos", a strip of
-  small 16:9 video thumbs styled like the boat-model video walls (no white print frame, rounded,
-  soft shadow, zoom on hover, ~60% see-through play button that turns blue; title, run time) with the carousel arrows / counter /
-  scroll bar; a click plays it in the viewer (after the timeline in flip order).
-- Source list: `_build/history_videos.txt` (ID | page title | length | thumb), built from the
-  YouTube "Heritage" playlist (PLsmduxnezQpiuW-Q7alDpB5_vQ473uZN1, 19 videos). YouTube's RSS
-  feed only returns 15, so the list was read from the playlist page itself. To refresh, re-read
-  the playlist and update the file. Titles have typos fixed for the page (Slamon, Ranie, "Glen
-  Seniors"); Tyler to fix them on YouTube. `thumb` = the sharpest YouTube has for that upload
-  (maxres > sd > hq); timeline video tiles use the same lookup.
-- Spacing: the timeline's bottom padding is 4px, so the rope drops straight from the last row's
-  counter into the map (Tyler: the gap was too big).
-- Page order now: hero → about → Brochures & Ads → timeline → map → Heritage Videos → closing photo.
-
-## How to update
+## 4. How Claude updates things
 
 ```
-perl _build/build_history.pl      # photos + timeline markup + hero
-perl _build/stamp_assets.pl       # only if house.css or history.js changed
+cd ~/Desktop/LOCAL-WEBSITE
+perl _build/build_history.pl              # photos, captions, timeline, brochures, videos, hero, end cap
+perl _build/build_history.pl --captions   # same, and lists every caption (check for typos)
+perl _build/stamp_assets.pl               # REQUIRED after any house.css / history.js change (cache-bust)
 ```
-- **New date or era:** add a `== YEAR` block to `history_timeline.txt` (order on the page
-  = order in the file), then rebuild.
-- **YouTube video:** `video: https://youtu.be/ID | Title` under the date. It becomes the
-  first tile in that date's carousel, or add `| after 1970s-005` (a photo's filename) to put
-  it right after that photo (since 2026-10-14; the 1970s Snake River + Coast Guard videos use it).
-  If the named photo is gone, the builder warns and puts the video first.
-- The builder lists archive/master folders that have **no timeline entry** so nothing is
-  silently dropped. Right now: 1930s, 1951, 1960s, 1980s, 1990s.
+- **Timeline file** (`_build/history_timeline.txt`): `== YEAR` starts an entry, text lines under it,
+  optional `video: URL | Title` (first tile) or `video: URL | Title | after 1970s-005` (right after
+  that photo; stays attached if photos are reordered; warns + goes first if the photo is gone),
+  optional `link: URL | Label` (button). Page order is sorted automatically.
+- **Preview:** the in-app preview server can't read ~/Desktop (macOS privacy block). Mirror and serve:
+  `rsync` `our-history/`, `house.css`, `favicon.ico`, `assets/*.js`, `assets/brand/`, `assets/fonts/`,
+  `assets/history/` into `<scratchpad>/site/`, run `python3 -m http.server 8813 --bind 127.0.0.1`
+  there (background), open `http://127.0.0.1:8813/our-history/` with preview_start. Re-sync after
+  every change. The site uses smooth scrolling, so in scripted checks use `behavior:'instant'`.
+- **Git:** Claude commits finished, checked work. **Tyler pushes** (GitHub Desktop). `git push`
+  from the shell fails (no credentials); don't go looking for them. `git fetch` first; if the
+  Instagram bot pushed, `git pull --rebase` so Tyler's push is clean.
+- Check at 1440 desktop and 375 phone before committing.
 
-## Preview (Desktop TCC block)
+## 5. Decisions Tyler made (don't undo)
 
-The preview server can't read ~/Desktop. Mirror to the scratchpad and serve from there:
-an rsync of `our-history/`, `house.css`, `assets/*.js`, `assets/brand/`, `assets/fonts/`,
-`assets/history/` to `<scratchpad>/site/`, then `python3 -m http.server 8813 --bind 127.0.0.1`
-and `preview_start({url:'http://127.0.0.1:8813/our-history/'})`. Re-sync after each change.
+- Hero + closing title: blue Rockwell, centered; hero white line centered and clear of Glen's head.
+- Date titles small (28–36px); ghost years behind them; rope skinny (9px).
+- Timeline prints show captions under them (dates-only was tried and reverted). Brochures show
+  dates only. The viewer shows only the photo's caption, date pulled into the blue title.
+- Brochures above the timeline, as one sideways strip. Heritage Videos between map and closing photo.
+- No Build & Price button, no book cover, no pill, no pagemast.
+- Scroll bars pale ghost-year blue. Drop shadows must fade out fully (tracks have extra bottom room).
+- Images: fast but NEVER visibly softer, and keep pixel sizes. Tiles 720px square (cut to what's
+  shown, aimed at faces), viewer photos 2000px; a size budget only steps JPEG quality 82→78→75.
+- Footer star bigger + plain on this page only; other pages keep the small star.
 
-## Wording changes to the approved timeline (check with Tyler / Glen Jr.)
+## 6. Gotchas (learned the hard way)
 
-Typos fixed and a few sentences smoothed. Meaning unchanged:
-- 1947: "...from Gold Beach to Grants Pass, with a 22-horsepower Evinrude."
-- 1950s: "Glen Wooldridge Sr. develops the first Jackass lift for an outboard motor. The lift lets the boat run in shallower water." (was "developed the 1st ... This lift allows")
-- 1970s: "Bob Wooldridge brings drift boats to Seattle and sells them. Bruce Wooldridge is building them in Grants Pass with Mike and Mark."
-- 1975: "...is the first to run up Hells Gate..."
-- 1977: "Glen Wooldridge develops the outboard jet tunnel." (was "...developed the outboard jet tunnel developed.")
-- 1978: "Glen Wooldridge and Dave Devore develop the first stainless steel outboard impeller."
-- I swapped the em dashes in the captions for commas and colons.
+- `sips --cropOffset 0 0` is ignored (center-crops) → squares are cut by `history_focus.swift --crop`.
+- Site-wide `section{padding:36px 0}` only shows on wider screens; `.hend` and `.hmap` override it.
+- The footer has a 40px top margin site-wide; `main.hist + footer` zeroes it here.
+- YouTube's playlist RSS only returns 15 videos; read the playlist page's data for all of them.
+  Thumbnail sizes vary by upload: `history_videos.txt` records the sharpest (maxres > sd > hq).
+- `sips -g description` prints `<nil>` when empty; the builder treats that as no caption.
+- Photo numbers in history folders are years: never run these through build_gallery.pl or Model Ready.
+- Editing files with `perl -pi` and non-ASCII text can scramble characters; use Python with UTF-8.
 
-## Next up (from 2026-10-12)
+## 7. Open items / ideas
 
-- Tyler is building the **date folders** (starting with 1915 and 1920s). Rebuild when they land.
-- More **YouTube videos** for dates and eras are coming.
-- **Eras vs dates:** some galleries will be eras (1940s, 1970s...). Maybe give eras their own look (a chapter-style header).
-- **Sharper hero:** `01-HERO-TITLE IMAGE.jpg` is only 1200px wide. The same photo is on the
-  X Drive at 2980px (`HERITAGE PHOTOS/1948/1948-001.JPG`). Ask Tyler to re-export the hero at 2400px+.
-- The **1948 carousel photo duplicates the hero** (same scan). Drop it when real 1948 photos come in.
-- The **1975 video thumbnail** has black side bars (YouTube's own frame). Could crop it tighter.
-- Ideas not built yet: a sticky current-year chip on phones, captions per photo.
-- Year rail (right edge; Tyler likes it): bigger on wide screens (1380px+), small and faded until hover on 901-1379px (timeline gets 64px side padding there so it never covers the photo rows), hidden at 900px and under. Set 2026-10-13. With ~25+ dates it will get taller than a short laptop screen; tighten its spacing or let it scroll then.
+- Fix typos on YouTube itself: "Slamon Trip Rapids", "Ranie Falls", "Glen Seniors" (page shows them fixed).
+- 2026-008 caption: "…in **his** 20-foot Alaskan XLT" (whose?). 2026-009 is a 2022 photo in the 2026 folder.
+- ~27 originals are small scans (short side under 600px); their tiles can look a little soft. Only bigger
+  scans fix that (`--captions` run lists them as "low-res originals").
+- Hero file is 1200px wide; a re-export at 2400px+ would be sharper on big screens.
+- The other photos in `GENERAL HISTORICAL-UNKOWN DATES` (1914 Grants Pass, bar blasting, Truman Bradley…)
+  aren't on the page yet.
+- Year rail: with ~30+ dates it'll be taller than a short laptop screen; tighten spacing then.
+- Carousel counter shows the tile nearest the middle, so it can go 1 → 3 on the first click.
+
+## 8. Wording changes to Glen Jr.'s approved timeline
+
+Typos fixed, meaning unchanged: 1947 "…with a 22-horsepower Evinrude"; 1950s "develops the first
+Jackass lift… The lift lets the boat run in shallower water"; 1975 "is the first to run up Hells
+Gate"; 1977 "develops the outboard jet tunnel"; 1978 "Glen Wooldridge and Dave Devore develop the
+first stainless steel outboard impeller". Tyler later supplied new text for 1970s, 1973, 2004 and
+2024 (and removed 2010), which is used as written.
