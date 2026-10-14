@@ -13,8 +13,8 @@
 #                          carousel; flips with the photos in the lightbox.
 #   link: URL | Label      a button under the caption.
 #
-# Page order is automatic: dates in order, and an era ("1970s") goes at the end
-# of its decade, after 1973, 1975 ... 1979. This file is kept in that order too.
+# Page order is automatic: dates in order, and an era ("1970s") opens its decade,
+# ahead of 1973, 1975 ... 1979. This file is kept in that order too.
 # An entry with no text lines is fine: the year shows with its photos only.
 
 == 1915
@@ -26,6 +26,9 @@ Glen takes a boat through the Coffee Pot in the early 1920s, photographed by Lou
 
 == 1930s
 
+== 1940s
+Glen develops a method of stacking wood strips over a form, allowing better hull shapes without sacrificing strength. That boat is still on display at Rand Ranger Station.
+
 == 1947
 Running the Rogue: the first-ever trip up the Rogue River from Gold Beach to Grants Pass, with a 22-horsepower Evinrude.
 
@@ -35,18 +38,18 @@ Glen and Ruell Hawkins make the first trip up Idaho’s Salmon River, “The Riv
 == 1949
 Glen starts a boat tour from the city park to Hell Gate: a 50-mile run in a 26-foot boat at $5.50 a person.
 
-== 1940s
-Glen develops a method of stacking wood strips over a form, allowing better hull shapes without sacrificing strength. That boat is still on display at Rand Ranger Station.
+== 1950s
+Glen Wooldridge Sr. develops the first Jackass lift for an outboard motor. The lift lets the boat run in shallower water.
 
 == 1951
 
-== 1950s
-Glen Wooldridge Sr. develops the first Jackass lift for an outboard motor. The lift lets the boat run in shallower water.
+== 1960s
 
 == 1962
 First outboard jet run up the Rogue River from Gold Beach to Grants Pass, Oregon.
 
-== 1960s
+== 1970s
+Bob Wooldridge began bringing drift boats from Grants Pass to Seattle to sell, opening a new chapter for the family business. The boats were built by Bruce Wooldridge with Mike and Mark in Grants Pass.
 
 == 1973
 Bob Wooldridge opens the company’s first Seattle boat shop, bringing Wooldridge boatbuilding to Washington.
@@ -64,20 +67,19 @@ Glen Wooldridge and Dave Devore develop the first stainless steel outboard impel
 == 1979
 Four generations of boat builders working side by side.
 
-== 1970s
-Bob Wooldridge began bringing drift boats from Grants Pass to Seattle to sell, opening a new chapter for the family business. The boats were built by Bruce Wooldridge with Mike and Mark in Grants Pass.
-
 == 1980s
+
+== 1982
 
 == 1990s
 
 == 2004
 Wooldridge Boats moves to a new boat shop in South Seattle and continues to lead the way building custom aluminum boats.
 
+== 2020s
+
 == 2024
 Another Wooldridge first: we created the <a href="/models/rogue/">Rogue</a>—the first production HDPE outboard jet boat—bringing more than a century of boatbuilding experience to a new material.
 
 == 2026
 The 2026 fleet: 18 production models from a 16′ tiller sled to a 26′ offshore boat, all still built in Seattle.
-
-== 2020s

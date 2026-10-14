@@ -86,13 +86,13 @@ their order swapped.
 
 - **Photos:** Tyler's master `ABOUT | HISTORY/<date>` folders are the ONLY source now (the
   X Drive seed set is retired; `--src` can still point elsewhere). 155 photos, 23 dates.
-- **Order is automatic:** dates in order, an era ("1970s") at the END of its decade.
+- **Order is automatic:** dates in order, an era ("1970s") OPENS its decade, ahead of 1973 ... 1979 (Tyler, 2026-10-14; it was the end of the decade for a day).
   Photos inside a folder run in filename order (1947-001, 1947-002 ...).
 - **Captions:** Description metadata first (Tyler's call), Finder Comments as fallback.
   In an era, each photo keeps its own date ("1984 — ..." or "1980s — ..."); on a single-year
   date the repeated year comes off. Fixes: Dam (was "Damn"), "ly 1980s" → Early 1980s,
   C-130 stays intact, "2023—" spacing, a leading date always reads "1984 — ".
-- **Photo-only dates** (no text under the year yet): 1930s, 1951, 1960s, 1980s, 1990s, 2020s.
+- **Photo-only dates** (no text under the year yet): 1930s, 1951, 1960s, 1980s, 1990s, 2020s, 1982 (Tyler split it out of the busy 1980s folder 2026-10-14; photo captions carry it, no text wanted).
 - **Face-aware thumbs:** `_build/history_focus.swift` (macOS Vision) finds faces / upper
   bodies and the builder sets each square thumb's object-position so heads aren't cut off.
   Compiled once into `$TMPDIR/wb-history-focus` by the builder.

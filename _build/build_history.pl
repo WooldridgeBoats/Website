@@ -60,9 +60,9 @@ while (my $l = <$tf>) {
 }
 close $tf;
 die "no timeline entries\n" unless @eras;
-# Page order is automatic (Tyler, 2026-10-13): dates in order, and an era
-# ("1970s") goes at the END of its decade, after 1973, 1975 ... 1979.
-sub when { my $k = shift; $k =~ /^(\d{4})(s?)$/i or return 1e9; $1 + ($2 ? 9.5 : 0) }
+# Page order is automatic: dates in order, and an era ("1970s") OPENS its
+# decade, ahead of 1973, 1975 ... 1979 (Tyler, 2026-10-14; was the end of it).
+sub when { my $k = shift; $k =~ /^(\d{4})(s?)$/i or return 1e9; $1 - ($2 ? 0.1 : 0) }
 @eras = map { $_->[1] } sort { $a->[0] <=> $b->[0] || $a->[2] <=> $b->[2] } map { [when($eras[$_]{key}), $eras[$_], $_] } 0..$#eras;
 
 sub ytid { my $u = shift; return $1 if $u =~ m{(?:youtu\.be/|v=|embed/|shorts/)([\w-]{11})}; die "bad YouTube URL: $u\n"; }
