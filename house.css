@@ -3034,10 +3034,10 @@ main.hist + footer::before{
    Pieces share a height, not a width, so tall pages and wide spreads sit together;
    five rotating tilts/heights/offsets keep any number looking hand-placed. */
 .hclipcar{ margin-top:8px; }
-/* this strip only breaks out of the 1240 column and runs nearly side to side, 24px in from
-   each edge (Tyler, 2026-10-14). 100vw counts a desktop scroll bar, but the 24px gutter
-   swallows that, so no sideways page scroll. */
-.hclipcar{ max-width:none; width:calc(100vw - 48px); margin-left:calc(50% - 50vw + 24px); margin-right:0; }
+/* the brochure strip and the Heritage Videos strip break out of the 1240 column and run
+   nearly side to side, 24px in from each edge (Tyler, 2026-10-14). 100vw counts a desktop
+   scroll bar, but the 24px gutter swallows that, so no sideways page scroll. */
+.hclipcar,.hvidcar{ max-width:none; width:calc(100vw - 48px); margin-left:calc(50% - 50vw + 24px); margin-right:0; }
 .hclipcar .htrack{ align-items:center; gap:clamp(22px,2.6vw,36px); padding:36px 26px 70px; }
 .hclip{
   --r:-3.5deg; --y:10px; --h:clamp(255px,26.5vw,345px);
