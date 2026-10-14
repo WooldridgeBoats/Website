@@ -59,3 +59,16 @@ their own ideal profiles, to Skagit and Alaskan LT respectively. Rebalancing
 the weights is a Stephen + Danny call, not a code fix; this script only
 measures. Re-run it after any weight change and after gen_fleet.pl rewrites
 the FACTS block, and treat a non-zero exit as a release blocker.
+
+Since 14 Oct 2026 it also checks the SECOND recommender, Request a Quote, which
+scores the same matrix with its own smaller scorer (no shallow / rough / helm /
+tow questions). Its copy of the matrix must equal the quiz's cell for cell, or
+the audit FAILS. Its own reachability is printed as NOTE lines and never fails
+the audit - closing those gaps needs new questions or new weights, a business
+call.
+
+  perl _build/sync_quiz_matrix.pl          — copy the quiz's matrix into Request a Quote
+  perl _build/sync_quiz_matrix.pl --check  report only; exit 1 if they differ
+
+The quiz owns the matrix (between /* MATRIX:BEGIN */ and /* MATRIX:END */ in
+which-wooldridge/index.html). Edit it there, run the sync, then the audit.
