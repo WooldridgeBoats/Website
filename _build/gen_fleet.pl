@@ -15,6 +15,8 @@
 # a new model without a presentation entry fails the run loudly rather
 # than silently publishing a half-dressed card.
 #
+# Home-rail photos: every ph is that model's thumbs/hero.jpg (the Model Ready hero).
+# Tyler vets and sets heroes; never point ph at any other photo.
 # Derivations, verified against the previous hand values on first run:
 #   drive  = model.drive // 'ob'
 #   from   = min over style+length of (hull + cheapest engine)   [ob/ib]
@@ -43,24 +45,24 @@ my $J = JSON::PP->new->canonical->ascii;
 
 # ── presentation: fields no catalogue knows (photo, home blurb, page URL) ──
 my %PRESENTATION = (
-  lt        => { ph=>'assets/photos/alaskan-lt/thumbs/2026-18-ws-003.jpg',                        tag=>'Light utility jet sled. The easiest way into a real Wooldridge.',            url=>'models/alaskan-lt/' },
-  ak        => { ph=>'assets/photos/alaskan/thumbs/4459-product-18-ws-ak-1.jpg',                  tag=>'The classic Wooldridge sled — the boat that built the name.',                 url=>'models/alaskan/' },
-  xlt       => { ph=>'assets/photos/alaskan-xlt/thumbs/5053-product-1.jpg',                       tag=>'Extra-wide tiller and console sled for load and stability.',                  url=>'models/xlt/' },
-  xl        => { ph=>'assets/photos/alaskanxl/thumbs/5226-product-1.jpg',                         tag=>'Big-water 20-foot heavy hauler.',                                             url=>'models/alaskanxl/' },
-  rogue     => { ph=>'assets/photos/rogue/thumbs/5162-water-1.jpg',                               tag=>'Fully welded HDPE hull — slides over what aluminum bounces off.',             url=>'models/rogue/' },
-  skagit    => { ph=>'assets/photos/skagit/thumbs/4647-product-1.jpg',                            tag=>'Deep-sided sled for bigger water and rougher days.',                          url=>'models/skagit/' },
-  sport     => { ph=>'assets/photos/sport/thumbs/4589-product-3.jpg',                             tag=>'Pointed-bow crossover — river manners, open-water reach.',                    url=>'models/sport/' },
-  ssd       => { ph=>'assets/photos/supersportdrifter/thumbs/5175-product-1.jpg',                 tag=>'Pointed-bow jet drifter with room for the whole crew.',                       url=>'models/supersportdrifter/' },
-  sportster => { ph=>'assets/photos/sportster/thumbs/sportster-water-1.jpg',                      tag=>'Outboard jet sportster — fast, refined, and capable.',                        url=>'models/sportster/' },
-  xlib      => { ph=>'assets/photos/alaskan-xl-inboard/thumbs/2026-20-first-responder-30.jpg',    tag=>'The XL heavy hauler with inboard jet power.',                                 url=>'models/alaskan-xl-inboard/' },
-  scout     => { ph=>'assets/photos/scout/thumbs/5113-product-1.jpg',                             tag=>'Inboard jet workhorse — the guide-boat standard.',                            url=>'models/scout/' },
-  scoutwb   => { ph=>'assets/photos/scout-widebody/thumbs/5119-scout-widebody-product-27.jpg',    tag=>'Full-cabin inboard for all-season, all-weather running.',                     url=>'models/scout-widebody/' },
-  skagitib  => { ph=>'assets/photos/skagit-inboard/thumbs/5094-product-12.jpg',                   tag=>'Deep-sided sled, inboard jet drive.',                                         url=>'models/skagit-inboard/' },
-  sportib   => { ph=>'assets/photos/sportinboard/thumbs/sportib-water-1.jpg',                     tag=>'The pointed-bow crossover with inboard jet power.',                           url=>'models/sportinboard/' },
-  ssdib     => { ph=>'assets/photos/supersportdrifterinboard/thumbs/4403-photo-1.jpg',            tag=>'Big drifter platform, inboard jet drive.',                                    url=>'models/supersportdrifterinboard/' },
-  skagitx   => { ph=>'assets/photos/skagit-x/thumbs/5092-21-skagit-x-blue-01.jpg',                tag=>'Low-side, aft-helm inboard built for working water.',                         url=>'models/skagit-x/' },
-  so        => { ph=>'assets/photos/sportoffshore/thumbs/5021-product-2.jpg',                     tag=>'Offshore-bracket crossover — river to salt in one hull.',                     url=>'models/sportoffshore/' },
-  sso       => { ph=>'assets/photos/super-sport-offshore/thumbs/4660-product-7.jpg',              tag=>'Big-water offshore boat, up to 26 feet of it.',                               url=>'models/super-sport-offshore/' },
+  lt        => { ph=>'assets/photos/alaskan-lt/thumbs/hero.jpg',                        tag=>'Light utility jet sled. The easiest way into a real Wooldridge.',            url=>'models/alaskan-lt/' },
+  ak        => { ph=>'assets/photos/alaskan/thumbs/hero.jpg',                  tag=>'The classic Wooldridge sled — the boat that built the name.',                 url=>'models/alaskan/' },
+  xlt       => { ph=>'assets/photos/alaskan-xlt/thumbs/hero.jpg',                       tag=>'Extra-wide tiller and console sled for load and stability.',                  url=>'models/xlt/' },
+  xl        => { ph=>'assets/photos/alaskanxl/thumbs/hero.jpg',                         tag=>'Big-water 20-foot heavy hauler.',                                             url=>'models/alaskanxl/' },
+  rogue     => { ph=>'assets/photos/rogue/thumbs/hero.jpg',                               tag=>'Fully welded HDPE hull — slides over what aluminum bounces off.',             url=>'models/rogue/' },
+  skagit    => { ph=>'assets/photos/skagit/thumbs/hero.jpg',                            tag=>'Deep-sided sled for bigger water and rougher days.',                          url=>'models/skagit/' },
+  sport     => { ph=>'assets/photos/sport/thumbs/hero.jpg',                             tag=>'Pointed-bow crossover — river manners, open-water reach.',                    url=>'models/sport/' },
+  ssd       => { ph=>'assets/photos/supersportdrifter/thumbs/hero.jpg',                 tag=>'Pointed-bow jet drifter with room for the whole crew.',                       url=>'models/supersportdrifter/' },
+  sportster => { ph=>'assets/photos/sportster/thumbs/hero.jpg',                      tag=>'Outboard jet sportster — fast, refined, and capable.',                        url=>'models/sportster/' },
+  xlib      => { ph=>'assets/photos/alaskan-xl-inboard/thumbs/hero.jpg',    tag=>'The XL heavy hauler with inboard jet power.',                                 url=>'models/alaskan-xl-inboard/' },
+  scout     => { ph=>'assets/photos/scout/thumbs/hero.jpg',                             tag=>'Inboard jet workhorse — the guide-boat standard.',                            url=>'models/scout/' },
+  scoutwb   => { ph=>'assets/photos/scout-widebody/thumbs/hero.jpg',    tag=>'Full-cabin inboard for all-season, all-weather running.',                     url=>'models/scout-widebody/' },
+  skagitib  => { ph=>'assets/photos/skagit-inboard/thumbs/hero.jpg',                   tag=>'Deep-sided sled, inboard jet drive.',                                         url=>'models/skagit-inboard/' },
+  sportib   => { ph=>'assets/photos/sportinboard/thumbs/hero.jpg',                     tag=>'The pointed-bow crossover with inboard jet power.',                           url=>'models/sportinboard/' },
+  ssdib     => { ph=>'assets/photos/supersportdrifterinboard/thumbs/hero.jpg',            tag=>'Big drifter platform, inboard jet drive.',                                    url=>'models/supersportdrifterinboard/' },
+  skagitx   => { ph=>'assets/photos/skagit-x/thumbs/hero.jpg',                tag=>'Low-side, aft-helm inboard built for working water.',                         url=>'models/skagit-x/' },
+  so        => { ph=>'assets/photos/sportoffshore/thumbs/hero.jpg',                     tag=>'Offshore-bracket crossover — river to salt in one hull.',                     url=>'models/sportoffshore/' },
+  sso       => { ph=>'assets/photos/super-sport-offshore/thumbs/hero.jpg',              tag=>'Big-water offshore boat, up to 26 feet of it.',                               url=>'models/super-sport-offshore/' },
 );
 
 sub slurp { my ($f)=@_; open my $fh,'<:raw',$f or die "read $f: $!"; local $/; <$fh> }
