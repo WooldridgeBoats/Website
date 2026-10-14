@@ -144,8 +144,10 @@ sub save {                           # write only when the text changed; keep th
 
 # ------------------------------------------------------------- 1-2. PRICES ----
 my $price_list = [];
+my $soc_before;                      # the Sales Order Creator blobs as the website held them before this run
 if ($mode eq 'xlsx') {
   print "\nPRICES\n";
+  $soc_before = soc_blobs($repo);
   my $S = load_site($repo);
   my $PC = canon_from_tabs($tabs);
   my $R = compare_prices($S, $PC);
@@ -599,6 +601,24 @@ if ($mode eq 'xlsx' && !$dry) {
     if ($r) { push @owed, 'CANON.html pricing data: run_census.ps1 failed (exit ' . ($r >> 8) . ') - read its message above, then run it again on the P3' }
     else { push @done, 'CANON.html pricing data refreshed against the newest QuickBooks export (census re-run)' }
   } else { push @owed, 'CANON.html pricing data (incl. "Prices to type in QuickBooks"): run QB IMPORT\_build\census\run_census.ps1 on the P3 - ' . join(', ', @pm) . ' changed' }
+
+  # i. the Sales Order Creator during its SHADOW period (Build Hub 32bd646, 2026-10-14): it still quotes from built-in
+  #    copies and turns RED when they differ from WB CANON SOC.json, so after a price change those copies must be
+  #    re-synced until Stephen cuts it to canon-only. Build Hub lane: this command prints the lines, never writes the SOC.
+  #    It goes quiet by itself once the live SOC no longer carries a built-in const MODELS (the canon-only build).
+  my $soc_after = soc_blobs($repo);
+  my @chg = grep { $soc_before->{$_} ne $soc_after->{$_} } qw(models rules_overlay trailer_data);
+  my $socp = dirname($sqh) . '/BUILD HUB/MISC NECESSARY CONTENT/SALES ORDER CREATOR/SALES ORDER CREATOR.html';
+  my $shadow = -f $socp ? (slurp_bytes($socp) =~ /^[ \t]*const MODELS = /m ? 1 : 0) : -1;   # -1 = cannot see it from here
+  if (@chg && $shadow) {
+    require Digest::MD5;
+    my %line = (models        => qq{perl "$canon_root/_build/sync_soc_models_2026-10-13.pl" "$repo/build-and-price/index.html" "$socp" } . Digest::MD5::md5_hex($soc_before->{models}),
+                rules_overlay => qq{perl "$repo/_build/sync_soc_rules.pl"},
+                trailer_data  => qq{perl "$repo/_build/sync_soc_trailers.pl"});
+    push @owed, 'Sales Order Creator (SHADOW period, until Stephen cuts it to canon-only' . ($shadow < 0 ? '; not visible from this machine' : '')
+      . '): its built-in prices now differ from WB CANON SOC.json, so it shows RED until re-synced. On the P3: commit the Build Hub repo, run '
+      . join(' ; ', map { $line{$_} } @chg) . ' ; then commit the Build Hub repo again.';
+  }
 }
 
 # ------------------------------------------------- 7. the QuickBooks typing list ----
