@@ -55,7 +55,8 @@
 #      write_tab_from_csv.ps1, proved in a fresh Excel); the price sheets' trailer shop add-ons;
 #      the branded price sheets (built, verified, placed with the old ones archived, published to
 #      SALES TOOLS - needs Rockwell); the ITEM CODE LOOKUP page (P3); the used-boat appraiser;
-#      the prop selector. Then the QuickBooks typing list (QB IMPORT/1 - NEXT IMPORT on the P3),
+#      the prop selector; the "Boat facts" view in CANON.html (CANON/_build/BOAT FACTS/
+#      build_boat_facts.pl, every real run, a failure is loud but not fatal). Then the QuickBooks typing list (QB IMPORT/1 - NEXT IMPORT on the P3),
 #      a final check of everything, and the CHANGE LOG entry in CANON/README.md.
 #   7. What it cannot do from where it runs is printed as OWED, naming the machine.
 #
@@ -573,6 +574,16 @@ if ($mode eq 'xlsx' && !$dry) {
     if (same_but_stamps(slurp_bytes("$w/PROP REFERENCE DATA.js"), slurp_bytes("$pr/PROP REFERENCE DATA.js"))) { printf "  %-28s unchanged\n", 'prop selector' }
     else { put_atomic("$pr/PROP REFERENCE DATA.js", slurp_bytes("$w/PROP REFERENCE DATA.js"), 'PROP REFERENCE DATA.js'); push @done, 'prop selector data rebuilt' }
   } else { push @owed, 'prop selector: not reachable from here' }
+
+  # g. the "Boat facts" view in CANON.html (owned by the "CANON - one viewer" session; agreed 2026-10-14).
+  #    Every real run; a failure is loud but does not fail the canon run - the canon is already written and proved.
+  my $bf = "$canon_root/_build/BOAT FACTS/build_boat_facts.pl";
+  if (-f $bf) {
+    my $r = system('perl', $bf, '--canon', $canon_root, '--repo', $repo);
+    if ($r) { print "  !! build_boat_facts.pl failed (exit " . ($r >> 8) . ") - the Boat facts view in CANON.html is stale\n";
+              push @owed, 'Boat facts view (CANON.html): build_boat_facts.pl failed - read its message above and re-run it' }
+    else { push @done, 'Boat facts view (CANON.html) rebuilt' }
+  } else { printf "  %-28s not installed yet (CANON/_build/BOAT FACTS/build_boat_facts.pl)\n", 'Boat facts view' }
 }
 
 # ------------------------------------------------- 7. the QuickBooks typing list ----
