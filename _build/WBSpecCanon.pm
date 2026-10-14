@@ -127,9 +127,38 @@ sub t_runs {                         # join every <t> run inside a fragment, pho
   $x =~ s{<rPh\b.*?</rPh>}{}gs;
   return join('', map { xml_unent($_) } $x =~ m{<t\b[^>]*>(.*?)</t>|<t\b[^>]*/>()}gs);
 }
-sub read_xlsx_tabs {                 # path -> { tab name => [ [cell strings...], ... ] }
+sub xlsx_date_styles {               # workbook -> { style index => 1 } for every cell style with a date/time number format
   my ($file) = @_;
+  my $st = xlsx_member($file, 'xl/styles.xml');
+  return {} unless defined $st;
+  my %custom;
+  while ($st =~ /<numFmt\b([^>]*?)\/?>/g) {
+    my $a = $1; my ($id) = $a =~ /\bnumFmtId="(\d+)"/; my ($code) = $a =~ /\bformatCode="([^"]*)"/;
+    next unless defined $id && defined $code;
+    $code = xml_unent($code); $code =~ s/"[^"]*"//g; $code =~ s/\[[^\]]*\]//g; $code =~ s/\\.//g;
+    $custom{$id} = ($code =~ /[dmyhs]/i) ? 1 : 0;
+  }
+  my %date; my ($xfs) = $st =~ m{<cellXfs\b[^>]*>(.*?)</cellXfs>}s;
+  return {} unless defined $xfs;
+  my $i = 0;
+  while ($xfs =~ /<xf\b([^>]*?)\/?>/g) {
+    my ($n) = $1 =~ /\bnumFmtId="(\d+)"/; $n = 0 unless defined $n;
+    $date{$i} = 1 if ($n >= 14 && $n <= 22) || ($n >= 45 && $n <= 47) || $custom{$n};
+    $i++;
+  }
+  return \%date;
+}
+sub excel_serial_text {              # Excel serial (1900 system) -> "YYYY-MM-DD" or "YYYY-MM-DD HH:MM:SS"
+  my ($v) = @_;
+  my $secs = int(($v - 25569) * 86400 + ($v >= 0 ? 0.5 : -0.5));   # 25569 = 1970-01-01
+  my @t = gmtime($secs);
+  my $d = sprintf('%04d-%02d-%02d', $t[5] + 1900, $t[4] + 1, $t[3]);
+  return ($t[2] || $t[1] || $t[0]) ? sprintf('%s %02d:%02d:%02d', $d, $t[2], $t[1], $t[0]) : $d;
+}
+sub read_xlsx_tabs {                 # (path, { dates => 1 }?) -> { tab name => [ [cell strings...], ... ] }
+  my ($file, $opt) = @_;             # dates => 1: date/time-formatted numeric cells come back as text, not serials
   die "xlsx not found: $file\n" unless -f $file;
+  my $dates = ($opt && $opt->{dates}) ? xlsx_date_styles($file) : {};
   my $wb = xlsx_member($file, 'xl/workbook.xml');
   die "$file: no xl/workbook.xml ($UnzipError)\n" unless defined $wb;
   my $rels = xlsx_member($file, 'xl/_rels/workbook.xml.rels');
@@ -167,7 +196,9 @@ sub read_xlsx_tabs {                 # path -> { tab name => [ [cell strings...]
         if ($t eq 's')            { my ($i) = $cb =~ m{<v>(.*?)</v>}s; $v = defined $i && defined $shared[$i] ? $shared[$i] : '' }
         elsif ($t eq 'inlineStr') { $v = t_runs($cb) }
         elsif ($t eq 'b')         { my ($b) = $cb =~ m{<v>(.*?)</v>}s; $v = (defined $b && $b eq '1') ? 'TRUE' : 'FALSE' }
-        else                      { my ($x) = $cb =~ m{<v>(.*?)</v>}s; $v = defined $x ? xml_unent($x) : ''; $v = num_str($v) if $t eq '' }
+        else                      { my ($x) = $cb =~ m{<v>(.*?)</v>}s; $v = defined $x ? xml_unent($x) : '';
+                                    if ($t eq '') { my ($s) = $ca =~ /\bs="(\d+)"/;
+                                                    $v = (defined $s && $dates->{$s} && $v =~ /^-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?$/) ? excel_serial_text($v) : num_str($v) } }
         $cells[col_index($ref)] = $v;
       }
       $_ = '' for grep { !defined } @cells;   # no-op guard

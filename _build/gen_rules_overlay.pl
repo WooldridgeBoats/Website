@@ -29,7 +29,18 @@ my %APPROVED = map { $_ => 1 } qw(
 );
 # ───────────────────────────────────────────────────────
 
-my ($cfg, $out) = @ARGV; die "usage: gen_overlay.pl <configurator> <overlay-out>\n" unless $out;
+# PRICES OF ADDED OPTIONS (Stephen 2026-10-14: "Workbook owns them"). The canon
+# workbook is the one place an addItems price is set. The numbers typed in the
+# blocks below are only the starting price of a brand-new item. Each addItems
+# price is taken from, in order:
+#   1. --prices <file>  a JSON object { item id => price or null }, written by
+#      _build/gen_from_canon.pl from the canon OPTIONS tab;
+#   2. the price the same item already carries in the overlay file being
+#      replaced (so a re-run for a new rule never undoes a canon price);
+#   3. the number typed here (new items only).
+my $prices_file;
+if (@ARGV >= 2 && $ARGV[0] eq '--prices') { (undef, $prices_file) = splice @ARGV, 0, 2 }
+my ($cfg, $out) = @ARGV; die "usage: gen_rules_overlay.pl [--prices <json>] <configurator> <overlay-out>\n" unless $out;
 open my $fh, '<:raw', $cfg or die $!;
 my $l;
 while (<$fh>) { if (/^\s*const MODELS = /) { $l = $_; last } }
@@ -381,6 +392,30 @@ for my $b (@BLOCKS) {
     if (ref $v eq 'HASH')  { $LIVE{$k}{$_} = $v->{$_} for keys %$v }
     elsif (ref $v eq 'ARRAY') { push @{$LIVE{$k}}, @$v }
   }
+}
+
+# ── addItems prices: canon first, then the overlay being replaced, then the typed number ──
+{
+  my %canon;
+  if (defined $prices_file) {
+    open my $pf, '<:raw', $prices_file or die "cannot read --prices $prices_file: $!\n";
+    local $/; %canon = %{ decode_json(<$pf>) }; close $pf;
+  }
+  my %prev;
+  if (-f $out) {
+    open my $pf, '<:raw', $out or die "cannot read $out: $!\n";
+    local $/; my $t = <$pf>; close $pf;
+    if ($t =~ /^\s*addItems:\s*(\[.*?\]),\r?$/m) { $prev{ $_->{id} } = [ $_->{price} ] for @{ decode_json($1) } }
+  }
+  my %src;
+  for my $a (@{ $LIVE{addItems} }) {
+    if    (exists $canon{ $a->{id} }) { $a->{price} = $canon{ $a->{id} }; $src{canon}++ }
+    elsif ($prev{ $a->{id} })         { $a->{price} = $prev{ $a->{id} }[0]; $src{'previous overlay'}++ }
+    else                              { $src{'typed in this script (new item)'}++ }
+  }
+  my @unknown = grep { my $id = $_; !grep { $_->{id} eq $id } @{ $LIVE{addItems} } } sort keys %canon;
+  die "--prices names options that are not overlay-added: @unknown\n" if @unknown;
+  printf "  addItems prices: %s\n", join(', ', map { "$src{$_} from $_" } sort keys %src) if %src;
 }
 
 open my $o, '>:encoding(UTF-8)', $out or die $!;
