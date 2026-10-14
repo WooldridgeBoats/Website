@@ -377,7 +377,7 @@ my $arch_html = '';
     }
     # sits between the about copy and the timeline (Tyler, 2026-10-14), so no rope above it
     $arch_html = qq{\n<section class="harch" aria-labelledby="harch-h"><div class="wrap">\n}
-      . qq{  <p class="hmap-kick">From the Archives</p>\n  <h2 class="hmap-h" id="harch-h">Brochures &amp; Ads</h2>\n}
+      . qq{  <h2 class="hmap-h" id="harch-h">Brochures &amp; Ads</h2>\n  <p class="hmap-kick">From the Archives</p>\n}
       . qq{  <div class="hcar hclipcar">\n    <div class="htrack hclips">\n} . join("\n", @c) . qq{\n    </div>\n}
       . qq{    <div class="hcarui"><button type="button" class="hprev" aria-label="Previous brochure"></button><span class="hcount"></span><button type="button" class="hnext" aria-label="Next brochure"></button></div>\n}
       . qq{  </div>\n</div></section>\n};
@@ -394,7 +394,7 @@ if (@hvids) {
     . ($len ne '' ? qq{<span class="hdur">$len</span>} : '') . qq{</span><span class="hpc">} . esc($title) . qq{</span></button>} } @hvids;
   $vids_html = qq{\n<section class="hvids" aria-labelledby="hvids-h"><div class="wrap">\n}
     . qq{  <div class="hseg" aria-hidden="true"><i></i></div>\n}
-    . qq{  <p class="hmap-kick">From the Film Archive</p>\n  <h2 class="hmap-h" id="hvids-h">Heritage Videos</h2>\n}
+    . qq{  <h2 class="hmap-h" id="hvids-h">Heritage Videos</h2>\n  <p class="hmap-kick">From the Film Archive</p>\n}
     . qq{  <div class="hcar hvidcar">\n    <div class="htrack">\n} . join("\n", @t) . qq{\n    </div>\n}
     . qq{    <div class="hcarui"><button type="button" class="hprev" aria-label="Previous video"></button><span class="hcount"></span><button type="button" class="hnext" aria-label="Next video"></button></div>\n}
     . qq{  </div>\n</div></section>\n};

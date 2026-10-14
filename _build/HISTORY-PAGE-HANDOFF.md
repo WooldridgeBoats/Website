@@ -23,7 +23,7 @@ Tyler: "Wooldridge Boats is an American Legacy brand, so this page is very impor
    bold (SemiBold, 20px). No pagemast / breadcrumb / "EST. 1915" line (removed on purpose).
 2. **About copy** — Tyler's paragraphs, centered. The book title links to the store:
    https://store.wooldridgeboats.com/products/the-rogue-a-river-to-run-book (link only, no cover).
-3. **From the Archives / Brochures & Ads** — 19 brochures and ads taped in like a scrapbook
+3. **Brochures & Ads / From the Archives** — 19 brochures and ads taped in like a scrapbook
    (tilted, staggered, a strip of tape on each) in ONE sideways-scrolling strip with arrows,
    counter and scroll bar. Under each piece: just its date in black Rockwell. Full caption only
    in the viewer. Oldest to newest by the date in each caption.
@@ -34,10 +34,10 @@ Tyler: "Wooldridge Boats is an American Legacy brand, so this page is very impor
    - square photo-print tiles (white border, slight tilt, light sepia), caption under each print
    - arrows, "3 / 11" counter, a pale blue scroll bar (same pale blue as the ghost years)
    - videos can sit in a carousel (play button, "WATCH" + title)
-6. **Where It All Began / The Rogue River, Oregon** — Glen's hand-drawn map, laid on like a book
+6. **The Rogue River, Oregon / Where It All Began** — Glen's hand-drawn map, laid on like a book
    page; a blue line traces the river upriver from Gold Beach to Grants Pass as you scroll
    (the 1947 and 1962 firsts) and Grants Pass pulses at the end.
-7. **From the Film Archive / Heritage Videos** — all 19 videos of the YouTube "Heritage" playlist
+7. **Heritage Videos / From the Film Archive** — all 19 videos of the YouTube "Heritage" playlist
    as small clean thumbs (model-page video-wall look: no white frame, rounded, see-through play
    button that turns blue, run time), scrolling sideways; play in the viewer.
 8. **Closing photo** — `01-END CAP IMAGE.jpg` full width with "Four Generations. / One River at a
@@ -127,6 +127,7 @@ perl _build/stamp_assets.pl               # REQUIRED after any house.css / histo
 - Hero + closing title: blue Rockwell, centered; hero white line centered and clear of Glen's head.
 - Viewer on phones must stay steady: same date spot for every photo (sized to the longest caption).
 - Date titles small (28–36px); ghost years behind them; rope skinny (9px).
+- Section headings: blue title first, the small black line (`.hmap-kick`, 13–15px) UNDER it.
 - Timeline prints show captions under them (dates-only was tried and reverted). Brochures show
   dates only. The viewer shows only the photo's caption, date pulled into the blue title.
 - Brochures above the timeline, as one sideways strip. Heritage Videos between map and closing photo.
