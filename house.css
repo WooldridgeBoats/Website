@@ -2822,8 +2822,6 @@ body.hlb-open{ overflow:hidden; }
 .hlb-cap{ flex:none; text-align:center; padding:14px 24px 26px; max-width:780px; margin:0 auto; }
 .hlb-yr{ font-family:var(--serif); font-weight:700; font-size:30px; line-height:1; color:#5aa7e6; letter-spacing:.04em; }
 .hlb-txt{ font-weight:500; font-size:17px; line-height:1.55; color:#f3f0ea; margin-top:8px; }
-.hlb-sub{ font-size:13.5px; line-height:1.6; color:#a9a49b; margin-top:6px; }
-.hlb-sub:empty{ display:none; }
 .hlb-n{ font-weight:600; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#8f8a82; margin-top:10px; }
 .hlb-x{
   position:absolute; top:16px; right:18px; z-index:2; background:none; color:#fff;

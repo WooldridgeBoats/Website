@@ -111,12 +111,9 @@
 
   var clips = [].slice.call(document.querySelectorAll('.hclip'));
   clips.forEach(function (t, n) {
-    var c = ((t.querySelector('.hclip-cap') || {}).textContent || '');
-    var yr = t.getAttribute('data-yr') || '';
-    var rest = yr && c.indexOf(yr) === 0 ? c.slice(yr.length).replace(/^\s*[\u2014\u2013-]\s*/, '') : c;
     t.setAttribute('data-i', items.length);
     items.push({ src: t.getAttribute('href'), alt: (t.querySelector('img') || {}).alt || '',
-      pc: rest, yr: yr || 'From the Archives', cap: 'From the Archives: Brochures &amp; Ads', n: n + 1, of: clips.length });
+      pc: ((t.querySelector('.hclip-cap') || {}).textContent || ''), yr: 'From the Archives', cap: '', n: n + 1, of: clips.length });
   });
 
   /* ── 2: carousels ── */
@@ -166,7 +163,7 @@
   });
 
   /* ── 3: the viewer ── */
-  var lb, fig, yrEl, txtEl, subEl, nEl, bPrev, bNext, at = -1, lastFocus = null;
+  var lb, fig, yrEl, txtEl, nEl, bPrev, bNext, at = -1, lastFocus = null;
   function build() {
     lb = document.createElement('div');
     lb.className = 'hlb'; lb.setAttribute('role', 'dialog'); lb.setAttribute('aria-modal', 'true');
@@ -175,10 +172,10 @@
       '<button type="button" class="hlb-x">CLOSE &#10005;</button>' +
       '<div class="hlb-stage"><button type="button" class="hlb-prev" aria-label="Previous"></button>' +
       '<div class="hlb-fig"></div><button type="button" class="hlb-next" aria-label="Next"></button></div>' +
-      '<div class="hlb-cap"><div class="hlb-yr"></div><div class="hlb-txt"></div><div class="hlb-sub"></div><div class="hlb-n"></div></div>';
+      '<div class="hlb-cap"><div class="hlb-yr"></div><div class="hlb-txt"></div><div class="hlb-n"></div></div>';
     document.body.appendChild(lb);
     fig = lb.querySelector('.hlb-fig'); yrEl = lb.querySelector('.hlb-yr');
-    txtEl = lb.querySelector('.hlb-txt'); subEl = lb.querySelector('.hlb-sub'); nEl = lb.querySelector('.hlb-n');
+    txtEl = lb.querySelector('.hlb-txt'); nEl = lb.querySelector('.hlb-n');
     bPrev = lb.querySelector('.hlb-prev'); bNext = lb.querySelector('.hlb-next');
     lb.querySelector('.hlb-x').addEventListener('click', close);
     bPrev.addEventListener('click', function () { go(-1); });
@@ -201,11 +198,14 @@
     }
     fig.classList.remove('fn', 'fp'); void fig.offsetWidth;
     if (dir && !reduce) fig.classList.add(dir > 0 ? 'fn' : 'fp');
-    yrEl.textContent = it.yr;
-    // the photo's own caption leads; the date's story sits under it
-    var own = it.yt ? (it.title || '') : it.pc;
-    if (own) { txtEl.textContent = own; subEl.innerHTML = it.cap; }
-    else { txtEl.innerHTML = it.cap; subEl.innerHTML = ''; }
+    // Just the photo's own caption (Tyler, 2026-10-14). A date leading the caption
+    // ("1964 — ...", "Late 1960s — ...", "October 31, 1977 — ...") becomes the blue
+    // date and comes off the text, so it never shows twice; no date in the caption
+    // means the section's own year.
+    var own = (it.yt ? (it.title || '') : it.pc).trim();
+    var m = own.match(/^((?:(?:Early|Late|Mid)\s+)?\d{4}s?|[A-Z][a-z]+\.?\s+\d{1,2},\s+\d{4})(?:\s*[\u2014\u2013-]\s*([\s\S]*))?$/);
+    yrEl.textContent = m ? m[1] : it.yr;
+    txtEl.textContent = m ? (m[2] || '') : own;
     nEl.textContent = it.of > 1 ? (it.yt ? 'Video' : 'Photo') + ' ' + it.n + ' of ' + it.of : (it.yt ? 'Video' : '');
     bPrev.disabled = i === 0; bNext.disabled = i === items.length - 1;
     [i - 1, i + 1].forEach(function (j) { if (items[j] && !items[j].yt) { var p = new Image(); p.src = items[j].src; } });

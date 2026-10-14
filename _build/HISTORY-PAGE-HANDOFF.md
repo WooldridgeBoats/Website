@@ -10,13 +10,13 @@ to get right... interactive and captivating." Expect many more rounds.
   `EXAMPLE-HERO-TITLE IMAGE.jpg` (both in the OneDrive folder below): blue Rockwell
   "Four Generations. / One River at a time." centered on the sky, the first line of
   the about copy in white, right-aligned, on the photo. Phones: the title stays on the
-  photo and that first line drops under it. The old pagemast ("Wooldridge Boats ·
+  photo and that first line drops under it. The old pagemast ("Wooldridge Boats Â·
   Seattle", HOME / OUR HISTORY crumb, "EST. 1915" kick) is gone, per Tyler.
 - **About copy** (Tyler's 4 paragraphs) centered under the photo. The book title links
   to the store: https://store.wooldridgeboats.com/products/the-rogue-a-river-to-run-book
   (store is password-protected while in dev; the link is Tyler's). Link only, no cover
   image (Tyler's call).
-- **Rope divider** (assets/brand/rope.png) + "THE TIMELINE · 1915 – TODAY" kicker.
+- **Rope divider** (assets/brand/rope.png) + "THE TIMELINE Â· 1915 â TODAY" kicker.
 - **Timeline**: every date centered. A vertical **rope** (cut from the WEB ROPE GRAPHIC.ai
   vector into `assets/history/rope-v.png`, used as a CSS mask) connects each date and
   **draws itself in blue as you scroll**; each date's **compass star** lights blue when
@@ -67,14 +67,16 @@ Finder Comments are NOT inside the JPEG; macOS keeps them in an extended attribu
 Finder copies between Mac drives and work on the OneDrive files on this Mac (checked
 2026-10-13), but an export/re-save, email or download drops them. So: export first,
 then type the comments on the files in the date folders. It shows in the white margin under each print (2 lines
-max, album-style) and leads in the viewer, with the date's caption under it. It's also
+max, album-style). In the viewer it is the ONLY text (Tyler, 2026-10-14): a date leading the
+caption ("1964 —", "Late 1960s —", "October 31, 1977 —") becomes the blue date and comes off the
+text; no date in the caption = the section’s year. The section’s own description is not shown there. It's also
 the photo's alt text. `perl _build/build_history.pl --captions` lists what each photo got.
 
 The builder cleans captions for the web and never touches Tyler's files:
-- a leading date that repeats the entry's date comes off ("1947-Rogue No. 2" in 1947 → "Rogue No. 2");
+- a leading date that repeats the entry's date comes off ("1947-Rogue No. 2" in 1947 â "Rogue No. 2");
   a more specific one stays ("1964" in 1960s, "Late 1970s")
 - a caption that's only the date ("1977", "1980s") shows nothing
-- separator dashes become " · " ("Rogue No. 2-Gold Beach" → "Rogue No. 2 · Gold Beach");
+- separator dashes become " Â· " ("Rogue No. 2-Gold Beach" â "Rogue No. 2 Â· Gold Beach");
   real hyphens followed by lowercase ("first-ever") stay
 - mostly-caps captions get title case; known slips are fixed (Slamon, 1sr, Auxilary, "len,")
 - photo **order = filename order** inside each folder (natural sort, so 2 comes before 10)
@@ -89,9 +91,9 @@ their order swapped.
 - **Order is automatic:** dates in order, an era ("1970s") OPENS its decade, ahead of 1973 ... 1979 (Tyler, 2026-10-14; it was the end of the decade for a day).
   Photos inside a folder run in filename order (1947-001, 1947-002 ...).
 - **Captions:** Description metadata first (Tyler's call), Finder Comments as fallback.
-  In an era, each photo keeps its own date ("1984 — ..." or "1980s — ..."); on a single-year
-  date the repeated year comes off. Fixes: Dam (was "Damn"), "ly 1980s" → Early 1980s,
-  C-130 stays intact, "2023—" spacing, a leading date always reads "1984 — ".
+  In an era, each photo keeps its own date ("1984 â ..." or "1980s â ..."); on a single-year
+  date the repeated year comes off. Fixes: Dam (was "Damn"), "ly 1980s" â Early 1980s,
+  C-130 stays intact, "2023â" spacing, a leading date always reads "1984 â ".
 - **Photo-only dates** (no text under the year yet): 1930s, 1951, 1960s, 1980s, 1990s, 2020s, 1982 (Tyler split it out of the busy 1980s folder 2026-10-14; photo captions carry it, no text wanted).
 - **Face-aware thumbs:** `_build/history_focus.swift` (macOS Vision) finds faces / upper
   bodies and the builder sets each square thumb's object-position so heads aren't cut off.
@@ -103,7 +105,7 @@ their order swapped.
   - Source: `ABOUT | HISTORY/GENERAL HISTORICAL-UNKOWN DATES/ROGUE RIVER BASIN.JPG`
   - `_build/history_map.swift` cleans the scan (crop off the book edge + page number,
     flatten the lighting, white paper) into `assets/history/rogue-map.jpg` AND traces the
-    river (cheapest path over thick ink) → the SVG path pasted into the page's `.hmap`
+    river (cheapest path over thick ink) â the SVG path pasted into the page's `.hmap`
     section. That section is hand-placed OUTSIDE the HIST markers, so the builder never
     touches it. Re-run the map tool only if the scan changes, then paste the new path.
 - **Not placed yet:** the other 8 photos in `GENERAL HISTORICAL-UNKOWN DATES` (1914 Grants
@@ -119,9 +121,9 @@ Tyler: fast loads, but NO softening, and keep the pixel sizes. What the builder 
 - **Tiles** are cut to the exact square shown (720px, or the original's short side if
   smaller), aimed at faces by `history_focus.swift --crop` (sips can't do it: it ignores a
   `--cropOffset 0 0` and centre-crops). Resized losslessly to PNG first, compressed once.
-  33 MB → 23 MB total; median 154 KB, max ~250 KB.
+  33 MB â 23 MB total; median 154 KB, max ~250 KB.
 - **Full-size viewer photos** stay 2000px on the long side. A file-size budget (tiles 200 KB,
-  fulls 800 KB) steps quality 82 → 78 → 75 only when over budget, never lower. Grainy film
+  fulls 800 KB) steps quality 82 â 78 â 75 only when over budget, never lower. Grainy film
   scans still land up to ~1.2 MB at 75; checked at 100% against a lossless copy: no visible
   change. Fulls only load when someone opens the viewer.
 - Opening the page downloads about 2 MB (hero + the first rows of tiles); the rest lazy-loads.
