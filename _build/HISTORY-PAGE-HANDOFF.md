@@ -144,6 +144,16 @@ Tyler: fast loads, but NO softening, and keep the pixel sizes. What the builder 
 - **"Not sure which boat?" pill** is off this page (and so off its photo viewer):
   `/our-history/` is in tool-nudge.js's SKIP list.
 
+## Layout + labels (2026-10-14, later)
+
+- Page order now: hero → about copy → **From the Archives: Brochures & Ads** (scrapbook, no rope
+  above it) → rope divider + "The Timeline · 1915 – Today" (moved into the top of `.htl`) →
+  the dates → the Rogue River map → "Four Generations. One River at a time." (`.hend`).
+- Under each carousel print and each brochure: **just the date**, black Rockwell (`.hpc`,
+  `.hclip-cap`), from the caption's leading date or else the section's year. The full caption
+  rides in `data-cap` and shows only in the viewer (Tyler: captions only in gallery mode).
+- The viewer runs in page order: brochures first, then 1915 onward.
+
 ## How to update
 
 ```
