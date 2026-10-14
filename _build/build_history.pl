@@ -161,6 +161,11 @@ sub budget_jpeg {   # encode from the ORIGINAL each time (never re-compress a JP
   for my $q (@LADDER) { sips_q($in, $out, $q, @ops); return $q if -s $out <= $kb * 1024; }
   return $LADDER[-1];
 }
+sub cap_date {   # "1964 — ..." -> 1964; "Late 1960s — ..." -> Late 1960s; none -> the section's date
+  my ($cap, $key) = @_;
+  return $1 if $cap =~ /^((?:(?:Early|Late|Mid)\s+)?\d{4}s?|[A-Z][a-z]+\.?\s+\d{1,2},\s+\d{4})(?:\s*[\x{2014}\x{2013}-]|$)/;
+  return $key;
+}
 sub ver { my $f = shift; open my $h, '<:raw', $f or die; local $/; substr(md5_hex(<$h>), 0, 8) }
 sub natural { my ($x, $y) = @_; my @a = split /(\d+)/, lc $x; my @b = split /(\d+)/, lc $y;
   while (@a && @b) { my ($p, $q) = (shift @a, shift @b); next if $p eq $q;
@@ -226,7 +231,7 @@ for my $e (@eras) {
     my ($id, $title) = @$v;
     push @tiles, qq{    <button type="button" class="htile vid" data-yt="$id" data-vtitle="} . esc(plain($title)) . qq{">}
       . qq{<span class="hpic"><img src="https://i.ytimg.com/vi/$id/sddefault.jpg" alt="" loading="lazy" decoding="async"><span class="hplay" aria-hidden="true"></span></span>}
-      . qq{<span class="hpc"><b>Watch</b> } . esc(plain($title)) . qq{</span></button>};
+      . qq{<span class="hpc">$key</span></button>};
   }
   if (@imgs) {
     make_path("$out/thumbs");
@@ -264,8 +269,8 @@ for my $e (@eras) {
       my ($S) = dims("$png.sq.png");
       budget_jpeg("$png.sq.png", "$out/thumbs/$nn.jpg", $TILE_KB);
       unlink $png, "$png.sq.png";
-      push @tiles, sprintf qq{    <a class="htile" href="/assets/history/%s/%s.jpg?v=%s" data-w="%d" data-h="%d"><span class="hpic"><img src="/assets/history/%s/thumbs/%s.jpg?v=%s" alt="%s" width="%d" height="%d" loading="lazy" decoding="async"></span><span class="hpc">%s</span></a>},
-        $slug, $nn, ver("$out/$nn.jpg"), $fw, $fh, $slug, $nn, ver("$out/thumbs/$nn.jpg"), $alt, $S, $S, esc($cap);
+      push @tiles, sprintf qq{    <a class="htile" href="/assets/history/%s/%s.jpg?v=%s" data-w="%d" data-h="%d" data-cap="%s"><span class="hpic"><img src="/assets/history/%s/thumbs/%s.jpg?v=%s" alt="%s" width="%d" height="%d" loading="lazy" decoding="async"></span><span class="hpc">%s</span></a>},
+        $slug, $nn, ver("$out/$nn.jpg"), $fw, $fh, esc($cap), $slug, $nn, ver("$out/thumbs/$nn.jpg"), $alt, $S, $S, esc(cap_date($cap, $key));
     }
   }
   printf "%-9s %2d photo(s)%s%s\n", $key, scalar(@imgs), (@{$e->{videos}} ? ' + ' . @{$e->{videos}} . ' video' : ''), ($dir ? '  <- ' . where($dir) : '');
@@ -287,7 +292,7 @@ for my $e (@eras) {
   $html .= qq{</article>\n};
 }
 
-# ── From the Archives: brochures & ads, laid out like taped-in clippings before the map ──
+# ── From the Archives: brochures & ads, taped in like clippings, above the timeline ──
 # Source: the master's "HERITAGE BROCHURES-ADS" folder (Tyler, 2026-10-14). Captions and
 # order work like the date folders. No folder or no photos = no section.
 my $ARCH_DIR = 'HERITAGE BROCHURES-ADS';
@@ -315,11 +320,12 @@ my $arch_html = '';
       budget_jpeg("$dir/$f", "$out/$nn.jpg", $FULL_KB, ($long > $FULL ? ('-Z', $FULL) : ()));
       budget_jpeg("$dir/$f", "$out/clip/$nn.jpg", 260, ($w > 760 ? ('--resampleWidth', 760) : ()));
       my ($cw, $ch) = dims("$out/clip/$nn.jpg");
-      push @c, sprintf qq{    <a class="hclip" href="/assets/history/archives/%s.jpg?v=%s" data-yr="%s"><img src="/assets/history/archives/clip/%s.jpg?v=%s" alt="%s" width="%d" height="%d" loading="lazy" decoding="async"><span class="hclip-cap">%s</span></a>},
-        $nn, ver("$out/$nn.jpg"), esc($yr // ''), $nn, ver("$out/clip/$nn.jpg"), esc($cap ne '' ? $cap : 'Wooldridge Boats brochure'), $cw, $ch, esc($cap);
+      # on the page just the date, like the carousels; the caption waits for the viewer (Tyler, 2026-10-14)
+      push @c, sprintf qq{    <a class="hclip" href="/assets/history/archives/%s.jpg?v=%s" data-yr="%s" data-cap="%s"><img src="/assets/history/archives/clip/%s.jpg?v=%s" alt="%s" width="%d" height="%d" loading="lazy" decoding="async"><span class="hclip-cap">%s</span></a>},
+        $nn, ver("$out/$nn.jpg"), esc($yr // ''), esc($cap), $nn, ver("$out/clip/$nn.jpg"), esc($cap ne '' ? $cap : 'Wooldridge Boats brochure'), $cw, $ch, esc($yr // '');
     }
+    # sits between the about copy and the timeline (Tyler, 2026-10-14), so no rope above it
     $arch_html = qq{\n<section class="harch" aria-labelledby="harch-h"><div class="wrap">\n}
-      . qq{  <div class="hseg" aria-hidden="true"><i></i></div>\n}
       . qq{  <p class="hmap-kick">From the Archives</p>\n  <h2 class="hmap-h" id="harch-h">Brochures &amp; Ads</h2>\n}
       . qq{  <div class="hclips">\n} . join("\n", @c) . qq{\n  </div>\n</div></section>\n};
   }

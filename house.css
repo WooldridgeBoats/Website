@@ -2673,8 +2673,9 @@ html.blueprint body{ background:transparent; }
 .hintro p{ max-width:780px; margin:0 auto 20px; font-size:18px; line-height:1.85; color:var(--body); }
 .hintro p a{ font-weight:500; }
 .hrope{ width:min(760px,92%); margin:44px auto 8px; opacity:.9; }
+.htl .hkick{ text-align:center; }
 .hrope img{ width:100%; height:auto; }
-.hintro .hkick{
+.hkick{
   font-weight:500; font-size:clamp(16px,1.5vw,19px); letter-spacing:.16em; text-transform:uppercase;
   color:var(--ink); margin:4px auto 0;
 }
@@ -2755,11 +2756,12 @@ html.blueprint body{ background:transparent; }
 .hpic{ display:block; position:relative; width:100%; aspect-ratio:1; overflow:hidden; background:#e9e6df; }
 .hpic img{ width:100%; height:100%; object-fit:cover; filter:sepia(.14) contrast(1.03); }
 /* the caption, written in the white margin under the print (photo's Description metadata) */
+/* under each print: just its date, in black Rockwell, like a date pencilled under an album
+   photo (Tyler, 2026-10-14). The full caption is in the viewer and the alt text. */
 .hpc{
-  display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden;
-  height:2.8em; margin-top:9px; padding:0 2px; font-weight:500; font-size:13px; line-height:1.4; color:#3f454a;
+  display:block; margin-top:9px; padding:0 2px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  font-family:var(--serif); font-weight:700; font-size:18px; line-height:1.3; letter-spacing:.05em; color:var(--ink);
 }
-.hpc b{ font-weight:700; color:var(--blue); text-transform:uppercase; letter-spacing:.08em; font-size:11.5px; margin-right:4px; }
 /* a video sits on the same row height as the prints, just wider */
 .htile.vid{ width:calc((var(--t) - 20px) * 16 / 9 + 20px); cursor:pointer; }
 .htile.vid .hpic{ aspect-ratio:16/9; }
@@ -2950,11 +2952,11 @@ body.hlb-open{ overflow:hidden; }
 }
 @media (prefers-reduced-motion: reduce){ .hmap.done .hmap-ping{ animation:none; } }
 
-/* From the Archives: brochures & ads taped in like a scrapbook, just before the map
-   (Tyler, 2026-10-14: "artistically sprinkle these near the bottom"). Each clipping gets
+/* From the Archives: brochures & ads taped in like a scrapbook, between the about copy
+   and the timeline (Tyler, 2026-10-14; it started near the bottom, by the map). Each clipping gets
    one of five tilts/offsets in turn, so any number of pieces still looks hand-placed.
    They drift down and settle in one after another when the section arrives. */
-.harch{ text-align:center; padding:0 0 10px; }
+.harch{ text-align:center; padding:46px 0 0; }
 /* the closing line, last thing on the page (after the map and the scrapbook) */
 .hend{ text-align:center; padding:0 0 96px; }
 .hend .hmap-close{ margin-top:50px; }
@@ -2982,11 +2984,11 @@ body.hlb-open{ overflow:hidden; }
   transform:rotate(calc(var(--r) * -1.4));
 }
 .hclip img{ width:100%; height:auto; }
-.hclip-cap{
-  display:block; margin-top:8px; padding:0 2px; text-align:left;
-  font-weight:500; font-size:12.5px; line-height:1.4; color:#3f454a;
-  display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; overflow:hidden;
+.hclip-cap{   /* just the date, black Rockwell, like the carousel prints */
+  display:block; margin-top:8px; padding:0 2px; text-align:center;
+  font-family:var(--serif); font-weight:700; font-size:18px; line-height:1.3; letter-spacing:.05em; color:var(--ink);
 }
+.hclip-cap:empty{ display:none; }
 .hclip:hover,.hclip:focus-visible{
   z-index:5; outline:none; transform:translateY(calc(var(--y) - 8px)) rotate(0deg) scale(1.04);
   box-shadow:0 2px 4px rgba(20,30,40,.14), 0 26px 54px rgba(20,30,40,.28);
@@ -3007,7 +3009,8 @@ body.hlb-open{ overflow:hidden; }
   .hclips{ display:grid; grid-template-columns:1fr 1fr; gap:26px 18px; padding:10px 6px 10px; align-items:start; }
   .hclip,.hclip:nth-child(n){ width:auto; margin:0; --y:0px; }
   .hclip:nth-child(even){ margin-top:22px; }
-  .hclip-cap{ font-size:12px; }
+  .hclip-cap{ font-size:16px; }
+  .hpc{ font-size:17px; }
 }
 @media (prefers-reduced-motion: reduce){
   .hjs .harch .hclip,.hjs .harch.seen .hclip{ opacity:1; transform:translateY(var(--y)) rotate(var(--r)); transition:none; }

@@ -95,6 +95,14 @@
 
   /* ── 3: the viewer's page list (built before the carousels so tiles know their index) ── */
   var items = [];
+  // the scrapbook sits above the timeline, so it opens the book
+  var clips = [].slice.call(document.querySelectorAll('.hclip'));
+  clips.forEach(function (t, n) {
+    t.setAttribute('data-i', items.length);
+    items.push({ src: t.getAttribute('href'), alt: (t.querySelector('img') || {}).alt || '',
+      pc: t.getAttribute('data-cap') || '', yr: 'From the Archives', cap: '', n: n + 1, of: clips.length });
+  });
+
   eras.forEach(function (e) {
     var tiles = [].slice.call(e.querySelectorAll('.htile'));
     var cap = e.querySelector('.hcap');
@@ -103,17 +111,10 @@
       items.push({
         yt: t.getAttribute('data-yt'), src: t.getAttribute('href'),
         title: t.getAttribute('data-vtitle'), alt: (t.querySelector('img') || {}).alt || '',
-        pc: t.hasAttribute('data-yt') ? '' : ((t.querySelector('.hpc') || {}).textContent || ''),
+        pc: t.hasAttribute('data-yt') ? '' : (t.getAttribute('data-cap') || ''),   // the tile only shows the date
         yr: e.getAttribute('data-yr'), cap: cap ? cap.innerHTML : '', n: n + 1, of: tiles.length
       });
     });
-  });
-
-  var clips = [].slice.call(document.querySelectorAll('.hclip'));
-  clips.forEach(function (t, n) {
-    t.setAttribute('data-i', items.length);
-    items.push({ src: t.getAttribute('href'), alt: (t.querySelector('img') || {}).alt || '',
-      pc: ((t.querySelector('.hclip-cap') || {}).textContent || ''), yr: 'From the Archives', cap: '', n: n + 1, of: clips.length });
   });
 
   /* ── 2: carousels ── */
