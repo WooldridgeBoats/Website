@@ -34,12 +34,12 @@ Tyler: "Wooldridge Boats is an American Legacy brand, so this page is very impor
    - square photo-print tiles (white border, slight tilt, light sepia), caption under each print
    - arrows, "3 / 11" counter, a pale blue scroll bar (same pale blue as the ghost years)
    - videos can sit in a carousel (play button, "WATCH" + title)
-6. **The Rogue River, Oregon / Where It All Began** — Glen's hand-drawn map, laid on like a book
-   page; a blue line traces the river upriver from Gold Beach to Grants Pass as you scroll
-   (the 1947 and 1962 firsts) and Grants Pass pulses at the end.
-7. **Heritage Videos / From the Film Archive** — all 19 videos of the YouTube "Heritage" playlist
+6. **Heritage Videos / From the Film Archive** — all 19 videos of the YouTube "Heritage" playlist
    as small clean thumbs (model-page video-wall look: no white frame, rounded, see-through play
    button that turns blue, run time), scrolling sideways; play in the viewer.
+7. **The Rogue River, Oregon / Where It All Began** — Glen's hand-drawn map, laid on like a book
+   page; a blue line traces the river upriver from Gold Beach to Grants Pass as you scroll
+   (the 1947 and 1962 firsts) and Grants Pass pulses at the end.
 8. **Closing photo** — `01-END CAP IMAGE.jpg` full width with "Four Generations. / One River at a
    time." on it like the hero (the page fades into its top so the blue reads). It meets the footer
    with no gap; the footer's compass star is bigger here (48px, plain blue star).
@@ -132,7 +132,7 @@ perl _build/stamp_assets.pl               # REQUIRED after any house.css / histo
 - Section headings: blue title first, the small black line (`.hmap-kick`, 13–15px) UNDER it.
 - Timeline prints show captions under them (dates-only was tried and reverted). Brochures show
   dates only. The viewer shows only the photo's caption, date pulled into the blue title.
-- Brochures above the timeline, as one sideways strip that runs nearly side to side (44px in from each edge, 24px on phones; `.hclipcar` breaks out of `.wrap`). Heritage Videos (`.hvidcar`) does the same. Heritage Videos between map and closing photo.
+- Brochures above the timeline, as one sideways strip that runs nearly side to side (44px in from each edge, 24px on phones; `.hclipcar` breaks out of `.wrap`). Heritage Videos (`.hvidcar`) does the same. Heritage Videos right after the timeline, ABOVE the map; the map leads into the closing photo (Tyler swapped them 2026-10-14).
 - No Build & Price button, no book cover, no pill, no pagemast.
 - Scroll bars pale ghost-year blue. Drop shadows must fade out fully (tracks have extra bottom room).
 - Images: fast but NEVER visibly softer, and keep pixel sizes. Tiles 720px square (cut to what's

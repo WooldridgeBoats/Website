@@ -20,6 +20,9 @@
   /* ── 1 + 4: scroll-driven rope, stars, ghost years, rail ── */
   var rail = document.querySelector('.hrail'), railLinks = [];
   var tl = document.querySelector('.htl');
+  // the brochure and video strips run nearly side to side, so the rail steps aside while
+  // either one passes through its spot (Tyler, 2026-10-14)
+  var wideStrips = [].slice.call(document.querySelectorAll('.hclipcar .htrack, .hvidcar .htrack'));
   if (rail) {
     eras.forEach(function (e) {
       var a = document.createElement('a');
@@ -71,7 +74,9 @@
     if (rail) {
       railLinks.forEach(function (a, i) { a.classList.toggle('on', i === cur); });
       var t = tl.getBoundingClientRect();
-      rail.classList.toggle('on', t.top < vh * 0.55 && t.bottom > vh * 0.45);
+      var rr = rail.getBoundingClientRect();
+      var clash = wideStrips.some(function (w) { var b = w.getBoundingClientRect(); return b.bottom > rr.top && b.top < rr.bottom; });
+      rail.classList.toggle('on', t.top < vh * 0.55 && t.bottom > vh * 0.45 && !clash);
     }
   }
   function queue() { if (!queued) { queued = true; requestAnimationFrame(frame); } }
@@ -118,7 +123,7 @@
     });
   });
 
-  // the Heritage Videos strip (after the map) closes the book
+  // the Heritage Videos strip (after the timeline, above the map) closes the book
   var hv = [].slice.call(document.querySelectorAll('.hvids .htile'));
   hv.forEach(function (t, n) {
     t.setAttribute('data-i', items.length);
