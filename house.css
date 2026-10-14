@@ -3043,6 +3043,10 @@ main.hist + footer::before{
    sideways page scroll. */
 .hclipcar,.hvidcar{ --hedge:44px; max-width:none; width:calc(100vw - 2 * var(--hedge)); margin-left:calc(50% - 50vw + var(--hedge)); margin-right:0; }
 @media (max-width:900px){ .hclipcar,.hvidcar{ --hedge:24px; } }
+/* Heritage Videos stay clear of the year rail instead of the rail stepping aside (Tyler,
+   2026-10-14): the rail is ~95px wide on laptops, ~120px on wide screens. */
+@media (min-width:901px){ .hvidcar{ --hedge:96px; } }
+@media (min-width:1380px){ .hvidcar{ --hedge:124px; } }
 .hclipcar .htrack{ align-items:center; gap:clamp(22px,2.6vw,36px); padding:36px 26px 70px; }
 .hclip{
   --r:-3.5deg; --y:10px; --h:clamp(255px,26.5vw,345px);

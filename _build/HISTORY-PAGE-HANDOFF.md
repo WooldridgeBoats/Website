@@ -97,7 +97,9 @@ Tyler: "Wooldridge Boats is an American Legacy brand, so this page is very impor
   like 1982). Eras automatically **open** their decade (1970s comes before 1973 … 1979).
 - **Video in a date's carousel:** send the YouTube link + where ("after the 2nd photo").
 - **Heritage Videos:** the page doesn't watch the playlist live. Say "update heritage videos".
-- **Brochures:** drop/rename in `HERITAGE BROCHURES-ADS`; the date in the caption sets the order.
+- **Brochures:** drop/rename in `HERITAGE BROCHURES-ADS`; the date in the caption sets the order
+  (in a decade: Early first, then plain "1980s", the years, Mid, Late). Same date = filename order,
+  so number them to force it: `EARLY 1980s-1-WORK BOATS BROCHURE.JPG`, `EARLY 1980s-2-ALASKAN…`.
 - Then say "rebuild" (or "update 1970s"), check the browser pane, and **Push origin** in GitHub Desktop.
 
 ## 4. How Claude updates things
@@ -132,7 +134,8 @@ perl _build/stamp_assets.pl               # REQUIRED after any house.css / histo
 - Section headings: blue title first, the small black line (`.hmap-kick`, 13–15px) UNDER it.
 - Timeline prints show captions under them (dates-only was tried and reverted). Brochures show
   dates only. The viewer shows only the photo's caption, date pulled into the blue title.
-- Brochures above the timeline, as one sideways strip that runs nearly side to side (44px in from each edge, 24px on phones; `.hclipcar` breaks out of `.wrap`). Heritage Videos (`.hvidcar`) does the same. Heritage Videos right after the timeline, ABOVE the map; the map leads into the closing photo (Tyler swapped them 2026-10-14).
+- Brochures above the timeline, as one sideways strip that runs nearly side to side (44px in from each edge, 24px on phones; `.hclipcar` breaks out of `.wrap`). Heritage Videos (`.hvidcar`) is wide too but stops short of the year rail (96px in on laptops,
+  124px on 1380+). The rail hides while the brochure strip passes its spot (history.js `wideStrips`). Heritage Videos right after the timeline, ABOVE the map; the map leads into the closing photo (Tyler swapped them 2026-10-14).
 - No Build & Price button, no book cover, no pill, no pagemast.
 - Scroll bars pale ghost-year blue. Drop shadows must fade out fully (tracks have extra bottom room).
 - Images: fast but NEVER visibly softer, and keep pixel sizes. Tiles 720px square (cut to what's

@@ -20,9 +20,9 @@
   /* ── 1 + 4: scroll-driven rope, stars, ghost years, rail ── */
   var rail = document.querySelector('.hrail'), railLinks = [];
   var tl = document.querySelector('.htl');
-  // the brochure and video strips run nearly side to side, so the rail steps aside while
-  // either one passes through its spot (Tyler, 2026-10-14)
-  var wideStrips = [].slice.call(document.querySelectorAll('.hclipcar .htrack, .hvidcar .htrack'));
+  // the brochure strip runs nearly side to side, so the rail steps aside while it passes
+  // through its spot; Heritage Videos are sized to clear the rail instead (Tyler, 2026-10-14)
+  var wideStrips = [].slice.call(document.querySelectorAll('.hclipcar .htrack'));
   if (rail) {
     eras.forEach(function (e) {
       var a = document.createElement('a');

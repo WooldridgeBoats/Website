@@ -342,10 +342,11 @@ my $arch_html = '';
   if (@imgs) {
     my $dir = "$base/$ARCH_DIR"; make_path("$out/clip");
     # Tyler names these by date ("1984-BROCHURE", "EARLY 1980s-BROCHURE"), so the scrapbook
-    # runs oldest to newest by that date, not alphabetically. Within a decade the generic
-    # era comes first (as on the timeline), then Early, the specific years, Mid, Late.
+    # runs oldest to newest by that date, not alphabetically. Within a decade: Early first
+    # (Tyler, 2026-10-14), then the generic era, the specific years, Mid, Late. Same date =
+    # filename order ("EARLY 1980s-1-…", "EARLY 1980s-2-…").
     my $dkey = sub { my $d = shift // ''; $d =~ /^(?:(early|mid|late)\s+)?(\d{4})(s?)$/i or return 1e9;
-      return $2 + ($3 ? { '' => 0, early => .2, mid => 5, late => 8 }->{lc($1 // '')} : 0) };
+      return $2 + ($3 ? { '' => 0, early => -.2, mid => 5, late => 8 }->{lc($1 // '')} : 0) };
     my @pieces;
     for my $f (@imgs) {
       my ($w, $h, $desc) = info("$dir/$f");
