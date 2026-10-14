@@ -2982,13 +2982,20 @@ body.hlb-open{ overflow:hidden; }
 /* clean thumbs like the boat-model video walls (.vidrailitem): no white print frame, rounded
    corners, soft shadow, slight zoom on hover, a see-through play button (Tyler, 2026-10-14) */
 .hvidcar .htrack{ padding:14px 8px 54px; }
+/* tiles share a height: old 4:3 footage gets a 4:3 tile showing only the picture (YouTube's
+   black side bars cut off by the inline box from history_videos.txt); a true 16:9 video
+   (.wide) keeps a wide tile (Tyler, 2026-10-14) */
+.hvidcar{ --hvh:clamp(180px,16.5vw,225px); }
 .hvidcar .htile,.hvidcar .htile:nth-child(n){
-  width:clamp(240px,22vw,300px); background:none; padding:0; border-radius:0; box-shadow:none; transform:none;
+  width:calc(var(--hvh) * 4 / 3); background:none; padding:0; border-radius:0; box-shadow:none; transform:none;
 }
+.hvidcar .htile.wide{ width:calc(var(--hvh) * 16 / 9); }
 .hvidcar .htile:hover,.hvidcar .htile:focus-visible{ transform:none; box-shadow:none; }
 .hvidcar .htile .hpic{
-  aspect-ratio:16/9; border-radius:var(--rad); overflow:hidden; background:#12171c; box-shadow:var(--shadow);
+  aspect-ratio:4/3; border-radius:var(--rad); overflow:hidden; background:#12171c; box-shadow:var(--shadow);
 }
+.hvidcar .htile.wide .hpic{ aspect-ratio:16/9; }
+.hvidcar .htile .hpic img[style]{ position:absolute; max-width:none; object-fit:fill; }
 .hvidcar .htile .hpic img{ filter:none; opacity:.92; transition:opacity .25s, transform .35s; }
 .hvidcar .htile:hover .hpic img{ opacity:1; transform:scale(1.04); }
 .hvidcar .htile:focus-visible .hpic{ box-shadow:0 0 0 3px var(--blue), var(--shadow); }
@@ -3003,7 +3010,7 @@ body.hlb-open{ overflow:hidden; }
   position:absolute; right:8px; bottom:8px; padding:2px 7px; border-radius:4px;
   background:rgba(10,15,20,.85); color:#fff; font-weight:600; font-size:11px; letter-spacing:.02em;
 }
-@media (max-width:900px){ .hvidcar .htile,.hvidcar .htile:nth-child(n){ width:min(72vw,300px); } }
+@media (max-width:900px){ .hvidcar{ --hvh:min(54vw,225px); } }
 
 /* the closing photo (01-END CAP), full width after the map, with the hero's title on
    it the same way. The page fades down into its top, so the blue title sits on light

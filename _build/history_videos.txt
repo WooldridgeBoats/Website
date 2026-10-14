@@ -4,25 +4,28 @@
 # One video per line, in playlist order:
 #   YouTube ID | title shown on the page | length | thumbnail (maxres, sd or hq: the sharpest
 #   YouTube has for that upload; maxres = full HD, sd/hq are letterboxed and get cropped)
+#   | crop: "wide" for a true 16:9 video, or x,y,w,h = the 4:3 picture inside that thumbnail
+#   with YouTube's black bars cut off (old 4:3 footage). Tile shows exactly that box (Tyler,
+#   2026-10-14). Measure new ones with _build/history_vidcrop.js (see the handoff).
 # Titles are the playlist's, with typos fixed for the page (Slamon, Ranie, "Glen Seniors").
 # Rebuild after editing: perl _build/build_history.pl
 
-gCxOoaZ27j8 | Glen Wooldridge Was a Whitewater GOAT! | 2:28 | maxres
-N0NOx3ofM5E | Footage from the Old Days Running the Snake River | 6:41 | maxres
-38WCO1ykWy0 | Glen Wooldridge Sr.: First Jet Boat to Run Up Hells Gate on the Fraser River | 5:44 | sd
-oroO5hUnmOU | 18′ Inboard Classic Running on the Rogue | 1:26 | sd
-h1jTteRKO_k | U.S. Coast Guard Auxiliary Boat, 22′ x 6′ Bottom | 1:48 | maxres
-qpBiJECVazw | Custom Classic Running Twin V-8s and Hamilton Jets | 0:50 | hq
-IZt855g7KyI | Glen Sr. Loading Boats to Head Up the Rogue (Circa 1941) | 0:50 | maxres
-XRcQBh5Rvm0 | Celebrating 100 Years! | 0:25 | maxres
-ggIxcydQwpw | Glen Sr. Running the Rainie Falls Fish Ladder on the Rogue River | 0:32 | maxres
-iwZP25WEpsw | Blossom Bar Blasting | 2:28 | maxres
-DtLL5jKUriU | Glen Sr. Running Rapids | 2:47 | maxres
-jxhAvJ5Knto | Salmon River Trip Rapids | 0:50 | maxres
-TTz-LjE0IgE | Glen Senior and the First Trip Up the Salmon River (Circa 1948) | 0:52 | hq
-sSsjwsHWHyA | Salmon River Trip: Ludwig | 1:21 | sd
-7wF_5qvFaNc | Glen Senior and the First Trip Up the Salmon River (Circa 1948) | 0:16 | sd
-9dIOrhYVS6g | Glen Senior Putting In at Riggins for the First Trip Up the Salmon River (Circa 1948) | 1:20 | hq
-UHUVEkn8Bks | Glen Senior and the First Trip Up the Salmon River (Circa 1948) | 0:59 | maxres
--0z8B1aeNu0 | 1941 Whitewater | 0:22 | maxres
-qiCDhJFF2l4 | Wooldridge Classic Inboard | 1:55 | sd
+gCxOoaZ27j8 | Glen Wooldridge Was a Whitewater GOAT! | 2:28 | maxres | wide
+N0NOx3ofM5E | Footage from the Old Days Running the Snake River | 6:41 | maxres | 179,14,922,691
+38WCO1ykWy0 | Glen Wooldridge Sr.: First Jet Boat to Run Up Hells Gate on the Fraser River | 5:44 | sd | 93,70,454,341
+oroO5hUnmOU | 18′ Inboard Classic Running on the Rogue | 1:26 | sd | 90,67,461,346
+h1jTteRKO_k | U.S. Coast Guard Auxiliary Boat, 22′ x 6′ Bottom | 1:48 | maxres | 179,14,922,691
+qpBiJECVazw | Custom Classic Running Twin V-8s and Hamilton Jets | 0:50 | hq | 67,50,347,260
+IZt855g7KyI | Glen Sr. Loading Boats to Head Up the Rogue (Circa 1941) | 0:50 | maxres | 181,16,917,688
+XRcQBh5Rvm0 | Celebrating 100 Years! | 0:25 | maxres | 198,24,880,660
+ggIxcydQwpw | Glen Sr. Running the Rainie Falls Fish Ladder on the Rogue River | 0:32 | maxres | 191,23,900,675
+iwZP25WEpsw | Blossom Bar Blasting | 2:28 | maxres | 177,14,922,691
+DtLL5jKUriU | Glen Sr. Running Rapids | 2:47 | maxres | 184,18,912,684
+jxhAvJ5Knto | Salmon River Trip Rapids | 0:50 | maxres | 185,24,897,672
+TTz-LjE0IgE | Glen Senior and the First Trip Up the Salmon River (Circa 1948) | 0:52 | hq | 69,53,337,253
+sSsjwsHWHyA | Salmon River Trip: Ludwig | 1:21 | sd | 92,69,454,341
+7wF_5qvFaNc | Glen Senior and the First Trip Up the Salmon River (Circa 1948) | 0:16 | sd | 92,70,454,341
+9dIOrhYVS6g | Glen Senior Putting In at Riggins for the First Trip Up the Salmon River (Circa 1948) | 1:20 | hq | 70,53,336,252
+UHUVEkn8Bks | Glen Senior and the First Trip Up the Salmon River (Circa 1948) | 0:59 | maxres | 185,24,897,672
+-0z8B1aeNu0 | 1941 Whitewater | 0:22 | maxres | 179,16,917,688
+qiCDhJFF2l4 | Wooldridge Classic Inboard | 1:55 | sd | 90,67,461,346

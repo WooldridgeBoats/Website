@@ -78,7 +78,8 @@ Tyler: "Wooldridge Boats is an American Legacy brand, so this page is very impor
 |---|---|
 | Page | `our-history/index.html`. Generated between markers, DON'T hand-edit inside: `<!-- HIST:archives -->`, `<!-- HIST:timeline -->`, `<!-- HIST:videos -->`. The map section is hand-placed (outside markers). |
 | Dates, date text, timeline videos, links | `_build/history_timeline.txt` |
-| Heritage Videos list | `_build/history_videos.txt` (ID \| page title \| length \| thumbnail size) |
+| Heritage Videos list | `_build/history_videos.txt` (ID \| page title \| length \| thumbnail size \| crop) |
+| Video thumb crop tool | `_build/history_vidcrop.js`: paste into the browser pane on /our-history/; prints each video's crop (`wide` or `x,y,w,h`) |
 | Builder | `_build/build_history.pl` |
 | Face-aware thumbnail cropper | `_build/history_focus.swift` (macOS Vision; the builder compiles it once to `$TMPDIR/wb-history-focus`) |
 | Map cleaner + river tracer | `_build/history_map.swift` (only re-run if the map scan changes; paste its new path into the `.hmap` SVG) |
@@ -97,6 +98,8 @@ Tyler: "Wooldridge Boats is an American Legacy brand, so this page is very impor
   like 1982). Eras automatically **open** their decade (1970s comes before 1973 … 1979).
 - **Video in a date's carousel:** send the YouTube link + where ("after the 2nd photo").
 - **Heritage Videos:** the page doesn't watch the playlist live. Say "update heritage videos".
+  Old 4:3 videos show as squarer 4:3 tiles with YouTube's black bars cut off; true 16:9 ones stay
+  wide. New videos need their crop measured (`_build/history_vidcrop.js`) or they warn on rebuild.
 - **Brochures:** drop/rename in `HERITAGE BROCHURES-ADS`; the date in the caption sets the order
   (in a decade: Early first, then plain "1980s", the years, Mid, Late). Same date = filename order,
   so number them to force it: `EARLY 1980s-1-WORK BOATS BROCHURE.JPG`, `EARLY 1980s-2-ALASKAN…`.

@@ -71,13 +71,13 @@ close $tf;
 die "no timeline entries\n" unless @eras;
 
 # ── Heritage Videos (the YouTube "Heritage" playlist), _build/history_videos.txt ──
-my (@hvids, %thumbq);
+my (@hvids, %thumbq, %vcrop);
 if (open my $vf, '<:encoding(UTF-8)', "$root/_build/history_videos.txt") {
   while (my $l = <$vf>) {
     next if $l =~ /^\s*(#|$)/; chomp $l;
-    my ($id, $title, $len, $q) = map { s/^\s+|\s+$//gr } split /\|/, $l;
+    my ($id, $title, $len, $q, $crop) = map { s/^\s+|\s+$//gr } split /\|/, $l;
     next unless $id && $title;
-    push @hvids, [$id, $title, $len // '']; $thumbq{$id} = lc($q // 'sd');
+    push @hvids, [$id, $title, $len // '']; $thumbq{$id} = lc($q // 'sd'); $vcrop{$id} = lc($crop // '');
   }
   close $vf;
 }
@@ -389,9 +389,18 @@ my $arch_html = '';
 # ── Heritage Videos strip: between the map and the closing photo (Tyler, 2026-10-14) ──
 my $vids_html = '';
 if (@hvids) {
+  # old 4:3 footage: YouTube pads the thumbnail with black bars, so the tile is 4:3 and shows
+  # only the picture box from history_videos.txt; a true 16:9 video ("wide") keeps a wide tile
+  my %tsize = (maxres => [1280, 720], sd => [640, 480], hq => [480, 360]);
   my @t = map { my ($id, $title, $len) = @$_;
-    qq{      <button type="button" class="htile vid hv" data-yt="$id" data-vtitle="} . esc($title) . qq{">}
-    . qq{<span class="hpic"><img src="} . yt_thumb($id) . qq{" alt="" loading="lazy" decoding="async"><span class="hplay" aria-hidden="true"></span>}
+    my ($cls, $sty) = ('', '');
+    if (($vcrop{$id} // '') =~ /^(\d+),(\d+),(\d+),(\d+)$/) {
+      my ($x, $y, $w, $h) = ($1, $2, $3, $4); my ($W, $H) = @{ $tsize{$thumbq{$id}} // $tsize{sd} };
+      $sty = sprintf ' style="width:%.2f%%;height:%.2f%%;left:%.2f%%;top:%.2f%%"', 100*$W/$w, 100*$H/$h, -100*$x/$w, -100*$y/$h;
+    } elsif (($vcrop{$id} // '') eq 'wide') { $cls = ' wide'; }
+    else { warn "  heritage video $id has no crop in history_videos.txt (shows as-is in a 4:3 tile)\n"; }
+    qq{      <button type="button" class="htile vid hv$cls" data-yt="$id" data-vtitle="} . esc($title) . qq{">}
+    . qq{<span class="hpic"><img src="} . yt_thumb($id) . qq{"$sty alt="" loading="lazy" decoding="async"><span class="hplay" aria-hidden="true"></span>}
     . ($len ne '' ? qq{<span class="hdur">$len</span>} : '') . qq{</span><span class="hpc">} . esc($title) . qq{</span></button>} } @hvids;
   $vids_html = qq{\n<section class="hvids" aria-labelledby="hvids-h"><div class="wrap">\n}
     . qq{  <div class="hseg" aria-hidden="true"><i></i></div>\n}
