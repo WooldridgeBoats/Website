@@ -2886,8 +2886,10 @@ body.hlb-open{ overflow:hidden; }
   .hhero-media img{ object-position:57% 0; }
   .hhero h1{ grid-area:1/1; align-self:start; position:relative; z-index:1; padding:30px 18px 0; font-size:clamp(28px,7.6vw,46px); }
   .hhero-lead{
-    grid-area:2/1; width:auto; max-width:640px; margin:6px auto 0; padding:0 20px; text-align:center;
-    color:var(--ink); text-shadow:none; font-size:19px; line-height:1.75; font-weight:500;
+    grid-area:2/1; width:auto; max-width:640px; margin:12px auto 0; padding:0 20px; text-align:center;
+    /* bolder on phones (Tyler, 2026-10-14): it can't sit in white over the photo here
+       without crowding Glen, so it carries the weight below it instead */
+    color:var(--ink); text-shadow:none; font-size:20px; line-height:1.65; font-weight:600;
   }
   .hbr{ display:none; }
   .hintro p{ font-size:17px; }
