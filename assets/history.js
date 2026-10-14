@@ -7,6 +7,7 @@
    4. the year rail on wide screens
    5. the closing Rogue River map: its route upriver draws itself on scroll
    6. From the Archives: the taped-in brochures settle in, and open in the viewer
+   7. Heritage Videos: a strip of little video thumbs that play in the viewer
    Markup comes from _build/build_history.pl; styles are the OUR HISTORY block
    in house.css. Without JS everything still shows and tiles open the image. */
 (function () {
@@ -32,7 +33,7 @@
   });
   // the closing map: rope into it, then the route upriver draws as it comes up the screen
   var map = document.querySelector('.hmap'), mapLine, mapGlow, mapArt, mapRope, mapLen = 0;
-  var extraRopes = [].slice.call(document.querySelectorAll('.harch .hseg i, .hmap .hseg i'));
+  var extraRopes = [].slice.call(document.querySelectorAll('.harch .hseg i, .hmap .hseg i, .hvids .hseg i'));
   if (map) {
     mapLine = map.querySelector('.hmap-line'); mapGlow = map.querySelector('.hmap-glow');
     mapArt = map.querySelector('.hmap-art'); mapRope = map.querySelector('.hseg i');
@@ -115,6 +116,14 @@
         yr: e.getAttribute('data-yr'), cap: cap ? cap.innerHTML : '', n: n + 1, of: tiles.length
       });
     });
+  });
+
+  // the Heritage Videos strip (after the map) closes the book
+  var hv = [].slice.call(document.querySelectorAll('.hvids .htile'));
+  hv.forEach(function (t, n) {
+    t.setAttribute('data-i', items.length);
+    items.push({ yt: t.getAttribute('data-yt'), title: t.getAttribute('data-vtitle'), alt: '',
+      pc: '', yr: 'Heritage Videos', cap: '', n: n + 1, of: hv.length });
   });
 
   /* ── 2: carousels ── */

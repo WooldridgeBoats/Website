@@ -8,6 +8,7 @@
 #
 # READS
 #   _build/history_timeline.txt        the approved dates + captions + videos
+#   _build/history_videos.txt          the Heritage Videos strip (YouTube "Heritage" playlist)
 #   photo folders, one per date/era    named by the DATE ("1947", "1920s",
 #                                      "1947-RUNNING THE ROGUE"). Four-digit
 #                                      numbers here are years, never hull numbers.
@@ -68,6 +69,22 @@ while (my $l = <$tf>) {
 }
 close $tf;
 die "no timeline entries\n" unless @eras;
+
+# ── Heritage Videos (the YouTube "Heritage" playlist), _build/history_videos.txt ──
+my (@hvids, %thumbq);
+if (open my $vf, '<:encoding(UTF-8)', "$root/_build/history_videos.txt") {
+  while (my $l = <$vf>) {
+    next if $l =~ /^\s*(#|$)/; chomp $l;
+    my ($id, $title, $len, $q) = map { s/^\s+|\s+$//gr } split /\|/, $l;
+    next unless $id && $title;
+    push @hvids, [$id, $title, $len // '']; $thumbq{$id} = lc($q // 'sd');
+  }
+  close $vf;
+}
+sub yt_thumb {   # the sharpest thumbnail YouTube has for this upload (listed in history_videos.txt)
+  my $id = shift; my $q = $thumbq{$id} // 'sd';
+  return "https://i.ytimg.com/vi/$id/" . ($q eq 'maxres' ? 'maxresdefault' : $q eq 'hq' ? 'hqdefault' : 'sddefault') . '.jpg';
+}
 # Page order is automatic: dates in order, and an era ("1970s") OPENS its
 # decade, ahead of 1973, 1975 ... 1979 (Tyler, 2026-10-14; was the end of it).
 sub when { my $k = shift; $k =~ /^(\d{4})(s?)$/i or return 1e9; $1 - ($2 ? 0.1 : 0) }
@@ -233,7 +250,7 @@ for my $e (@eras) {
   for my $v (@{$e->{videos}}) {
     my ($id, $title, $anchor) = @$v;
     push @vids, [$anchor, qq{    <button type="button" class="htile vid" data-yt="$id" data-vtitle="} . esc(plain($title)) . qq{">}
-      . qq{<span class="hpic"><img src="https://i.ytimg.com/vi/$id/sddefault.jpg" alt="" loading="lazy" decoding="async"><span class="hplay" aria-hidden="true"></span></span>}
+      . qq{<span class="hpic"><img src="} . yt_thumb($id) . qq{" alt="" loading="lazy" decoding="async"><span class="hplay" aria-hidden="true"></span></span>}
       . qq{<span class="hpc"><b>Watch</b> } . esc(plain($title)) . qq{</span></button>}];
   }
   if (@imgs) {
@@ -283,7 +300,7 @@ for my $e (@eras) {
     my ($anchor, $tile) = @$v; my $at = 0;
     if (defined $anchor) {
       (my $a = lc $anchor) =~ s/\.(jpe?g|png|tiff?|heic)$//;
-      my ($k) = grep { (my $b = lc $after[$_]) =~ s/\.(jpe?g|png|tiff?|heic)$//; $b eq $a } 0..$#after;
+      my ($k) = grep { defined $after[$_] && (my $b = lc $after[$_]) =~ s/\.(jpe?g|png|tiff?|heic)$//r eq $a } 0..$#after;
       if (defined $k) { $at = $k + 1 + scalar(grep { !defined } @after[0..$k]); }
       else { warn "  $key: video placed first, no photo named \"$anchor\"\n" }
     }
@@ -368,6 +385,22 @@ my $arch_html = '';
   printf "archives  %2d piece(s)%s\n", scalar(@imgs), ($base && @imgs ? '  <- ' . where("$base/$ARCH_DIR") : '');
 }
 
+# ── Heritage Videos strip: between the map and the closing photo (Tyler, 2026-10-14) ──
+my $vids_html = '';
+if (@hvids) {
+  my @t = map { my ($id, $title, $len) = @$_;
+    qq{      <button type="button" class="htile vid hv" data-yt="$id" data-vtitle="} . esc($title) . qq{">}
+    . qq{<span class="hpic"><img src="} . yt_thumb($id) . qq{" alt="" loading="lazy" decoding="async"><span class="hplay" aria-hidden="true"></span>}
+    . ($len ne '' ? qq{<span class="hdur">$len</span>} : '') . qq{</span><span class="hpc">} . esc($title) . qq{</span></button>} } @hvids;
+  $vids_html = qq{\n<section class="hvids" aria-labelledby="hvids-h"><div class="wrap">\n}
+    . qq{  <div class="hseg" aria-hidden="true"><i></i></div>\n}
+    . qq{  <p class="hmap-kick">From the Film Archive</p>\n  <h2 class="hmap-h" id="hvids-h">Heritage Videos</h2>\n}
+    . qq{  <div class="hcar hvidcar">\n    <div class="htrack">\n} . join("\n", @t) . qq{\n    </div>\n}
+    . qq{    <div class="hcarui"><button type="button" class="hprev" aria-label="Previous video"></button><span class="hcount"></span><button type="button" class="hnext" aria-label="Next video"></button></div>\n}
+    . qq{  </div>\n</div></section>\n};
+}
+printf "videos    %2d heritage video(s)\n", scalar @hvids;
+
 # ── image folders for dates no longer on the timeline go away ──
 {
   my %live = map { lc $_->{key} => 1 } @eras; $live{archives} = 1;
@@ -384,6 +417,7 @@ my $page = "$root/our-history/index.html";
 open my $pf, '<:encoding(UTF-8)', $page or die; local $/; my $src = <$pf>; close $pf;
 $src =~ s{(<!-- HIST:timeline -->).*?(<!-- /HIST:timeline -->)}{$1$html$2}s or die "markers missing in $page\n";
 $src =~ s{(<!-- HIST:archives -->).*?(<!-- /HIST:archives -->)}{$1$arch_html$2}s or die "archives markers missing in $page\n";
+$src =~ s{(<!-- HIST:videos -->).*?(<!-- /HIST:videos -->)}{$1$vids_html$2}s or die "videos markers missing in $page\n";
 for my $name (keys %wide_v) { $src =~ s{(/assets/history/\Q$name\E\.jpg)(\?v=\w+)?}{$1?v=$wide_v{$name}}g; }
 open my $po, '>:encoding(UTF-8)', $page or die; print $po $src; close $po;
 

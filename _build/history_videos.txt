@@ -1,0 +1,28 @@
+# Heritage Videos: the strip between the Rogue River map and the closing photo on /our-history/.
+# Source: the "Heritage" playlist on the Wooldridge Boats YouTube channel (19 videos, 2026-10-14)
+#   https://youtube.com/playlist?list=PLsmduxnezQpiuW-Q7alDpB5_vQ473uZN1
+# One video per line, in playlist order:
+#   YouTube ID | title shown on the page | length | thumbnail (maxres, sd or hq: the sharpest
+#   YouTube has for that upload; maxres = full HD, sd/hq are letterboxed and get cropped)
+# Titles are the playlist's, with typos fixed for the page (Slamon, Ranie, "Glen Seniors").
+# Rebuild after editing: perl _build/build_history.pl
+
+gCxOoaZ27j8 | Glen Wooldridge Was a Whitewater GOAT! | 2:28 | maxres
+N0NOx3ofM5E | Footage from the Old Days Running the Snake River | 6:41 | maxres
+38WCO1ykWy0 | Glen Wooldridge Sr.: First Jet Boat to Run Up Hells Gate on the Fraser River | 5:44 | sd
+oroO5hUnmOU | 18′ Inboard Classic Running on the Rogue | 1:26 | sd
+h1jTteRKO_k | U.S. Coast Guard Auxiliary Boat, 22′ x 6′ Bottom | 1:48 | maxres
+qpBiJECVazw | Custom Classic Running Twin V-8s and Hamilton Jets | 0:50 | hq
+IZt855g7KyI | Glen Sr. Loading Boats to Head Up the Rogue (Circa 1941) | 0:50 | maxres
+XRcQBh5Rvm0 | Celebrating 100 Years! | 0:25 | maxres
+ggIxcydQwpw | Glen Sr. Running the Rainie Falls Fish Ladder on the Rogue River | 0:32 | maxres
+iwZP25WEpsw | Blossom Bar Blasting | 2:28 | maxres
+DtLL5jKUriU | Glen Sr. Running Rapids | 2:47 | maxres
+jxhAvJ5Knto | Salmon River Trip Rapids | 0:50 | maxres
+TTz-LjE0IgE | Glen Senior and the First Trip Up the Salmon River (Circa 1948) | 0:52 | hq
+sSsjwsHWHyA | Salmon River Trip: Ludwig | 1:21 | sd
+7wF_5qvFaNc | Glen Senior and the First Trip Up the Salmon River (Circa 1948) | 0:16 | sd
+9dIOrhYVS6g | Glen Senior Putting In at Riggins for the First Trip Up the Salmon River (Circa 1948) | 1:20 | hq
+UHUVEkn8Bks | Glen Senior and the First Trip Up the Salmon River (Circa 1948) | 0:59 | maxres
+-0z8B1aeNu0 | 1941 Whitewater | 0:22 | maxres
+qiCDhJFF2l4 | Wooldridge Classic Inboard | 1:55 | sd

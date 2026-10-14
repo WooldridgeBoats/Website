@@ -174,6 +174,21 @@ Tyler: fast loads, but NO softening, and keep the pixel sizes. What the builder 
   on the photo/footer seam.
 - Page order now: hero → about → Brochures & Ads strip → timeline → map → closing photo.
 
+## Heritage Videos (2026-10-14)
+
+- Between the map and the closing photo: "From the Film Archive / Heritage Videos", a strip of
+  small 16:9 video thumbs (title, run time, play button) with the carousel arrows / counter /
+  scroll bar; a click plays it in the viewer (after the timeline in flip order).
+- Source list: `_build/history_videos.txt` (ID | page title | length | thumb), built from the
+  YouTube "Heritage" playlist (PLsmduxnezQpiuW-Q7alDpB5_vQ473uZN1, 19 videos). YouTube's RSS
+  feed only returns 15, so the list was read from the playlist page itself. To refresh, re-read
+  the playlist and update the file. Titles have typos fixed for the page (Slamon, Ranie, "Glen
+  Seniors"); Tyler to fix them on YouTube. `thumb` = the sharpest YouTube has for that upload
+  (maxres > sd > hq); timeline video tiles use the same lookup.
+- Spacing: the timeline's bottom padding is 4px, so the rope drops straight from the last row's
+  counter into the map (Tyler: the gap was too big).
+- Page order now: hero → about → Brochures & Ads → timeline → map → Heritage Videos → closing photo.
+
 ## How to update
 
 ```
