@@ -2736,9 +2736,11 @@ html.blueprint body{ background:transparent; }
 .htrack::-webkit-scrollbar{ display:none; }
 .htrack > :first-child{ margin-left:auto; }
 .htrack > :last-child{ margin-right:auto; }
-.hcar.more-r .htrack{ -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 90px),transparent); mask-image:linear-gradient(to right,#000 calc(100% - 90px),transparent); }
-.hcar.more-l .htrack{ -webkit-mask-image:linear-gradient(to left,#000 calc(100% - 90px),transparent); mask-image:linear-gradient(to left,#000 calc(100% - 90px),transparent); }
-.hcar.more-l.more-r .htrack{ -webkit-mask-image:linear-gradient(to right,transparent,#000 90px,#000 calc(100% - 90px),transparent); mask-image:linear-gradient(to right,transparent,#000 90px,#000 calc(100% - 90px),transparent); }
+.hcar{ --hfade:90px; }
+@media (max-width:600px){ .hcar{ --hfade:32px; } }
+.hcar.more-r .htrack{ -webkit-mask-image:linear-gradient(to right,#000 calc(100% - var(--hfade)),transparent); mask-image:linear-gradient(to right,#000 calc(100% - var(--hfade)),transparent); }
+.hcar.more-l .htrack{ -webkit-mask-image:linear-gradient(to left,#000 calc(100% - var(--hfade)),transparent); mask-image:linear-gradient(to left,#000 calc(100% - var(--hfade)),transparent); }
+.hcar.more-l.more-r .htrack{ -webkit-mask-image:linear-gradient(to right,transparent,#000 var(--hfade),#000 calc(100% - var(--hfade)),transparent); mask-image:linear-gradient(to right,transparent,#000 var(--hfade),#000 calc(100% - var(--hfade)),transparent); }
 .htile{
   --t:clamp(250px,27vw,340px);
   flex:none; position:relative; display:flex; flex-direction:column; width:var(--t);
