@@ -19,7 +19,9 @@
 # WRITES
 #   assets/history/hero.jpg
 #   assets/history/<date>/NN.jpg + thumbs/NN.jpg   (rebuilt from scratch each run)
+#   assets/history/archives/NN.jpg + clip/NN.jpg   (From the Archives: brochures & ads)
 #   our-history/index.html, between <!-- HIST:timeline --> and <!-- /HIST:timeline -->
+#                           and between <!-- HIST:archives --> and <!-- /HIST:archives -->
 #
 # Then run perl _build/stamp_assets.pl if house.css or history.js changed.
 # ─────────────────────────────────────────────────────────────────────────────
@@ -285,9 +287,48 @@ for my $e (@eras) {
   $html .= qq{</article>\n};
 }
 
+# ── From the Archives: brochures & ads, laid out like taped-in clippings before the map ──
+# Source: the master's "HERITAGE BROCHURES-ADS" folder (Tyler, 2026-10-14). Captions and
+# order work like the date folders. No folder or no photos = no section.
+my $ARCH_DIR = 'HERITAGE BROCHURES-ADS';
+my $arch_html = '';
+{
+  my $out = "$root/assets/history/archives"; remove_tree($out);
+  my ($base) = grep { -d "$_/$ARCH_DIR" } @src;
+  my @imgs;
+  if ($base) {
+    opendir my $ad, "$base/$ARCH_DIR" or die;
+    @imgs = sort { natural($a, $b) } grep { !/^\./ && /\.(jpe?g|png|tiff?|heic)$/i && -s "$base/$ARCH_DIR/$_" } readdir $ad;
+    closedir $ad;
+  }
+  if (@imgs) {
+    my $dir = "$base/$ARCH_DIR"; make_path("$out/clip");
+    my @c; my $i = 0;
+    for my $f (@imgs) {
+      $i++; my $nn = sprintf '%02d', $i;
+      my ($w, $h, $desc) = info("$dir/$f");
+      my $com = finder_comment("$dir/$f");
+      my $cap = caption(defined $desc && $desc =~ /\S/ ? $desc : $com, 'archives');
+      printf "    %-22s %s\n", $f, ($cap eq '' ? '(no caption)' : $cap) if $list_caps;
+      my ($yr) = $cap =~ /^((?:(?:Early|Late|Mid)\s+)?\d{4}s?)\b/i;
+      my $long = $w > $h ? $w : $h;
+      budget_jpeg("$dir/$f", "$out/$nn.jpg", $FULL_KB, ($long > $FULL ? ('-Z', $FULL) : ()));
+      budget_jpeg("$dir/$f", "$out/clip/$nn.jpg", 260, ($w > 760 ? ('--resampleWidth', 760) : ()));
+      my ($cw, $ch) = dims("$out/clip/$nn.jpg");
+      push @c, sprintf qq{    <a class="hclip" href="/assets/history/archives/%s.jpg?v=%s" data-yr="%s"><img src="/assets/history/archives/clip/%s.jpg?v=%s" alt="%s" width="%d" height="%d" loading="lazy" decoding="async"><span class="hclip-cap">%s</span></a>},
+        $nn, ver("$out/$nn.jpg"), esc($yr // ''), $nn, ver("$out/clip/$nn.jpg"), esc($cap ne '' ? $cap : 'Wooldridge Boats brochure'), $cw, $ch, esc($cap);
+    }
+    $arch_html = qq{\n<section class="harch" aria-labelledby="harch-h"><div class="wrap">\n}
+      . qq{  <div class="hseg" aria-hidden="true"><i></i></div>\n}
+      . qq{  <p class="hmap-kick">From the Archives</p>\n  <h2 class="hmap-h" id="harch-h">Brochures &amp; Ads</h2>\n}
+      . qq{  <div class="hclips">\n} . join("\n", @c) . qq{\n  </div>\n</div></section>\n};
+  }
+  printf "archives  %2d piece(s)%s\n", scalar(@imgs), ($base && @imgs ? '  <- ' . where("$base/$ARCH_DIR") : '');
+}
+
 # ── image folders for dates no longer on the timeline go away ──
 {
-  my %live = map { lc $_->{key} => 1 } @eras;
+  my %live = map { lc $_->{key} => 1 } @eras; $live{archives} = 1;
   opendir my $ad, "$root/assets/history" or die;
   for my $dd (grep { !/^\./ && -d "$root/assets/history/$_" } readdir $ad) {
     next if $live{$dd};
@@ -300,6 +341,7 @@ for my $e (@eras) {
 my $page = "$root/our-history/index.html";
 open my $pf, '<:encoding(UTF-8)', $page or die; local $/; my $src = <$pf>; close $pf;
 $src =~ s{(<!-- HIST:timeline -->).*?(<!-- /HIST:timeline -->)}{$1$html$2}s or die "markers missing in $page\n";
+$src =~ s{(<!-- HIST:archives -->).*?(<!-- /HIST:archives -->)}{$1$arch_html$2}s or die "archives markers missing in $page\n";
 $src =~ s{(/assets/history/hero\.jpg)(\?v=\w+)?}{$1?v=$hero_v}g if $hero_v;
 open my $po, '>:encoding(UTF-8)', $page or die; print $po $src; close $po;
 

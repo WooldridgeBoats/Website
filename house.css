@@ -2951,3 +2951,63 @@ body.hlb-open{ overflow:hidden; }
   .hmap-fig figcaption{ font-size:14px; padding:0 4px; }
 }
 @media (prefers-reduced-motion: reduce){ .hmap.done .hmap-ping{ animation:none; } }
+
+/* From the Archives: brochures & ads taped in like a scrapbook, just before the map
+   (Tyler, 2026-10-14: "artistically sprinkle these near the bottom"). Each clipping gets
+   one of five tilts/offsets in turn, so any number of pieces still looks hand-placed.
+   They drift down and settle in one after another when the section arrives. */
+.harch{ text-align:center; padding:0 0 30px; }
+.harch .hseg{ margin-bottom:18px; }
+.hclips{
+  display:flex; flex-wrap:wrap; justify-content:center; align-items:center;
+  max-width:1120px; margin:34px auto 0; padding:10px 0 20px;
+}
+.hclip{
+  --r:-3.5deg; --y:10px;
+  position:relative; display:block; flex:none; width:24%; margin:14px -.3%;
+  background:#fff; padding:8px 8px 10px; border-radius:1px; cursor:zoom-in; color:inherit;
+  box-shadow:0 1px 2px rgba(20,30,40,.14), 0 14px 34px rgba(20,30,40,.2);
+  transform:translateY(var(--y)) rotate(var(--r));
+  transition:transform .5s cubic-bezier(.2,.7,.2,1), box-shadow .4s, opacity .6s;
+}
+.hclip:nth-child(5n+2){ --r:3deg;    --y:-26px; width:22%; z-index:2; }
+.hclip:nth-child(5n+3){ --r:-1.6deg; --y:24px;  width:26%; z-index:1; }
+.hclip:nth-child(5n+4){ --r:2.4deg;  --y:-14px; width:20%; }
+.hclip:nth-child(5n+5){ --r:-2.8deg; --y:16px;  width:20%; }
+/* a strip of tape across the top of each piece */
+.hclip::before{
+  content:""; position:absolute; left:50%; top:-12px; width:84px; height:24px; margin-left:-42px; z-index:2;
+  background:rgba(246,240,214,.72); box-shadow:0 1px 2px rgba(20,30,40,.12);
+  transform:rotate(calc(var(--r) * -1.4));
+}
+.hclip img{ width:100%; height:auto; }
+.hclip-cap{
+  display:block; margin-top:8px; padding:0 2px; text-align:left;
+  font-weight:500; font-size:12.5px; line-height:1.4; color:#3f454a;
+  display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; overflow:hidden;
+}
+.hclip:hover,.hclip:focus-visible{
+  z-index:5; outline:none; transform:translateY(calc(var(--y) - 8px)) rotate(0deg) scale(1.04);
+  box-shadow:0 2px 4px rgba(20,30,40,.14), 0 26px 54px rgba(20,30,40,.28);
+}
+.hclip:focus-visible{ box-shadow:0 0 0 3px var(--blue), 0 26px 54px rgba(20,30,40,.28); }
+/* drift in once the section arrives (JS adds .seen); no-JS visitors just see them */
+.hjs .harch .hclip{ opacity:0; transform:translateY(calc(var(--y) - 60px)) rotate(calc(var(--r) * 3)); }
+.hjs .harch.seen .hclip{ opacity:1; transform:translateY(var(--y)) rotate(var(--r)); }
+.hjs .harch.seen .hclip:nth-child(2){ transition-delay:.12s; }
+.hjs .harch.seen .hclip:nth-child(3){ transition-delay:.24s; }
+.hjs .harch.seen .hclip:nth-child(4){ transition-delay:.36s; }
+.hjs .harch.seen .hclip:nth-child(5){ transition-delay:.48s; }
+.hjs .harch.seen .hclip:nth-child(n+6){ transition-delay:.6s; }
+.hjs .harch.seen .hclip:hover,.hjs .harch.seen .hclip:focus-visible{
+  transition-delay:0s; transform:translateY(calc(var(--y) - 8px)) rotate(0deg) scale(1.04);
+}
+@media (max-width:900px){
+  .hclips{ display:grid; grid-template-columns:1fr 1fr; gap:26px 18px; padding:10px 6px 10px; align-items:start; }
+  .hclip,.hclip:nth-child(n){ width:auto; margin:0; --y:0px; }
+  .hclip:nth-child(even){ margin-top:22px; }
+  .hclip-cap{ font-size:12px; }
+}
+@media (prefers-reduced-motion: reduce){
+  .hjs .harch .hclip,.hjs .harch.seen .hclip{ opacity:1; transform:translateY(var(--y)) rotate(var(--r)); transition:none; }
+}

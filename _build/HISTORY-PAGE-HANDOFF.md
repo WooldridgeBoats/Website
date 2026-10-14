@@ -128,6 +128,20 @@ Tyler: fast loads, but NO softening, and keep the pixel sizes. What the builder 
 - The builder prints a **low-res originals** list (short side under 600px): those tiles get
   stretched a little and can look soft. Only a bigger scan fixes that.
 
+## From the Archives + pill (2026-10-14)
+
+- **Brochures & Ads** stop between the timeline and the map, from the master's
+  `HERITAGE BROCHURES-ADS` folder (built by the builder between `<!-- HIST:archives -->`
+  markers). Pieces are taped in like a scrapbook: five rotating tilts/offsets
+  (`.hclip:nth-child(5n+k)` in house.css) so any number of pieces still looks hand-placed;
+  they drift in one after another; hover straightens + lifts; click opens the viewer, where
+  they follow the last timeline photo. Phones: 2-column scrapbook. Web copies:
+  `assets/history/archives/NN.jpg` (viewer) + `clip/NN.jpg` (760px wide).
+  These 4 pieces ALSO sit in their date galleries (1951, 1960s x2, 1970s); ask Tyler if he
+  wants them only in the scrapbook.
+- **"Not sure which boat?" pill** is off this page (and so off its photo viewer):
+  `/our-history/` is in tool-nudge.js's SKIP list.
+
 ## How to update
 
 ```

@@ -6,6 +6,7 @@
       so "next" runs from the end of one date into the start of the next
    4. the year rail on wide screens
    5. the closing Rogue River map: its route upriver draws itself on scroll
+   6. From the Archives: the taped-in brochures settle in, and open in the viewer
    Markup comes from _build/build_history.pl; styles are the OUR HISTORY block
    in house.css. Without JS everything still shows and tiles open the image. */
 (function () {
@@ -31,6 +32,7 @@
   });
   // the closing map: rope into it, then the route upriver draws as it comes up the screen
   var map = document.querySelector('.hmap'), mapLine, mapGlow, mapArt, mapRope, mapLen = 0;
+  var extraRopes = [].slice.call(document.querySelectorAll('.harch .hseg i, .hmap .hseg i'));
   if (map) {
     mapLine = map.querySelector('.hmap-line'); mapGlow = map.querySelector('.hmap-glow');
     mapArt = map.querySelector('.hmap-art'); mapRope = map.querySelector('.hseg i');
@@ -38,8 +40,10 @@
     [mapLine, mapGlow].forEach(function (p) { p.style.strokeDasharray = mapLen; });
   }
   function drawMap(vh, reach) {
-    var s = mapRope.parentNode.getBoundingClientRect();
-    mapRope.style.height = (Math.max(0, Math.min(1, (reach - s.top) / s.height)) * 100).toFixed(2) + '%';
+    extraRopes.forEach(function (i) {
+      var s = i.parentNode.getBoundingClientRect();
+      i.style.height = (Math.max(0, Math.min(1, (reach - s.top) / s.height)) * 100).toFixed(2) + '%';
+    });
     var r = mapArt.getBoundingClientRect();
     var f = reduce ? 1 : Math.max(0, Math.min(1, (vh * 0.85 - r.top) / (vh * 0.45 + r.height * 0.35)));
     var off = (mapLen * (1 - f)).toFixed(1);
@@ -80,7 +84,14 @@
       es.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('seen'); io.unobserve(en.target); } });
     }, { rootMargin: '0px 0px -12% 0px' });
     eras.forEach(function (e) { io.observe(e); });
-  } else eras.forEach(function (e) { e.classList.add('seen'); });
+    var arch = document.querySelector('.harch .hclips');
+    if (arch) new IntersectionObserver(function (es, o) {
+      es.forEach(function (en) { if (en.isIntersecting) { en.target.parentNode.parentNode.classList.add('seen'); o.disconnect(); } });
+    }, { rootMargin: '0px 0px -18% 0px' }).observe(arch);
+  } else {
+    eras.forEach(function (e) { e.classList.add('seen'); });
+    [].forEach.call(document.querySelectorAll('.harch'), function (a) { a.classList.add('seen'); });
+  }
 
   /* ── 3: the viewer's page list (built before the carousels so tiles know their index) ── */
   var items = [];
@@ -96,6 +107,16 @@
         yr: e.getAttribute('data-yr'), cap: cap ? cap.innerHTML : '', n: n + 1, of: tiles.length
       });
     });
+  });
+
+  var clips = [].slice.call(document.querySelectorAll('.hclip'));
+  clips.forEach(function (t, n) {
+    var c = ((t.querySelector('.hclip-cap') || {}).textContent || '');
+    var yr = t.getAttribute('data-yr') || '';
+    var rest = yr && c.indexOf(yr) === 0 ? c.slice(yr.length).replace(/^\s*[\u2014\u2013-]\s*/, '') : c;
+    t.setAttribute('data-i', items.length);
+    items.push({ src: t.getAttribute('href'), alt: (t.querySelector('img') || {}).alt || '',
+      pc: rest, yr: yr || 'From the Archives', cap: 'From the Archives: Brochures &amp; Ads', n: n + 1, of: clips.length });
   });
 
   /* ── 2: carousels ── */
@@ -208,7 +229,7 @@
     else if (ev.key === 'ArrowLeft') go(-1);
   });
   document.addEventListener('click', function (ev) {
-    var t = ev.target.closest && ev.target.closest('.htile');
+    var t = ev.target.closest && ev.target.closest('.htile, .hclip');
     if (!t || ev.metaKey || ev.ctrlKey || ev.shiftKey) return;
     ev.preventDefault(); open(+t.getAttribute('data-i'));
   });

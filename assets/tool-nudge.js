@@ -65,7 +65,8 @@
     '/compare/',            // it links here
     '/build-and-price/',    // already deeper in the funnel
     '/request-a-quote/',    // mid-form: do not distract
-    '/option-guide/'        // reference page reached FROM the tools
+    '/option-guide/',       // reference page reached FROM the tools
+    '/our-history/'         // Tyler 2026-10-14: off the history page and its photo viewer
   ];
 
   function skipped() {
