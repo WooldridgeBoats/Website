@@ -159,6 +159,10 @@ perl _build/stamp_assets.pl               # REQUIRED after any house.css / histo
 - `sips -g description` prints `<nil>` when empty; the builder treats that as no caption.
 - Photo numbers in history folders are years: never run these through build_gallery.pl or Model Ready.
 - Editing files with `perl -pi` and non-ASCII text can scramble characters; use Python with UTF-8.
+- **GitHub Desktop commit mid-rebuild (2026-10-14):** the builder used to wipe and refill each image
+  folder; a Desktop commit made during that window removed the 1915 thumbs from git (restored in
+  00c39dc6). Now folders are built in $TMPDIR and `publish_dir` swaps in only changed files, so
+  nothing is ever missing mid-build. Tyler only PUSHES; if Desktop's Changes tab lists files, ask Claude.
 
 ## 7. Open items / ideas
 
