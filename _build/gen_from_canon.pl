@@ -57,8 +57,9 @@
 #      SALES TOOLS - needs Rockwell); the ITEM CODE LOOKUP page (P3); the used-boat appraiser;
 #      the prop selector; the "Boat facts" view in CANON.html (CANON/_build/BOAT FACTS/
 #      build_boat_facts.pl, every real run, a failure is loud but not fatal); the Pricing data half of CANON.html
-#      (QB IMPORT/_build/census/run_census.ps1 - P3 only, when a pricing mirror changed). Then the QuickBooks typing list (QB IMPORT/1 - NEXT IMPORT on the P3),
-#      a final check of everything, and the CHANGE LOG entry in CANON/README.md.
+#      (QB IMPORT/_build/census/run_census.ps1 - P3 only, when a pricing mirror changed; it carries the standing
+#      "Prices to type in QuickBooks" list). Then this run's QuickBooks price moves printed, a final check of
+#      everything, and the CHANGE LOG entry in CANON/README.md.
 #   7. What it cannot do from where it runs is printed as OWED, naming the machine.
 #
 # Line endings: text is handled as LF internally; a rewritten file keeps the line
@@ -623,13 +624,14 @@ if ($mode eq 'xlsx' && !$dry) {
     }
   }
   if (@qb) {
-    my $csv = "tab,qb_item,canon_price_before,canon_price_now,note\n" . join('', map { join(',', map { my $v = $_; $v =~ /[",]/ ? do { $v =~ s/"/""/g; qq{"$v"} } : $v } @$_) . "\n" } @qb);
-    my $next; if (opendir my $dh, $qb_import) { ($next) = map { "$qb_import/$_" } grep { /^1 - NEXT IMPORT/ && -d "$qb_import/$_" } readdir $dh; closedir $dh }
-    my @lt = localtime; my $stamp = sprintf('%04d-%02d-%02d %02d%02d', $lt[5] + 1900, $lt[4] + 1, $lt[3], $lt[2], $lt[1]);
-    print "\nQUICKBOOKS - type these prices (" . scalar(@qb) . " item(s)):\n";
+    # The standing list lives on CANON.html, Pricing data > Home > "Prices to type in QuickBooks" (Stephen 2026-10-14:
+    # "more like a section of the sync dashboard"; built by the "CANON - one viewer" session from the census, so a row
+    # clears only when the price is typed AND a new QuickBooks export lands). The QB IMPORT CSV this step wrote until
+    # then is retired. This run's changes are still printed here.
+    print "\nQUICKBOOKS - this run moved " . scalar(@qb) . " QuickBooks price(s):\n";
     printf "  %-48s %12s -> %s %s\n", $_->[1], $_->[2], $_->[3], $_->[4] for @qb;
-    if ($next) { my $f = "$next/QB PRICES TO TYPE - $stamp.csv"; put_atomic($f, "\xEF\xBB\xBF" . Encode::encode('UTF-8', $csv), "QB IMPORT/" . basename($next) . "/QB PRICES TO TYPE - $stamp.csv"); push @owed, "QuickBooks: type the " . scalar(@qb) . " price(s) in \"QB PRICES TO TYPE - $stamp.csv\" (QB IMPORT, 1 - NEXT IMPORT)" }
-    else { push @owed, 'QuickBooks: type the ' . scalar(@qb) . ' price(s) listed above (the QB IMPORT folder is on the P3; this run could not save the list there)' }
+    push @owed, 'QuickBooks: type the ' . scalar(@qb) . ' price(s) above - they are on CANON.html, Pricing data, "Prices to type in QuickBooks"'
+      . (($is_win && -f "$qb_import/_build/census/run_census.ps1") ? '' : ' after the census is re-run on the P3');
   }
 }
 
