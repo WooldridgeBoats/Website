@@ -34,7 +34,7 @@ DEST="$REPO/assets/photos/$PSLUG/mobile"
 MOBQ="${MOBQ:-75}"   # mozjpeg quality for the full portraits (keep-smaller: never enlarges, no visible loss on a phone)
 HAVE_MOZ=0; command -v cjpeg >/dev/null 2>&1 && command -v djpeg >/dev/null 2>&1 && HAVE_MOZ=1
 run(){ if [ "$DRY" = 1 ]; then echo "  [dry] $*"; else eval "$*"; fi; }
-cfg_disp(){ case "$1" in cc)echo "Center Console";; ws)echo "Windshield";; tiller)echo "Tiller";; aft-ws)echo "Aft Windshield";; cabin)echo "Cabin";; pybus)echo "Pybus";; first-responder)echo "First Responder";; explorer)echo "Explorer";; angler)echo "Angler";; charter)echo "Charter";; *)echo "$1";; esac; }
+cfg_disp(){ case "$1" in cc)echo "Center Console";; ws)echo "Windshield";; tiller)echo "Tiller";; aft-ws)echo "Aft Windshield";; cabin)echo "Cabin";; pybus)echo "Pybus";; first-responder)echo "First Responder";; explorer)echo "Explorer";; angler)echo "Angler";; charter)echo "Charter";; pilothouse)echo "Pilothouse";; *)echo "$1";; esac; }
 
 # parse "NN-HULL-LEN-STYLE-..." -> echo "dest len cfgcode hull nn" (positional; hull optional)
 parse_row(){
@@ -52,13 +52,15 @@ parse_row(){
   else
     sl="$(printf %s "$style"|tr 'A-Z' 'a-z')"; nl="$(printf %s "$styn"|tr 'A-Z' 'a-z')"
     if [ "$sl" = "aft" ] && [ "$nl" = "ws" ]; then cfg=aft-ws
-    else case "$sl" in cc)cfg=cc;; ws)cfg=ws;; tiller)cfg=tiller;; cabin)cfg=cabin;; pybus)cfg=pybus;; first-responder)cfg=first-responder;; explorer)cfg=explorer;; angler)cfg=angler;; charter)cfg=charter;; *)cfg="?";; esac; fi
+    else case "$sl" in cc)cfg=cc;; ws)cfg=ws;; tiller)cfg=tiller;; cabin)cfg=cabin;; pybus)cfg=pybus;; first-responder)cfg=first-responder;; explorer)cfg=explorer;; angler)cfg=angler;; charter)cfg=charter;; pilothouse)cfg=pilothouse;; *)cfg="?";; esac; fi
+    # a trim as the LAST WORD of a multi-word token, e.g. "SSO PILOTHOUSE" (Tyler 2026-10-15)
+    if [ "$cfg" = "?" ]; then case "${sl##* }" in cc|ws|tiller|cabin|pybus|explorer|angler|charter|pilothouse) cfg="${sl##* }";; esac; fi
     # trim AFTER the model name (NN-HULL-33-DEEPWATER-ANGLER-MOBILE): first known trim further on
     if [ "$cfg" = "?" ]; then
       local j tj; if [ -n "$hull" ]; then j=4; else j=3; fi
       while [ "$j" -lt "${#t[@]}" ]; do
         tj="$(printf %s "${t[$j]}"|tr 'A-Z' 'a-z')"
-        case "$tj" in cc|ws|tiller|cabin|pybus|explorer|angler|charter) cfg="$tj"; break;; esac
+        case "$tj" in cc|ws|tiller|cabin|pybus|explorer|angler|charter|pilothouse) cfg="$tj"; break;; esac
         j=$((j+1))
       done
     fi

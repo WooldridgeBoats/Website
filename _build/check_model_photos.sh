@@ -33,7 +33,7 @@ SRC="${1:-}"
 [ -n "$SRC" ] || { echo "usage: $0 \"/path/to/<MODEL>-WEB\""; exit 2; }
 [ -d "$SRC" ] || { echo "ERROR: folder not found: $SRC"; exit 2; }
 
-KNOWN_TRIMS="cc ws tiller aft-ws cabin pybus first-responder explorer angler charter"
+KNOWN_TRIMS="cc ws tiller aft-ws cabin pybus first-responder explorer angler charter pilothouse"
 errs=0; warns=0
 err(){  echo "  ✗ $*"; errs=$((errs+1)); }
 warn(){ echo "  ! $*"; warns=$((warns+1)); }
@@ -72,6 +72,7 @@ check_file(){
   stylelc="$(printf %s "$style" | tr 'A-Z' 'a-z')"
   nlc="$(printf %s "${styn:-}" | tr 'A-Z' 'a-z')"
   [ "$stylelc" = "aft" ] && [ "$nlc" = "ws" ] && stylelc="aft-ws"   # two-token AFT-WS config
+  if ! is_trim "$stylelc" && is_trim "${stylelc##* }"; then stylelc="${stylelc##* }"; fi   # trim as the last word: "SSO PILOTHOUSE"
   # trim AFTER the model name (NN-HULL-33-DEEPWATER-ANGLER): first known trim further on
   if [ "${NOCFG:-0}" != 1 ] && ! is_trim "$stylelc"; then
     if [[ "${t[1]:-}" =~ ^[03-9][0-9]{3}$ ]]; then j=4; else j=3; fi

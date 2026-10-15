@@ -36,12 +36,13 @@ my @MODELS = (
   ['deepwater',               'Deepwater',                  'Offshore',     [33],       33],      # custom build; 33' Angler + 33' Explorer, one gallery card per boat (WB_CARDS_BY='cfg')
   ['riverrat-diy-kit',        'River Rat DIY Kit',          'Kit',          [],         undef],   # custom DIY kit: no length / hull / config, one gallery (build_riverrat.sh)
   ['landing-craft',           'Landing Craft',              'Specialty Workboat', [],   undef],
+  ['supersportoffshorepilothouse','Super Sport Offshore', 'Offshore',           [],   undef],   # SSO Pilothouse page (Tyler 2026-10-15): "26′ Super Sport Offshore · Pilothouse"; empty lens
   ['angler',                  'Super Sport Offshore',       'Offshore',           [],   undef],   # SSO Angler page (Tyler 2026-10-15): captions "20′ Super Sport Offshore · Angler"; empty lens = never legacy
   ['pybus-offshore',          'Pybus Point Lodge',          'Lodge Fleet',        [],   undef],   # Tyler 2026-10-14: the lodge's fleet (Deepwater Charter, Sport, Sport Offshore); empty lens = never legacy
   ['agency-lc29',             "29' LC — In The Shop",       'Agency Build', [29],       29],
 );
 
-my %CFG  = ('cc','Center Console','ws','Windshield','tiller','Tiller','aft-ws','Aft Windshield','cabin','Cabin','pybus','Pybus','first-responder','First Responder','explorer','Explorer','angler','Angler','charter','Charter');
+my %CFG  = ('cc','Center Console','ws','Windshield','tiller','Tiller','aft-ws','Aft Windshield','cabin','Cabin','pybus','Pybus','first-responder','First Responder','explorer','Explorer','angler','Angler','charter','Charter','pilothouse','Pilothouse');
 my %SHOT = ('product','Product','photo','Field','water','On the water','delivery','Delivery','finish','Finish work','build','In the shop');
 
 sub parse_file {
