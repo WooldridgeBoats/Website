@@ -22,14 +22,9 @@ Fix my spelling; call me Bro; plain English.
 
 ---
 
-## NEXT UP: Pybus Point Lodge, the 33′ Deepwater Charter + 21′ Cabin Sport Offshore galleries
-Built 2026-10-14: 11-slide hero, the 20′ Sport gallery (15 desktop / 15 phone, hulls 4543/4544/4545) and the
-33′ Deepwater Charter desktop gallery (23 photos, top-left card). Still to come: the 33′ phone set and the 21′
-Cabin Sport Offshore (desktop + phone). Until a length has a phone set, phones open its regular photos and its
-"· 0" filter chip is hidden (gallery.js `nophone`).
-When Tyler fills `PYBUS-WEB/33-DEEPWATER-CHARTER(-MOBILE)` and `21-CABIN-SPORT OFFSHORE(-MOBILE)`, just re-run:
-`_build/apply_model_photos.sh pybus-offshore "Pybus Point Lodge" "<…/PYBUS-WEB>"` (check first). The cards then
-show 33′ Deepwater + 20′ Sport on top and the 21′ Sport Offshore centred below, with no page edits.
+## Pybus Point Lodge: all three boats built (2026-10-15)
+33′ Deepwater Charter 23 desktop, 20′ Sport 15/15, 21′ Cabin Sport Offshore 11/11. Only the 33′ PHONE set is still
+to come: when Tyler fills `PYBUS-WEB/33-DEEPWATER-CHARTER-MOBILE`, re-run Model Ready (check first). No page edits.
 
 ## Status (2026-10-08)
 
@@ -40,7 +35,7 @@ show 33′ Deepwater + 20′ Sport on top and the 21′ Sport Offshore centred b
 | River Rat DIY Kit `models/riverrat-diy-kit/` | DONE, live | Minimal: one gallery, no length / hull / config, no video |
 | SSO Angler `models/angler/` | TO DO | Bare page (no photos), "video coming soon" block, a Build & Price button into the SSO configurator |
 | SSO Pilothouse `models/supersportoffshorepilothouse/` | TO DO | Bare page, REAL video `h6p-gE16A9s` "30' Wooldridge Super Sport Offshore Pilothouse", Build & Price button into the SSO configurator |
-| Pybus Point Lodge `models/pybus-offshore/` | IN PROGRESS (20′ Sport done) | Bare page, "video coming soon" block. Renamed from Pybus Offshore 2026-10-08: ONLY the h1, `<title>` and menu label changed; the URL and homepage card were left as-is on purpose. **It's a FLEET page** (Tyler): the boats Wooldridge built for Pybus Point Lodge (Admiralty Island, SE Alaska) = five 33′ Deepwaters, two 21′ Sport Offshores, three 20′ Sport center consoles. Intro rewritten to say so. Kick line "LODGE FLEET · ADMIRALTY ISLAND, ALASKA" (tag line under it not changed yet). Two videos side by side (`.vid2`, 2026-10-08), both on the LODGE's YouTube channel, so the caption ref says "PYBUS POINT LODGE ON YOUTUBE": `RvhoaaWAktg` "33′ Deepwater Charter Walkthrough" (11:19) + `Sx_vdR7VTmI` "Pybus Point Lodge Skiffs" (2:49) |
+| Pybus Point Lodge `models/pybus-offshore/` | DONE 2026-10-15 (33′ phone set to come) | Bare page, "video coming soon" block. Renamed from Pybus Offshore 2026-10-08: ONLY the h1, `<title>` and menu label changed; the URL and homepage card were left as-is on purpose. **It's a FLEET page** (Tyler): the boats Wooldridge built for Pybus Point Lodge (Admiralty Island, SE Alaska) = five 33′ Deepwaters, two 21′ Sport Offshores, three 20′ Sport center consoles. Intro rewritten to say so. Kick line "LODGE FLEET · ADMIRALTY ISLAND, ALASKA" (tag line under it not changed yet). Two videos side by side (`.vid2`, 2026-10-08), both on the LODGE's YouTube channel, so the caption ref says "PYBUS POINT LODGE ON YOUTUBE": `RvhoaaWAktg` "33′ Deepwater Charter Walkthrough" (11:19) + `Sx_vdR7VTmI` "Pybus Point Lodge Skiffs" (2:49) |
 | Landing Craft `models/landing-craft/` | DONE 2026-10-08 | Hero slider (24′ Cabin, 21′ CC), one card per length, per-length model names (LC-1292 / LC-1892) via `WB_LEN_NAME`. No video, no specs, no standard features |
 
 No master folders exist yet for the 3 to-do pages (MASTER-WEBSITE PHOTOS has CANYON-WEB,
