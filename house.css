@@ -1975,6 +1975,11 @@ html.blueprint .pcarbtn{ background:rgba(21,31,40,.94); border-color:#22303b; co
 .vid2 .vidfacade{ aspect-ratio:16/9; }           /* video-native 16:9 at the 2-up cover-card WIDTH (588px) — clean, no letterbox */
 .vid2 .vidsec figcaption .ref{ display:none; }   /* per-video titles need the room */
 @media (max-width:760px){ .vid2{ grid-template-columns:1fr; gap:14px; } }
+/* 3+ videos (SSO Pilothouse, Tyler 2026-10-15): stacked like the Pybus gallery cards, two across with an odd
+   last one centred below at the same size, 24px apart and 28px between rows */
+.vid2.vidstack{ display:flex; flex-wrap:wrap; justify-content:center; gap:28px 24px; }
+.vid2.vidstack .vidsec{ flex:0 0 calc(50% - 12px); }
+@media (max-width:760px){ .vid2.vidstack .vidsec{ flex-basis:100%; } }
 /* gallery cards the size of the YouTube thumbnails above (window.WB_CARDS_VIDEO; Pybus Point Lodge, Tyler
    2026-10-14): 2 across at the .vid2 width (588px), 16:9, an odd last card centred; one column under 760px */
 .modelcards.vidcards{ display:flex; flex-wrap:wrap; justify-content:center; gap:28px 24px; margin-top:26px; }   /* more breathing room (Tyler, 2026-10-15); 26px above = the hero-to-text gap */
