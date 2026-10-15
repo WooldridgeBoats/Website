@@ -1977,9 +1977,9 @@ html.blueprint .pcarbtn{ background:rgba(21,31,40,.94); border-color:#22303b; co
 @media (max-width:760px){ .vid2{ grid-template-columns:1fr; gap:14px; } }
 /* gallery cards the size of the YouTube thumbnails above (window.WB_CARDS_VIDEO; Pybus Point Lodge, Tyler
    2026-10-14): 2 across at the .vid2 width (588px), 16:9, an odd last card centred; one column under 760px */
-.modelcards.vidcards{ display:flex; flex-wrap:wrap; justify-content:center; gap:16px; }
+.modelcards.vidcards{ display:flex; flex-wrap:wrap; justify-content:center; gap:28px 24px; margin-top:30px; }   /* more breathing room (Tyler, 2026-10-15) */
 .modelcards.vidcards.mc-single{ max-width:none; }
-.modelcards.vidcards .mcard{ flex:0 0 calc(50% - 8px); aspect-ratio:16/9; }
+.modelcards.vidcards .mcard{ flex:0 0 calc(50% - 12px); aspect-ratio:16/9; }
 @media (max-width:760px){ .modelcards.vidcards .mcard{ flex-basis:100%; } }
 @media (max-width:700px){ .pfilter .optchip.nophone{ display:none; } }   /* a length with no phone photos yet (gallery.js) */
 
