@@ -2828,6 +2828,11 @@ html.blueprint body{ background:transparent; }
 }
 .hlb.on{ display:flex; }
 body.hlb-open{ overflow:hidden; }
+/* history.js handles every touch in the viewer (pinch zooms the photo, never the page) */
+.hlb{ touch-action:none; overscroll-behavior:contain; overflow:hidden; -webkit-touch-callout:none; }
+.hlb-fig img{ transform-origin:50% 50%; -webkit-user-drag:none; }
+/* a zoomed photo can run under the buttons: give them a dark backing so they still read */
+.hlb.zoomed .hlb-x,.hlb.zoomed .hlb-prev,.hlb.zoomed .hlb-next{ background:rgba(16,15,13,.72); }
 .hlb-stage{
   position:relative; flex:1; min-height:0; display:flex; align-items:center; justify-content:center;
   padding:66px 78px 8px;   /* no perspective here: it would trap the phone's fixed arrow row; the turn carries its own */

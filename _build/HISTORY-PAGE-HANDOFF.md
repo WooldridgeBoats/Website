@@ -57,6 +57,11 @@ Tyler: "Wooldridge Boats is an American Legacy brand, so this page is very impor
   10" are one fixed row at the very bottom. (The page-turn's 3D perspective lives in the keyframes,
   not on `.hlb-stage`, because a perspective there traps the fixed arrow row.) Desktop: arrows on
   the sides, photo centered, as before.
+- **Viewer touch (2026-10-15):** history.js handles every touch in the viewer (`.hlb{touch-action:none}`):
+  pinch zooms the PHOTO up to 4x (never the page: page zoom behind 200+ photos made iPhone Safari
+  run out of memory and reload), drag to look around, double-tap zooms 2.5x / back. Only a clear
+  one-finger swipe flips (70px+, mostly sideways, under 0.8s, not zoomed, never after a pinch).
+  The viewer pushes a history entry, so the phone's back swipe closes it instead of leaving the page.
 - **Year rail** on the right: big on wide screens (1380px+), small and faded until hover on
   laptops (901–1379px; the timeline gets 64px side padding there so it never covers photos),
   hidden on tablets/phones. Shows only while you're in the timeline.

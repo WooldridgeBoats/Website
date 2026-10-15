@@ -196,12 +196,86 @@
     bPrev.addEventListener('click', function () { go(-1); });
     bNext.addEventListener('click', function () { go(1); });
     lb.querySelector('.hlb-stage').addEventListener('click', function (ev) { if (ev.target === ev.currentTarget) close(); });
-    var x0 = null;
-    lb.addEventListener('touchstart', function (ev) { x0 = ev.touches[0].clientX; }, { passive: true });
+    // Touch (Tyler, 2026-10-15): pinch zooms the PHOTO, never the page; drag to look around
+    // while zoomed; double-tap zooms in on that spot and back out. Only a clear one-finger
+    // swipe flips, never during or after a pinch. Before, any finger moving 45px flipped
+    // (so pinching flipped), and a pinch zoomed the whole page with 200+ photos behind the
+    // viewer, which made iPhone Safari run out of memory and reload the page.
+    lb.addEventListener('touchstart', function (ev) {
+      var t = ev.touches;
+      if (t.length >= 2) {
+        if (!zimg()) { G = { multi: true }; return; }
+        var m = mid(t), h = home();
+        G = { multi: true, pinch: true, d0: dist(t), s0: Z.s, x0: Z.x, y0: Z.y, mx: m.x, my: m.y, cx: h.cx, cy: h.cy };
+      } else if (!G) {
+        G = { x: t[0].clientX, y: t[0].clientY, t: Date.now(), px: Z.x, py: Z.y, moved: false };
+      }
+    }, { passive: true });
+    lb.addEventListener('touchmove', function (ev) {
+      if (!G) return;
+      ev.preventDefault();   // the viewer handles every gesture itself: no page zoom, no page scroll
+      var t = ev.touches;
+      if (G.pinch && t.length >= 2) {
+        var s = Math.max(1, Math.min(ZMAX, G.s0 * dist(t) / G.d0)), m = mid(t);
+        Z.x = m.x - G.cx - (G.mx - G.cx - G.x0) * (s / G.s0);   // the spot under the fingers stays under them
+        Z.y = m.y - G.cy - (G.my - G.cy - G.y0) * (s / G.s0);
+        Z.s = s; zset(false);
+      } else if (t.length === 1 && G.px !== undefined) {
+        var dx = t[0].clientX - G.x, dy = t[0].clientY - G.y;
+        if (Math.abs(dx) > 8 || Math.abs(dy) > 8) G.moved = true;
+        if (Z.s > 1) { Z.x = G.px + dx; Z.y = G.py + dy; zset(false); }
+      }
+    }, { passive: false });
     lb.addEventListener('touchend', function (ev) {
-      if (x0 === null) return; var dx = ev.changedTouches[0].clientX - x0; x0 = null;
-      if (Math.abs(dx) > 45) go(dx < 0 ? 1 : -1);
+      if (!G) return;
+      var t = ev.touches;
+      if (t.length === 1 && G.multi) {   // one finger of a pinch lifted: keep dragging with the other
+        G = { multi: true, x: t[0].clientX, y: t[0].clientY, px: Z.x, py: Z.y, moved: true }; return;
+      }
+      if (t.length) return;
+      var e = ev.changedTouches[0], dx = e.clientX - G.x, dy = e.clientY - G.y, dt = Date.now() - G.t;
+      if (!G.multi && Z.s === 1 && Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.8 && dt < 800) {
+        G = null; go(dx < 0 ? 1 : -1); return;
+      }
+      if (!G.multi && !G.moved && dt < 300 && zimg() && ev.target === zimg()) {
+        var now = Date.now();
+        if (now - lastTap < 320) { lastTap = 0; toggleZoom(e.clientX, e.clientY); G = null; return; }
+        lastTap = now;
+      }
+      G = null; clampZ(); zset(true);
     });
+    lb.addEventListener('touchcancel', function () { G = null; clampZ(); zset(true); });
+    // Safari's own pinch gesture events: never let them zoom the page behind the viewer
+    lb.addEventListener('gesturestart', function (ev) { ev.preventDefault(); });
+    lb.addEventListener('gesturechange', function (ev) { ev.preventDefault(); });
+  }
+  // photo zoom state: scale + offset of the photo, applied as a transform around its centre
+  var Z = { s: 1, x: 0, y: 0 }, G = null, lastTap = 0, ZMAX = 4;
+  function zimg() { return fig && fig.querySelector('img'); }
+  function dist(t) { return Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY); }
+  function mid(t) { return { x: (t[0].clientX + t[1].clientX) / 2, y: (t[0].clientY + t[1].clientY) / 2 }; }
+  function zset(anim) {
+    var im = zimg(); if (!im) return;
+    im.style.transition = anim ? 'transform .25s ease-out' : 'none';
+    im.style.transform = Z.s === 1 && !Z.x && !Z.y ? '' : 'translate(' + Z.x + 'px,' + Z.y + 'px) scale(' + Z.s + ')';
+    lb.classList.toggle('zoomed', Z.s > 1);
+  }
+  function zreset() { Z.s = 1; Z.x = 0; Z.y = 0; G = null; if (lb) lb.classList.remove('zoomed'); }
+  function home() {   // the photo's centre and size with no zoom (its layout box never moves)
+    var r = zimg().getBoundingClientRect();
+    return { cx: r.left + r.width / 2 - Z.x, cy: r.top + r.height / 2 - Z.y, w: r.width / Z.s, h: r.height / Z.s };
+  }
+  function clampZ() {   // smaller than the screen: stays fully on it; bigger: no empty gap at an edge
+    if (!zimg() || Z.s <= 1.03) { Z.s = 1; Z.x = 0; Z.y = 0; return; }
+    var h = home(), W = h.w * Z.s, H = h.h * Z.s, vw = window.innerWidth, vh = window.innerHeight;
+    var ax = W / 2 - h.cx, bx = vw - h.cx - W / 2, ay = H / 2 - h.cy, by = vh - h.cy - H / 2;
+    Z.x = Math.max(Math.min(ax, bx), Math.min(Math.max(ax, bx), Z.x));
+    Z.y = Math.max(Math.min(ay, by), Math.min(Math.max(ay, by), Z.y));
+  }
+  function toggleZoom(px, py) {
+    if (Z.s > 1) { Z.s = 1; Z.x = 0; Z.y = 0; }
+    else { var h = home(); Z.s = 2.5; Z.x = (px - h.cx) * (1 - Z.s); Z.y = (py - h.cy) * (1 - Z.s); }
+    clampZ(); zset(true);
   }
   function split(it) {   // { yr: the blue date, txt: the caption without it }
     var own = (it.yt ? (it.title || '') : it.pc).trim();
@@ -226,7 +300,7 @@
   }
   window.addEventListener('resize', function () { if (lb && lb.classList.contains('on')) { capFor = 0; sizeCaption(); } });
   function show(i, dir) {
-    at = i; var it = items[i];
+    at = i; var it = items[i]; zreset();
     if (it.yt) {
       fig.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + it.yt +
         '?autoplay=1&rel=0&modestbranding=1" title="' + (it.title || 'Video') + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
@@ -247,15 +321,22 @@
     [i - 1, i + 1].forEach(function (j) { if (items[j] && !items[j].yt) { var p = new Image(); p.src = items[j].src; } });
   }
   function go(d) { var j = at + d; if (j >= 0 && j < items.length) show(j, d); }
+  // The viewer gets its own history entry, so the phone's back swipe / back button closes
+  // the viewer instead of leaving the page (Tyler, 2026-10-15).
+  if (history.state && history.state.hlb) history.replaceState(null, '');
+  window.addEventListener('popstate', function () { if (lb && lb.classList.contains('on')) close(true); });
   function open(i) {
     if (!lb) build();
     lastFocus = document.activeElement;
     lb.classList.add('on'); document.body.classList.add('hlb-open');
+    if (!(history.state && history.state.hlb)) history.pushState({ hlb: 1 }, '');
     sizeCaption(); show(i, 0); lb.querySelector('.hlb-x').focus();
   }
-  function close() {
+  function close(fromBack) {
+    if (!lb.classList.contains('on')) return;
     lb.classList.remove('on'); document.body.classList.remove('hlb-open');
-    fig.innerHTML = '';   // stops a playing video
+    zreset(); fig.innerHTML = '';   // stops a playing video
+    if (fromBack !== true && history.state && history.state.hlb) history.back();
     if (lastFocus) lastFocus.focus();
   }
   document.addEventListener('keydown', function (ev) {
