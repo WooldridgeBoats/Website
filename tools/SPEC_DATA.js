@@ -5,7 +5,7 @@
    Do not hand-edit: change the canon and re-run perl _build/gen_from_canon.pl.
    Consumed by compare/index.html (WB_SPEC_GROUPS + WB_SPECS). */
 const WB_SPEC_GROUPS = [
-  ["Dimensions & Construction", [["lengthOverall","Length Overall"],["beam","Beam"],["bottomWidth","Bottom Width"],["sideHeight","Side Height"],["bottomGauge","Bottom Gauge"],["centerBottomGauge","Center Bottom Gauge"],["sideGauge","Side Gauge"],["deadrise","Deadrise"],["deadriseAtBow","Deadrise At Bow"],["fuelTank","Fuel Tank"],["weight","Weight"],["deltaPadGauge","Delta Pad Gauge"],["interiorFloorWidth","Interior Floor Width"],["interiorSideHeight","Interior Side Height"]]],
+  ["Dimensions & Construction", [["lengthOverall","Length Overall"],["beam","Beam"],["bottomWidth","Bottom Width"],["sideHeight","Side Height"],["bottomGauge","Bottom Gauge"],["centerBottomGauge","Center Bottom Gauge"],["sideGauge","Side Gauge"],["deadrise","Deadrise"],["deadriseAtBow","Deadrise At Bow"],["fuelTank","Fuel Tank"],["weight","Weight"],["standardSideHeight","Standard Side Height"],["optionalLowerSideHeight","Optional Lower Side Height"],["deltaPadGauge","Delta Pad Gauge"],["interiorFloorWidth","Interior Floor Width"],["interiorSideHeight","Interior Side Height"]]],
   ["Weight by Configuration", [["weightTiller","Weight (Tiller)"],["weightCenterConsole","Weight (Center Console)"],["weightWindshield","Weight (Windshield)"],["weightOpen","Weight (Open)"]]],
   ["Power Ratings", [["maxJetHP","Max Jet HP"],["maxPropHP","Max Prop HP"],["maxTillerHP","Max Tiller HP"],["standardMotor","Standard Motor"],["standardJet","Standard Jet"],["maxJetTillerHP","Max Jet Tiller HP"]]]
 ];
@@ -40,9 +40,9 @@ const WB_SPECS = {
     "20": {"beam":"94 in.","bottomGauge":".190 in.","bottomWidth":"72 in.","deadrise":"10\u00b0","deadriseAtBow":"16\u00b0","fuelTank":"50 gal.","lengthOverall":"20 ft. 6 in.","maxJetHP":"250 hp","maxPropHP":"150 hp","sideGauge":".125 in.","sideHeight":"34.5 in.","weightOpen":"1,425 lbs.","weightWindshield":"1,500 lbs."}
   },
   "ssd": {
-    "21": {"beam":"102 in.","bottomGauge":".190 in.","bottomWidth":"84 in.","deadrise":"10\u00b0","deadriseAtBow":"18\u00b0","fuelTank":"52 gal.","lengthOverall":"21 ft.","maxJetHP":"250 hp","maxPropHP":"200 hp","sideGauge":".125 in.","sideHeight":"34.25 in.","weightOpen":"1,530 lbs.","weightWindshield":"1,630 lbs."},
-    "23": {"beam":"102 in.","bottomGauge":".190 in.","bottomWidth":"84 in.","deadrise":"10\u00b0","deadriseAtBow":"18\u00b0","fuelTank":"52 gal.","lengthOverall":"23 ft.","maxJetHP":"250 hp","maxPropHP":"225 hp","sideGauge":".125 in.","sideHeight":"34.25 in.","weightOpen":"1,630 lbs.","weightWindshield":"1,730 lbs."},
-    "25": {"beam":"102 in.","bottomGauge":".190 in.","bottomWidth":"84 in.","deadrise":"10\u00b0","deadriseAtBow":"18\u00b0","fuelTank":"52 gal.","lengthOverall":"25 ft.","maxJetHP":"250 hp","maxPropHP":"225 hp","sideGauge":".125 in.","sideHeight":"34.25 in.","weightOpen":"1,730 lbs.","weightWindshield":"1,830 lbs."}
+    "21": {"beam":"102 in.","bottomGauge":".190 in.","bottomWidth":"84 in.","deadrise":"10\u00b0","deadriseAtBow":"18\u00b0","fuelTank":"52 gal.","lengthOverall":"21 ft.","maxJetHP":"250 hp","maxPropHP":"200 hp","optionalLowerSideHeight":"28.25 in.","sideGauge":".125 in.","standardSideHeight":"34.25 in.","weightOpen":"1,530 lbs.","weightWindshield":"1,630 lbs."},
+    "23": {"beam":"102 in.","bottomGauge":".190 in.","bottomWidth":"84 in.","deadrise":"10\u00b0","deadriseAtBow":"18\u00b0","fuelTank":"52 gal.","lengthOverall":"23 ft.","maxJetHP":"250 hp","maxPropHP":"225 hp","optionalLowerSideHeight":"28.25 in.","sideGauge":".125 in.","standardSideHeight":"34.25 in.","weightOpen":"1,630 lbs.","weightWindshield":"1,730 lbs."},
+    "25": {"beam":"102 in.","bottomGauge":".190 in.","bottomWidth":"84 in.","deadrise":"10\u00b0","deadriseAtBow":"18\u00b0","fuelTank":"52 gal.","lengthOverall":"25 ft.","maxJetHP":"250 hp","maxPropHP":"225 hp","optionalLowerSideHeight":"28.25 in.","sideGauge":".125 in.","standardSideHeight":"34.25 in.","weightOpen":"1,730 lbs.","weightWindshield":"1,830 lbs."}
   },
   "xlib": {
     "20": {"beam":"99 in.","bottomGauge":".190 in.","bottomWidth":"81 in.","deadrise":"9\u00b0","deadriseAtBow":"9\u00b0","fuelTank":"50 gal.","lengthOverall":"22 ft. 8 in.","sideGauge":".125 in.","sideHeight":"29.5 in."},
