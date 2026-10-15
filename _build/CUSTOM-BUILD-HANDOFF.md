@@ -202,7 +202,7 @@ don't load and screenshots come out blank; check the DOM, or use `_build/snap.sw
 ## Other open threads
 - **Phone sets:** Tyler is making phone (-MOBILE) sets for the main models without them (alaskan-lt,
   alaskan-xl-inboard, alaskan, alaskanxl, landing-craft, rogue, skagit, sport, sportster,
-  supersportdrifter, xlt). Re-run their Model Ready (or `apply_mobile_gallery.sh <slug> "<SRC>"`).
+  supersportdrifter; xlt got its set 2026-10-15). Re-run their Model Ready (or `apply_mobile_gallery.sh <slug> "<SRC>"`).
 - **Agency & Work Boats** has its own handoff: `_build/AGENCY-READY-HANDOFF.md`.
 - Also done this session (in git): the phone menu scrolls on its own and hides the corner pills;
   the desktop mega menu order is Offshore, Inboard, Outboard, Custom Builds, Tools; the "Not sure
