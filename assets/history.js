@@ -134,6 +134,9 @@
   /* ── 2: carousels ── */
   [].slice.call(document.querySelectorAll('.hcar')).forEach(function (car) {
     var track = car.querySelector('.htrack');
+    // the edge fades sit over the track in this wrapper (house.css .hview): no mask on the scroller
+    var view = document.createElement('div'); view.className = 'hview';
+    track.parentNode.insertBefore(view, track); view.appendChild(track);
     var tiles = [].slice.call(track.children);
     var prev = car.querySelector('.hprev'), next = car.querySelector('.hnext'), count = car.querySelector('.hcount');
     // the little scroll bar under the prints: shows where you are, click or drag it to move

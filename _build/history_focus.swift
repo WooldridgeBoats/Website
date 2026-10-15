@@ -15,7 +15,29 @@
 import Foundation
 import Vision
 import ImageIO
+import CoreImage
 import UniformTypeIdentifiers
+
+// The tiles' light sepia, baked in (Tyler, 2026-10-15). It used to be a CSS filter
+// (sepia(.14) contrast(1.03)) on all ~150 tiles, which iPhone Safari re-ran on every tile
+// at every zoom level when the page was pinch-zoomed. Same maths as the CSS: the Filter
+// Effects sepia matrix at 0.14, then contrast 1.03, on gamma-encoded sRGB values.
+let ciCtx = CIContext(options: [.workingColorSpace: CGColorSpace(name: CGColorSpace.sRGB)!,
+                                .outputColorSpace: CGColorSpace(name: CGColorSpace.sRGB)!])
+func warm(_ img: CGImage) -> CGImage {
+  let a = 0.14, k = 1 - a, c = 1.03, b = 0.5 - 0.5 * c
+  let m = [[0.393 + 0.607 * k, 0.769 - 0.769 * k, 0.189 - 0.189 * k],
+           [0.349 - 0.349 * k, 0.686 + 0.314 * k, 0.168 - 0.168 * k],
+           [0.272 - 0.272 * k, 0.534 - 0.534 * k, 0.131 + 0.869 * k]]
+  let ci = CIImage(cgImage: img).applyingFilter("CIColorMatrix", parameters: [
+    "inputRVector": CIVector(x: m[0][0] * c, y: m[0][1] * c, z: m[0][2] * c, w: 0),
+    "inputGVector": CIVector(x: m[1][0] * c, y: m[1][1] * c, z: m[1][2] * c, w: 0),
+    "inputBVector": CIVector(x: m[2][0] * c, y: m[2][1] * c, z: m[2][2] * c, w: 0),
+    "inputAVector": CIVector(x: 0, y: 0, z: 0, w: 1),
+    "inputBiasVector": CIVector(x: b, y: b, z: b, w: 0)]).applyingFilter("CIColorClamp")
+  return ciCtx.createCGImage(ci, from: CGRect(x: 0, y: 0, width: img.width, height: img.height),
+                             format: .RGBA8, colorSpace: CGColorSpace(name: CGColorSpace.sRGB)!) ?? img
+}
 
 func focus(_ path: String, cropTo out: String? = nil) -> String {
   guard let src = CGImageSourceCreateWithURL(URL(fileURLWithPath: path) as CFURL, nil),
@@ -26,7 +48,7 @@ func focus(_ path: String, cropTo out: String? = nil) -> String {
     let S = min(img.width, img.height)
     let sq = img.cropping(to: CGRect(x: Int(x.rounded()), y: Int(y.rounded()), width: S, height: S)) ?? img
     let d = CGImageDestinationCreateWithURL(URL(fileURLWithPath: out) as CFURL, UTType.png.identifier as CFString, 1, nil)!
-    CGImageDestinationAddImage(d, sq, nil); CGImageDestinationFinalize(d)
+    CGImageDestinationAddImage(d, warm(sq), nil); CGImageDestinationFinalize(d)
   }
   if abs(W - H) < 2 { cut(0, 0); return "50% 50%" }
   let faces = VNDetectFaceRectanglesRequest()

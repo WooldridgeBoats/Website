@@ -5,8 +5,8 @@
 //       assets/history/rogue-map.jpg  > <scratchpad>/rogue-path.txt
 //
 // 1. Cleans Glen's map scan (a photo of a book page, xiv): crops off the page edge
-//    and page number, drops the colour, and pushes the paper to pure white so the
-//    page can lay it on with mix-blend-mode:multiply like ink.
+//    and page number, drops the colour, and pushes the paper to pure white, then saves
+//    it multiplied onto the page's paper colour (#fbf9f4) so it reads as ink, no blend mode.
 // 2. Finds the Rogue's own line from Gold Beach up to Grants Pass, the route of the
 //    1947 and 1962 firsts, so the blue line drawn on scroll sits exactly on the river.
 //    It's a cheapest-path search over the ink that strongly prefers THICK strokes, so
@@ -52,15 +52,26 @@ ci = ci.applyingFilter("CIColorClamp")
 let ctx = CIContext()
 let gray = CGColorSpaceCreateDeviceGray()
 let out = ctx.createCGImage(ci, from: CGRect(x: 0, y: 0, width: OUTW, height: OUTH), format: .L8, colorSpace: gray)!
-let dest = CGImageDestinationCreateWithURL(URL(fileURLWithPath: args[2]) as CFURL, UTType.jpeg.identifier as CFString, 1, nil)!
-CGImageDestinationAddImage(dest, out, [kCGImageDestinationLossyCompressionQuality: 0.82] as CFDictionary)
-CGImageDestinationFinalize(dest)
 
 // ── read the cleaned pixels back (row 0 = top) ──
 let W = OUTW, H = OUTH
 var px = [UInt8](repeating: 255, count: W * H)
 let bctx = CGContext(data: &px, width: W, height: H, bitsPerComponent: 8, bytesPerRow: W, space: gray, bitmapInfo: 0)!
 bctx.draw(out, in: CGRect(x: 0, y: 0, width: W, height: H))
+
+// ── save it ON the page's paper (#fbf9f4): ink x paper, i.e. the multiply the page used to
+// do live with mix-blend-mode. Baked in so iPhone Safari has no blend to redo when the page
+// is pinch-zoomed (Tyler, 2026-10-15). The river search below still reads the plain grey.
+let paperRGB: [Double] = [251, 249, 244]
+var rgb = [UInt8](repeating: 255, count: W * H * 4)
+for i in 0..<(W * H) { let v = Double(px[i]) / 255
+  for c in 0..<3 { rgb[i * 4 + c] = UInt8((v * paperRGB[c]).rounded()) } }
+let srgb = CGColorSpace(name: CGColorSpace.sRGB)!
+let tctx = CGContext(data: &rgb, width: W, height: H, bitsPerComponent: 8, bytesPerRow: W * 4, space: srgb,
+                     bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue)!
+let dest = CGImageDestinationCreateWithURL(URL(fileURLWithPath: args[2]) as CFURL, UTType.jpeg.identifier as CFString, 1, nil)!
+CGImageDestinationAddImage(dest, tctx.makeImage()!, [kCGImageDestinationLossyCompressionQuality: 0.82] as CFDictionary)
+CGImageDestinationFinalize(dest)
 func ink(_ i: Int) -> Bool { px[i] < 110 }
 
 // depth = distance (chamfer 3-4) from each ink pixel to the paper: thick strokes run deep

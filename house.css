@@ -2748,9 +2748,19 @@ html.blueprint body{ background:transparent; }
 .htrack > :last-child{ margin-right:auto; }
 .hcar{ --hfade:90px; }
 @media (max-width:600px){ .hcar{ --hfade:32px; } }
-.hcar.more-r .htrack{ -webkit-mask-image:linear-gradient(to right,#000 calc(100% - var(--hfade)),transparent); mask-image:linear-gradient(to right,#000 calc(100% - var(--hfade)),transparent); }
-.hcar.more-l .htrack{ -webkit-mask-image:linear-gradient(to left,#000 calc(100% - var(--hfade)),transparent); mask-image:linear-gradient(to left,#000 calc(100% - var(--hfade)),transparent); }
-.hcar.more-l.more-r .htrack{ -webkit-mask-image:linear-gradient(to right,transparent,#000 var(--hfade),#000 calc(100% - var(--hfade)),transparent); mask-image:linear-gradient(to right,transparent,#000 var(--hfade),#000 calc(100% - var(--hfade)),transparent); }
+/* the soft edge where a strip carries on: a page-coloured gradient laid OVER the track
+   (history.js wraps each track in .hview), not a mask ON it. A mask on a sideways
+   scroller makes iPhone Safari paint the whole strip into one big off-screen image, and
+   pinch-zooming the page multiplied that until Safari ran out of memory and reloaded
+   (Tyler, 2026-10-15). Looks the same. */
+.hview{ position:relative; }
+.hview::before,.hview::after{
+  content:""; position:absolute; top:0; bottom:0; width:var(--hfade); z-index:2; pointer-events:none;
+  opacity:0; transition:opacity .25s;
+}
+.hview::before{ left:0; background:linear-gradient(to right, var(--bg), rgba(242,242,242,0)); }
+.hview::after{ right:0; background:linear-gradient(to left, var(--bg), rgba(242,242,242,0)); }
+.hcar.more-l .hview::before,.hcar.more-r .hview::after{ opacity:1; }
 .htile{
   --t:clamp(250px,27vw,340px);
   flex:none; position:relative; display:flex; flex-direction:column; width:var(--t);
@@ -2768,7 +2778,7 @@ html.blueprint body{ background:transparent; }
 }
 .htile:focus-visible{ box-shadow:0 0 0 3px var(--blue), 0 22px 44px rgba(20,30,40,.24); }
 .hpic{ display:block; position:relative; width:100%; aspect-ratio:1; overflow:hidden; background:#e9e6df; }
-.hpic img{ width:100%; height:100%; object-fit:cover; filter:sepia(.14) contrast(1.03); }
+.hpic img{ width:100%; height:100%; object-fit:cover; }   /* the light sepia is baked into the thumbs (history_focus.swift), not a filter */
 /* the caption, written in the white margin under the print (photo's Description metadata) */
 /* the caption, written in the white margin under the print (photo's Description metadata).
    Tyler tried dates-only here on 2026-10-14 and went back to captions; the brochures keep dates. */
@@ -2956,7 +2966,7 @@ body.hlb-open{ overflow:hidden; }
   box-shadow:0 2px 4px rgba(20,30,40,.1), 0 26px 64px rgba(20,30,40,.18);
 }
 .hmap-art{ position:relative; }
-.hmap-art img{ width:100%; height:auto; mix-blend-mode:multiply; }
+.hmap-art img{ width:100%; height:auto; }   /* the paper tone is baked into rogue-map.jpg (history_map.swift): no blend mode */
 .hmap-route{ position:absolute; left:0; top:0; width:100%; height:100%; overflow:visible; }
 .hmap-glow,.hmap-line{ fill:none; stroke-linecap:round; stroke-linejoin:round; }
 .hmap-glow{ stroke:rgba(27,117,187,.2); stroke-width:30; }
@@ -3030,11 +3040,8 @@ body.hlb-open{ overflow:hidden; }
   .hvidcar{ --hvh:min(50vw,225px); }   /* 250px tiles at 375: the next one peeks in ~50px */
   .hvidcar .htile,.hvidcar .htile:nth-child(n){ scroll-snap-align:start; }
   .hvidcar .htrack{ scroll-padding-inline:8px; gap:12px; }
-  .hvidcar.more-r .htrack,.hvidcar.more-l.more-r .htrack{
-    -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 24px),transparent);
-            mask-image:linear-gradient(to right,#000 calc(100% - 24px),transparent);
-  }
-  .hvidcar.more-l:not(.more-r) .htrack{ -webkit-mask-image:none; mask-image:none; }
+  .hvidcar{ --hfade:24px; }
+  .hvidcar.more-l .hview::before{ opacity:0; }   /* clean left edge, light fade on the right only */
 }
 
 /* the closing photo (01-END CAP), full width after the map, with the hero's title on

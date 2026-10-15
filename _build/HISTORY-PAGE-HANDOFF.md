@@ -62,6 +62,11 @@ Tyler: "Wooldridge Boats is an American Legacy brand, so this page is very impor
   run out of memory and reload), drag to look around, double-tap zooms 2.5x / back. Only a clear
   one-finger swipe flips (70px+, mostly sideways, under 0.8s, not zoomed, never after a pinch).
   The viewer pushes a history entry, so the phone's back swipe closes it instead of leaving the page.
+- **Light for iPhone pinch-zoom (2026-10-15):** no CSS masks, filters or blend modes on the page's
+  big pieces (they made Safari redraw huge off-screen images on zoom and reload). Strip edge fades
+  are gradient overlays on `.hview` (history.js wraps each track); the tiles' light sepia is BAKED
+  into the thumbs by `history_focus.swift` (same maths as the old `sepia(.14) contrast(1.03)`);
+  the map's paper tone is baked into `rogue-map.jpg` by `history_map.swift`. Don't add them back.
 - **Year rail** on the right: big on wide screens (1380px+), small and faded until hover on
   laptops (901–1379px; the timeline gets 64px side padding there so it never covers photos),
   hidden on tablets/phones. Shows only while you're in the timeline.
