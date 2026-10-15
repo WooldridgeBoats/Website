@@ -6,9 +6,8 @@ file is the log the new chat reads: status, Tyler's rules, the toolbox, and how 
 ---
 
 Continuing the Wooldridge dev site (dev.wooldridgeboats.com) in ~/Desktop/LOCAL-WEBSITE: the
-CUSTOM BUILD pages. Canyon, Deepwater, River Rat and Landing Craft are done. Still to do: SSO Angler
-(models/angler/), SSO Pilothouse (models/supersportoffshorepilothouse/) and Pybus Point Lodge
-(models/pybus-offshore/; renamed from Pybus Offshore, the URL stays). FIRST read
+CUSTOM BUILD pages. Canyon, Deepwater, River Rat, Landing Craft, Pybus Point Lodge and SSO Angler are done.
+Still to do: SSO Pilothouse (models/supersportoffshorepilothouse/). FIRST read
 `_build/CUSTOM-BUILD-HANDOFF.md` and my memory notes `wooldridge-model-lineup`,
 `website-photo-replacement-workflow`, `model-ready-check-first`, `no-image-recompression`,
 `tyler-pushes-to-github`, `desktop-tcc-eperm` and `no-headless-chrome-app-management`.
@@ -33,7 +32,7 @@ to come: when Tyler fills `PYBUS-WEB/33-DEEPWATER-CHARTER-MOBILE`, re-run Model 
 | Canyon `models/canyon/` | DONE, live | Specs fold + standard features, Legacy label, 3 galleries (23/24/26, all LM), hull # on cards |
 | Deepwater `models/deepwater/` | DONE, live | Hero slider, one card per boat (33′ Angler + 33′ Explorer), mixed bottom grid, 2 videos. **No spec table and no standard features (Tyler, 2026-10-08)** |
 | River Rat DIY Kit `models/riverrat-diy-kit/` | DONE, live | Minimal: one gallery, no length / hull / config, no video |
-| SSO Angler `models/angler/` | TO DO | Bare page (no photos), "video coming soon" block, a Build & Price button into the SSO configurator |
+| SSO Angler `models/angler/` | DONE 2026-10-15 | One 20′ gallery (hull 4660, 21 desktop / 22 phone), single hero, Start a Quote only (Build & Price removed), video section removed, no Legacy tag, no specs. Captions "20′ Super Sport Offshore · Angler · Hull #4660" |
 | SSO Pilothouse `models/supersportoffshorepilothouse/` | TO DO | Bare page, REAL video `h6p-gE16A9s` "30' Wooldridge Super Sport Offshore Pilothouse", Build & Price button into the SSO configurator |
 | Pybus Point Lodge `models/pybus-offshore/` | DONE 2026-10-15 (33′ phone set to come) | Bare page, "video coming soon" block. Renamed from Pybus Offshore 2026-10-08: ONLY the h1, `<title>` and menu label changed; the URL and homepage card were left as-is on purpose. **It's a FLEET page** (Tyler): the boats Wooldridge built for Pybus Point Lodge (Admiralty Island, SE Alaska) = five 33′ Deepwaters, two 21′ Sport Offshores, three 20′ Sport center consoles. Intro rewritten to say so. Kick line "LODGE FLEET · ADMIRALTY ISLAND, ALASKA" (tag line under it not changed yet). Two videos side by side (`.vid2`, 2026-10-08), both on the LODGE's YouTube channel, so the caption ref says "PYBUS POINT LODGE ON YOUTUBE": `RvhoaaWAktg` "33′ Deepwater Charter Walkthrough" (11:19) + `Sx_vdR7VTmI` "Pybus Point Lodge Skiffs" (2:49) |
 | Landing Craft `models/landing-craft/` | DONE 2026-10-08 | Hero slider (24′ Cabin, 21′ CC), one card per length, per-length model names (LC-1292 / LC-1892) via `WB_LEN_NAME`. No video, no specs, no standard features |
@@ -192,6 +191,15 @@ don't load and screenshots come out blank; check the DOM, or use `_build/snap.sw
 - An EMPTY length folder (photos not exported yet) is skipped by the builder and only warned by the checker.
 - Hero slider hand-written (11 slides): "Deepwater — 33′ Charter" (no hull), "Sport — 20′ Center Console" HULL #4544,
   "Sport Offshore — 21′ Cabin". Two lodge videos below the cards; photo grid after the videos.
+
+### SSO Angler (2026-10-15)
+- Master `SSOFF-ANGLER-WEB`. Tyler's desktop files came named `4660-20-SSOFF-ANGLER-001.jpg` (number at the END);
+  I moved each number to the front (`01-4660-20-SSOFF-ANGLER.jpg`). He then swapped in new photos numbered 01-21
+  in his order (same day); the gallery follows that order. Phone files were right.
+- Build: `_build/apply_model_photos.sh angler "Super Sport Offshore" "<…/SSOFF-ANGLER-WEB>"`. The trim `angler` is
+  found after the model name, so captions read "20′ Super Sport Offshore · Angler". `@MODELS` entry `angler`, empty lens.
+- Bare page: hero placeholder + modelcards-slot + gallery block + scripts inserted by hand, then the builder filled them.
+- The 2nd intro paragraph still says "start from the Super Sport Offshore in Build & Price" (flagged to Tyler).
 
 ## Menu (Tyler, 2026-10-08)
 - Our Boats → Custom Builds order: Agency & Work Boats, Landing Craft, SSO Angler, Pybus Point Lodge,

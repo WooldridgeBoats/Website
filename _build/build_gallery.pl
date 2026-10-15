@@ -36,6 +36,7 @@ my @MODELS = (
   ['deepwater',               'Deepwater',                  'Offshore',     [33],       33],      # custom build; 33' Angler + 33' Explorer, one gallery card per boat (WB_CARDS_BY='cfg')
   ['riverrat-diy-kit',        'River Rat DIY Kit',          'Kit',          [],         undef],   # custom DIY kit: no length / hull / config, one gallery (build_riverrat.sh)
   ['landing-craft',           'Landing Craft',              'Specialty Workboat', [],   undef],
+  ['angler',                  'Super Sport Offshore',       'Offshore',           [],   undef],   # SSO Angler page (Tyler 2026-10-15): captions "20′ Super Sport Offshore · Angler"; empty lens = never legacy
   ['pybus-offshore',          'Pybus Point Lodge',          'Lodge Fleet',        [],   undef],   # Tyler 2026-10-14: the lodge's fleet (Deepwater Charter, Sport, Sport Offshore); empty lens = never legacy
   ['agency-lc29',             "29' LC — In The Shop",       'Agency Build', [29],       29],
 );
