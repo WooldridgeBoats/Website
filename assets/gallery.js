@@ -804,6 +804,9 @@
         /* window.WB_CARDS_VIDEO = true (Pybus Point Lodge, Tyler 2026-10-14): cards the size of the page's
            YouTube thumbnails (.vid2): 2 across, 16:9, an odd last card centred (CSS .modelcards.vidcards) */
         if (window.WB_CARDS_VIDEO && cards.className === 'modelcards') cards.classList.add('vidcards');
+        /* window.WB_CARDS_ROOMY = true (Tyler, 2026-10-15): the Pybus page's breathing room (26px above the
+           cards, 24px between them) with the normal card size and shape (Landing Craft, SSO Angler, River Rat) */
+        if (window.WB_CARDS_ROOMY && cards.className === 'modelcards') cards.classList.add('roomy');
         slot.appendChild(cards);
 
         ks.forEach(function (k) {

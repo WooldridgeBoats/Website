@@ -1977,10 +1977,12 @@ html.blueprint .pcarbtn{ background:rgba(21,31,40,.94); border-color:#22303b; co
 @media (max-width:760px){ .vid2{ grid-template-columns:1fr; gap:14px; } }
 /* gallery cards the size of the YouTube thumbnails above (window.WB_CARDS_VIDEO; Pybus Point Lodge, Tyler
    2026-10-14): 2 across at the .vid2 width (588px), 16:9, an odd last card centred; one column under 760px */
-.modelcards.vidcards{ display:flex; flex-wrap:wrap; justify-content:center; gap:28px 24px; margin-top:30px; }   /* more breathing room (Tyler, 2026-10-15) */
+.modelcards.vidcards{ display:flex; flex-wrap:wrap; justify-content:center; gap:28px 24px; margin-top:26px; }   /* more breathing room (Tyler, 2026-10-15); 26px above = the hero-to-text gap */
 .modelcards.vidcards.mc-single{ max-width:none; }
 .modelcards.vidcards .mcard{ flex:0 0 calc(50% - 12px); aspect-ratio:16/9; }
 @media (max-width:760px){ .modelcards.vidcards .mcard{ flex-basis:100%; } }
+/* the same breathing room at the normal card size (window.WB_CARDS_ROOMY; Landing Craft, SSO Angler, River Rat) */
+.modelcards.roomy{ margin-top:26px; gap:28px 24px; }   /* 26px above the cards = the hero-to-text gap (Tyler) */
 @media (max-width:700px){ .pfilter .optchip.nophone{ display:none; } }   /* a length with no phone photos yet (gallery.js) */
 
 /* ── video gallery: big main player + scrollable rail of more videos (Rogue etc.) ── */
