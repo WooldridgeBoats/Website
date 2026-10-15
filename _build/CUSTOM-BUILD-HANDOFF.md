@@ -110,6 +110,9 @@ length, per boat, or one gallery? Hero or hero slider?
   m = phone set) (Deepwater: on-water shots first; on phones, the ones without black bands).
 - `window.WB_CARD_SUB='Customer builds'`: the card's 2nd line for a no-trim, no-hull gallery (River Rat).
 - `window.WB_CARD_ORDER=["33","20","21"]`: the length cards in this order (Pybus Point Lodge).
+- `window.WB_GRID_MIX=true`: a by-length page whose lengths are different boats mixes its bottom grid like a
+  WB_CARDS_BY page (Deepwater 1, Sport 1, Deepwater 2…, in WB_CARD_ORDER order; desktop + phone), a tap opens that
+  boat's set, and the pills follow the card order (Pybus Point Lodge, 2026-10-15).
 - `window.WB_CARDS_VIDEO=true`: cards the size of the page's YouTube thumbnails (`.vid2`): 2 across at 588px,
   16:9, an odd last card centred, one column under 760px (CSS `.modelcards.vidcards`) (Pybus Point Lodge).
 - `window.WB_LEN_NAME={"21":"LC-1292",…}`: each length gets its own model name in the cover card title

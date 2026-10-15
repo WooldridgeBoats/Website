@@ -28,6 +28,11 @@
      cover cards and grid labels use it in place of the model name. Pages without it are unchanged. */
   var LENNAME = window.WB_LEN_NAME || null;
   function nameFor(len, fallback) { return (LENNAME && len && LENNAME[len]) || fallback; }
+  /* sort group keys by window.WB_CARD_ORDER (unlisted keys keep their order, after the listed ones) */
+  function byCardOrder(a, b) {
+    var co = (window.WB_CARD_ORDER || []).map(String), ia = co.indexOf(String(a)), ib = co.indexOf(String(b));
+    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+  }
 
   /* ── nav height → CSS var (sticky toolbar offset) ─────────────────────── */
   var nav = document.querySelector('.nav');
@@ -546,6 +551,7 @@
       function mixCfg(list) {
         var by = {}, ks = [], out = [], i, more = true;
         list.forEach(function (a) { var k = gkey(a); if (!by[k]) { by[k] = []; ks.push(k); } by[k].push(a); });
+        if (window.WB_CARD_ORDER) ks.sort(byCardOrder);   /* deal the boats out in the cards' order (Pybus: Deepwater first) */
         for (i = 0; more; i++) {
           more = false;
           ks.forEach(function (k) { if (i < by[k].length) { out.push(by[k][i]); more = true; } });
@@ -565,7 +571,13 @@
         });
         return mixCfg(lead).concat(mixCfg(rest));
       }
+      /* window.WB_GRID_MIX = true (Pybus Point Lodge, Tyler 2026-10-15): a by-LENGTH page whose lengths are
+         different boats mixes its bottom grid like a WB_CARDS_BY page: Deepwater 1, Sport 1, Deepwater 2,
+         Sport 2... (in WB_CARD_ORDER order), desktop and phone; a tap opens that boat's set; the pills
+         (same order as the cards) still show one boat. Pages without it are unchanged. */
+      var MIX = BYCFG || !!window.WB_GRID_MIX;
       var fkeys = keys, fgroups = groups;
+      if (MIX && !BYCFG && window.WB_CARD_ORDER) fkeys = keys.slice().sort(byCardOrder);
       if (BYCFG) {
         fkeys = []; fgroups = {};
         anchors.forEach(function (a) { var k = gkey(a); if (!fgroups[k]) { fgroups[k] = []; fkeys.push(k); } fgroups[k].push(a); });
@@ -596,7 +608,7 @@
         });
         if (!manchors.length) mgrid = null;
         /* WB_CARDS_BY page: mix the boats in the phone grid too */
-        if (mgrid && BYCFG) { manchors = leadMix(manchors, 'm'); manchors.forEach(function (a) { mgrid.appendChild(a); }); }
+        if (mgrid && MIX) { manchors = leadMix(manchors, 'm'); manchors.forEach(function (a) { mgrid.appendChild(a); }); }
       }
       function applyPhone() {
         if (!mgrid) return;
@@ -628,7 +640,7 @@
          window.WB_GRID_PREVIEW photos with a "View all" link (Tyler, 2026-10-07: "Mix the
          bottom grid up a bit ... show a bunch but not all"). A tap opens that boat's full set. */
       var DESK_PREVIEW = BYCFG ? (+window.WB_GRID_PREVIEW || 0) : 0, dmore = null, dOpen = false;
-      if (BYCFG) {
+      if (MIX) {
         leadMix(anchors, 'd').forEach(function (a) { grid.appendChild(a); });
         grid.addEventListener('click', function (e) {
           var a = e.target.closest ? e.target.closest('a') : null;
