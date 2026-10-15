@@ -199,7 +199,7 @@ don't load and screenshots come out blank; check the DOM, or use `_build/snap.sw
 - Build: `_build/apply_model_photos.sh angler "Super Sport Offshore" "<…/SSOFF-ANGLER-WEB>"`. The trim `angler` is
   found after the model name, so captions read "20′ Super Sport Offshore · Angler". `@MODELS` entry `angler`, empty lens.
 - Bare page: hero placeholder + modelcards-slot + gallery block + scripts inserted by hand, then the builder filled them.
-- The 2nd intro paragraph still says "start from the Super Sport Offshore in Build & Price" (flagged to Tyler).
+- 2nd intro paragraph reworded (Build & Price gone): "Every Angler is configured and quoted with our team on the Super Sport Offshore platform. Ready to build one? Contact the factory to start a quote and talk through your layout."
 
 ## Menu (Tyler, 2026-10-08)
 - Our Boats → Custom Builds order: Agency & Work Boats, Landing Craft, SSO Angler, Pybus Point Lodge,
