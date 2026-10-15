@@ -49,9 +49,9 @@ length, per boat, or one gallery? Hero or hero slider?
 ## Tyler's rules (all custom pages)
 
 - **Even spacing (2026-10-15):** hero → intro text 26px, intro text → gallery cards 26px, cards → button 26px.
-  Pybus has it via WB_CARDS_VIDEO, Landing Craft / SSO Angler / River Rat via WB_CARDS_ROOMY. Canyon and Deepwater
-  stay as they were (Tyler likes them; Canyon is 14px text → cards). A new custom page (SSO Pilothouse): ask, but
-  WB_CARDS_ROOMY is the likely default. He does NOT want the card size/shape changed on the other pages.
+  Pybus has it via WB_CARDS_VIDEO; Landing Craft, SSO Angler, River Rat and Canyon via WB_CARDS_ROOMY (Canyon's
+  three cards stay in one row). Deepwater stays as it was. A new custom page (SSO Pilothouse) gets WB_CARDS_ROOMY.
+  He does NOT want the card size/shape changed on the other pages.
 
 - **Each custom page is its own thing:** a mix of the Agency page and Canyon, and each one differs.
 - **Check first:** on "Model Ready", run `_build/check_model_photos.sh` on that folder (it covers the
@@ -113,7 +113,7 @@ length, per boat, or one gallery? Hero or hero slider?
   WB_CARDS_BY page (Deepwater 1, Sport 1, Deepwater 2…, in WB_CARD_ORDER order; desktop + phone), a tap opens that
   boat's set, and the pills follow the card order (Pybus Point Lodge, 2026-10-15).
 - `window.WB_CARDS_ROOMY=true`: the Pybus spacing at the normal card size (`.modelcards.roomy`): 26px above the
-  cards and 24px between them, 28px between rows (Landing Craft, SSO Angler, River Rat; 2026-10-15).
+  cards and 24px between them, 28px between rows (Landing Craft, SSO Angler, River Rat, Canyon; 2026-10-15).
 - `window.WB_CARDS_VIDEO=true`: cards the size of the page's YouTube thumbnails (`.vid2`): 2 across at 588px,
   16:9, an odd last card centred, one column under 760px (CSS `.modelcards.vidcards`) (Pybus Point Lodge).
 - `window.WB_LEN_NAME={"21":"LC-1292",…}`: each length gets its own model name in the cover card title
