@@ -2,11 +2,13 @@ package WBSpecCanon;
 # WBSpecCanon.pm - shared code for the informational (spec) canon tools:
 #   _build/gen_from_canon.pl     canon -> website surfaces (writes)
 #   _build/verify_spec_canon.pl  canon vs website surfaces (read-only)
+#   SQUIRREL HOLE/CANON/_build/BOAT FACTS/build_boat_facts.pl (in the library) loads it read-only from the repo
 #
 # CORE PERL ONLY. Runs on macOS system perl and on the perl that rides Git for
 # Windows: JSON::PP, Encode, IO::Uncompress::Unzip, File::Basename, Cwd.
 # No Text::CSV, no Text::ParseWords, no XML modules, no PowerShell, no COM.
-# Every path is passed in by the caller; nothing here is hardcoded.
+# Every path is passed in by the caller; nothing here is hardcoded (find_sales_tools
+# derives SALES TOOLS from the SQUIRREL HOLE folder it is given).
 #
 # The canon is four tabs / CSV files (names match exactly):
 #   STD FEATURES   model_id, model_name, group_order, group_heading, item_order, item_text, config_tag, source
@@ -32,7 +34,7 @@ our @EXPORT_OK = qw(slurp_bytes slurp_text detect_eol write_text read_csv parse_
                     read_xlsx_tabs tabs_to_csv_text load_canon load_canon_from_tabs
                     render_std_json models_std_spans models_field_spans render_stdgrid render_specs_block
                     render_spec_data_js tagline_html intro_html check_surfaces fmt_len
-                    read_overlay apply_overlay CANON_TABS DRIVEN_TABS);
+                    read_overlay apply_overlay find_sales_tools CANON_TABS DRIVEN_TABS);
 
 use constant CANON_TABS  => ('STD FEATURES', 'SPECS', 'LINEUP', 'DESCRIPTIONS', 'SPEC DISCREPANCIES', 'SPEC PROVENANCE');
 use constant DRIVEN_TABS => ('STD FEATURES', 'SPECS', 'LINEUP', 'DESCRIPTIONS');
@@ -602,6 +604,40 @@ sub check_surfaces {
     else { $add->('tools/SPEC_DATA.js', 1, 1, 'file missing') }
   }
   return \@R;
+}
+
+# --------------------------------------------------------- SALES TOOLS ----
+# Tyler's SALES TOOLS folder (spec sheet PDFs, brochures, price sheet PDFs), found
+# from where the SQUIRREL HOLE folder sits on this machine - never a typed path.
+# OneDrive names the two folders differently per machine:
+#   P3 (the whole library is one shortcut)  <library>/SQUIRREL HOLE and <library>/SALES TOOLS
+#   Tyler's Mac (one shortcut per folder)   <OneDrive>/Wooldridge Boats Inc_ - SQUIRREL HOLE
+#                                           <OneDrive>/Wooldridge Boats Inc_ - SALES TOOLS
+# Looks, in order: SALES TOOLS beside SQUIRREL HOLE; "<prefix> - SALES TOOLS" beside
+# "<prefix> - SQUIRREL HOLE"; then any other SALES TOOLS or "... - SALES TOOLS" beside
+# it or one folder over (a library SYNCED instead of shortcut lands in a sibling,
+# OneDrive-SharedLibraries-* on a Mac). On that last step a folder counts only if it
+# holds SPECS-STANDARD FEATURES, BROCHURES or PRICE SHEETS, and two candidates is a
+# refusal, never a pick. Added 2026-10-15: on the Mac, build_boat_facts.pl looked for
+# <OneDrive>/SALES TOOLS, found nothing, and left every PDF check "not yet verified".
+sub find_sales_tools {               # (SQUIRREL HOLE folder) -> (SALES TOOLS folder, how found) or (undef, why not)
+  my ($sqh) = @_;
+  return (undef, 'no SQUIRREL HOLE folder was given') unless defined $sqh && length $sqh;
+  (my $s = $sqh) =~ s{\x5c}{/}g; $s =~ s{/+$}{};
+  my ($up, $me) = $s =~ m{^(.*)/([^/]+)$} or return (undef, "cannot tell which folder holds $s");
+  return ("$up/SALES TOOLS", 'beside SQUIRREL HOLE') if -d "$up/SALES TOOLS";
+  if ($me =~ /^(.+) - SQUIRREL HOLE$/) { my $t = "$up/$1 - SALES TOOLS"; return ($t, qq{beside "$me", same naming}) if -d $t }
+  my $holds = sub { my ($d) = @_; return scalar grep { -d "$d/$_" } ('SPECS-STANDARD FEATURES', 'BROCHURES', 'PRICE SHEETS') };
+  my $kids  = sub { my ($d) = @_; opendir(my $dh, $d) or return (); my @k = sort grep { !/^\./ } readdir $dh; closedir $dh; return @k };
+  my @c = grep { $holds->($_) } map { "$up/$_" } grep { /^.+ - SALES TOOLS$/i } $kids->($up);
+  if (my ($up2) = $up =~ m{^(.*)/[^/]+$}) {
+    for my $sib (grep { "$up2/$_" ne $up && -d "$up2/$_" } $kids->($up2)) {
+      push @c, grep { $holds->($_) } map { "$up2/$sib/$_" } grep { /^(?:.+ - )?SALES TOOLS$/i } $kids->("$up2/$sib");
+    }
+  }
+  return ($c[0], 'the only SALES TOOLS folder beside SQUIRREL HOLE or one folder over') if @c == 1;
+  return (undef, 'more than one folder could be SALES TOOLS (' . join('; ', @c) . '); pass --sales-tools') if @c;
+  return (undef, "no SALES TOOLS folder found beside $s or one folder over; pass --sales-tools");
 }
 
 # ------------------------------------------------------- rules overlay ----
