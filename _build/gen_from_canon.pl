@@ -40,7 +40,10 @@
 #      _build/gen_rules_overlay.pl --prices. Then the repo's 18 print price sheets
 #      (gen_pricesheets.pl + inject_partials.pl) and the "from" price on the home
 #      page, quiz, quote and compare pages (only that number - gen_fleet.pl also
-#      rewrites the home page's photos, so it is not run).
+#      rewrites the home page's photos, so it is not run). On EVERY run, price change
+#      or not: the options guide's typed prices (option-guide/index.html; each priced
+#      line maps to its canon item(s) in _build/option_guide_prices.tsv - Stephen
+#      2026-10-15, "Canon fills them"). A priced line the map does not back stops the run.
 #   3. SPECS: the configurator's std arrays, tools/STD_DATA.js, the 18 model pages'
 #      STD / SPECS / DESC blocks, tools/SPEC_DATA.js (unchanged from v1.1).
 #   4. stamp_assets.pl, then BOTH checks: verify_spec_canon.pl and the pricing
@@ -75,14 +78,15 @@ use WBSpecCanon qw(slurp_bytes slurp_text write_text read_xlsx_tabs tabs_to_csv_
                    render_std_json models_std_spans render_stdgrid render_specs_block render_spec_data_js
                    tagline_html intro_html CANON_TABS DRIVEN_TABS);
 use WBPriceCanon qw(PRICE_TABS FROM_PAGES load_site canon_from_tabs compare_prices plan_price_writes apply_splices
-                    from_prices from_nodes mirror_bytes soc_blobs soc_file_bytes verify_pricing fmt_price);
+                    from_prices from_nodes mirror_bytes soc_blobs soc_file_bytes verify_pricing fmt_price
+                    OPTION_GUIDE option_guide_plan);
 use JSON::PP;
 use Digest::SHA qw(sha256_hex);
 use Encode qw(encode);
 binmode STDOUT, ':encoding(UTF-8)';
 binmode STDERR, ':encoding(UTF-8)';
 
-our $VERSION = '2.0';
+our $VERSION = '2.1';
 my ($canon_dir, $xlsx, $repo, $dry, $out, $soc_out, $pipeline, $qb_import, $by, $with, $why);
 my $sheets = 'run';
 GetOptions('canon=s' => \$canon_dir, 'xlsx=s' => \$xlsx, 'repo=s' => \$repo, 'dry-run' => \$dry, 'out=s' => \$out,
@@ -132,7 +136,7 @@ if ($mode eq 'xlsx') {
 printf "canon: %d models, %d with standard features, %d with specs, %d with descriptions\n",
   scalar @{ $C->{lineup} }, scalar keys %{ $C->{std} }, scalar keys %{ $C->{specs} }, scalar keys %{ $C->{desc} };
 
-my ($changed_files, $content_changes, $marker_adds, $price_changes) = (0, 0, 0, 0);
+my ($changed_files, $content_changes, $marker_adds, $price_changes, $guide_changes) = (0, 0, 0, 0, 0);
 sub save {                           # write only when the text changed; keep the file's own line ending
   my ($p, $text, $eol, $what) = @_;
   my $old = scalar slurp_text($p);
@@ -157,6 +161,7 @@ if ($mode eq 'xlsx') {
   push @stop, map { "ARITHMETIC     $_" } @{ $R->{math} };
   my $P = plan_price_writes($S, $R);
   push @stop, map { "NOT WIRED YET  $_" } @{ $P->{refuse} };
+  push @stop, map { "OPTIONS GUIDE  $_" } @{ option_guide_plan($repo, $tabs)->{problems} };
   if (@stop) {
     print "STOPPED before writing anything - the workbook holds changes this command cannot carry yet,\n"
         . "or cells that disagree with each other. Fix these in the workbook (or ask for the change to be wired):\n";
@@ -221,6 +226,16 @@ if ($mode eq 'xlsx') {
       }
     }
   }
+  # d. the options guide's typed prices - every run, price change or not (Stephen 2026-10-15: "Canon fills them").
+  #    Planned again here, after a-c, so it starts from the page as it now stands on disk.
+  my $OG = option_guide_plan($repo, $tabs);
+  die "options guide: " . join("\n  ", @{ $OG->{problems} }) . "\n" if @{ $OG->{problems} };
+  if (@{ $OG->{changes} }) {
+    $guide_changes = @{ $OG->{changes} };
+    printf "  %s: %d typed price(s) re-derived from the workbook\n", OPTION_GUIDE, $guide_changes;
+    printf "    %-64s %s -> %s\n", $_->{line}, $_->{have}, $_->{want} for @{ $OG->{changes} };
+    save("$repo/" . OPTION_GUIDE, $OG->{text}, $OG->{eol}, OPTION_GUIDE);
+  } else { printf "  %s: all %d priced lines match the workbook\n", OPTION_GUIDE, $OG->{lines} }
 }
 
 # ------------------------------------------------- 3. SPECS: configurator std ----
@@ -685,6 +700,8 @@ if ($mode eq 'xlsx' && !$dry && $anything) {
     }
   }
   $e .= "- **Specs**: $content_changes content change(s) carried to the configurator and model pages.\n" if $content_changes;
+  # a guide-only realignment is a website fix, not a canon change, so it does not open an entry by itself
+  $e .= "- **Options guide**: $guide_changes typed price(s) re-derived from the workbook.\n" if $guide_changes;
   $e .= "- **Generator run**: `gen_from_canon.pl $VERSION --xlsx` $date, both checks PASS; website files written, NOT pushed (Stephen or Tyler pushes).\n";
   $e .= "- **Done downstream**: " . join('; ', @done) . ".\n" if @done;
   $e .= "- **Owed**: " . join('; ', @owed) . ".\n" if @owed;

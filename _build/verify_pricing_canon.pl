@@ -20,8 +20,9 @@
 # (const MODELS with tools/RULES_OVERLAY.js applied), the trailer picker
 # (const DATA), the Center Console twins (Grant's rule Q-CFG-12), the workbook's
 # own arithmetic (option units, trailer as-stocked totals), the "from" prices on
-# the home page, quiz, quote and compare pages, the CSV mirrors, the Sales Order
-# Creator file and the trailer shop add-ons the price sheets print.
+# the home page, quiz, quote and compare pages, the options guide's typed prices
+# (option-guide/index.html, mapped to canon by _build/option_guide_prices.tsv - 2026-10-15),
+# the CSV mirrors, the Sales Order Creator file and the trailer shop add-ons the price sheets print.
 # The generator (_build/gen_from_canon.pl) runs these same checks on every run.
 use strict;
 use warnings;
@@ -58,6 +59,7 @@ unless ($quiet) {
   $show->('NOT WIRED YET (only prices are driven from the workbook today)', [ map { "$_->{tab} $_->{key}: $_->{msg}" } @{ $R->{other} } ]);
   $show->('CENTER CONSOLE TWINS', $R->{link});
   $show->('WORKBOOK ARITHMETIC', $R->{math});
+  $show->('OPTIONS GUIDE (option-guide/index.html vs the workbook)', $R->{guide} || []);
 }
 print "\n", ($fail ? "FAIL - $fail surface(s) out of step with the pricing canon\n" : "PASS - every reachable price surface matches the pricing canon\n");
 exit($fail ? 1 : 0);

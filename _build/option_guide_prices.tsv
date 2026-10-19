@@ -1,0 +1,78 @@
+# option_guide_prices.tsv - which canon OPTIONS item(s) each priced line of the options guide
+# (option-guide/index.html, its sheet:[['line','price'],...] pairs) takes its price from.
+# Stephen 2026-10-15: "Canon fills them". The canon command (gen_from_canon.pl) writes these prices
+# from the workbook; verify_pricing_canon.pl fails when the page and the workbook differ.
+# Columns, tab-separated:
+#   guide_line     the line's text exactly as the page has it
+#   canon_options  the canon OPTIONS tab's option names, exactly, separated by " || "
+#   shows          how the price reads: {price} = the one canon price (stops if there are several),
+#                  {min} / {max} = lowest / highest across every model and length, {both} = the
+#                  "both sides = $X" figure inside the canon item's own name
+# A priced line with no row here, a row whose line is gone from the page, or a canon name that no
+# longer exists STOPS the canon command before it writes anything. This map is a naming job:
+# never type a price into it.
+guide_line	canon_options	shows
+Additional splash guard for jet tunnel, hardware included	Additional splash guard for jet tunnel – hardware included	{price}
+Premium trim tabs with LED indicators at dash — Zipwake 450-S with control panel	Premium trim tabs with LED indicators at dash – Zipwake 450-S with control panel	{price}
+Upgrade 214 jet to trim nozzle (inboard)	Upgrade 214 to have trim nozzle	{price}
+Canvas and side curtains with 1″ stainless bows, bow sleeves, boot, mesh pockets	Canvas and side curtains with 1" stainless steel bows and fittings, bow sleeves, boot, mesh pockets || Canvas and side curtains with 1” stainless steel bows and fittings, bow sleeves, boot, mesh pockets || Canvas and side curtains with 1” stainless steel bows and fittings, bow sleeves, boot, mesh pockets*	{min}–{max}
+Welded aluminum rigid frame for canvas top with dome light	Welded aluminum rigid frame for canvas top with dome light and side trays	{price}
+Removable hard top with canvas front and sides	Removable hard top with canvas front and sides (includes side trays and dome lights)	{price}
+Tonneau cover for windshield models up to 20′	Tonneau cover for windshield model boats up to 20' || Tonneau cover for windshield model boats up to 20’	{price}
+Wrap canvas for shipping	Wrap canvas for shipping	{price}
+Fish box / storage compartment with locking aluminum hatch in bow	Fish box / storage compartment with locking aluminum hatch in bow	{price}
+Fish box embedded into full-width swim step	Fish box embedded into full width swim step	{price}
+Fish box in bow (windshield models)	Fish box in bow	{price}
+Dual fish box in bow of open boat	Dual fish box in bow of open boat	{price}
+Single access hatch AND single fish box in bow	Single access hatch AND single fish box / storage compartment in bow of open boat	{price}
+Second windshield wiper (passenger or center door)	2nd windshield wiper, installed (for passenger on windshield model or console with fixed windshield) || Second windshield wiper, installed – for windshield model or console with fixed windshield || Windshield wiper, installed (for center door on windshield model or console with fixed windshield) || Windshield wiper, installed (for passenger on windshield model or console with fixed windshield)	{price}
+Foldable windshield on console with welded hinges	Foldable windshield on console with welded hinges	{min}–{max}
+Windshield on console (welded)	Windshield on console (welded)	{min}–{max}
+Padded protective windshield cover	Padded protective windshield cover	{price}
+Locking door on center console	Locking door on center console	{price}
+Powder coating center console	Powder coating center console	{min}–{max}
+Cup holder — recessed on console	Cup holder – recessed on console	{price}
+Welded kicker bracket on rear of transom	Welded kicker bracket on rear of transom	{price}
+Kicker bracket mounted over stable pod	Kicker bracket – mounted over stable pod	{price}
+Welded kicker bracket in center of swim step platform	Welded kicker bracket in center of swim step platform	{price}
+Yamaha T9.9 / Mercury 9.9 tiller kicker, installed	Yamaha T9.9XPHB tiller kicker, installed || Mercury 9.9EXLHPT tiller kicker, installed	{price}
+Stainless steel tie-bar for kicker motor	Stainless steel tie-bar for kicker motor, installed	{price}
+Garmin Reactor 40 kicker autopilot (AGM batteries required)	Garmin Reactor 40 kicker autopilot, installed – AGM batteries required	{price}
+28″ wide center plate and wrap-around jet intake	28” wide center plate and wrap-around jet intake	From {min} (by model & length)
+Upgrade to ¼″ bottom	Upgrade to ¼" bottom || Upgrade to ¼” bottom	{price}
+5/8″ bottom upgrade	5/8” Bottom upgrade – standard on 20’ models	{price} (standard on 20′ models)
+14/15-gallon topside tank with disconnect fittings	14-gallon topside fuel tank with disconnect fittings (secured under front deck) || 15-Gallon topside fuel tank with disconnect fittings (secured under front deck)	{min}–{max}
+24-gallon plastic topside tank	24-gallon plastic topside fuel tank with disconnect fittings (secured under front deck)	{price}
+26-gallon aluminum topside tank, gunnel fill (18′)	26-gallon aluminum topside fuel tank with port side gunnel fill – for 18’ model (standard on 20’ model)	{price}
+40-gallon aluminum under-floor tank	40-gallon aluminum “under-floor” fuel tank with portside gunnel fill	{price}
+50-gallon aluminum step tank	50-gallon aluminum step fuel tank with port side gunnel fill	{price}
+Upgrade to 75-gallon tank (21′ and longer)	Upgrade fuel tank to 75 gallon tank (21’ and longer only)	{price}
+High-back upholstered helm seat with Airwave suspension base	High-back custom upholstered seat with Airwave suspension base || High-back upholstered helm-seat with Airwave suspension base	{price}
+Low-back upholstered seat with Airwave suspension base	Low-back custom upholstered seat with Airwave suspension base || Low-back upholstered helm-seat with Airwave suspension base	{price}
+Swim step with non-slip surface next to outboard	Swim step with non-slip surface next to outboard motor || Swim step with non-slip surface next to outboard motor (16’ and 20’ models only) || Swim step with non-slip surface next to outboard motor (20’ model only)	{price}
+3/4 swim step upgrade	3/4 swim step upgrade	{price}
+Full-width swim step upgrade	Full width swim step upgrade	{price}
+SeaDek on stock swim step	SeaDek on stock swim step	{min}–{max}
+Aluminum folding 2-rung ladder on swim platform	Aluminum folding 2-rung ladder on top of swim platform	{price}
+Heavy-duty under-mount folding ladder (requires swim step)	Heavy duty under-mount folding ladder || Heavy duty under-mount folding ladder (requires swim step, 20’ model only)	{price}
+Washdown pump kit — 5.2 GPM with coil hose and sprayer in side tray	Washdown pump kit – 5.2 GPM with coil hose and sprayer in side tray	{price}
+Aerator pump (washdown pump required)	Aerator pump – washdown pump option required – see above	{price}
+Seacock valve — isolates washdown system	Seacock valve – for isolating washdown pump system	{price}
+Self-draining deck (windshield models)	Self-draining deck || Self-draining deck (windshield model only)	{price}
+Add second side trays	Add second side trays	{price}
+Rod-grippers mounted in side trays (2–3 per side)	Rod-grippers for interior side-trays || Rod-grippers mounted in side trays – 2 or 3 per side depending on configuration	{min}–{max}
+Top tray extensions	Top tray extensions	{price}
+Locking rod locker door	Locking rod locker door (price per side; both sides = $3,999) || Locking rod locker door aft of canvas (price per side; both sides = $3,999)	{price} per side ({both} both)
+Electronics box in side trays (tiller models)	Electronics box in side trays for tiller models	{price}
+Fishing trim — rubber tray bottoms with Trim-Lok edges	Fishing trim option – rubber in bottom of side trays with Trim-Lok on edges	{price}
+Inboard heater/defroster (requires hot sink)	Inboard heater/defroster	{price}
+Group 24 lead-acid 1,000 MCA starting battery, installed	Group 24 lead acid 1,000 MCA starting battery with battery tray, box, lid, and strap, installed	{price}
+Group 27 AGM 1,000 MCA starting battery, installed	Group 27 AGM 1,000 MCA starting battery with battery tray, box, lid, and strap, installed	{price}
+Garmin Reactor 40 kicker autopilot (AGM required)	Garmin Reactor 40 kicker autopilot, installed – AGM batteries required	{price}
+20″ LED light strips under trays (6–8 total)	20" LED light strips under interior trays, 6 to 8 total as required || 20” LED light strips under interior trays, 3 or 4 on each side as required || 20” LED light strips under interior trays, 6 or 8 total as required || 20” LED light strips under interior trays, 6 to 8 total as required	{min}–{max}
+Wet Sounds Stealth-6 sound bar under dash	Wet Sounds Stealth-6 sound bar installed under dash – windshield models only	{price}
+Pair Stable Pods (16′ / 20′ models)	Pair Stable Pods || Pair Stable Pods for 16’ and 20’ models || Pair Stable Pods for 20’ models	{price}
+Welded hinged ladder for Stable Pods	Welded hinged ladder for Stable Pods	{price}
+Powder coating entire boat — 16′ (not incl. bottom)	Powder coating entire boat – 16’ (including foam boxes, not including bottom)	{price}
+Powder coating entire boat — 18′ / 20′	Powder coating entire boat – 18’ (not including bottom) || Powder coating entire boat – 20’ (not including bottom)	{min}–{max}
+Powder coating windshield and interior	Powder coating windshield and interior || Powder coating windshield and interior – 21’ models	{min}+

@@ -32,7 +32,7 @@ use WBSpecCanon qw(slurp_bytes slurp_text);
 
 our @EXPORT_OK = qw(PRICE_TABS FROM_PAGES jparse jget load_site canon_from_tabs compare_prices plan_price_writes
                     apply_splices fmt_price numeq rows_of from_prices from_nodes mirror_bytes soc_blobs soc_file_bytes
-                    verify_pricing);
+                    verify_pricing OPTION_GUIDE OPTION_GUIDE_MAP option_guide_plan);
 
 use constant PRICE_TABS => ('BOATS', 'ENGINES', 'OPTIONS', 'TRAILERS', 'PACKAGES', 'CARRY OUT', 'DISCREPANCIES', 'PROVENANCE');
 
@@ -549,6 +549,64 @@ sub from_nodes {                     # (page text, FLEET|FACTS) -> { model id =>
   return \%n;
 }
 
+# ------------------------------------------------- the options guide ----
+# option-guide/index.html types a price on each priced line of its cards' sheet:[['line','price'],...]
+# lists. Stephen 2026-10-15: "Canon fills them" - those prices come from the workbook. The map
+# _build/option_guide_prices.tsv names, for each priced line, the canon OPTIONS item(s) it shows and
+# how the price reads: {price} (the one canon price), {min} / {max} (the range across every model and
+# length), {both} (the "both sides = $X" figure in the canon item's own name). Problems that STOP the
+# canon command: a priced line with no map row, a map row whose line left the page, a canon name that
+# no longer exists, {price} where canon holds several prices, a sheet list this parser cannot read.
+use constant OPTION_GUIDE     => 'option-guide/index.html';
+use constant OPTION_GUIDE_MAP => '_build/option_guide_prices.tsv';
+sub _money { my ($v) = @_; my $s = ($v == int $v) ? sprintf('%d', $v) : sprintf('%.2f', $v); 1 while $s =~ s/^(\d+)(\d{3})/$1,$2/; return '$' . $s }
+sub option_guide_plan {              # (repo, tabs) -> { text, eol, lines, changes => [{line, have, want}], problems => [msgs] }
+  my ($repo, $tabs) = @_;
+  my (%P, %map, @problems);
+  for my $r (@{ rows_of($tabs->{OPTIONS}, 'OPTIONS') }) { push @{ $P{ $r->{option} } }, $r->{price_usd} }
+  my $mt = slurp_text("$repo/" . OPTION_GUIDE_MAP);
+  my $ln = 0;
+  for my $l (split /\n/, $mt) {
+    $ln++;
+    next if $l =~ /^\s*(?:#|$)/ || $l =~ /^guide_line\t/;
+    my ($g, $names, $shows) = split /\t/, $l, -1;
+    unless (defined $shows && length $g && length $names && length $shows) { push @problems, OPTION_GUIDE_MAP . " line $ln: needs three tab-separated columns"; next }
+    push @problems, OPTION_GUIDE_MAP . ": '$g' is listed twice" if $map{$g};
+    $map{$g} = { names => [ split / \|\| /, $names ], shows => $shows, used => 0 };
+  }
+  my ($t, $eol) = slurp_text("$repo/" . OPTION_GUIDE);
+  my (@sp, @changes); my $lines = 0;
+  my $str = qr/'((?:[^'\\]|\\.)*)'/;
+  while ($t =~ /sheet:\[/g) {
+    my $at = pos($t);
+    while ($t =~ /\G\s*\[$str,$str\]\s*,?/gc) {
+      my ($g, $have, $vs, $ve) = ($1, $2, $-[2], $+[2]);
+      my $m = $map{$g};
+      unless ($m) {
+        push @problems, "'$g' shows the typed price '$have' but no canon row backs it - add the line to " . OPTION_GUIDE_MAP . ' or drop the price' if $have =~ /\$\s?\d/;
+        next;
+      }
+      $m->{used}++; $lines++;
+      my ($err, @p) = ('');
+      for my $n (@{ $m->{names} }) { if ($P{$n}) { push @p, grep { defined && /\d/ } @{ $P{$n} } } else { $err .= "canon has no option named '$n'; " } }
+      my %u; @p = sort { $a <=> $b } grep { !$u{$_}++ } map { 0 + $_ } @p;
+      $err .= 'every mapped canon row is priced on request; ' if !$err && !@p;
+      my %v = (@p ? (min => _money($p[0]), max => _money($p[-1])) : ());
+      $v{price} = _money($p[0]) if @p == 1;
+      if ($m->{shows} =~ /\{both\}/) { my ($b) = map { /both sides = \$([\d,]+)/ ? $1 : () } @{ $m->{names} }; if (defined $b) { $b =~ s/,//g; $v{both} = _money($b) } }
+      (my $want = $m->{shows}) =~ s/\{(\w+)\}/defined $v{$1} ? $v{$1} : do { $err .= ($1 eq 'price' && @p > 1) ? 'canon holds ' . scalar(@p) . ' prices for it - show {min}-{max} instead of {price}; ' : "{$1} has no value; "; '' }/ge;
+      if ($err) { push @problems, "'$g': $err"; next }
+      next if $want eq $have;
+      (my $js = $want) =~ s/([\\'])/\\$1/g;
+      push @sp, [$vs, $ve - $vs, $js];
+      push @changes, { line => $g, have => $have, want => $want };
+    }
+    push @problems, OPTION_GUIDE . ': a sheet list at character ' . $at . ' is not a plain list of [\'line\',\'price\'] pairs' unless $t =~ /\G\s*\]/gc;
+  }
+  push @problems, map { OPTION_GUIDE_MAP . ": '$_' is not on the page any more" } grep { !$map{$_}{used} } sort keys %map;
+  return { text => apply_splices($t, \@sp), eol => $eol, lines => $lines, changes => \@changes, problems => \@problems };
+}
+
 # ---------------------------------------------------------- the mirrors ----
 # A tab -> its CSV mirror. Same writer as the spec tabs (tabs_to_csv_text), plus
 # the two conventions the pricing mirrors already carry: a BOM when the file has
@@ -629,6 +687,13 @@ sub verify_pricing {
     my @bad = grep { !$n->{$_} || !numeq($n->{$_}{v}, $F->{$_}) } sort keys %$F;
     $row->("from-prices: $f", @bad ? 'FAIL' : 'PASS', @bad ? 'differ for ' . join(', ', map { "$_ (page " . ($n->{$_} ? $n->{$_}{v} : 'missing') . ", derived $F->{$_})" } @bad) : scalar(keys %$F) . ' models');
   }
+  if (-f "$a{repo}/" . OPTION_GUIDE_MAP) {
+    my $G = option_guide_plan($a{repo}, $a{tabs});
+    my @c = @{ $G->{changes} }; my @p = @{ $G->{problems} };
+    $R->{guide} = [ @p, map { "'$_->{line}': page $_->{have}, workbook $_->{want}" } @c ];
+    $row->('options guide: ' . OPTION_GUIDE, (@c || @p) ? 'FAIL' : 'PASS',
+      @p ? scalar(@p) . ' problem(s) - see OPTIONS GUIDE below' : @c ? scalar(@c) . ' typed price(s) differ from the workbook - see OPTIONS GUIDE below' : "$G->{lines} priced lines match the workbook");
+  } else { $row->('options guide: ' . OPTION_GUIDE, 'FAIL', OPTION_GUIDE_MAP . ' is missing') }
   if (defined $a{mirrors}) {
     my @bad;
     for my $t (PRICE_TABS) {
