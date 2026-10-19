@@ -128,8 +128,12 @@ h1,h2,h3,.h-serif{
 .nav a{
   /* 12px -> 11.5px on 2026-08-31 (Stephen, via his coworker): "a hair smaller"
      for OUR BOATS / PRE-OWNED etc. Tracking, weight and caps unchanged - the
-     bar reads the same, just finer against the taller header. */
-  font-family:var(--sans); font-weight:500; font-size:11.5px;
+     bar reads the same, just finer against the taller header.
+     2026-10-19 (Tyler): back to 12px to match the Shopify store header at
+     store.wooldridgeboats.com, which kept the original 12px. Keeps the nav text
+     the same size across both sites so the menu doesn't shift when customers
+     cross between them. */
+  font-family:var(--sans); font-weight:500; font-size:12px;
   letter-spacing:.06em; text-transform:uppercase;
   color:var(--ink); white-space:nowrap;
 }
