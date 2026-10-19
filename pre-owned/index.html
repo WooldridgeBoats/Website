@@ -144,7 +144,9 @@
   <div class="listing-grid" id="grid"></div>
   <script>
   /* Live listings snapshot, re-captured from wooldridgeboats.com/pre-owned/ on 2026-08-30
-     (supersedes the 2026-07-29 snapshot). SOLD listings excluded (3 of 16). One object per
+     (supersedes the 2026-07-29 snapshot). SOLD listings excluded (3 of 16). 2026-10-19: the 1990
+     17' Alaskan added from its live listing, posted after that snapshot (Stephen's ruling; photos
+     web-sized the same way that day). SOLD still excluded (3 of 17). One object per
      listing, in the live page's order; to add or retire a boat, edit this array.
      Fields follow the Sell Your Boat intake schema; an empty string means the live
      listing did not state that value - leave it empty rather than guessing.
@@ -153,6 +155,11 @@
      url = the old WordPress listing page each entry was captured from (provenance only,
      not rendered - those URLs die when this site replaces WordPress at cutover). */
   const PREOWNED = [
+    {yr:1990, len:17, model:'Alaskan', drive:'Outboard Jet',
+     eng:'Johnson 90 jet + kicker + electric motor', hours:'', trailer:'Included',
+     price:'$15,000', loc:'Montesano, Washington', contact:'John Dickinson', phone:'360-464-3813', email:'jamesnfaith@comcast.net',
+     note:'Garaged, low hours; fish finder and cover included', slug:'1990-wooldridge-17-alaskan', n:7,
+     url:'https://www.wooldridgeboats.com/preowned/1990-wooldridge-17-alaskan/'},
     {yr:2014, len:24, model:'Super Sport Offshore Pilothouse', drive:'Offshore',
      eng:'Suzuki DF250TXX + Yamaha T9.9 kicker', hours:'~510', trailer:'EZ Loader 6200# aluminum tandem, disc brakes',
      price:'$99,500', loc:'Anacortes, Washington', contact:'', phone:'(206) 799-2392', email:'',
