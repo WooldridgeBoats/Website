@@ -37,7 +37,7 @@ my @MODELS = (
   ['riverrat-diy-kit',        'River Rat DIY Kit',          'Kit',          [],         undef],   # custom DIY kit: no length / hull / config, one gallery (build_riverrat.sh)
   ['landing-craft',           'Landing Craft',              'Specialty Workboat', [],   undef],
   ['supersportoffshorepilothouse','Super Sport Offshore', 'Offshore',           [],   undef],   # SSO Pilothouse page (Tyler 2026-10-15): "26′ Super Sport Offshore · Pilothouse"; empty lens
-  ['angler',                  'Super Sport Offshore',       'Offshore',           [],   undef],   # SSO Angler page (Tyler 2026-10-15): captions "20′ Super Sport Offshore · Angler"; empty lens = never legacy
+  ['angler',                  'Super Sport Offshore',       'Offshore',           [],   undef],   # SSO Angler page (Tyler 2026-10-15): captions "24′ Super Sport Offshore · Angler" (a 24-footer, Tyler 2026-10-19); empty lens = never legacy
   ['pybus-offshore',          'Pybus Point Lodge',          'Lodge Fleet',        [],   undef],   # Tyler 2026-10-14: the lodge's fleet (Deepwater Charter, Sport, Sport Offshore); empty lens = never legacy
   ['agency-lc29',             "29' LC — In The Shop",       'Agency Build', [29],       29],
 );
