@@ -145,7 +145,10 @@ h1,h2,h3,.h-serif{
 .nav .brand img{ height:62px; width:auto; }
 .nav .navsoc{ display:flex; gap:8px; align-items:center; margin-left:2px; }
 .nav .navsoc a{ display:block; }
-.nav .navsoc img{ height:24px; width:24px; }
+/* 24 -> 32px on 2026-10-19 (Tyler): widens the social-icon cluster to the same
+   ~112px footprint as the Shopify store header's search/account/cart icons, so
+   the nav links line up at the same position when crossing between the sites. */
+.nav .navsoc img{ height:32px; width:32px; }
 .nav .nav-cta{
   background:var(--blue); color:#fff; padding:8px 14px; border-radius:6px;
   font-weight:700;
