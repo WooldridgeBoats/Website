@@ -517,12 +517,16 @@ section{ padding:36px 0; }
      further down re-measures its width ratio at this tracking - the two move
      together.
 
+     REV 15 - 2026-10-19, Tyler: "looks chunky and muddy". Tracking .04em -> .08em
+     (more space between the letters) and the outline thinned (see ::before), so
+     neighbouring outlines no longer crowd the gaps.
+
      Tracking and the correction below move together: margin-right must always
      be exactly -1 x letter-spacing. */
   position:relative; z-index:0;   /* stacking context so the border copy stays sandwiched */
   color:var(--blue);
   font-family:var(--serif);
-  font-size:clamp(28px,3.66vw,43px); font-weight:700; letter-spacing:.04em;
+  font-size:clamp(28px,3.66vw,43px); font-weight:700; letter-spacing:.08em;
   text-transform:uppercase;
   /* Found while measuring rev 7: rev 6's "the 22px floor just fits" was wrong -
      at 375px the mark wrapped NOT FOR / PRACTICE (the flanking rules' 34px
@@ -535,7 +539,7 @@ section{ padding:36px 0; }
   /* letter-spacing hangs a phantom space off the last letter. As a centred flex
      item that would push the right-hand rule .04em further out than the left,
      so the box is pulled back in by exactly that much. */
-  margin-right:-.04em;
+  margin-right:-.08em;
 }
 .tagband h1.slogan .punch::before{
   content:attr(data-text);
@@ -556,7 +560,10 @@ section{ padding:36px 0; }
      HEAVIER than the border. Left alone - their weight is Stephen's dial.
      Rev 12's embossed back-plate text-shadow (rev 6's "restrained
      dimensionality") is deleted, not tuned: the approved mockup is flat. */
-  -webkit-text-stroke:max(2px,.08em) #000;
+  /* REV 15 - 2026-10-19, Tyler: thinner outline ("chunky and muddy", then "thinner
+     outline of the black please"): .08em -> .05em -> .03em of stroke, about 0.6px of
+     visible black at the 43px size; 1px floor for phones. */
+  -webkit-text-stroke:max(1px,.03em) #000;
 }
 
 /* The rose is the band's closing rule, so its top margin has to clear the blurb
