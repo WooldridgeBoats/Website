@@ -20,8 +20,8 @@
 #   --by / --with  required when a price changes (the CHANGE LOG names both - Stephen, 2026-10-13);
 #              --why goes into the log and names the price-sheet archive folder.
 #   Rarely needed: --repo <Website folder>, --out <WB CANON DATA.json>, --soc-out <WB CANON SOC.json>,
-#              --pipeline <PRICE SHEETS/_PIPELINE>, --qb-import <Desktop/QB IMPORT> (all found by themselves),
-#              --sheets run|dry|skip (the branded price sheets; default run).
+#              --pipeline <PRICE SHEETS/_PIPELINE>, --qb-import <Desktop/QB IMPORT>, --sales-tools <SALES TOOLS>
+#              (all found by themselves), --sheets run|dry|skip (the branded price sheets; default run).
 #
 # HOW A RUN GOES (nothing outside git is written unless every check passes):
 #   0. The website repo must have no uncommitted changes to tracked files (git is
@@ -48,7 +48,9 @@
 #      STD / SPECS / DESC blocks, tools/SPEC_DATA.js (unchanged from v1.1).
 #   4. stamp_assets.pl, then BOTH checks: verify_spec_canon.pl and the pricing
 #      check (verify_pricing_canon.pl's code). On a FAIL every website file is put
-#      back (git checkout) and nothing else is written.
+#      back (git checkout) and nothing else is written. verify_spec_canon.pl gets the
+#      SALES TOOLS folder this run found, so its audit of Tyler's PDFs runs on his Mac
+#      too (audit rows never fail a run).
 #   5. Only after a PASS: the CSV mirrors (all 14 tabs), WB CANON DATA.json and
 #      WB CANON SOC.json (the Sales Order Creator's prices - the Hub server reads
 #      it straight from the canon folder, so it is written temp-then-rename and
@@ -56,14 +58,25 @@
 #   6. DOWNSTREAM, each only when what it reads changed: the PACKAGES tab regenerated from the
 #      package recipes (written into the workbook through Excel - P3 only - by CANON/_build/
 #      write_tab_from_csv.ps1, proved in a fresh Excel); the price sheets' trailer shop add-ons;
-#      the branded price sheets (built, verified, placed with the old ones archived, published to
-#      SALES TOOLS - needs Rockwell); the ITEM CODE LOOKUP page (P3); the used-boat appraiser;
+#      the branded price sheets (all 19 rebuilt and verified - needs Rockwell; a set whose only
+#      change is the printed date is left as it was, Tyler's rule adopted by Stephen 2026-10-19;
+#      the changed ones are placed with the old ones archived and published to SALES TOOLS);
+#      the ITEM CODE LOOKUP page (P3); the used-boat appraiser;
 #      the prop selector; the "Boat facts" view in CANON.html (CANON/_build/BOAT FACTS/
 #      build_boat_facts.pl, every real run, a failure is loud but not fatal); the Pricing data half of CANON.html
 #      (QB IMPORT/_build/census/run_census.ps1 - P3 only, when a pricing mirror changed; it carries the standing
 #      "Prices to type in QuickBooks" list). Then this run's QuickBooks price moves printed, a final check of
 #      everything, and the CHANGE LOG entry in CANON/README.md.
 #   7. What it cannot do from where it runs is printed as OWED, naming the machine.
+#
+# SALES TOOLS (Tyler's folder; step c publishes the price-sheet PDFs into its PRICE SHEETS)
+# is found once, from where SQUIRREL HOLE sits, by WBSpecCanon::find_sales_tools:
+# <library>/SALES TOOLS on the P3, <OneDrive>/Wooldridge Boats Inc_ - SALES TOOLS on Tyler's
+# Mac, where each folder is its own OneDrive shortcut. The "sales:" line names the folder it
+# used. Before 2.2, step c let publish_sales_tools.pl guess <library>/SALES TOOLS, which does
+# not exist on the Mac, so every Mac run that rebuilt the sheets stopped there and steps d-i
+# never ran (2026-10-15). Not found now = the sheets are still placed in the library, the
+# SALES TOOLS copy is OWED, and the run carries on.
 #
 # Line endings: text is handled as LF internally; a rewritten file keeps the line
 # ending it already had on disk. Spec CSV mirrors are LF without BOM; pricing
@@ -76,22 +89,22 @@ use Getopt::Long;
 use lib dirname(abs_path(__FILE__));
 use WBSpecCanon qw(slurp_bytes slurp_text write_text read_xlsx_tabs tabs_to_csv_text load_canon load_canon_from_tabs
                    render_std_json models_std_spans render_stdgrid render_specs_block render_spec_data_js
-                   tagline_html intro_html CANON_TABS DRIVEN_TABS);
+                   tagline_html intro_html find_sales_tools CANON_TABS DRIVEN_TABS);
 use WBPriceCanon qw(PRICE_TABS FROM_PAGES load_site canon_from_tabs compare_prices plan_price_writes apply_splices
                     from_prices from_nodes mirror_bytes soc_blobs soc_file_bytes verify_pricing fmt_price
-                    OPTION_GUIDE option_guide_plan);
+                    OPTION_GUIDE option_guide_plan sheet_stamp keep_unchanged_sheets);
 use JSON::PP;
 use Digest::SHA qw(sha256_hex);
 use Encode qw(encode);
 binmode STDOUT, ':encoding(UTF-8)';
 binmode STDERR, ':encoding(UTF-8)';
 
-our $VERSION = '2.1';
-my ($canon_dir, $xlsx, $repo, $dry, $out, $soc_out, $pipeline, $qb_import, $by, $with, $why);
+our $VERSION = '2.2';
+my ($canon_dir, $xlsx, $repo, $dry, $out, $soc_out, $pipeline, $qb_import, $sales_opt, $by, $with, $why);
 my $sheets = 'run';
 GetOptions('canon=s' => \$canon_dir, 'xlsx=s' => \$xlsx, 'repo=s' => \$repo, 'dry-run' => \$dry, 'out=s' => \$out,
-           'soc-out=s' => \$soc_out, 'pipeline=s' => \$pipeline, 'qb-import=s' => \$qb_import, 'sheets=s' => \$sheets,
-           'by=s' => \$by, 'with=s' => \$with, 'why=s' => \$why) or die "see the header of $0 for usage\n";
+           'soc-out=s' => \$soc_out, 'pipeline=s' => \$pipeline, 'qb-import=s' => \$qb_import, 'sales-tools=s' => \$sales_opt,
+           'sheets=s' => \$sheets, 'by=s' => \$by, 'with=s' => \$with, 'why=s' => \$why) or die "see the header of $0 for usage\n";
 die "--sheets must be run, dry or skip\n" unless $sheets =~ /^(run|dry|skip)$/;
 die "--canon <folder> is required (the CSV mirrors live there)\n" unless defined $canon_dir;
 $repo = dirname(dirname(abs_path(__FILE__))) unless defined $repo;
@@ -102,8 +115,19 @@ $out     = dirname($canon_dir) . '/WB CANON DATA.json' unless defined $out;
 $soc_out = dirname($canon_dir) . '/WB CANON SOC.json'  unless defined $soc_out;
 my $build = "$repo/_build";          # the TARGET repo's own generators (each derives its root from its own location)
 my $mode = defined $xlsx ? 'xlsx' : 'csv';
+my $canon_root = dirname($canon_dir);            # CANON
+my $sqh        = dirname($canon_root);           # SQUIRREL HOLE
+# Tyler's SALES TOOLS folder, found once from where SQUIRREL HOLE sits (see the header); step 4 and step c use it
+my ($sales_tools, $sales_how) = defined $sales_opt ? ($sales_opt, 'given with --sales-tools') : find_sales_tools($sqh);
+if (defined $sales_tools) {
+  $sales_tools =~ s{\x5c}{/}g; $sales_tools =~ s{/+$}{};
+  ($sales_tools, $sales_how) = (undef, "$sales_tools ($sales_how) does not exist") unless -d $sales_tools;
+}
+my $st_sheets = (defined $sales_tools && -d "$sales_tools/PRICE SHEETS") ? "$sales_tools/PRICE SHEETS" : undef;
 print "gen_from_canon.pl $VERSION  mode: $mode", ($dry ? '  (DRY RUN - nothing written)' : ''), "\nrepo : $repo\ncanon: $canon_dir\nout  : $out\n";
 print "soc  : $soc_out\n" if $mode eq 'xlsx';
+print 'sales: ', (!defined $sales_tools ? "NOT FOUND - $sales_how"
+                  : "$sales_tools  ($sales_how)" . ($st_sheets ? '' : ' - but it holds no PRICE SHEETS folder')), "\n";
 
 my @owed;                            # printed at the end: what this run could not do from here
 sub run_perl {                       # run one of the repo's own generators; die on failure
@@ -348,7 +372,8 @@ unless ($dry) {
   print "\nstamp_assets.pl:\n";
   run_perl('stamp_assets.pl', "$build/stamp_assets.pl", $repo);
   print "\nCHECKS (before anything outside the website is written):\n";
-  my @v = ('perl', "$build/verify_spec_canon.pl", '--repo', $repo, '--quiet', ($mode eq 'xlsx' ? ('--xlsx', $xlsx) : ('--canon', $canon_dir)));
+  my @v = ('perl', "$build/verify_spec_canon.pl", '--repo', $repo, '--quiet', ($mode eq 'xlsx' ? ('--xlsx', $xlsx) : ('--canon', $canon_dir)),
+           (defined $sales_tools ? ('--sales-tools', $sales_tools) : ()));
   my $spec_fail = system(@v) ? 1 : 0;
   my $price_fail = 0;
   if ($mode eq 'xlsx') {
@@ -462,8 +487,6 @@ unless ($dry) {
 # ------------------------------------------------------------ 6. downstream ----
 # Everything else canon reaches outside the website. Each step runs when what it reads changed,
 # from wherever this run can reach it; what it cannot reach is OWED, naming the machine.
-my $canon_root = dirname($canon_dir);            # CANON
-my $sqh        = dirname($canon_root);           # SQUIRREL HOLE
 my $odroot     = dirname(dirname($sqh));         # OneDrive - Wooldridge Boats Inc (the library sits one level in)
 $pipeline  = "$sqh/60 SALES AND DEALERS/PRICE SHEETS/_PIPELINE" unless defined $pipeline;
 $qb_import = "$odroot/Desktop/QB IMPORT" unless defined $qb_import;
@@ -525,7 +548,11 @@ if ($mode eq 'xlsx' && !$dry) {
     else { printf "  %-28s in step with SHOP ADD-ON rows\n", 'trailer add-ons' }
   } else { push @owed, 'trailer shop add-ons: PRICE SHEETS/_PIPELINE not reachable from here' }
 
-  # c. the branded price sheets (library PRICE SHEETS tree, every format) + Tyler's SALES TOOLS PDFs
+  # c. the branded price sheets (library PRICE SHEETS tree, every format) + Tyler's SALES TOOLS PDFs.
+  #    All 19 sets are rebuilt and verified; a set whose only change is the printed date is then left as it was
+  #    (WBPriceCanon::keep_unchanged_sheets - Tyler's rule, adopted by Stephen 2026-10-19), the changed ones are
+  #    placed with the old ones archived, and SALES TOOLS/PRICE SHEETS (found once, the "sales:" line) is brought into
+  #    step. SALES TOOLS not found: the sheets are still placed and its copy is OWED; the run carries on.
   my $need = $price_changes || $content_changes || $packages_changed || $addons_changed;
   if (!$need) { printf "  %-28s no price, package or standard feature moved - not regenerated\n", 'branded price sheets' }
   elsif ($sheets eq 'skip') { push @owed, 'branded price sheets + SALES TOOLS publish (skipped by --sheets skip)' }
@@ -534,7 +561,22 @@ if ($mode eq 'xlsx' && !$dry) {
   else {
     my $o = "$tmpd/sheets"; mkdir $o or die "cannot make $o\n";
     my $reason = defined $why && length $why ? $why : 'canon update';
-    my @steps = (
+    my $dryflag = $sheets eq 'dry' ? ['--dry-run'] : [];
+    my $run = sub {                  # run pipeline scripts from PRICE SHEETS/_PIPELINE; the first failure stops the command
+      my @steps = @_;
+      in_dir($pipeline, sub {
+        for my $s (@steps) {
+          my ($env, $script, @args) = @$s;
+          local @ENV{ keys %$env } = values %$env;
+          print "    perl $script\n";
+          my $r = system('perl', $script, @args);
+          die "branded price sheets: $script failed (exit " . ($r >> 8) . ") - nothing after it ran; the website and canon are already written and proved\n" if $r;
+        }
+      });
+    };
+    my @stamps = (sheet_stamp());   # the date the generators print (two if the build runs past midnight)
+    print "  branded price sheets: building all 19 in $o (" . ($sheets eq 'dry' ? 'DRY RUN - nothing placed or published' : "archive reason \"$reason\"") . ")\n";
+    $run->(
       [{ WB_OFFICIAL => 1 }, 'gen_pricesheets_wb.pl', $repo, 'template.html', $o],
       [{ WB_OFFICIAL => 1 }, 'gen_docx_wb.pl', $repo, $o],
       [{ WB_OFFICIAL => 1 }, 'gen_idml_wb.pl', $repo, $o],
@@ -545,20 +587,29 @@ if ($mode eq 'xlsx' && !$dry) {
       [{}, 'print_all.pl', $o],
       [{}, 'verify_official.pl', $repo, "$o/OUTBOARDS"], [{}, 'verify_official.pl', $repo, "$o/INBOARDS"], [{}, 'verify_official.pl', $repo, "$o/OFFSHORES"],
       [{}, 'verify_trailersheet.pl', $repo, "$o/TRAILER-PRICE SHEET.html"],
-      [{}, 'distribute.pl', '--src', $o, '--reason', $reason, ($sheets eq 'dry' ? '--dry-run' : ())],
-      [{}, 'publish_sales_tools.pl', $repo, ($sheets eq 'dry' ? '--dry-run' : ())],
     );
-    print "  branded price sheets: building in $o, then placing them (" . ($sheets eq 'dry' ? 'DRY RUN - nothing placed' : "archive reason \"$reason\"") . ")\n";
-    in_dir($pipeline, sub {
-      for my $s (@steps) {
-        my ($env, $script, @args) = @$s;
-        local @ENV{ keys %$env } = values %$env;
-        print "    perl $script\n";
-        my $r = system('perl', $script, @args);
-        die "branded price sheets: $script failed (exit " . ($r >> 8) . ") - nothing after it ran; the website and canon are already written and proved\n" if $r;
-      }
-    });
-    push @done, $sheets eq 'dry' ? 'branded price sheets built and verified (DRY RUN: not placed, SALES TOOLS not published)' : 'branded price sheets rebuilt, verified, placed (old ones archived) and SALES TOOLS published';
+    push @stamps, sheet_stamp() unless sheet_stamp() eq $stamps[0];
+    my $K = keep_unchanged_sheets($o, dirname($pipeline), \@stamps);
+    my @chg = map { $_->[0] } @{ $K->{changed} };
+    my $kept = @{ $K->{kept} };
+    printf "  branded price sheets: %d of %d changed%s; %d differ from the library only by the printed date - left as they are\n",
+      scalar @chg, @chg + $kept, (@chg ? '' : ' - nothing to place'), $kept;
+    printf "    changed: %-26s %s\n", @$_ for @{ $K->{changed} };
+    my @place;
+    push @place, [{}, 'distribute.pl', '--src', $o, '--reason', $reason, @$dryflag] if @chg;
+    push @place, [{}, 'publish_sales_tools.pl', $repo, '--sales-tools', $st_sheets, @$dryflag] if defined $st_sheets;   # also brings an earlier owed copy into step
+    $run->(@place) if @place;
+    my $names = @chg ? ' (' . join(', ', @chg) . ')' : '';
+    my $left = $kept ? "; the other $kept differed only by the printed date and were left as they were" : '';
+    if ($sheets eq 'dry') { push @done, "branded price sheets built and verified, $kept of " . (@chg + $kept) . " unchanged but for the date (DRY RUN: not placed, SALES TOOLS not published)" }
+    elsif (!@chg) { push @done, 'branded price sheets rebuilt and verified: all ' . $kept . ' differed only by the printed date, so none was placed' . ($st_sheets ? '; SALES TOOLS checked against the library' : '') }
+    else {
+      push @done, scalar(@chg) . " branded price sheet(s) changed$names - rebuilt, verified, placed (old ones archived)" . ($st_sheets ? ' and published to SALES TOOLS' : '') . $left;
+    }
+    push @owed, "SALES TOOLS price sheets$names: SALES TOOLS/PRICE SHEETS not found from here ("
+      . (defined $sales_tools ? "$sales_tools holds no PRICE SHEETS folder" : $sales_how) . '). The library tree holds the new sheets; publish them from'
+      . ' PRICE SHEETS/_PIPELINE with: perl publish_sales_tools.pl <website repo> --sales-tools "<SALES TOOLS>/PRICE SHEETS" (the P3 finds it without the flag)'
+      if @chg && !defined $st_sheets && $sheets ne 'dry';
   }
 
   # d. the sales desk's ITEM CODE LOOKUP page (Desktop, built by QB IMPORT/_build/gen_lookup_canon.pl - P3 only)
@@ -596,9 +647,10 @@ if ($mode eq 'xlsx' && !$dry) {
 
   # g. the "Boat facts" view in CANON.html (owned by the "CANON - one viewer" session; agreed 2026-10-14).
   #    Every real run; a failure is loud but does not fail the canon run - the canon is already written and proved.
+  #    It finds SALES TOOLS itself with the same lookup; a --sales-tools given to this command is passed on.
   my $bf = "$canon_root/_build/BOAT FACTS/build_boat_facts.pl";
   if (-f $bf) {
-    my $r = system('perl', $bf, '--canon', $canon_root, '--repo', $repo);
+    my $r = system('perl', $bf, '--canon', $canon_root, '--repo', $repo, (defined $sales_opt && defined $sales_tools ? ('--sales-tools', $sales_tools) : ()));
     if ($r) { print "  !! build_boat_facts.pl failed (exit " . ($r >> 8) . ") - the Boat facts view in CANON.html is stale\n";
               push @owed, 'Boat facts view (CANON.html): build_boat_facts.pl failed - read its message above and re-run it' }
     else { push @done, 'Boat facts view (CANON.html) rebuilt' }
@@ -689,6 +741,7 @@ if ($mode eq 'xlsx' && !$dry && $anything) {
   my @lt = localtime; my $date = sprintf('%04d-%02d-%02d', $lt[5] + 1900, $lt[4] + 1, $lt[3]);
   my @what; push @what, "$price_changes price(s)" if $price_changes; push @what, "$content_changes spec change(s)" if $content_changes;
   push @what, 'package prices regenerated' if $packages_changed && !$price_changes;
+  push @what, 'trailer shop add-on prices' if $addons_changed && !$price_changes;
   my $who = (defined $by && length $by) ? "entered by $by" : 'entered by NOT GIVEN - fill in';
   my $disc = (defined $with && length $with) ? "discussed with $with" : 'discussed with NOT GIVEN - fill in';
   my $e = "\n### $date - " . join(', ', @what) . " via the canon command ($who, $disc)\n\n";

@@ -27,12 +27,15 @@ use Encode qw(decode encode);
 use Exporter 'import';
 use File::Basename qw(dirname);
 use Cwd qw(abs_path);
+use POSIX ();
+use IO::Uncompress::Unzip ();
 use lib dirname(abs_path(__FILE__));
 use WBSpecCanon qw(slurp_bytes slurp_text);
 
 our @EXPORT_OK = qw(PRICE_TABS FROM_PAGES jparse jget load_site canon_from_tabs compare_prices plan_price_writes
                     apply_splices fmt_price numeq rows_of from_prices from_nodes mirror_bytes soc_blobs soc_file_bytes
-                    verify_pricing OPTION_GUIDE OPTION_GUIDE_MAP option_guide_plan);
+                    verify_pricing OPTION_GUIDE OPTION_GUIDE_MAP option_guide_plan
+                    SHEET_FAMILIES sheet_stamp sheet_unchanged keep_unchanged_sheets);
 
 use constant PRICE_TABS => ('BOATS', 'ENGINES', 'OPTIONS', 'TRAILERS', 'PACKAGES', 'CARRY OUT', 'DISCREPANCIES', 'PROVENANCE');
 
@@ -720,6 +723,127 @@ sub verify_pricing {
     $row->('trailer shop add-ons (price sheets)', @bad ? 'FAIL' : 'PASS', @bad ? 'differ: ' . join(', ', map { $_->{d} } @bad) : scalar(@$B) . ' add-ons match the SHOP ADD-ON rows');
   }
   return (\@out, $R, $S, $C);
+}
+
+# ------------------------------------------------ branded price sheets ----
+# A canon change replaces only the price sheets it changed: Tyler's rule after the
+# 2026-10-15 Sportster run, adopted by Stephen 2026-10-19 for gen_from_canon.pl step c.
+# Every rebuild prints the day's date on all 19 sets (18 boats + the trailer), and each
+# html carries the Rockwell font files of the computer that built it (the P3's and
+# Tyler's Mac's bytes differ). So a rebuilt set is UNCHANGED when its .html, .docx and
+# .idml each equal the library's copy once two things are set aside:
+#   - a printed date ("19 October 2026") where the rebuilt file prints this run's date,
+#     whatever date the library's copy shows in that place;
+#   - the base64 font data inside the html (font/...;base64, data).
+# Anything else - a word, a number, an image, any other date, a missing file or zip
+# part - is a change. Word and InDesign files are compared part by part, so a zip's own
+# timestamps never count, and without the package bookkeeping SharePoint rewrites once a
+# Word file syncs: it adds customXml/, [trash]/ and docProps/custom.xml and rewrites
+# [Content_Types].xml, the .rels files and docProps/core.xml. Seen on all 19 library Word
+# files on 2026-10-19 - the document, headers, footer, styles, logo and docProps/app.xml
+# were byte-identical to a fresh build; only those parts differed. The PDF is printed
+# from the html and is never compared.
+use constant SHEET_FAMILIES => ('OUTBOARDS', 'INBOARDS', 'OFFSHORES');
+my $SHEET_DATE = qr/\b(\d{1,2} (?:January|February|March|April|May|June|July|August|September|October|November|December) \d{4})\b/;
+my $PACKAGE_PART = qr{^(?:customXml/|\[trash\]/|docProps/custom\.xml$|docProps/core\.xml$|\[Content_Types\]\.xml$|(?:.*/)?_rels/[^/]*\.rels$)};
+sub sheet_stamp {                    # (epoch, default now) -> the date as the sheet generators print it ("9 October 2026")
+  my $d = POSIX::strftime('%e %B %Y', localtime(defined $_[0] ? $_[0] : time));
+  $d =~ s/^\s+//;
+  return $d;
+}
+sub _sheet_mask {                    # bytes -> (bytes with the font data and the dates masked, [the dates in order])
+  my ($b) = @_;
+  my @d;
+  $b =~ s{(font/[A-Za-z0-9.+-]+;base64,)[A-Za-z0-9+/=\\\r\n]+}{$1\x00FONT\x00}g;
+  $b =~ s{$SHEET_DATE}{push @d, $1; "\x00DATE\x00"}ge;
+  return ($b, \@d);
+}
+sub _same_but_stamp {                # (library bytes, rebuilt bytes, {stamp => 1}) -> '' when only the stamp differs, else what does
+  my ($old, $new, $stamps) = @_;
+  return '' if $old eq $new;
+  my ($mo, $do) = _sheet_mask($old);
+  my ($mn, $dn) = _sheet_mask($new);
+  return 'content differs' unless $mo eq $mn;      # equal masks also mean the same number of dates
+  for my $i (0 .. $#$dn) {
+    next if $dn->[$i] eq $do->[$i] || $stamps->{ $dn->[$i] };
+    return "a printed date changed ($do->[$i] -> $dn->[$i])";
+  }
+  return '';
+}
+sub _zip_parts {                     # zip bytes -> { part name => bytes }, or undef when it cannot be read part by part
+  my ($b) = @_;
+  my $z = IO::Uncompress::Unzip->new(\$b, Transparent => 0) or return undef;
+  my (%parts, $st);
+  for ($st = 1; $st > 0; $st = $z->nextStream) {
+    my $name = $z->getHeaderInfo->{Name};
+    my ($data, $buf) = ('', '');
+    while (($st = $z->read($buf)) > 0) { $data .= $buf }
+    last if $st < 0;
+    return undef if exists $parts{$name};          # a part name twice: not comparable
+    $parts{$name} = $data;
+  }
+  return $st < 0 ? undef : \%parts;
+}
+sub sheet_unchanged {                # (library copy, rebuilt copy, {stamp => 1}) -> '' when only the stamp and fonts differ, else why
+  my ($old_p, $new_p, $stamps) = @_;
+  return 'not in the library' unless -f $old_p;
+  return 'not rebuilt' unless -f $new_p;
+  my ($old, $new) = (slurp_bytes($old_p), slurp_bytes($new_p));
+  return '' if $old eq $new;
+  my $is_zip = sub { substr($_[0], 0, 4) eq "PK\x03\x04" };
+  return _same_but_stamp($old, $new, $stamps) unless $is_zip->($old) || $is_zip->($new);
+  my ($po, $pn) = (_zip_parts($old), _zip_parts($new));
+  return 'cannot be read part by part' unless $po && $pn;
+  my @o = sort grep { !/$PACKAGE_PART/ } keys %$po;
+  my @n = sort grep { !/$PACKAGE_PART/ } keys %$pn;
+  return 'its parts differ (' . join(', ', (map { "only in the library: $_" } grep { !exists $pn->{$_} } @o),
+                                           (map { "only in the rebuild: $_" } grep { !exists $po->{$_} } @n)) . ')'
+    unless join("\0", @o) eq join("\0", @n);
+  for my $p (@n) { my $why = _same_but_stamp($po->{$p}, $pn->{$p}, $stamps); return "$p: $why" if length $why }
+  return '';
+}
+# keep_unchanged_sheets(built folder, library PRICE SHEETS tree, [stamps]) -> { changed => [[name, why]], kept => [names] }
+# The built folder is gen_from_canon.pl's (<FAMILY>/<NAME>-PRICE SHEET.* plus TRAILER-PRICE SHEET.* at its top); each
+# set's library copy sits in <tree>/<FAMILY>/<model folder>/ or <tree>/TRAILERS/. For every unchanged set the library's
+# html, pdf, docx and idml are copied over the rebuilt ones, so distribute.pl finds the same bytes already in place and
+# moves nothing, and publish_sales_tools.pl finds nothing new for SALES TOOLS. Nothing outside the built folder is written.
+sub keep_unchanged_sheets {
+  my ($o, $lib, $stamps) = @_;
+  my %st = map { $_ => 1 } @$stamps;
+  my $dir_list = sub { my ($d) = @_; opendir(my $dh, $d) or return (); my @k = sort grep { !/^\./ } readdir $dh; closedir $dh; return @k };
+  my @sets;                          # [name, built folder, library folder or undef, why not found]
+  for my $fam (SHEET_FAMILIES) {
+    die "rebuilt price sheets: no $fam folder in $o\n" unless -d "$o/$fam";
+    my @models = grep { -d "$lib/$fam/$_" } $dir_list->("$lib/$fam");
+    for my $h (grep { /-PRICE SHEET\.html$/ } $dir_list->("$o/$fam")) {
+      (my $name = $h) =~ s/-PRICE SHEET\.html$//;
+      my @at = grep { -f "$lib/$fam/$_/$h" } @models;
+      push @sets, [$name, "$o/$fam", (@at == 1 ? ("$lib/$fam/$at[0]", '') : (undef, @at ? 'in ' . scalar(@at) . " $fam folders" : 'not in the library'))];
+    }
+  }
+  die "rebuilt price sheets: no TRAILER-PRICE SHEET.html in $o\n" unless -f "$o/TRAILER-PRICE SHEET.html";
+  push @sets, ['TRAILER', $o, (-f "$lib/TRAILERS/TRAILER-PRICE SHEET.html" ? ("$lib/TRAILERS", '') : (undef, 'not in the library'))];
+  my (@changed, @kept);
+  for my $s (@sets) {
+    my ($name, $bdir, $ldir, $why) = @$s;
+    my $base = "$name-PRICE SHEET";
+    unless (defined $ldir) { push @changed, [$name, $why]; next }
+    if (my @gone = grep { !-f "$ldir/$base.$_" } qw(html pdf docx idml)) { push @changed, [$name, 'the library copy has no .' . join(', .', @gone)]; next }
+    if (my @gone = grep { !-f "$bdir/$base.$_" } qw(html pdf docx idml)) { die "rebuilt price sheets: $name has no .$gone[0] in $bdir\n" }
+    for my $ext (qw(html docx idml)) {
+      my $w = sheet_unchanged("$ldir/$base.$ext", "$bdir/$base.$ext", \%st);
+      if (length $w) { $why = ".$ext: $w"; last }
+    }
+    if (length $why) { push @changed, [$name, $why]; next }
+    for my $ext (qw(html pdf docx idml)) {
+      my $bytes = slurp_bytes("$ldir/$base.$ext");
+      open my $fh, '>:raw', "$bdir/$base.$ext" or die "cannot write $bdir/$base.$ext: $!\n";
+      print $fh $bytes; close $fh or die "cannot close $bdir/$base.$ext: $!\n";
+      die "rebuilt price sheets: $bdir/$base.$ext did not take the library's bytes\n" unless slurp_bytes("$bdir/$base.$ext") eq $bytes;
+    }
+    push @kept, $name;
+  }
+  return { changed => \@changed, kept => \@kept };
 }
 
 1;
