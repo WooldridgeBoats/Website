@@ -22,7 +22,7 @@ history, video thumbs) each have their own home as he adds more.
 | `IN THE SHOP-WEB/` | Empty on 10-20. Planned: one `<HULL>-<LEN>-<MODEL>/` folder per boat in production | /in-the-shop/ |
 | `NEW INVENTORY/` | One folder per boat for sale, named by HULL so it's the exact boat from the shop: `5334-18-WS-ALASKAN/` (HERO + GALLERY-THUMB + NN photos, all `…-5334-18-WS-AK.jpg`) and its phone folder `…-MOBILE/` | /new-inventory/: `_build/build_new_inventory.sh` (checks names, fills `assets/newinv/<HULL>/`). Price, words, SOLD: the NEWINV list in new-inventory/index.html. Homepage New Boats thumb is hand-edited in index.html. Full how-to: `_build/IN-STOCK-PAGE-HANDOFF.md` |
 | `WEB STORE-EXPORTS/` | Flat folder of store product photos, `PRODUCT NAME-N.jpg` | store.wooldridgeboats.com (Shopify) |
-| `LOGOS-GRAPHICS/` (was `LOGOS/`) | Copies of every logo and graphic the website uses, ALL CAPS names: WB-LOGO-WING-DARK, WB-FAVICON (.ico, 16/32/180), ICON-INSTAGRAM/FACEBOOK/YOUTUBE, ROPE-DIVIDER(-TRIMMED), ROPE-VERTICAL-HISTORY, ROGUE-RIVER-MAP-BACKGROUND, ARROW-DOWN, COMPASS-STAR.svg, AVAILABLE-NOW-STAMP (.png, -SHADOW.png, .svg), plus Tyler's WB-ICON-LOGO-FAVICON.png (Tyler, 2026-10-20). Only what the site uses: unused copies (LIGHT logo, 512 favicon) were trashed 2026-10-20 | Reference copies for Tyler. The site uses its own copies in `assets/brand/` (and `assets/history/rope-v.png`, `assets/inv-stamp.js`). New site graphic = add a copy here too |
+| `LOGOS-GRAPHICS/` (was `LOGOS/`) | Copies of every logo and graphic the website uses, ALL CAPS names: WB-LOGO-WING-DARK, ICON-INSTAGRAM/FACEBOOK/YOUTUBE, ROPE-DIVIDER(-TRIMMED), ROPE-VERTICAL-HISTORY, ROGUE-RIVER-MAP-BACKGROUND, ARROW-DOWN, COMPASS-STAR.svg, AVAILABLE-NOW-STAMP (.png, -SHADOW.png, .svg), plus **WB-ICON-LOGO-FAVICON.png = the 512×512 favicon MASTER** (Tyler's new one, 2026-10-20; the old barred favicon copies were trashed) (Tyler, 2026-10-20). Only what the site uses: unused copies (LIGHT logo, 512 favicon) were trashed 2026-10-20 | Reference copies for Tyler. The site uses its own copies in `assets/brand/` (and `assets/history/rope-v.png`, `assets/inv-stamp.js`). New site graphic = add a copy here too |
 
 ## BOAT MODELS → page
 
@@ -78,3 +78,12 @@ carry no trim (see BOAT-MODEL-IMAGE-UPDATES-HANDOFF.md).
   download them. The Agency builder warns about them.
 - **Comments in the model pages** (Landing Craft, Deepwater, Pybus, Pilothouse, Agency) name their
   master folder. They were updated to the new paths on 2026-10-20.
+
+## Favicon (Tyler's new icon, 2026-10-20)
+Master: `LOGOS-GRAPHICS/WB-ICON-LOGO-FAVICON.png`, 512×512 (WB logo on a white-to-grey fade, no bars). The site
+needs exactly four files made from it: `assets/brand/favicon-16.png`, `favicon-32.png`, `favicon-180.png`
+(iPhone home screen) and `/favicon.ico` (16+32+48 inside). Remake with `sips -s format png -z N N` and a
+small Python ICO packer (PNG entries), copy in, then bump the `?v=` on the four favicon links in every page
+AND in `_build/gen_pricesheets.pl` (browsers and Cloudflare hold favicons hard). If Tyler sends a new
+master smaller than 512, ask for 512+ (180px from 100px looks soft). The store favicon should match.
+
