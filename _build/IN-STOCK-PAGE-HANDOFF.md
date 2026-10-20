@@ -73,5 +73,5 @@ SSO Pilothouse 26′ phone set + 29′ gallery + 2-slide hero · SSO Angler is a
 reorg (BOAT MODELS / CUSTOM BOAT MODELS; 3 scripts re-pointed; _build/MASTER-PHOTO-FOLDERS.md) · this
 In Stock page + stamp + menu link · homepage Pre-Owned | New Boats alignment · Explore labels · model
 prev/next = 18 main models in menu order (custom builds loop separately) · LOGOS-GRAPHICS = only what the
-site uses · unused brand files deleted · new favicon (site + store). Still open: SOLD stamp design, Pilothouse 29′ phone + 31′.
+site uses · unused brand files deleted · new favicon (site + store). Still open: SOLD stamp design, Pilothouse 31′ (29′ phone set done later that day).
 
