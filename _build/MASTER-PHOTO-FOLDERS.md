@@ -20,7 +20,7 @@ history, video thumbs) each have their own home as he adds more.
 | `ABOUT \| HISTORY/` | Year and decade folders (`1915`, `1920s` … `2026`), `HERITAGE BROCHURES-ADS`, `GENERAL HISTORICAL-UNKOWN DATES`, plus loose hero/end-cap/rope files. **Did not move.** | /our-history/: `build_history.pl` (see HISTORY-PAGE-HANDOFF.md) |
 | `YOUTUBE-THUMBS/` | Tyler's own video thumbnails. **Renamed from `YT-VIDEO-THUMBS`.** Always copy byte for byte, never re-compress. | History heritage video (`01-HERITAGE VIDEO-THUMB.jpg`); also holds a 20′ Skagit USGS electroshock thumb |
 | `IN THE SHOP-WEB/` | Empty on 10-20. Planned: one `<HULL>-<LEN>-<MODEL>/` folder per boat in production | /in-the-shop/ |
-| `NEW INVENTORY/` | `20-WS-ALASKAN/` (empty on 10-20) | /new-inventory/ (ask Tyler how he wants it built when photos land) |
+| `NEW INVENTORY/` | One folder per boat for sale, named by HULL so it's the exact boat from the shop: `5334-18-WS-ALASKAN/` (HERO + GALLERY-THUMB + NN photos, all `…-5334-18-WS-AK.jpg`) and its phone folder `…-MOBILE/` | /new-inventory/: `_build/build_new_inventory.sh` (checks names, fills `assets/newinv/<HULL>/`). Price, words, SOLD: the NEWINV list in new-inventory/index.html. Homepage New Boats thumb is hand-edited in index.html |
 | `WEB STORE-EXPORTS/` | Flat folder of store product photos, `PRODUCT NAME-N.jpg` | store.wooldridgeboats.com (Shopify) |
 | `LOGOS/` | `WB-ICON-LOGO-FAVICON.png` | favicon / brand |
 
