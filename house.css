@@ -853,15 +853,16 @@ html.blueprint .tagband .tb-more a{ color:#e8b64c; }   /* Night Run theme: gold,
   box-shadow:var(--shadow-lg); max-width:1150px; margin:0 auto; display:block;
 }
 .storycollage img{ width:100%; }
-/* the button sits in the open sky over the river photo on the right of the collage
-   (assets/homepage/about-history.jpg, Tyler's HOMEPAGE-ABOUT HISTORY.jpg, 2026-10-20) */
+/* the button is centred in the B&W Rogue river photo on the right of the collage
+   (assets/homepage/about-history.jpg, Tyler's HOMEPAGE-ABOUT HISTORY.jpg, 2026-10-20):
+   across, the middle of that photo (it runs ~59.5%-100% of the collage); down, halfway
+   between the sky (treeline ~33%) and the water (~61%), so it sits on the forested hill
+   above the boat. Tyler 2026-10-20: "center it in the space between the water and the sky". */
 .storycollage .btn-blue{
-  position:absolute; left:73.5%; top:6%; transform:translateX(-50%); white-space:nowrap;
+  position:absolute; left:79.7%; top:47%; transform:translate(-50%,-50%); white-space:nowrap;
   font-size:clamp(14px,2.4vw,30px); padding:clamp(6px,1vw,14px) clamp(13px,2.5vw,36px);
 }
-/* phones: the collage is ~140px tall, so the button shrinks with it and leans right, onto
-   the treeline, instead of covering the canyon photo */
-@media (max-width:600px){ .storycollage .btn-blue{ left:77%; top:5%; border-radius:6px; } }
+@media (max-width:600px){ .storycollage .btn-blue{ border-radius:6px; } }
 
 /* heritage extras kept from the original page (styled to match) */
 .heritage-grid{ display:grid; grid-template-columns:1.2fr .8fr; gap:44px; align-items:start; }
