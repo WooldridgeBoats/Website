@@ -8,13 +8,20 @@
    One file, included with <script src="/assets/pagenav.js" defer> — the
    page decides nothing; this script reads location.pathname and renders
    the right bar at the top of <main> and above the footer.
-   Model ORDER mirrors the mega menu columns (header.html): Inboard,
-   Outboard, Offshore, Custom Builds. If a model is added to the menu it
-   must be added here — the sitewide audit checks the two lists agree. */
+   LOOPS below: the 18 main models in desktop menu order, then the custom
+   builds as their own loop. If a model is added to the menu it must be
+   added here too. */
 (function(){
   'use strict';
-  var ORDER = [
-    /* Inboard */
+  /* Two separate loops (Tyler, 2026-10-20): prev / next on a MAIN model page only ever steps through
+     the 18 main models, in the desktop menu's column order (Offshore, Inboard Jet, Outboard Jet:
+     house.css .mcol-* order), wrapping from the last back to the first. The custom-build pages step
+     through the custom builds only, in their menu order. A model added to the menu goes in here too. */
+  var LOOPS = [[
+    /* Offshore */
+    ['sportoffshore',               'Sport Offshore'],
+    ['super-sport-offshore',        'Super Sport Offshore'],
+    /* Inboard Jet */
     ['alaskan-xl-inboard',          'Alaskan XL Inboard'],
     ['scout',                       'Scout'],
     ['scout-widebody',              'Scout Widebody'],
@@ -22,7 +29,7 @@
     ['skagit-x',                    'Skagit-X'],
     ['sportinboard',                'Sport Inboard'],
     ['supersportdrifterinboard',    'Super Sport Drifter Inboard'],
-    /* Outboard */
+    /* Outboard Jet */
     ['alaskan',                     'Alaskan'],
     ['alaskan-lt',                  'Alaskan LT'],
     ['alaskanxl',                   'Alaskan XL'],
@@ -31,10 +38,8 @@
     ['skagit',                      'Skagit'],
     ['sport',                       'Sport'],
     ['sportster',                   'Sportster'],
-    ['supersportdrifter',           'Super Sport Drifter'],
-    /* Offshore */
-    ['sportoffshore',               'Sport Offshore'],
-    ['super-sport-offshore',        'Super Sport Offshore'],
+    ['supersportdrifter',           'Super Sport Drifter']
+  ], [
     /* Custom Builds (Tyler's order, 2026-10-08; Agency & Work Boats leads the menu but isn't a model page) */
     ['landing-craft',               'Landing Craft'],
     ['angler',                      'SSO Angler'],
@@ -43,7 +48,7 @@
     ['canyon',                      'Canyon'],
     ['supersportoffshorepilothouse','SSO Pilothouse'],
     ['riverrat-diy-kit',            'River Rat DIY Kit']
-  ];
+  ]];
 
   function el(html){
     var d = document.createElement('div');
@@ -67,8 +72,9 @@
   var top, bottom;
 
   if (m){
-    var i = -1;
-    for (var k = 0; k < ORDER.length; k++) if (ORDER[k][0] === m[1]) { i = k; break; }
+    var ORDER = null, i = -1;
+    for (var L = 0; L < LOOPS.length && i === -1; L++)
+      for (var k = 0; k < LOOPS[L].length; k++) if (LOOPS[L][k][0] === m[1]) { ORDER = LOOPS[L]; i = k; break; }
     if (i === -1) return;                       /* unknown slug (e.g. a redirect stub) */
     var prev = ORDER[(i + ORDER.length - 1) % ORDER.length];
     var next = ORDER[(i + 1) % ORDER.length];

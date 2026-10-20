@@ -1,5 +1,7 @@
 # BOAT MODEL IMAGE UPDATES — HANDOFF / RUNBOOK
 
+> **Photo folders moved 2026-10-20:** boats now live in `MASTER-WEBSITE PHOTOS/BOAT MODELS/` and `MASTER-WEBSITE PHOTOS/CUSTOM BOAT MODELS/`. Map of every folder → page → command: `_build/MASTER-PHOTO-FOLDERS.md`.
+
 **Point Claude at this file** when a new boat model's photo set is ready. It is the
 complete, self-contained recipe for replacing one model's website photos on
 **dev.wooldridgeboats.com** the same way the **Alaskan LT** was done (2026-09-16).
@@ -16,7 +18,7 @@ Preview locally with `python3 -m http.server 8811` in the repo root, then open
 Trigger convention: **Tyler says "Model Ready" + model name + master folder.** Then:
 
 ```bash
-SRC="/Users/tylerlee/Library/CloudStorage/OneDrive-WooldridgeBoatsInc/Wooldridge Boats Inc_ - SQUIRREL HOLE/70 MARKETING AND BRAND/WEBSITE/MASTER-WEBSITE PHOTOS/<MODEL>-WEB"
+SRC="/Users/tylerlee/Library/CloudStorage/OneDrive-WooldridgeBoatsInc/Wooldridge Boats Inc_ - SQUIRREL HOLE/70 MARKETING AND BRAND/WEBSITE/MASTER-WEBSITE PHOTOS/BOAT MODELS/<MODEL>-WEB"
 _build/check_model_photos.sh "$SRC"                                  # 1. PRE-FLIGHT: vet naming/size/hulls (Tyler can run this himself too)
 _build/apply_model_photos.sh <slug> "<Display Name>" "$SRC" --dry-run # 2. preview the filename map + gallery HTML (writes nothing)
 _build/apply_model_photos.sh <slug> "<Display Name>" "$SRC"           # 3. do it (copies, thumbs, covers, hero, page rewrite, cross-refs, build_gallery + stamp)
@@ -34,7 +36,7 @@ Then verify in the browser pane (§7 checklist) and hand Tyler the commit line (
 
 ## 0) WHAT TYLER HANDS OVER
 
-Source master (OneDrive): `~/Library/CloudStorage/OneDrive-WooldridgeBoatsInc/Wooldridge Boats Inc_ - SQUIRREL HOLE/70 MARKETING AND BRAND/WEBSITE/MASTER-WEBSITE PHOTOS/<MODEL>-WEB/`
+Source master (OneDrive): `~/Library/CloudStorage/OneDrive-WooldridgeBoatsInc/Wooldridge Boats Inc_ - SQUIRREL HOLE/70 MARKETING AND BRAND/WEBSITE/MASTER-WEBSITE PHOTOS/BOAT MODELS/<MODEL>-WEB/`
 containing, per length: `NN-HULL-LEN-STYLE-MODEL.jpg` (e.g. `01-5370-16-CC-AK LT.jpg`), plus one
 `HERO-*.jpg` at the top and one `GALLERY-THUMB-*.jpg` per length subfolder.
 (Confirm files are real bytes, not cloud-only placeholders, before copying.)
@@ -60,7 +62,7 @@ Run a DRY-RUN first and confirm zero warnings (every length matches its folder, 
 ```bash
 SLUG="<slug>"                 # e.g. alaskan-lt
 MODEL="<Display Name>"        # e.g. "Alaskan LT"
-SRC="/Users/tylerlee/Library/CloudStorage/OneDrive-WooldridgeBoatsInc/Wooldridge Boats Inc_ - SQUIRREL HOLE/70 MARKETING AND BRAND/WEBSITE/MASTER-WEBSITE PHOTOS/<MODEL>-WEB"
+SRC="/Users/tylerlee/Library/CloudStorage/OneDrive-WooldridgeBoatsInc/Wooldridge Boats Inc_ - SQUIRREL HOLE/70 MARKETING AND BRAND/WEBSITE/MASTER-WEBSITE PHOTOS/BOAT MODELS/<MODEL>-WEB"
 LENGTHS="16 18 20"           # this model's length subfolders (match the "NN-AK LT-WEB" dirs)
 ```
 

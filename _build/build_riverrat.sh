@@ -18,7 +18,7 @@
 set -uo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 SLUG=riverrat-diy-kit
-SRC="${1:-/Users/tylerlee/Library/CloudStorage/OneDrive-WooldridgeBoatsInc/Wooldridge Boats Inc_ - SQUIRREL HOLE/70 MARKETING AND BRAND/WEBSITE/MASTER-WEBSITE PHOTOS/RIVER RAT-WEB}"
+SRC="${1:-/Users/tylerlee/Library/CloudStorage/OneDrive-WooldridgeBoatsInc/Wooldridge Boats Inc_ - SQUIRREL HOLE/70 MARKETING AND BRAND/WEBSITE/MASTER-WEBSITE PHOTOS/CUSTOM BOAT MODELS/RIVER RAT-WEB}"
 DEST="$REPO/assets/photos/$SLUG"
 PAGE="$REPO/models/$SLUG/index.html"
 [ -d "$SRC" ] || { echo "ERROR: source not found: $SRC"; exit 2; }

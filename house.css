@@ -138,6 +138,15 @@ h1,h2,h3,.h-serif{
   color:var(--ink); white-space:nowrap;
 }
 .nav a:hover,.nav a.on{ color:var(--blue); }
+/* "In Stock" link (Tyler, 2026-10-20): only while a shop boat is for sale. assets/instock.js sets
+   html.wb-instock; the store header mirrors these rules (wb-header.scoped.css) so both menus match.
+   With the extra link the bar needs ~74px more: between 901 and 1100px wide tighten the gaps and
+   tracking a touch so it stays on one row (at 1101px and up nothing changes). */
+html:not(.wb-instock) .nav a.nav-instock{ display:none !important; }   /* !important: the open phone menu (.nav.nav-open .wrap > a) sets display:block */
+@media (min-width:901px) and (max-width:1100px){
+  html.wb-instock .nav .wrap{ gap:7px; }
+  html.wb-instock .nav a{ letter-spacing:.035em; }
+}
 .nav .brand{ margin-right:auto; display:flex; align-items:center; }
 /* Grown from 46px on 2026-07-30: with "Wooldridge Boats Inc." removed from the
    home page, this wing is the ONLY place the brand name appears above the fold,
@@ -681,6 +690,14 @@ html.blueprint .tagband .tb-more a{ color:#e8b64c; }   /* Night Run theme: gold,
   padding:0 6px; overflow-wrap:break-word;
 }
 .exp:hover .lab{ color:var(--blue); }
+/* tablet + phone (Tyler, 2026-10-20): under the big 2-across / full-width photos the small
+   letter-spaced caps read tiny. Bigger Inter Medium in normal case, like a title. Desktop unchanged. */
+@media (max-width:1080px){
+  .exp .lab{ font-size:18px; letter-spacing:.01em; text-transform:none; margin-top:12px; }
+}
+@media (max-width:760px){
+  .exp .lab{ font-size:21px; }
+}
 
 /* ── boat models carousel ──────────────────────────────────────────────── */
 .carouselzone{ position:relative; }
@@ -838,30 +855,11 @@ html.blueprint .tagband .tb-more a{ color:#e8b64c; }   /* Night Run theme: gold,
 .tooltab b{ display:block; font-weight:500; font-size:16.5px; color:var(--ink); margin-bottom:4px; }
 .tooltab span:last-child{ font-weight:400; font-size:13px; color:var(--body); }
 
-/* ── videos ────────────────────────────────────────────────────────────── */
-#watch .wrap{ max-width:1360px; }   /* let the featured-video row run a bit wider than the 1240 grid, so the three thumbs read larger */
-.vids{ display:grid; grid-template-columns:repeat(3,1fr); gap:26px; }
-.vid{ background:transparent; }
-.vid .shot{
-  display:block; width:100%; border:0; padding:0; cursor:pointer;
-  border-radius:var(--rad); overflow:hidden; box-shadow:var(--shadow);
-  position:relative; background:#000;
-}
-.vid .shot::after{
-  content:"▶"; position:absolute; inset:0; display:grid; place-items:center;
-  color:#fff; font-size:44px; text-shadow:0 2px 14px rgba(0,0,0,.55);
-  transition:transform .25s ease;
-}
-.vid .shot:hover::after{ transform:scale(1.15); }
-.vid .shot img{ width:100%; aspect-ratio:16/9; object-fit:cover; }
-.vid iframe{ width:100%; aspect-ratio:16/9; border:0; border-radius:var(--rad); box-shadow:var(--shadow); }
-.vid .cap{
-  margin-top:12px; text-align:center; font-weight:500; font-size:13.5px;
-  letter-spacing:.06em; text-transform:uppercase; color:var(--ink);
-}
-
 /* ── heritage / our story ──────────────────────────────────────────────── */
-.ropebar{ display:flex; justify-content:center; margin:8px 0 30px; }
+/* Tyler 2026-10-20: rope sits ~half as far from the title and the text. rope-trim.png has the
+   PNG's empty top/bottom padding cut off (rope.png: 60px + 73px of 197); the negative top margin
+   pulls into .sechead's 38px bottom margin, so the gap is 38px on desktop and 24px on phones. */
+.ropebar{ display:flex; justify-content:center; margin:calc(clamp(24px,2.6vw,38px) - 38px) 0 clamp(24px,2.6vw,38px); }
 .ropebar img{ width:min(920px,86%); height:auto; }
 .storylede{
   max-width:1080px; margin:0 auto 34px; font-weight:400; font-size:17px;
@@ -872,10 +870,16 @@ html.blueprint .tagband .tb-more a{ color:#e8b64c; }   /* Night Run theme: gold,
   box-shadow:var(--shadow-lg); max-width:1150px; margin:0 auto; display:block;
 }
 .storycollage img{ width:100%; }
+/* the button is centred in the B&W Rogue river photo on the right of the collage
+   (assets/homepage/about-history.jpg, Tyler's HOMEPAGE-ABOUT HISTORY.jpg, 2026-10-20):
+   across, the middle of that photo (it runs ~59.5%-100% of the collage); down, halfway
+   between the sky (treeline ~33%) and the water (~61%), so it sits on the forested hill
+   above the boat. Tyler 2026-10-20: "center it in the space between the water and the sky". */
 .storycollage .btn-blue{
-  position:absolute; right:6%; top:44%; font-size:clamp(18px,2.4vw,30px);
-  padding:14px 36px;
+  position:absolute; left:79.7%; top:47%; transform:translate(-50%,-50%); white-space:nowrap;
+  font-size:clamp(14px,2.4vw,30px); padding:clamp(6px,1vw,14px) clamp(13px,2.5vw,36px);
 }
+@media (max-width:600px){ .storycollage .btn-blue{ border-radius:6px; } }
 
 /* heritage extras kept from the original page (styled to match) */
 .heritage-grid{ display:grid; grid-template-columns:1.2fr .8fr; gap:44px; align-items:start; }
@@ -894,25 +898,44 @@ html.blueprint .tagband .tb-more a{ color:#e8b64c; }   /* Night Run theme: gold,
 
 /* ── pre-owned / what's happening ──────────────────────────────────────── */
 .duo{
-  display:grid; grid-template-columns:1fr 1fr; gap:0; align-items:start;
+  display:grid; grid-template-columns:1fr 1fr; gap:0; align-items:stretch;
 }
-.duo > div{ padding:0 34px; }
+/* each column is a flex column so its pill (.duo-cta) drops to the bottom: Browse All Pre-Owned and
+   See New Boats sit on one line across the two columns (Tyler, 2026-10-20) */
+.duo > div{ padding:0 34px; display:flex; flex-direction:column; }
+.duo .duo-cta{ margin-top:auto; padding-top:26px; text-align:center; }
 .duo > div:first-child{ border-right:1px solid var(--rule); }
-.duo h2{ text-align:center; font-size:clamp(24px,2.6vw,32px); }
+.duo h2{ text-align:center; font-size:clamp(26px,3.4vw,40px); }   /* the .sechead h2 size: every blue homepage title matches (Tyler, 2026-10-20) */
 .duo .sub{
   text-align:center; font-weight:400; font-size:14px; color:var(--muted);
   margin:8px 0 26px;
 }
-.listings{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
-.listing{ text-align:center; color:var(--body); display:block; }
-.listing .nm{ font-weight:500; font-size:14px; color:var(--ink); margin-bottom:10px; }
+/* Tyler, 2026-10-20: the cards line up in rows. Each card is a 4-row subgrid (name, photo, blurb, price),
+   so every photo starts on one line and every price sits on one bottom line; the 2-line name and 4-line
+   blurb minimums keep the New Boats card (its own .listings) level with the Pre-Owned ones. */
+.listings{ display:grid; grid-template-columns:repeat(3,1fr); column-gap:18px; row-gap:0; }
+.listing{ text-align:center; color:var(--body); display:grid; grid-row:span 4; grid-template-rows:subgrid; }
+.listing .nm{ font-weight:500; font-size:14px; line-height:1.4; color:var(--ink); margin-bottom:10px;
+  min-height:2.8em; display:flex; align-items:flex-end; justify-content:center; }
 .listing img{
   width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;
   box-shadow:var(--shadow);
 }
-.listing .blurbsm{ font-weight:400; font-size:12.5px; margin-top:10px; min-height:54px; }
-.listing .price{ font-weight:500; font-size:15px; color:var(--ink); margin-top:8px; }
+.listing .blurbsm{ font-weight:400; font-size:12.5px; line-height:1.5; margin-top:10px; min-height:6em; }
+.listing .price{ font-weight:500; font-size:15px; color:var(--ink); margin-top:8px; align-self:end; }
 .listing:hover .nm{ color:var(--blue); }
+/* New Boats: the card in the first column (same size as a Pre-Owned card), the paragraph beside it */
+.newinv-row .newinv-note{ grid-column:2 / span 2; grid-row:1 / span 4; align-self:center; margin:0 0 0 8px;
+  font-size:15px; line-height:1.7; }
+@media (max-width:760px){
+  /* phones: one card per row, full width like Pre-Owned, with bigger names, text and prices (Tyler) */
+  .listings{ grid-template-columns:1fr; row-gap:34px; }
+  .listing{ display:block; grid-row:auto; }
+  .listing .nm{ display:block; min-height:0; font-size:17px; }
+  .listing .blurbsm{ min-height:0; font-size:15px; }
+  .listing .price{ font-size:18px; }
+  .newinv-row .newinv-note{ grid-column:auto; grid-row:auto; margin:0; text-align:center; }
+}
 
 /* ── instagram strip ───────────────────────────────────────────────────── */
 .igrow{ display:grid; grid-template-columns:repeat(6,1fr); gap:14px; }
@@ -1065,6 +1088,7 @@ html.blueprint .tagband .tb-more a{ color:#e8b64c; }   /* Night Run theme: gold,
   font-weight:400; font-size:11.5px; letter-spacing:.06em; text-transform:uppercase;
   color:var(--muted);
 }
+#fleetFine{ font-size:10.5px; }   /* homepage "Boat + power" pricing note under Boat Models: a touch smaller (Tyler, 2026-10-20) */
 
 /* net grid (inventory / dealers / ownership) */
 .netgrid{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
@@ -1153,7 +1177,6 @@ html.blueprint img{ filter:none; }  /* photos stay true color */
 /* ── responsive ────────────────────────────────────────────────────────── */
 @media (max-width:1080px){
   .explore{ grid-template-columns:repeat(2,1fr); }
-  .vids{ grid-template-columns:1fr 1fr; }
   .netgrid,.specialty{ grid-template-columns:repeat(2,1fr); }
   .photocards{ grid-template-columns:repeat(3,1fr); }
   .igrow{ grid-template-columns:repeat(3,1fr); }
@@ -1167,7 +1190,6 @@ html.blueprint img{ filter:none; }  /* photos stay true color */
   .mega{ position:static; transform:none; }
   .mega-in{ grid-template-columns:1fr 1fr; width:100%; }
   .explore{ grid-template-columns:1fr; }
-  .vids{ grid-template-columns:1fr; }
   .netgrid,.specialty,.stdgrid{ grid-template-columns:1fr; }
   .photocards{ grid-template-columns:repeat(2,1fr); }
   .home-page .photocards{ grid-template-columns:1fr; }   /* homepage "Shot in the Field" band: stack full-width on phones so the four thumbs stay big and legible */
@@ -1738,8 +1760,9 @@ footer::before{
 .wblb.zoomed .wblbstage img{
   max-width:none; max-height:none; width:auto; height:auto; aspect-ratio:auto; margin:auto; cursor:zoom-out;
 }
-/* hide the corner "Not sure which boat?" nudge while the photo viewer is open */
-body.wblb-open #wb-corner{ display:none !important; }
+/* hide the corner "Not sure which boat?" nudge while the photo viewer is open
+   (and the history.js viewer that plays the homepage's Featured Videos) */
+body.wblb-open #wb-corner,body.hlb-open #wb-corner{ display:none !important; }
 
 /* Model-page masthead tightened so the hero sits higher — scoped via .mp-tight
    on <main> (test on Alaskan LT; roll out to all model pages once approved). */
@@ -3116,6 +3139,16 @@ main.hist + footer::before{
    2026-10-14): the rail is ~95px wide on laptops, ~120px on wide screens. */
 @media (min-width:901px){ .hvidcar{ --hedge:96px; } }
 @media (min-width:1380px){ .hvidcar{ --hedge:124px; } }
+/* the homepage's Featured Videos (section #watch, 2026-10-20): Tyler's "HOME PAGE" YouTube
+   playlist as this same strip (same .hcar, same viewer from history.js; markup from
+   _build/build_home_videos.pl), but every tile is a 16:9 rectangle like YouTube's own (.wide),
+   and with no year rail on the homepage it runs 44px in from each edge like the brochures. */
+#watch .hvidcar{ --hedge:44px; margin-top:8px; --hvh:clamp(198px,18.2vw,248px); }   /* ~10% bigger than Heritage's: 440px tiles on desktop (Tyler, 2026-10-20) */
+/* clean edges, no white fade where the strip carries on (Tyler, 2026-10-20) */
+#watch .hvidcar .hview::before,#watch .hvidcar .hview::after{ display:none; }
+@media (max-width:900px){
+  #watch .hvidcar{ --hedge:24px; --hvh:min(41vw,248px); }   /* 284px tiles at 390: the next one still peeks in */
+}
 .hclipcar .htrack{ align-items:center; gap:clamp(22px,2.6vw,36px); padding:36px 26px 70px; }
 .hclip{
   --r:-3.5deg; --y:10px; --h:clamp(255px,26.5vw,345px);

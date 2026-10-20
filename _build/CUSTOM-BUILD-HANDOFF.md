@@ -1,5 +1,7 @@
 # Custom Build pages — paste this into a NEW chat window
 
+> **Photo folders moved 2026-10-20:** boats now live in `MASTER-WEBSITE PHOTOS/BOAT MODELS/` and `MASTER-WEBSITE PHOTOS/CUSTOM BOAT MODELS/`. Map of every folder → page → command: `_build/MASTER-PHOTO-FOLDERS.md`.
+
 Copy everything in the box below as your first message in a new chat. Everything else in this
 file is the log the new chat reads: status, Tyler's rules, the toolbox, and how each page was built.
 
@@ -12,7 +14,7 @@ Still to do: SSO Pilothouse (models/supersportoffshorepilothouse/). FIRST read
 `website-photo-replacement-workflow`, `model-ready-check-first`, `no-image-recompression`,
 `tyler-pushes-to-github`, `desktop-tcc-eperm` and `no-headless-chrome-app-management`.
 
-I'll send a model's photo folder (OneDrive …/MASTER-WEBSITE PHOTOS/<MODEL>-WEB/) with "Model Ready"
+I'll send a model's photo folder (OneDrive …/MASTER-WEBSITE PHOTOS/BOAT MODELS/<MODEL>-WEB/) with "Model Ready"
 and tell you how that page should look. Custom pages are a mix of the Agency page and Canyon, and
 each one is a bit different, so don't force the main-model layout on them. Check my folder first and
 tell me which files aren't named right. Ask me before guessing. Check desktop 1440 + phone 390.
@@ -30,7 +32,7 @@ WB_CARDS_ROOMY = Canyon style). Captions "26′ Super Sport Offshore · Pilothou
 "pilothouse" trim is read from the last word of "SSO PILOTHOUSE" in his file names).
 2026-10-19: 26′ phone set built (26 photos). 29′ desktop gallery built (hull 3527, 19 photos). Hero is now a
 hand-written `.hslider` (Landing Craft style): slide 1 = 26′ #4084, slide 2 = 29′ #3527 (Tyler: "spot #2").
-Master = OneDrive `MASTER-WEBSITE PHOTOS/SSO PILOTHOUSE-WEB` (Tyler, 10-19; the X Drive copy matched byte for byte).
+Master = OneDrive `MASTER-WEBSITE PHOTOS/CUSTOM BOAT MODELS/SSO PILOTHOUSE-WEB` (Tyler, 10-19; the X Drive copy matched byte for byte).
 Still to come: 29′ -MOBILE, the 31′ desktop + -MOBILE, and the 31′ hero (03-HERO-…). Then re-run the build and
 add a 3rd `.hs-slide` by hand (the builder copies the hero but leaves the slider alone). Steps:
 1. Check, then re-run `_build/apply_model_photos.sh supersportoffshorepilothouse "Super Sport Offshore" "<…/SSO PILOTHOUSE-WEB>"`.
@@ -54,8 +56,8 @@ to come: when Tyler fills `PYBUS-WEB/33-DEEPWATER-CHARTER-MOBILE`, re-run Model 
 | Pybus Point Lodge `models/pybus-offshore/` | DONE 2026-10-15 (33′ phone set to come) | Bare page, "video coming soon" block. Renamed from Pybus Offshore 2026-10-08: ONLY the h1, `<title>` and menu label changed; the URL and homepage card were left as-is on purpose. **It's a FLEET page** (Tyler): the boats Wooldridge built for Pybus Point Lodge (Admiralty Island, SE Alaska) = five 33′ Deepwaters, two 21′ Sport Offshores, three 20′ Sport center consoles. Intro rewritten to say so. Kick line "LODGE FLEET · ADMIRALTY ISLAND, ALASKA" (tag line under it not changed yet). Two videos side by side (`.vid2`, 2026-10-08), both on the LODGE's YouTube channel, so the caption ref says "PYBUS POINT LODGE ON YOUTUBE": `RvhoaaWAktg` "33′ Deepwater Charter Walkthrough" (11:19) + `Sx_vdR7VTmI` "Pybus Point Lodge Skiffs" (2:49) |
 | Landing Craft `models/landing-craft/` | DONE 2026-10-08 | Hero slider (24′ Cabin, 21′ CC), one card per length, per-length model names (LC-1292 / LC-1892) via `WB_LEN_NAME`. No video, no specs, no standard features |
 
-No master folders exist yet for the 3 to-do pages (MASTER-WEBSITE PHOTOS has CANYON-WEB,
-DEEPWATER-WEB, RIVER RAT-WEB, LANDING CRAFT-WEB plus the main models).
+Master folders: every custom page's photos are in `MASTER-WEBSITE PHOTOS/CUSTOM BOAT MODELS/<NAME>-WEB` since
+Tyler's 2026-10-20 reorg. Full map in `_build/MASTER-PHOTO-FOLDERS.md`.
 
 **Ask Tyler when each to-do page comes up:** Legacy Model label on the kick line? Keep, remove or
 "coming soon" the video (Pilothouse has a real one)? Keep the Build & Price button on Angler /
@@ -228,7 +230,7 @@ don't load and screenshots come out blank; check the DOM, or use `_build/snap.sw
 ## Menu (Tyler, 2026-10-08)
 - Our Boats → Custom Builds order: Agency & Work Boats, Landing Craft, SSO Angler, Pybus Point Lodge,
   Deepwater Series, Canyon, SSO Pilothouse, River Rat DIY Kit (`header.html`, then
-  `perl _build/inject_partials.pl`). The model-page prev/next arrows follow it (`assets/pagenav.js` ORDER).
+  `perl _build/inject_partials.pl`). The model-page prev/next arrows follow it (`assets/pagenav.js` LOOPS: since 2026-10-20 the 18 main models loop on their own in desktop menu order, Offshore → Inboard Jet → Outboard Jet, and the custom builds loop on their own; Tyler).
 - Column headings read INBOARD JET / OUTBOARD JET.
 
 ## Other open threads

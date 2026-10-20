@@ -1,0 +1,18 @@
+# Featured Videos: the video strip on the homepage (index.html, section #watch).
+# Source: Tyler's unlisted "HOME PAGE" playlist on the Wooldridge Boats YouTube channel
+#   https://youtube.com/playlist?list=PLfPDtUTX-d-I   (6 videos, 2026-10-20)
+# One video per line, in playlist order:
+#   YouTube ID | title shown on the page | length | thumbnail (maxres, sd or hq: the sharpest
+#   YouTube has for that upload). Every tile is a 16:9 rectangle like YouTube's own; an sd/hq
+#   thumbnail is letterboxed and the tile's cover-crop cuts its black bars off.
+# Titles are the playlist's, tidied for the page (feet as ′, "|" turned into ":").
+# Update from the playlist (keeps the tidied titles, adds/removes/reorders):
+#   perl _build/build_home_videos.pl --sync
+# Rebuild after editing by hand: perl _build/build_home_videos.pl
+
+PlYjmMSFUTE | 21′ Scout Widebody: Features, Layout & On-Water Look | 10:48 | maxres
+ZBFK43pgHd0 | Meet the Rogue! An 18′ HDPE Plastic Boat | 8:24 | maxres
+qz7Kgtg2osY | A Father’s Wisdom: A Story of Wooldridge Boats & Mercury Marine® | 8:03 | maxres
+2LaW5pHrdSE | How to Remove & Install an Outboard Jet | 27:19 | maxres
+LZEBC-i06WM | 20′ Skagit Electroshock: Features, Layout & On-Water Look | 3:24 | maxres
+VnI-Yb19Gaw | How to Adjust Turnbuckles & Trim Blades on a Rogue | 8:49 | maxres

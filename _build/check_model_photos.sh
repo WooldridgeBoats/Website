@@ -7,7 +7,7 @@
 # and flags problems while they're still cheap to fix.
 #
 # Usage:
-#   _build/check_model_photos.sh "/path/to/MASTER-WEBSITE PHOTOS/<MODEL>-WEB"
+#   _build/check_model_photos.sh "/path/to/MASTER-WEBSITE PHOTOS/BOAT MODELS (or CUSTOM BOAT MODELS)/<MODEL>-WEB"
 #
 # Expects, inside that folder:
 #   - one  HERO-<hull>-<len>-<style>-<model>.jpg      (top level; or several

@@ -5,7 +5,7 @@
 #
 #   perl _build/build_agency_galleries.pl [--dry-run] ["/path/to/AGENCY-WORK-WEB"]
 #
-# Default source: OneDrive …/MASTER-WEBSITE PHOTOS/AGENCY-WORK-WEB. Every folder is
+# Default source: OneDrive …/MASTER-WEBSITE PHOTOS/CUSTOM BOAT MODELS/AGENCY-WORK-WEB. Every folder is
 # scanned: "<LEN>-<CFG>-<MODEL>" holds desktop photos (2000x1250), "…-MOBILE" the
 # phone portraits (1080x1350). A model with several builds can instead hold one
 # SUB-FOLDER per build, e.g. 20-CC-SKAGIT/20-CC-SKAGIT-FIRE/ (+ 20-CC-SKAGIT-MOBILE/
@@ -52,7 +52,7 @@ sub file_md5 { open my $fh, "<:raw", $_[0] or die "$_[0]: $!"; Digest::MD5->new-
 sub ver { open my $fh, "<:raw", $_[0] or die "$_[0]: $!"; "?v=" . substr(Digest::MD5->new->addfile($fh)->hexdigest, 0, $VERLEN) }
 
 my $REPO = dirname(dirname(abs_path(__FILE__)));
-my $SRC  = "/Users/tylerlee/Library/CloudStorage/OneDrive-WooldridgeBoatsInc/Wooldridge Boats Inc_ - SQUIRREL HOLE/70 MARKETING AND BRAND/WEBSITE/MASTER-WEBSITE PHOTOS/AGENCY-WORK-WEB";
+my $SRC  = "/Users/tylerlee/Library/CloudStorage/OneDrive-WooldridgeBoatsInc/Wooldridge Boats Inc_ - SQUIRREL HOLE/70 MARKETING AND BRAND/WEBSITE/MASTER-WEBSITE PHOTOS/CUSTOM BOAT MODELS/AGENCY-WORK-WEB";
 my $DRY  = 0;
 for (@ARGV) { if ($_ eq '--dry-run') { $DRY = 1 } else { $SRC = $_ } }
 $SRC =~ s{/+$}{};
