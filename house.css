@@ -881,25 +881,44 @@ html.blueprint .tagband .tb-more a{ color:#e8b64c; }   /* Night Run theme: gold,
 
 /* ── pre-owned / what's happening ──────────────────────────────────────── */
 .duo{
-  display:grid; grid-template-columns:1fr 1fr; gap:0; align-items:start;
+  display:grid; grid-template-columns:1fr 1fr; gap:0; align-items:stretch;
 }
-.duo > div{ padding:0 34px; }
+/* each column is a flex column so its pill (.duo-cta) drops to the bottom: Browse All Pre-Owned and
+   See New Boats sit on one line across the two columns (Tyler, 2026-10-20) */
+.duo > div{ padding:0 34px; display:flex; flex-direction:column; }
+.duo .duo-cta{ margin-top:auto; padding-top:26px; text-align:center; }
 .duo > div:first-child{ border-right:1px solid var(--rule); }
 .duo h2{ text-align:center; font-size:clamp(26px,3.4vw,40px); }   /* the .sechead h2 size: every blue homepage title matches (Tyler, 2026-10-20) */
 .duo .sub{
   text-align:center; font-weight:400; font-size:14px; color:var(--muted);
   margin:8px 0 26px;
 }
-.listings{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
-.listing{ text-align:center; color:var(--body); display:block; }
-.listing .nm{ font-weight:500; font-size:14px; color:var(--ink); margin-bottom:10px; }
+/* Tyler, 2026-10-20: the cards line up in rows. Each card is a 4-row subgrid (name, photo, blurb, price),
+   so every photo starts on one line and every price sits on one bottom line; the 2-line name and 4-line
+   blurb minimums keep the New Boats card (its own .listings) level with the Pre-Owned ones. */
+.listings{ display:grid; grid-template-columns:repeat(3,1fr); column-gap:18px; row-gap:0; }
+.listing{ text-align:center; color:var(--body); display:grid; grid-row:span 4; grid-template-rows:subgrid; }
+.listing .nm{ font-weight:500; font-size:14px; line-height:1.4; color:var(--ink); margin-bottom:10px;
+  min-height:2.8em; display:flex; align-items:flex-end; justify-content:center; }
 .listing img{
   width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px;
   box-shadow:var(--shadow);
 }
-.listing .blurbsm{ font-weight:400; font-size:12.5px; margin-top:10px; min-height:54px; }
-.listing .price{ font-weight:500; font-size:15px; color:var(--ink); margin-top:8px; }
+.listing .blurbsm{ font-weight:400; font-size:12.5px; line-height:1.5; margin-top:10px; min-height:6em; }
+.listing .price{ font-weight:500; font-size:15px; color:var(--ink); margin-top:8px; align-self:end; }
 .listing:hover .nm{ color:var(--blue); }
+/* New Boats: the card in the first column (same size as a Pre-Owned card), the paragraph beside it */
+.newinv-row .newinv-note{ grid-column:2 / span 2; grid-row:1 / span 4; align-self:center; margin:0 0 0 8px;
+  font-size:15px; line-height:1.7; }
+@media (max-width:760px){
+  /* phones: one card per row, full width like Pre-Owned, with bigger names, text and prices (Tyler) */
+  .listings{ grid-template-columns:1fr; row-gap:34px; }
+  .listing{ display:block; grid-row:auto; }
+  .listing .nm{ display:block; min-height:0; font-size:17px; }
+  .listing .blurbsm{ min-height:0; font-size:15px; }
+  .listing .price{ font-size:18px; }
+  .newinv-row .newinv-note{ grid-column:auto; grid-row:auto; margin:0; text-align:center; }
+}
 
 /* ── instagram strip ───────────────────────────────────────────────────── */
 .igrow{ display:grid; grid-template-columns:repeat(6,1fr); gap:14px; }
