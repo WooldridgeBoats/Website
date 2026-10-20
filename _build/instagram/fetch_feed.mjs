@@ -7,19 +7,26 @@
 //
 // What it does:
 //   1. Asks Instagram for the newest 8 posts.
-//   2. Downloads each post's photo into assets/homepage/instagram/ (Instagram's
-//      own image links expire after a while, so we keep our own copies).
-//   3. Writes assets/homepage/instagram/feed.json, which the website reads.
+//   2. Downloads each post's photo into OUT_DIR (Instagram's own image links
+//      expire after a while, so we keep our own copies).
+//   3. Writes OUT_DIR/feed.json, which the website reads through jsDelivr.
+//
+// Since 2026-10-20 the feed lives in its OWN repo, WooldridgeBoats/instagram-feed
+// (Tyler's pick, option A): the robot never commits to the website repo, so it can
+// never trigger a site deploy or collide with a push. The workflow sets
+// FEED_REPO / OUT_DIR / FEED_PATH; the defaults below are the old in-repo layout.
 //
 // See _build/instagram/INSTAGRAM-FEED-SETUP.md for the whole picture.
 // ─────────────────────────────────────────────────────────────────────────────
 import { writeFile, mkdir } from 'node:fs/promises';
 
 const TOKEN   = process.env.IG_TOKEN;
-const REPO    = process.env.GITHUB_REPOSITORY || 'WooldridgeBoats/Website';
+const REPO    = process.env.FEED_REPO || process.env.GITHUB_REPOSITORY || 'WooldridgeBoats/Website';
 const BRANCH  = process.env.FEED_BRANCH || 'main';
 const LIMIT   = Number(process.env.IG_LIMIT || 6);
-const OUT_DIR = 'assets/homepage/instagram';
+const OUT_DIR = process.env.OUT_DIR || 'assets/homepage/instagram';      // where files are written locally
+const FEED_PATH = process.env.FEED_PATH ?? OUT_DIR;                       // the same folder's path inside REPO ('' = repo root)
+const CDN_BASE = `https://cdn.jsdelivr.net/gh/${REPO}@${BRANCH}` + (FEED_PATH ? `/${FEED_PATH}` : '');
 const PROFILE = 'https://www.instagram.com/wooldridgeboats/';
 const GRAPH   = 'https://graph.instagram.com';
 
@@ -61,7 +68,7 @@ for (const m of data.slice(0, LIMIT)) {
 
   posts.push({
     permalink: m.permalink || PROFILE,
-    image: `https://cdn.jsdelivr.net/gh/${REPO}@${BRANCH}/${OUT_DIR}/${name}`,
+    image: `${CDN_BASE}/${name}`,
     caption: firstLine(m.caption)
   });
 }

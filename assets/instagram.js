@@ -26,7 +26,7 @@
 
   var MAX = 6; // one clean desktop row (matches the .igrow grid in house.css)
   var DEFAULT_FEED =
-    'https://cdn.jsdelivr.net/gh/WooldridgeBoats/Website@main/assets/homepage/instagram/feed.json';
+    'https://cdn.jsdelivr.net/gh/WooldridgeBoats/instagram-feed@main/feed.json';
   var feedUrl = section.getAttribute('data-feed') || DEFAULT_FEED;
   var profile = 'https://www.instagram.com/wooldridgeboats/';
 

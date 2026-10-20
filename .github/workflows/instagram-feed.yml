@@ -8,17 +8,22 @@ name: Instagram feed
 
 on:
   schedule:
-    # Once a day, in the middle of the night Pacific (Tyler, 2026-10-08: "We don't update our
-    # instagram that much"). 10:23 UTC = 3:23 AM PDT / 2:23 AM PST: a feed commit triggers a site
-    # deploy, and at this hour it can't collide with a push from GitHub Desktop. Daily is plenty
+    # Once a day (Tyler, 2026-10-08: "We don't update our instagram that much"). 10:23 UTC =
+    # 3:23 AM PDT, but GitHub often starts it hours late; since the feed moved to its own repo
+    # (2026-10-20) the timing no longer matters: nothing here triggers a site deploy. Daily is plenty
     # for the token renewal below (the token lasts ~60 days). After posting, use the Actions tab's
     # "Run workflow" button to update the homepage right away.
     - cron: '23 10 * * *'
   workflow_dispatch:            # a "Run workflow" button in the Actions tab
 
-# Let the built-in token push the refreshed feed back to the repo.
+# READ-ONLY on the website repo, on purpose (Tyler 2026-10-20, option A): the robot
+# must never commit here. Every push to this repo's main redeploys the whole site
+# (~646 MB, ~1.5 min) and GitHub runs this "3 AM" schedule hours late (6:47-10 AM
+# Pacific in Oct 2026), so its commits kept landing next to Tyler's pushes. The
+# feed now lives in its own repo, WooldridgeBoats/instagram-feed, written with
+# GH_PAT (that token needs Contents: Read and write on instagram-feed).
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: instagram-feed
@@ -61,23 +66,36 @@ jobs:
             echo "Could not renew (token may still be valid). Continuing."
           fi
 
+      - name: Check out the feed repo (where the posts are saved)
+        if: steps.guard.outputs.ready == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: WooldridgeBoats/instagram-feed
+          token: ${{ secrets.GH_PAT }}
+          path: feed
+
       - name: Build feed.json from the latest posts
         if: steps.guard.outputs.ready == 'true'
+        env:
+          FEED_REPO: WooldridgeBoats/instagram-feed
+          FEED_BRANCH: main
+          OUT_DIR: feed
+          FEED_PATH: ''
         run: node _build/instagram/fetch_feed.mjs
 
-      - name: Commit only if the feed actually changed
+      - name: Commit to the feed repo only if the feed actually changed
         if: steps.guard.outputs.ready == 'true'
         id: commit
+        working-directory: feed
         run: |
           git config user.name  "wooldridge-feed-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/homepage/instagram
+          git add feed.json img-*.jpg
           if git diff --cached --quiet; then
             echo "No new posts — nothing to commit."
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
-            git commit -m "chore(instagram): refresh homepage feed [skip ci]"
-            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || true
+            git commit -m "chore(instagram): refresh homepage feed"
             git push
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
@@ -85,7 +103,7 @@ jobs:
       - name: Refresh the jsDelivr CDN copy so the site sees it right away
         if: steps.commit.outputs.changed == 'true'
         run: |
-          base="https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/assets/homepage/instagram"
+          base="https://purge.jsdelivr.net/gh/WooldridgeBoats/instagram-feed@main"
           curl -s "$base/feed.json" > /dev/null || true
           for i in 1 2 3 4 5 6 7 8; do curl -s "$base/img-$i.jpg" > /dev/null || true; done
           echo "Asked jsDelivr to fetch the new feed."

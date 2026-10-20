@@ -5,6 +5,18 @@ updated automatically, for **$0/month** — no Smash Balloon, no plugin, no mont
 service. This explains the setup. The website half is already built and live-safe;
 what's left is a one-time connection to your Instagram account.
 
+
+> **UPDATE 2026-10-20: the feed lives in its own repo now.** The robot saves the posts to
+> **`WooldridgeBoats/instagram-feed`** (public; `feed.json` + `img-1..8.jpg` at its root) and
+> never commits to the website repo. Every push to the website's `main` redeploys the whole site,
+> and GitHub ran the "3 AM" job 6:47-10 AM, so robot commits kept landing beside Tyler's pushes
+> (the 2026-10-07 deploy collision). The workflow still lives here
+> (`.github/workflows/instagram-feed.yml`, `contents: read`). It checks out `instagram-feed` with
+> **`GH_PAT`**, which needs **Contents: Read and write** on that repo, on top of its Secrets access
+> on this one. The site reads `https://cdn.jsdelivr.net/gh/WooldridgeBoats/instagram-feed@main/feed.json`
+> (`data-feed` in `index.html`, `DEFAULT_FEED` in `assets/instagram.js`). The old
+> `assets/homepage/instagram/` copy here is retired; nothing reads it.
+
 ---
 
 ## The big picture (three simple parts)
