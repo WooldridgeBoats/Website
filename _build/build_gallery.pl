@@ -39,7 +39,7 @@ my @MODELS = (
   ['supersportoffshorepilothouse','Super Sport Offshore', 'Offshore',           [],   undef],   # SSO Pilothouse page (Tyler 2026-10-15): "26′ Super Sport Offshore · Pilothouse"; empty lens
   ['angler',                  'Super Sport Offshore',       'Offshore',           [],   undef],   # SSO Angler page (Tyler 2026-10-15): captions "24′ Super Sport Offshore · Angler" (a 24-footer, Tyler 2026-10-19); empty lens = never legacy
   ['pybus-offshore',          'Pybus Point Lodge',          'Lodge Fleet',        [],   undef],   # Tyler 2026-10-14: the lodge's fleet (Deepwater Charter, Sport, Sport Offshore); empty lens = never legacy
-  ['agency-lc29',             "29' LC — In The Shop",       'Agency Build', [29],       29],
+  ['agency-lc29',             "29' LC — In The Shop",       'In Production', [29],      29],   # Tyler 2026-10-20: builds 5333/5338 are NOT agency boats
 );
 
 my %CFG  = ('cc','Center Console','ws','Windshield','tiller','Tiller','aft-ws','Aft Windshield','cabin','Cabin','pybus','Pybus','first-responder','First Responder','explorer','Explorer','angler','Angler','charter','Charter','pilothouse','Pilothouse');
