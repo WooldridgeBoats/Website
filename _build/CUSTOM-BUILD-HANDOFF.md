@@ -230,7 +230,7 @@ don't load and screenshots come out blank; check the DOM, or use `_build/snap.sw
 ## Menu (Tyler, 2026-10-08)
 - Our Boats → Custom Builds order: Agency & Work Boats, Landing Craft, SSO Angler, Pybus Point Lodge,
   Deepwater Series, Canyon, SSO Pilothouse, River Rat DIY Kit (`header.html`, then
-  `perl _build/inject_partials.pl`). The model-page prev/next arrows follow it (`assets/pagenav.js` ORDER).
+  `perl _build/inject_partials.pl`). The model-page prev/next arrows follow it (`assets/pagenav.js` LOOPS: since 2026-10-20 the 18 main models loop on their own in desktop menu order, Offshore → Inboard Jet → Outboard Jet, and the custom builds loop on their own; Tyler).
 - Column headings read INBOARD JET / OUTBOARD JET.
 
 ## Other open threads
