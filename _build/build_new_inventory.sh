@@ -10,7 +10,8 @@
 #     <HULL>-<LEN>-...-MOBILE/                 phone set, NN-<HULL>-...-MOBILE.jpg (1080x1350)
 # Output: assets/newinv/<HULL>/ hero.jpg, NN.jpg, thumbs/{hero,cover,NN}.jpg, mobile/NN.jpg,
 # mobile/thumbs/NN.jpg, and the WB_NEWINV_PHOTOS line in new-inventory/index.html (photo counts +
-# a cache stamp per boat). Price, engine, words and SOLD live in the NEWINV list in that page.
+# a cache stamp per boat) and assets/instock.js (the In Stock menu link, main site + store). Price, engine,
+# words and SOLD live in the NEWINV list in that page: after changing sold:, re-run this script.
 #
 # Usage: _build/build_new_inventory.sh [--dry-run] ["/path/to/NEW INVENTORY"]
 # Checks every file name first and stops if any is wrong (Tyler fixes them; no workarounds).
@@ -77,5 +78,12 @@ done
 # ---- 3) the page's photo line ------------------------------------------------------
 line="<script>window.WB_NEWINV_PHOTOS={$json};</script>"
 LINE="$line" perl -0pi -e 's{<script>window\.WB_NEWINV_PHOTOS=.*?</script>}{$ENV{LINE}}s or die "no WB_NEWINV_PHOTOS line in page\n"' "$PAGE" && echo "  page: $line"
+# ---- 4) the "In Stock" menu switch: on while any NEWINV boat has sold:false ------------------
+# Both menus read assets/instock.js: the main site (header.html) and the store header, so they always
+# match. Selling the last boat (sold:true) or emptying NEWINV turns the link off on both.
+avail="$(perl -0ne 'print scalar(() = /sold:\s*false/g) if /const NEWINV = \[(.*?)\n  \];/s && ($_ = $1)' "$PAGE")"
+avail="${avail:-0}"
+perl -0pi -e "s{window\.WB_INSTOCK = \d+;}{window.WB_INSTOCK = $avail;}" "$REPO/assets/instock.js"
+echo "  In Stock link: $([ "$avail" -gt 0 ] && echo "ON ($avail for sale)" || echo OFF)"
 perl "$REPO/_build/stamp_assets.pl" >/dev/null && echo "  cache-stamped"
 echo "DONE. Check /new-inventory/ at 1440 + 390, then commit with explicit paths."

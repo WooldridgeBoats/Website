@@ -138,6 +138,15 @@ h1,h2,h3,.h-serif{
   color:var(--ink); white-space:nowrap;
 }
 .nav a:hover,.nav a.on{ color:var(--blue); }
+/* "In Stock" link (Tyler, 2026-10-20): only while a shop boat is for sale. assets/instock.js sets
+   html.wb-instock; the store header mirrors these rules (wb-header.scoped.css) so both menus match.
+   With the extra link the bar needs ~74px more: between 901 and 1100px wide tighten the gaps and
+   tracking a touch so it stays on one row (at 1101px and up nothing changes). */
+html:not(.wb-instock) .nav a.nav-instock{ display:none !important; }   /* !important: the open phone menu (.nav.nav-open .wrap > a) sets display:block */
+@media (min-width:901px) and (max-width:1100px){
+  html.wb-instock .nav .wrap{ gap:7px; }
+  html.wb-instock .nav a{ letter-spacing:.035em; }
+}
 .nav .brand{ margin-right:auto; display:flex; align-items:center; }
 /* Grown from 46px on 2026-07-30: with "Wooldridge Boats Inc." removed from the
    home page, this wing is the ONLY place the brand name appears above the fold,

@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>New Inventory — Wooldridge Boats</title>
+<title>In Stock — Wooldridge Boats</title>
 <meta name="description" content="Completed boats ready at the factory and at dealers — skip the build queue.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../house.css?v=978360d3">
+<link rel="stylesheet" href="../house.css?v=97b4c725">
 <script src="../assets/inv-stamp.js?v=1a5f016c"></script>
 <style>
   /* NEW INVENTORY (rebuilt 2026-10-20, Tyler): the boat-model page pieces, so it matches them:
@@ -29,6 +29,8 @@
   .invdesc p:last-child{ margin-bottom:0; }
   .invboat .factrow{ margin-top:26px; }
   .fact.price .v{ font-family:var(--serif); font-weight:700; font-size:20px; color:var(--blue); }
+  /* a pill with no small top line (Ask About Availability) centres its text in the row's 64px height (Tyler) */
+  .modelctas .plate{ display:inline-flex; flex-direction:column; justify-content:center; }
 </style>
 <link rel="canonical" href="https://www.wooldridgeboats.com/new-inventory/">
 <link rel="icon" href="/favicon.ico" sizes="any">
@@ -44,6 +46,7 @@
     <div class="soc"><a href="https://www.instagram.com/wooldridgeboats/">Instagram</a><a href="https://www.facebook.com/WooldridgeBoats/">Facebook</a><a href="https://www.youtube.com/channel/UC-hVTJ7HySkqCjUENQY5CCQ">YouTube</a></div>
   </div>
 </div>
+<script src="/assets/instock.js?v=714749b5"></script><!-- sets html.wb-instock while a shop boat is for sale: shows the In Stock link (store header loads it too) -->
 <nav class="nav" aria-label="Primary">
   <div class="wrap">
     <a class="brand" href="/" aria-label="Wooldridge Boats &#8212; Home">
@@ -114,6 +117,7 @@
       </div>
     </span>
     <a href="/pre-owned/">Pre-Owned</a>
+    <a class="nav-instock" href="/new-inventory/">In Stock</a>
     <a href="/our-history/">About | History</a>
     <a href="/dealers/">Dealers</a>
     <a href="https://store.wooldridgeboats.com/">Store</a>
@@ -130,8 +134,8 @@
 <main>
 <header class="pagemast"><div class="wrap">
   <div class="co">Wooldridge Boats &nbsp;·&nbsp; Seattle, Washington</div>
-  <div class="crumb"><a href="../">HOME</a> / NEW INVENTORY</div>
-  <h1>Ready now</h1><div class="kick">COMPLETED BOATS AT THE FACTORY &amp; DEALERS</div><div class="tag">Completed boats ready to run — skip the build queue.</div>
+  <div class="crumb"><a href="../">HOME</a> / IN STOCK</div>
+  <h1>In Stock</h1><div class="kick">COMPLETED BOATS AT THE FACTORY &amp; DEALERS</div><div class="tag">Completed boats ready to run — skip the build queue.</div>
   <div class="dbl mastrule"></div>
 </div></header>
 <section class="pagebody"><div class="wrap">
