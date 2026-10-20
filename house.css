@@ -839,7 +839,10 @@ html.blueprint .tagband .tb-more a{ color:#e8b64c; }   /* Night Run theme: gold,
 .tooltab span:last-child{ font-weight:400; font-size:13px; color:var(--body); }
 
 /* ── heritage / our story ──────────────────────────────────────────────── */
-.ropebar{ display:flex; justify-content:center; margin:8px 0 30px; }
+/* Tyler 2026-10-20: rope sits ~half as far from the title and the text. rope-trim.png has the
+   PNG's empty top/bottom padding cut off (rope.png: 60px + 73px of 197); the negative top margin
+   pulls into .sechead's 38px bottom margin, so the gap is 38px on desktop and 24px on phones. */
+.ropebar{ display:flex; justify-content:center; margin:calc(clamp(24px,2.6vw,38px) - 38px) 0 clamp(24px,2.6vw,38px); }
 .ropebar img{ width:min(920px,86%); height:auto; }
 .storylede{
   max-width:1080px; margin:0 auto 34px; font-weight:400; font-size:17px;
