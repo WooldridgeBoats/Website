@@ -1043,6 +1043,7 @@ html.blueprint .tagband .tb-more a{ color:#e8b64c; }   /* Night Run theme: gold,
   font-weight:400; font-size:11.5px; letter-spacing:.06em; text-transform:uppercase;
   color:var(--muted);
 }
+#fleetFine{ font-size:10.5px; }   /* homepage "Boat + power" pricing note under Boat Models: a touch smaller (Tyler, 2026-10-20) */
 
 /* net grid (inventory / dealers / ownership) */
 .netgrid{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
