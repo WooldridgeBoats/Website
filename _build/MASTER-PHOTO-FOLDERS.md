@@ -85,5 +85,5 @@ needs exactly four files made from it: `assets/brand/favicon-16.png`, `favicon-3
 (iPhone home screen) and `/favicon.ico` (16+32+48 inside). Remake with `sips -s format png -z N N` and a
 small Python ICO packer (PNG entries), copy in, then bump the `?v=` on the four favicon links in every page
 AND in `_build/gen_pricesheets.pl` (browsers and Cloudflare hold favicons hard). If Tyler sends a new
-master smaller than 512, ask for 512+ (180px from 100px looks soft). The store favicon should match.
+master smaller than 512, ask for 512+ (180px from 100px looks soft). The store favicon must match (Tyler): re-run `~/wooldridge-store-build/tools/set_favicon.py` (live store change, Tyler's OK). Set 2026-10-20.
 
