@@ -53,9 +53,9 @@ stays one row (1101px+ unchanged). Measured: one row from 1000 to 1440.
 **The store header must always match the main header (Tyler).** `~/wooldridge-store-build`:
 `gen_header.py` swaps the script for `{{ wb_base }}/assets/instock.js?h=<hour>` (same switch file, hourly
 URL so Cloudflare's 4h cache can't hold it), `theme/wb-header.scoped.css` has the same hide + 901–1100px
-rules. **Status 2026-10-20: generated, NOT pushed**: the push (`themeFilesUpsert` of
-`sections/wb-main-header.liquid`) was blocked by auto mode as a production deploy. Push only with Tyler's
-OK, and after he has pushed the main site (so instock.js is live). See that folder's HANDOFF.md.
+rules. **Status: pushed 2026-10-20** (Tyler: "push the store header"), right after the main site went live. Next
+menu change: regenerate + push the store header too (`themeFilesUpsert` of `sections/wb-main-header.liquid`,
+Tyler's OK each time: auto mode treats it as a production deploy). See that folder's HANDOFF.md.
 
 ## Homepage, Pre-Owned | New Boats (2026-10-20)
 - Each `.listing` card is a 4-row CSS subgrid (name, photo, blurb, price): photos start on one line, prices
@@ -73,6 +73,5 @@ SSO Pilothouse 26′ phone set + 29′ gallery + 2-slide hero · SSO Angler is a
 reorg (BOAT MODELS / CUSTOM BOAT MODELS; 3 scripts re-pointed; _build/MASTER-PHOTO-FOLDERS.md) · this
 In Stock page + stamp + menu link · homepage Pre-Owned | New Boats alignment · Explore labels · model
 prev/next = 18 main models in menu order (custom builds loop separately) · LOGOS-GRAPHICS = only what the
-site uses · unused brand files deleted · new favicon (site + store). Still open: store header push (In
-Stock link), SOLD stamp design, Pilothouse 29′ phone + 31′.
+site uses · unused brand files deleted · new favicon (site + store). Still open: SOLD stamp design, Pilothouse 29′ phone + 31′.
 
