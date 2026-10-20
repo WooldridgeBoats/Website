@@ -93,7 +93,7 @@ Tyler: "Wooldridge Boats is an American Legacy brand, so this page is very impor
 | Builder | `_build/build_history.pl` |
 | Face-aware thumbnail cropper | `_build/history_focus.swift` (macOS Vision; the builder compiles it once to `$TMPDIR/wb-history-focus`) |
 | Map cleaner + river tracer | `_build/history_map.swift` (only re-run if the map scan changes; paste its new path into the `.hmap` SVG) |
-| Behaviour | `assets/history.js` |
+| Behaviour | `assets/history.js`. **Also runs the homepage's Featured Videos strip** (since 2026-10-20: same `.hcar.hvidcar` + viewer, 16:9 tiles, from `_build/build_home_videos.pl` + `_build/home_videos.txt`, Tyler's "HOME PAGE" playlist). On the homepage only the carousel + viewer run (no `.hist`/`.hera`), so check the homepage too after editing it. |
 | Styles | `house.css`, the "OUR HISTORY" blocks near the end (every class starts with `h`: `.hhero .hera .htile .hcar .hclip .hvids .hend …`, plus `main.hist + footer`) |
 | Web images | `assets/history/<date>/NN.jpg` (viewer) + `thumbs/NN.jpg` (square tiles); `archives/` + `archives/clip/`; `hero.jpg`, `endcap.jpg`, `rogue-map.jpg`, `rope-v.png` |
 

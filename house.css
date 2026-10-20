@@ -838,28 +838,6 @@ html.blueprint .tagband .tb-more a{ color:#e8b64c; }   /* Night Run theme: gold,
 .tooltab b{ display:block; font-weight:500; font-size:16.5px; color:var(--ink); margin-bottom:4px; }
 .tooltab span:last-child{ font-weight:400; font-size:13px; color:var(--body); }
 
-/* ── videos ────────────────────────────────────────────────────────────── */
-#watch .wrap{ max-width:1360px; }   /* let the featured-video row run a bit wider than the 1240 grid, so the three thumbs read larger */
-.vids{ display:grid; grid-template-columns:repeat(3,1fr); gap:26px; }
-.vid{ background:transparent; }
-.vid .shot{
-  display:block; width:100%; border:0; padding:0; cursor:pointer;
-  border-radius:var(--rad); overflow:hidden; box-shadow:var(--shadow);
-  position:relative; background:#000;
-}
-.vid .shot::after{
-  content:"▶"; position:absolute; inset:0; display:grid; place-items:center;
-  color:#fff; font-size:44px; text-shadow:0 2px 14px rgba(0,0,0,.55);
-  transition:transform .25s ease;
-}
-.vid .shot:hover::after{ transform:scale(1.15); }
-.vid .shot img{ width:100%; aspect-ratio:16/9; object-fit:cover; }
-.vid iframe{ width:100%; aspect-ratio:16/9; border:0; border-radius:var(--rad); box-shadow:var(--shadow); }
-.vid .cap{
-  margin-top:12px; text-align:center; font-weight:500; font-size:13.5px;
-  letter-spacing:.06em; text-transform:uppercase; color:var(--ink);
-}
-
 /* ── heritage / our story ──────────────────────────────────────────────── */
 .ropebar{ display:flex; justify-content:center; margin:8px 0 30px; }
 .ropebar img{ width:min(920px,86%); height:auto; }
@@ -1153,7 +1131,6 @@ html.blueprint img{ filter:none; }  /* photos stay true color */
 /* ── responsive ────────────────────────────────────────────────────────── */
 @media (max-width:1080px){
   .explore{ grid-template-columns:repeat(2,1fr); }
-  .vids{ grid-template-columns:1fr 1fr; }
   .netgrid,.specialty{ grid-template-columns:repeat(2,1fr); }
   .photocards{ grid-template-columns:repeat(3,1fr); }
   .igrow{ grid-template-columns:repeat(3,1fr); }
@@ -1167,7 +1144,6 @@ html.blueprint img{ filter:none; }  /* photos stay true color */
   .mega{ position:static; transform:none; }
   .mega-in{ grid-template-columns:1fr 1fr; width:100%; }
   .explore{ grid-template-columns:1fr; }
-  .vids{ grid-template-columns:1fr; }
   .netgrid,.specialty,.stdgrid{ grid-template-columns:1fr; }
   .photocards{ grid-template-columns:repeat(2,1fr); }
   .home-page .photocards{ grid-template-columns:1fr; }   /* homepage "Shot in the Field" band: stack full-width on phones so the four thumbs stay big and legible */
@@ -1738,8 +1714,9 @@ footer::before{
 .wblb.zoomed .wblbstage img{
   max-width:none; max-height:none; width:auto; height:auto; aspect-ratio:auto; margin:auto; cursor:zoom-out;
 }
-/* hide the corner "Not sure which boat?" nudge while the photo viewer is open */
-body.wblb-open #wb-corner{ display:none !important; }
+/* hide the corner "Not sure which boat?" nudge while the photo viewer is open
+   (and the history.js viewer that plays the homepage's Featured Videos) */
+body.wblb-open #wb-corner,body.hlb-open #wb-corner{ display:none !important; }
 
 /* Model-page masthead tightened so the hero sits higher — scoped via .mp-tight
    on <main> (test on Alaskan LT; roll out to all model pages once approved). */
@@ -3116,6 +3093,14 @@ main.hist + footer::before{
    2026-10-14): the rail is ~95px wide on laptops, ~120px on wide screens. */
 @media (min-width:901px){ .hvidcar{ --hedge:96px; } }
 @media (min-width:1380px){ .hvidcar{ --hedge:124px; } }
+/* the homepage's Featured Videos (section #watch, 2026-10-20): Tyler's "HOME PAGE" YouTube
+   playlist as this same strip (same .hcar, same viewer from history.js; markup from
+   _build/build_home_videos.pl), but every tile is a 16:9 rectangle like YouTube's own (.wide),
+   and with no year rail on the homepage it runs 44px in from each edge like the brochures. */
+#watch .hvidcar{ --hedge:44px; margin-top:8px; }
+@media (max-width:900px){
+  #watch .hvidcar{ --hedge:24px; --hvh:min(39vw,225px); }   /* 270px tiles at 390: the next one peeks in */
+}
 .hclipcar .htrack{ align-items:center; gap:clamp(22px,2.6vw,36px); padding:36px 26px 70px; }
 .hclip{
   --r:-3.5deg; --y:10px; --h:clamp(255px,26.5vw,345px);

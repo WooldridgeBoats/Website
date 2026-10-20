@@ -9,12 +9,15 @@
    6. From the Archives: the taped-in brochures settle in, and open in the viewer
    7. Heritage Videos: a strip of little video thumbs that play in the viewer
    Markup comes from _build/build_history.pl; styles are the OUR HISTORY block
-   in house.css. Without JS everything still shows and tiles open the image. */
+   in house.css. Without JS everything still shows and tiles open the image.
+   The homepage's Featured Videos (2026-10-20) is the same strip (.hvidcar, from
+   _build/build_home_videos.pl), so on that page only 2, 3 and 7 run. */
 (function () {
   var page = document.querySelector('.hist');
   var eras = [].slice.call(document.querySelectorAll('.hera'));
-  if (!page || !eras.length) return;
-  page.classList.add('hjs');
+  var timeline = !!(page && eras.length);
+  if (!timeline && !document.querySelector('.hvidcar')) return;
+  if (page) page.classList.add('hjs');
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ── 1 + 4: scroll-driven rope, stars, ghost years, rail ── */
@@ -80,9 +83,11 @@
     }
   }
   function queue() { if (!queued) { queued = true; requestAnimationFrame(frame); } }
-  window.addEventListener('scroll', queue, { passive: true });
-  window.addEventListener('resize', queue);
-  frame();
+  if (timeline) {
+    window.addEventListener('scroll', queue, { passive: true });
+    window.addEventListener('resize', queue);
+    frame();
+  }
 
   /* fade each date in as it arrives */
   if ('IntersectionObserver' in window) {
@@ -123,12 +128,16 @@
     });
   });
 
-  // the Heritage Videos strip (after the timeline, above the map) closes the book
-  var hv = [].slice.call(document.querySelectorAll('.hvids .htile'));
-  hv.forEach(function (t, n) {
-    t.setAttribute('data-i', items.length);
-    items.push({ yt: t.getAttribute('data-yt'), title: t.getAttribute('data-vtitle'), alt: '',
-      pc: '', yr: 'Heritage Videos', cap: '', n: n + 1, of: hv.length });
+  // the Heritage Videos strip (after the timeline, above the map) closes the book;
+  // on the homepage the Featured Videos strip is the whole book (its data-label is the blue title)
+  [].forEach.call(document.querySelectorAll('.hvidcar'), function (car) {
+    var hv = [].slice.call(car.querySelectorAll('.htile'));
+    var label = car.getAttribute('data-label') || 'Heritage Videos';
+    hv.forEach(function (t, n) {
+      t.setAttribute('data-i', items.length);
+      items.push({ yt: t.getAttribute('data-yt'), title: t.getAttribute('data-vtitle'), alt: '',
+        pc: '', yr: label, cap: '', n: n + 1, of: hv.length });
+    });
   });
 
   /* ── 2: carousels ── */
@@ -185,7 +194,7 @@
   function build() {
     lb = document.createElement('div');
     lb.className = 'hlb'; lb.setAttribute('role', 'dialog'); lb.setAttribute('aria-modal', 'true');
-    lb.setAttribute('aria-label', 'Wooldridge history photos');
+    lb.setAttribute('aria-label', timeline ? 'Wooldridge history photos' : 'Wooldridge videos');
     lb.innerHTML =
       '<button type="button" class="hlb-x">CLOSE &#10005;</button>' +
       '<div class="hlb-stage"><button type="button" class="hlb-prev" aria-label="Previous"></button>' +

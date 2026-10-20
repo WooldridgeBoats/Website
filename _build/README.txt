@@ -13,6 +13,12 @@ header.html/footer.html are the single source of truth for editing, but the
 deployed pages must contain the real, static content — this script keeps
 them in sync. It's idempotent, safe to re-run any time.
 
+  perl _build/build_home_videos.pl [--sync] — the homepage's Featured Videos strip
+                                    from _build/home_videos.txt; --sync first re-reads
+                                    Tyler's "HOME PAGE" YouTube playlist into that list.
+Run it when Tyler says "update homepage videos". The strip + viewer are the
+Heritage Videos code from /our-history/ (assets/history.js, .hvidcar in house.css).
+
   perl _build/stamp_assets.pl      — cache-bust every local .css/.js reference
   perl _build/stamp_assets.pl --check   — report only, change nothing
 
