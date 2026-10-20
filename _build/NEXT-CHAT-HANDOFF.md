@@ -24,6 +24,13 @@ Repo `~/Desktop/LOCAL-WEBSITE` (dev.wooldridgeboats.com). I commit; Tyler pushes
 3. **Any menu change:** also regenerate + push the store header (`gen_header.py`, `themeFilesUpsert`),
    Tyler's OK each time (auto mode blocks it as a production deploy). Store menu must ALWAYS match.
 
+4. **Phone galleries still to make (as of 2026-10-20 end of day):** Alaskan LT 16/18/20, Alaskan 18/20,
+   Alaskan XL 20, Alaskan XL IB 21, Rogue HDPE 18/20, Skagit 18/20, Sport 18/20, Sportster 20/21/23/25,
+   SSD 23; custom: Pybus 33′ (empty `33-DEEPWATER-CHARTER-MOBILE` folder). Sportster `20-SPORTSTER` folder is odd
+   (lineup sells 21/23/25): ask Tyler. Build via Model Ready (check first).
+5. **Stephen (Tingis Pingis):** blurb rewrite DONE + live (4d2fef54). SSD OB brochure stays OFF the website
+   (stays in SALES TOOLS). Tyler is answering the Build Hub "25 THINGS THAT NEED YOU" form himself.
+
 ## Rules picked up this session (also in memory / CLAUDE.md)
 - Model Ready: check first and list bad names; I may fix simple ones in the master (e.g. a missing hull).
 - If Tyler links an X Drive folder, compare with OneDrive (md5) and build from OneDrive.
