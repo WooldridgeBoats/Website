@@ -850,10 +850,15 @@ html.blueprint .tagband .tb-more a{ color:#e8b64c; }   /* Night Run theme: gold,
   box-shadow:var(--shadow-lg); max-width:1150px; margin:0 auto; display:block;
 }
 .storycollage img{ width:100%; }
+/* the button sits in the open sky over the river photo on the right of the collage
+   (assets/homepage/about-history.jpg, Tyler's HOMEPAGE-ABOUT HISTORY.jpg, 2026-10-20) */
 .storycollage .btn-blue{
-  position:absolute; right:6%; top:44%; font-size:clamp(18px,2.4vw,30px);
-  padding:14px 36px;
+  position:absolute; left:73.5%; top:6%; transform:translateX(-50%); white-space:nowrap;
+  font-size:clamp(14px,2.4vw,30px); padding:clamp(6px,1vw,14px) clamp(13px,2.5vw,36px);
 }
+/* phones: the collage is ~140px tall, so the button shrinks with it and leans right, onto
+   the treeline, instead of covering the canyon photo */
+@media (max-width:600px){ .storycollage .btn-blue{ left:77%; top:5%; border-radius:6px; } }
 
 /* heritage extras kept from the original page (styled to match) */
 .heritage-grid{ display:grid; grid-template-columns:1.2fr .8fr; gap:44px; align-items:start; }
