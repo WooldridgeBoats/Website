@@ -78,3 +78,13 @@ call.
 
 The quiz owns the matrix (between /* MATRIX:BEGIN */ and /* MATRIX:END */ in
 which-wooldridge/index.html). Edit it there, run the sync, then the audit.
+
+  _build/sync_shop_live.ps1        -- RETIRED 2026-10-20 (Stephen's ruling). Do not run it.
+In The Shop Right Now (the home-page strip and in-the-shop/) is Tyler's now: his folder
+SQUIRREL HOLE\70 MARKETING AND BRAND\WEBSITE\MASTER-WEBSITE PHOTOS\IN THE SHOP-WEB\ and his
+own Mac-side process feed it. The Build Hub's "Show on website" toggle, its stage-change
+auto-refresh and the /shop-live command were retired the same day. The SHOP-LIVE markers on
+index.html and in-the-shop/index.html and the rows between them were left exactly as they
+were for Tyler's process to own. The script stays in the repo (header says RETIRED) so
+pieces of it can be reused. Dossier and restore steps:
+WB FILES\5 - IT AND SYSTEMS\RETIRED TOOLS\RETIRED 2026-10-20 - IN THE SHOP SYNC\README.md

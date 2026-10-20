@@ -1,4 +1,22 @@
 # =============================================================================
+# RETIRED 2026-10-20 - DO NOT RUN. Stephen's ruling, 2026-10-20 about 16:05:
+#   "tylers in the shop - web folder, im fine with that. that can be the new
+#   version of my WEBSITE FOLDER" and "hes basically doing his own version of
+#   live in the shop. we're retiring my version. hes gonna figure that out
+#   himself and even if he doesnt - not our problem."
+# The website's In The Shop section (the home-page strip and /in-the-shop/) is
+# Tyler Lee's from now on, fed from his own folder
+#   SQUIRREL HOLE\70 MARKETING AND BRAND\WEBSITE\MASTER-WEBSITE PHOTOS\IN THE SHOP-WEB\
+# by his own Mac-side process. Retired together with this script: the Build
+# Hub's "Show on website" toggle and its Website photos drop zone, the Hub's
+# stage-change auto-refresh (serve.ps1 POST /api/shop-live) and the /shop-live
+# command. The two pages keep their SHOP-LIVE markers and the rows they held on
+# 2026-10-20 exactly as they were; Tyler's process owns that territory now.
+# The script is kept unchanged below this header so Tyler can take pieces of it
+# (Save-WebJpeg, the row template, the marker splice). Dossier + restore steps:
+#   WB FILES\5 - IT AND SYSTEMS\RETIRED TOOLS\RETIRED 2026-10-20 - IN THE SHOP SYNC\README.md
+# =============================================================================
+# =============================================================================
 # sync_shop_live.ps1 - publish SiteLive builds into the home page's
 #                      "In The Shop Right Now" section.
 #
