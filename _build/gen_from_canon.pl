@@ -61,7 +61,8 @@
 #      the branded price sheets (all 19 rebuilt and verified - needs Rockwell; a set whose only
 #      change is the printed date is left as it was, Tyler's rule adopted by Stephen 2026-10-19;
 #      the changed ones are placed with the old ones archived and published to SALES TOOLS);
-#      the ITEM CODE LOOKUP page (P3); the used-boat appraiser;
+#      the ITEM CODE LOOKUP page (P3; since 2026-10-20 also carried into CANON.html's "Item codes" tab by
+#      QB IMPORT/_build/embed_lookup.pl); the used-boat appraiser;
 #      the prop selector; the "Boat facts" view in CANON.html (CANON/_build/BOAT FACTS/
 #      build_boat_facts.pl, every real run, a failure is loud but not fatal); the Pricing data half of CANON.html
 #      (QB IMPORT/_build/census/run_census.ps1 - P3 only, when a pricing mirror changed; it carries the standing
@@ -621,7 +622,18 @@ if ($mode eq 'xlsx' && !$dry) {
     my $new = "$tmpd/lookup.html";
     in_dir("$qb_import/_build", sub { run_perl('gen_lookup_canon.pl', 'gen_lookup_canon.pl', '--canon', $canon_root, '--out', $new) });
     if (-f $page && same_but_stamps(slurp_bytes($new), slurp_bytes($page))) { printf "  %-28s unchanged\n", 'ITEM CODE LOOKUP' }
-    else { put_atomic($page, slurp_bytes($new), 'ITEM CODE LOOKUP.html'); push @done, 'ITEM CODE LOOKUP rebuilt from canon' }
+    else {
+      put_atomic($page, slurp_bytes($new), 'ITEM CODE LOOKUP.html'); push @done, 'ITEM CODE LOOKUP rebuilt from canon';
+      # 2026-10-20: the page is also the "Item codes" tab of CANON.html (embed_lookup.pl mirrors it between the LOOKUP markers).
+      # Carry the rebuilt page into the tab now; a failure is loud, not fatal (the tab keeps the previous build until it is re-run).
+      my $emb = "$qb_import/_build/embed_lookup.pl";
+      if (-f $emb) {
+        my $r = system($^X, $emb, '--lookup', $page);
+        if ($r) { print "  !! embed_lookup.pl failed (exit " . ($r >> 8) . ") - the Item codes tab in CANON.html still shows the previous build\n";
+                  push @owed, 'Item codes tab (CANON.html): embed_lookup.pl failed - read its message above and re-run it' }
+        else { push @done, 'Item codes tab (CANON.html) refreshed from the rebuilt lookup page' }
+      }
+    }
   } else { push @owed, 'ITEM CODE LOOKUP page: rebuild on the P3 (Desktop/QB IMPORT/_build/gen_lookup_canon.pl) - ' . join(', ', @lk) . ' changed' }
 
   # e. the used-boat appraiser (reads BOATS + TRAILERS)
