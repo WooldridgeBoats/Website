@@ -3098,6 +3098,8 @@ main.hist + footer::before{
    _build/build_home_videos.pl), but every tile is a 16:9 rectangle like YouTube's own (.wide),
    and with no year rail on the homepage it runs 44px in from each edge like the brochures. */
 #watch .hvidcar{ --hedge:44px; margin-top:8px; }
+/* clean edges, no white fade where the strip carries on (Tyler, 2026-10-20) */
+#watch .hvidcar .hview::before,#watch .hvidcar .hview::after{ display:none; }
 @media (max-width:900px){
   #watch .hvidcar{ --hedge:24px; --hvh:min(39vw,225px); }   /* 270px tiles at 390: the next one peeks in */
 }
