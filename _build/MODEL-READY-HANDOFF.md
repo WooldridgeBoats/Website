@@ -1,5 +1,7 @@
 # "Model Ready" — paste this into a NEW chat window
 
+> **Photo folders moved 2026-10-20:** boats now live in `MASTER-WEBSITE PHOTOS/BOAT MODELS/` and `MASTER-WEBSITE PHOTOS/CUSTOM BOAT MODELS/`. Map of every folder → page → command: `_build/MASTER-PHOTO-FOLDERS.md`.
+
 Copy everything in the box below as your first message in a new chat, then attach
 the next model's master photo folder and say which model it is.
 
@@ -16,7 +18,7 @@ screenshots go blank when the pane's hidden, so use DOM/javascript_tool
 geometry as the source of truth.
 
 Trigger: I say "Model Ready! <Model>" + attach the master folder
-(OneDrive …/MASTER-WEBSITE PHOTOS/<MODEL>-WEB/). Then:
+(OneDrive …/MASTER-WEBSITE PHOTOS/BOAT MODELS/<MODEL>-WEB/). Then:
 1. Confirm slug (models/<slug>/ == assets/photos/<slug>/; set PHOTOSLUG if they
    differ, NOCFG=1 if the model has no trim token).
 2. Warm the source (find "<folder>" -name '*.jpg' -exec cat {} + >/dev/null),

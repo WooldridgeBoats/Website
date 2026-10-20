@@ -7,7 +7,7 @@
 #   | crop: "wide" for a true 16:9 video, or x,y,w,h = the 4:3 picture inside that thumbnail
 #   with YouTube's black bars cut off (old 4:3 footage). Tile shows exactly that box (Tyler,
 #   2026-10-14). Measure new ones with _build/history_vidcrop.js (see the handoff).
-#   Or "thumb=FILE": Tyler's own thumbnail from MASTER-WEBSITE PHOTOS/YT-VIDEO-THUMBS (used as-is).
+#   Or "thumb=FILE": Tyler's own thumbnail from MASTER-WEBSITE PHOTOS/YOUTUBE-THUMBS (used as-is).
 # Titles are the playlist's, with typos fixed for the page (Slamon, Ranie, "Glen Seniors").
 # Rebuild after editing: perl _build/build_history.pl
 

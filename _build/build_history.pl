@@ -417,13 +417,13 @@ if (@hvids) {
   # only the picture box from history_videos.txt; a true 16:9 video ("wide") keeps a wide tile
   my %tsize = (maxres => [1280, 720], sd => [640, 480], hq => [480, 360]);
   # Tyler's own thumbnail ("thumb=FILE" in history_videos.txt): from the master's sibling folder
-  # MASTER-WEBSITE PHOTOS/YT-VIDEO-THUMBS, copied BYTE-FOR-BYTE (never re-compress a video thumb
+  # MASTER-WEBSITE PHOTOS/YOUTUBE-THUMBS, copied BYTE-FOR-BYTE (never re-compress a video thumb
   # he supplies) to assets/history/videos/<id>.jpg; it fills the 4:3 tile (Tyler, 2026-10-14)
-  my $vt_dir = dirname($MASTER) . '/YT-VIDEO-THUMBS'; my $vt_out = "$TMP/stage/videos";
+  my $vt_dir = dirname($MASTER) . '/YOUTUBE-THUMBS'; my $vt_out = "$TMP/stage/videos";
   remove_tree($vt_out); my %own;
   for my $id (map { $_->[0] } @hvids) {
     my ($file) = ($vcrop{$id} // '') =~ /^thumb\s*=\s*(.+)$/i or next;
-    my $from = "$vt_dir/$file"; -s $from or die "heritage video $id: thumbnail not found: YT-VIDEO-THUMBS/$file\n";
+    my $from = "$vt_dir/$file"; -s $from or die "heritage video $id: thumbnail not found: YOUTUBE-THUMBS/$file\n";
     make_path($vt_out); copy($from, "$vt_out/$id.jpg") or die "copy $from: $!\n";
     $own{$id} = "/assets/history/videos/$id.jpg?v=" . ver("$vt_out/$id.jpg");
   }

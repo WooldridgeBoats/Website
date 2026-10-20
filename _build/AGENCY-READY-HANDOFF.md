@@ -1,5 +1,7 @@
 # "Agency Model Ready" — paste this into a NEW chat window
 
+> **Photo folders moved 2026-10-20:** boats now live in `MASTER-WEBSITE PHOTOS/BOAT MODELS/` and `MASTER-WEBSITE PHOTOS/CUSTOM BOAT MODELS/`. Map of every folder → page → command: `_build/MASTER-PHOTO-FOLDERS.md`.
+
 Copy everything in the box below as your first message in a new chat. Then send
 the next boat folder and say "Agency Model Ready!". The full log of how this page
 works is under the box; the new chat reads it from this file.
@@ -13,7 +15,7 @@ and my memory notes `agency-work-boats-page`, `tyler-pushes-to-github`,
 own rules; it is NOT the standard Model Ready / model-page pipeline.
 
 Trigger: I say "Agency Model Ready!" (or "Custom Model Ready") + attach the boat's
-folder(s) from OneDrive …/MASTER-WEBSITE PHOTOS/AGENCY-WORK-WEB/ (the X Drive copy
+folder(s) from OneDrive …/MASTER-WEBSITE PHOTOS/CUSTOM BOAT MODELS/AGENCY-WORK-WEB/ (the X Drive copy
 …/PHOTOS-BOAT MODEL-MASTER/AGENCY-WORK/AGENCY-WORK-WEB/ mirrors it). Then:
 1. Warm the files (find "<folder>" -name '*.jpg' -exec cat {} + >/dev/null). If I
    link the X Drive, diff it against OneDrive first; build from whichever is complete
@@ -83,7 +85,7 @@ Still to come: more 20-CC-SKAGIT/<mission> sub-folders. Ready — I'll drop the 
   boat; its master token is WORK BOAT, 02's is WORK, both caption "Work Boat").
 
 ### Master folders + file names
-- Source of truth: **OneDrive** `…/MASTER-WEBSITE PHOTOS/AGENCY-WORK-WEB/`. The X Drive
+- Source of truth: **OneDrive** `…/MASTER-WEBSITE PHOTOS/CUSTOM BOAT MODELS/AGENCY-WORK-WEB/`. The X Drive
   mirrors it but has been ahead/behind for a few minutes at a time. Diff before trusting.
 - File name: `NN-HULL-LEN-CFG-MODEL-PURPOSE[-MOBILE].jpg`, e.g.
   `03-5320-20-CC-AK XL-IB-FIRST RESPONDER.jpg`. A HERO token is ignored. The model may

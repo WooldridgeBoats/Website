@@ -9,7 +9,7 @@
 # Usage:
 #   _build/apply_model_photos.sh <slug> "<Display Name>" "/path/to/<MODEL>-WEB" [--dry-run] [--force]
 # Example:
-#   _build/apply_model_photos.sh alaskanxl "Alaskan XL" "/Users/.../MASTER-WEBSITE PHOTOS/ALASKAN-XL-WEB"
+#   _build/apply_model_photos.sh alaskanxl "Alaskan XL" "/Users/.../MASTER-WEBSITE PHOTOS/BOAT MODELS/ALASKAN XL-WEB"
 #
 # <slug> is the PAGE dir (models/<slug>/). Photos go in assets/photos/<slug>/ by default.
 # When the photo dir differs from the page dir, set PHOTOSLUG, e.g. Alaskan XLT:
