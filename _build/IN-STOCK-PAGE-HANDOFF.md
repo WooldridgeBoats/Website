@@ -64,3 +64,15 @@ OK, and after he has pushed the main site (so instock.js is live). See that fold
   "Skip the build queue" paragraph beside it (`.newinv-row .newinv-note`).
 - Both pills (`.duo-cta`) sit on one line: each `.duo` column is a flex column, pill `margin-top:auto`.
 - Phones (≤760px): cards full width; names 17px, blurbs 15px, prices 18px; paragraph centred.
+- Explore by Power labels (Inboard / Outboard / Offshore / Agency & Work Boats): desktop unchanged; tablet
+  (≤1080px) 18px and phone (≤760px) 21px Inter Medium in normal case (Tyler: tiny caps looked bad under the
+  big photos).
+
+## Session log 2026-10-20 (all pushed by Tyler that afternoon)
+SSO Pilothouse 26′ phone set + 29′ gallery + 2-slide hero · SSO Angler is a 24′ · master photo folder
+reorg (BOAT MODELS / CUSTOM BOAT MODELS; 3 scripts re-pointed; _build/MASTER-PHOTO-FOLDERS.md) · this
+In Stock page + stamp + menu link · homepage Pre-Owned | New Boats alignment · Explore labels · model
+prev/next = 18 main models in menu order (custom builds loop separately) · LOGOS-GRAPHICS = only what the
+site uses · unused brand files deleted · new favicon (site + store). Still open: store header push (In
+Stock link), SOLD stamp design, Pilothouse 29′ phone + 31′.
+
