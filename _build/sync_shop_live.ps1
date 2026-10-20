@@ -416,7 +416,7 @@ if ($placeholderOnly) {
     $phMark
     <div class="sechead tight">
       <div class="eyebrow">In The Shop Right Now</div>
-      <h2 style="font-size:clamp(20px,2.6vw,28px);">A look at the floor in Seattle</h2>
+      <h2>A look at the floor in Seattle</h2>
       <p class="lede">Every Wooldridge is built to order in Seattle, one hull at a time. Fresh photos from the shop floor go up here as boats come together &mdash; check back soon.</p>
     </div>
 "@
@@ -452,7 +452,7 @@ $homeBody = @"
 
     <div class="sechead tight">
       <div class="eyebrow">In The Shop Right Now</div>
-      <h2 style="font-size:clamp(20px,2.6vw,28px);">A look at the floor in Seattle</h2>
+      <h2>A look at the floor in Seattle</h2>
       <p class="lede">One build from the shop floor, updated as the crew works. Scroll the row, or tap any photo to open the full gallery.</p>
     </div>
 $featured$more

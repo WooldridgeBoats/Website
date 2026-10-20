@@ -876,7 +876,7 @@ html.blueprint .tagband .tb-more a{ color:#e8b64c; }   /* Night Run theme: gold,
 }
 .duo > div{ padding:0 34px; }
 .duo > div:first-child{ border-right:1px solid var(--rule); }
-.duo h2{ text-align:center; font-size:clamp(24px,2.6vw,32px); }
+.duo h2{ text-align:center; font-size:clamp(26px,3.4vw,40px); }   /* the .sechead h2 size: every blue homepage title matches (Tyler, 2026-10-20) */
 .duo .sub{
   text-align:center; font-weight:400; font-size:14px; color:var(--muted);
   margin:8px 0 26px;
