@@ -690,6 +690,14 @@ html.blueprint .tagband .tb-more a{ color:#e8b64c; }   /* Night Run theme: gold,
   padding:0 6px; overflow-wrap:break-word;
 }
 .exp:hover .lab{ color:var(--blue); }
+/* tablet + phone (Tyler, 2026-10-20): under the big 2-across / full-width photos the small
+   letter-spaced caps read tiny. Bigger Inter Medium in normal case, like a title. Desktop unchanged. */
+@media (max-width:1080px){
+  .exp .lab{ font-size:18px; letter-spacing:.01em; text-transform:none; margin-top:12px; }
+}
+@media (max-width:760px){
+  .exp .lab{ font-size:21px; }
+}
 
 /* ── boat models carousel ──────────────────────────────────────────────── */
 .carouselzone{ position:relative; }
