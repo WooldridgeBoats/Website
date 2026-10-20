@@ -59,7 +59,7 @@ Still to come: more 20-CC-SKAGIT/<mission> sub-folders. Ready — I'll drop the 
   caps) → PATROL · RESCUE · RESEARCH · SURVEY · UTILITY. The intro text is kept. No
   "Photo galleries" heading (Tyler removed it).
 - Nav: "Agency & Work Boats" is FIRST in Our Boats → Custom Builds, and in the footer's
-  top row. Homepage: first card in "Specialty & custom builds"; its "Explore by Power,
+  top row. Homepage: first card in "Specialty & Custom Builds"; its "Explore by Power,
   Purpose & Water" tile uses `assets/photos/agency-work/thumbs/slide-01-5336-20-cc.jpg`.
 
 ### Hero slider (top of the page)
