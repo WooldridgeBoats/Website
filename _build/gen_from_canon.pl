@@ -237,10 +237,9 @@ if ($mode eq 'xlsx') {
       }
     }
     # c. the repo's print price sheets + the "from" prices
-    if ($dry) { print "  would regenerate pricesheets/ (gen_pricesheets.pl + inject_partials.pl) and re-derive the from-prices\n" }
+    if ($dry) { print "  would re-derive the from-prices\n" }
     else {
-      run_perl('gen_pricesheets.pl', "$build/gen_pricesheets.pl");
-      run_perl('inject_partials.pl', "$build/inject_partials.pl");
+      # (the print price sheets themselves are regenerated every run, in c2 below)
       my $F = from_prices(load_site($repo));
       for my $pg (FROM_PAGES) {
         my ($f, $var) = @$pg;
@@ -255,6 +254,12 @@ if ($mode eq 'xlsx') {
       }
     }
   }
+  # c2. the repo's print price sheets - EVERY run since 2026-10-21 pm, price change or not: an option added to or retired
+  #     from a model (the Sportster's battery list, carried by the tab writer's -RowChanges) changes a sheet with no price
+  #     change, and until then the two generators ran only inside the price branch, so that sheet stayed stale. Both are
+  #     idempotent and take seconds; stamp_assets.pl runs after them and puts the asset hashes back.
+  if ($dry) { print "  would regenerate pricesheets/ (gen_pricesheets.pl + inject_partials.pl)\n" }
+  else { run_perl('gen_pricesheets.pl', "$build/gen_pricesheets.pl"); run_perl('inject_partials.pl', "$build/inject_partials.pl") }
   # d. the options guide's typed prices - every run, price change or not (Stephen 2026-10-15: "Canon fills them").
   #    Planned again here, after a-c, so it starts from the page as it now stands on disk.
   my $OG = option_guide_plan($repo, $tabs);
@@ -408,6 +413,26 @@ sub put_atomic {                     # bytes -> path, via a temp name in the sam
 print "\nOUTSIDE THE WEBSITE\n";
 my %old_mirror;                      # the mirrors as they were before this run: the QuickBooks list and the downstream triggers diff against them
 for my $t ((CANON_TABS), (PRICE_TABS)) { my $p = "$canon_dir/$t.csv"; $old_mirror{$t} = -f $p ? slurp_bytes($p) : '' }
+# 2026-10-21 pm: rows added or removed since the last run (the tab writer's -RowChanges carries them now), for the CHANGE
+# LOG, which until now opened an entry only for price and spec changes and so stayed silent on a retired or added option.
+# The previous mirrors are parsed with csv_grid() and keyed exactly as the workbook is (canon_from_tabs), so an added row is
+# a key the last run never saw and a removed row is a key it had.
+my ($rows_changed, %row_diff) = (0);
+if ($mode eq 'xlsx') {
+  my %oldgrid; for my $t (PRICE_TABS) { $oldgrid{$t} = csv_grid($old_mirror{$t}) if length $old_mirror{$t} }
+  if (keys %oldgrid == scalar(my @pt = PRICE_TABS)) {
+    my $OLD = eval { canon_from_tabs(\%oldgrid) }; my $NEW = $OLD ? eval { canon_from_tabs($tabs) } : undef;
+    if ($OLD && $NEW) {
+      for my $t (qw(BOATS ENGINES OPTIONS TRAILERS)) {
+        my @add = sort grep { !exists $OLD->{$t}{$_} } keys %{ $NEW->{$t} };
+        my @rem = sort grep { !exists $NEW->{$t}{$_} } keys %{ $OLD->{$t} };
+        next unless @add || @rem;
+        $row_diff{$t} = { add => \@add, rem => \@rem }; $rows_changed += @add + @rem;
+        printf "  rows in %-8s since the last run: %d added, %d removed\n", $t, scalar @add, scalar @rem;
+      }
+    } else { print "  rows since the last run: not compared (" . ($@ || 'the previous mirrors could not be keyed') . ")\n" }
+  } else { print "  rows since the last run: not compared (a previous mirror is missing)\n" }
+}
 if ($mode eq 'xlsx') {
   for my $t (CANON_TABS) { next unless defined $texts{$t}; put_atomic("$canon_dir/$t.csv", encode('UTF-8', $texts{$t}), "CSV MIRRORS/$t.csv") }
   for my $t (PRICE_TABS) { my $p = "$canon_dir/$t.csv"; put_atomic($p, mirror_bytes($tabs->{$t}, $t, (-f $p ? slurp_bytes($p) : undef)), "CSV MIRRORS/$t.csv") }
@@ -503,11 +528,29 @@ my $mirror_changed = sub { my ($t) = @_; my $p = "$canon_dir/$t.csv"; return (-f
 # and the bare call returned '' so the PACKAGES write and the census both got an empty -File (2026-10-21).
 sub winpath {
   my ($p) = @_; return $p unless $^O eq 'cygwin' || $^O eq 'msys';
+  # 2026-10-21 pm: $^X is a bare "perl" when Git Bash finds perl on PATH, so dirname gives "." and "./cygpath" does not
+  # exist; fall back to cygpath on PATH (it is beside perl in Git's usr/bin). The full-path form stays for PowerShell runs.
   my $cp = dirname($^X) . '/cygpath';
+  $cp = 'cygpath' if dirname($^X) eq '.' || !(-e $cp || -e "$cp.exe");
   open(my $fh, '-|', $cp, '-w', $p) or die "cannot run $cp: $!\n";
   my $w = <$fh>; close $fh; $w = '' unless defined $w; chomp $w; $w =~ s/\r$//;
   die "cygpath gave no Windows path for $p\n" unless length $w;
   return $w;
+}
+sub csv_grid {                       # RFC 4180 bytes (UTF-8, BOM allowed, CRLF or LF) -> grid (array of arrays), header first
+  my ($bytes) = @_;
+  my $txt = Encode::decode('UTF-8', $bytes); $txt =~ s/^\x{FEFF}//; $txt =~ s/\r\n?/\n/g;
+  my (@rows, @f) = (); my ($cur, $inq) = ('', 0); my @ch = split //, $txt;
+  for (my $i = 0; $i < @ch; $i++) {
+    my $c = $ch[$i];
+    if ($inq) { if ($c eq '"') { if ($i + 1 < @ch && $ch[$i + 1] eq '"') { $cur .= '"'; $i++ } else { $inq = 0 } } else { $cur .= $c } }
+    elsif ($c eq '"') { $inq = 1 }
+    elsif ($c eq ',') { push @f, $cur; $cur = '' }
+    elsif ($c eq "\n") { push @f, $cur; $cur = ''; push @rows, [@f]; @f = () }
+    else { $cur .= $c }
+  }
+  if (length($cur) || @f) { push @f, $cur; push @rows, [@f] }
+  return \@rows;
 }
 sub same_but_stamps {                # generated pages carry a build time; compare without it
   my ($a, $b) = @_;
@@ -760,11 +803,12 @@ if ($mode eq 'xlsx' && !$dry) {
 }
 
 # ------------------------------------------------------------ 8. the CHANGE LOG ----
-my $anything = $price_changes || $content_changes || $marker_adds || $packages_changed || $addons_changed;
+my $anything = $price_changes || $content_changes || $marker_adds || $packages_changed || $addons_changed || $rows_changed;
 if ($mode eq 'xlsx' && !$dry && $anything) {
   my $readme = dirname($canon_dir) . '/README.md';
   my @lt = localtime; my $date = sprintf('%04d-%02d-%02d', $lt[5] + 1900, $lt[4] + 1, $lt[3]);
   my @what; push @what, "$price_changes price(s)" if $price_changes; push @what, "$content_changes spec change(s)" if $content_changes;
+  push @what, "$rows_changed row(s) added or removed" if $rows_changed;
   push @what, 'package prices regenerated' if $packages_changed && !$price_changes;
   push @what, 'trailer shop add-on prices' if $addons_changed && !$price_changes;
   my $who = (defined $by && length $by) ? "entered by $by" : 'entered by NOT GIVEN - fill in';
@@ -778,6 +822,10 @@ if ($mode eq 'xlsx' && !$dry && $anything) {
     }
   }
   $e .= "- **Specs**: $content_changes content change(s) carried to the configurator and model pages.\n" if $content_changes;
+  for my $t (sort keys %row_diff) {
+    my $d = $row_diff{$t}; my @add = map { s/^[A-Z]+\|//r } @{ $d->{add} }; my @rem = map { s/^[A-Z]+\|//r } @{ $d->{rem} };
+    $e .= "- **$t rows**: " . scalar(@add) . " added" . (@add ? ' (' . join(', ', @add) . ')' : '') . "; " . scalar(@rem) . " removed" . (@rem ? ' (' . join(', ', @rem) . ')' : '') . ".\n";
+  }
   # a guide-only realignment is a website fix, not a canon change, so it does not open an entry by itself
   $e .= "- **Options guide**: $guide_changes typed price(s) re-derived from the workbook.\n" if $guide_changes;
   $e .= "- **Generator run**: `gen_from_canon.pl $VERSION --xlsx` $date, both checks PASS; website files written, NOT pushed (Stephen or Tyler pushes).\n";
