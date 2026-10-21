@@ -109,6 +109,9 @@ GetOptions('canon=s' => \$canon_dir, 'xlsx=s' => \$xlsx, 'repo=s' => \$repo, 'dr
 die "--sheets must be run, dry or skip\n" unless $sheets =~ /^(run|dry|skip)$/;
 die "--canon <folder> is required (the CSV mirrors live there)\n" unless defined $canon_dir;
 $repo = dirname(dirname(abs_path(__FILE__))) unless defined $repo;
+# 2026-10-21: a Windows-style path (backslashes) from PowerShell made dirname() return '.', so the outputs aimed at the
+# current folder and the SALES TOOLS lookup failed. Git's perl treats a backslash as an ordinary character: fold them here.
+for ($repo, $canon_dir, $xlsx, $out, $soc_out) { s{\\}{/}g if defined }
 $repo =~ s{[\\/]+$}{}; $canon_dir =~ s{[\\/]+$}{};
 die "repo not found (no build-and-price/index.html under $repo)\n" unless -f "$repo/build-and-price/index.html";
 die "--canon folder not found: $canon_dir\n" unless -d $canon_dir;
@@ -131,9 +134,10 @@ print 'sales: ', (!defined $sales_tools ? "NOT FOUND - $sales_how"
                   : "$sales_tools  ($sales_how)" . ($st_sheets ? '' : ' - but it holds no PRICE SHEETS folder')), "\n";
 
 my @owed;                            # printed at the end: what this run could not do from here
+# every helper runs under THIS perl ($^X), never a bare 'perl': Stephen's PowerShell has no perl on PATH (2026-10-21 stop)
 sub run_perl {                       # run one of the repo's own generators; die on failure
   my ($what, @args) = @_;
-  my $r = system('perl', @args);
+  my $r = system($^X, @args);
   die "$what failed (exit " . ($r >> 8) . ")\n" if $r;
 }
 sub git_lines { my (@a) = @_; my $cmd = join(' ', 'git', '-C', qq{"$repo"}, @a); my @l = `$cmd`; die "git @a failed\n" if $?; chomp @l; return @l }
@@ -373,7 +377,7 @@ unless ($dry) {
   print "\nstamp_assets.pl:\n";
   run_perl('stamp_assets.pl', "$build/stamp_assets.pl", $repo);
   print "\nCHECKS (before anything outside the website is written):\n";
-  my @v = ('perl', "$build/verify_spec_canon.pl", '--repo', $repo, '--quiet', ($mode eq 'xlsx' ? ('--xlsx', $xlsx) : ('--canon', $canon_dir)),
+  my @v = ($^X, "$build/verify_spec_canon.pl", '--repo', $repo, '--quiet', ($mode eq 'xlsx' ? ('--xlsx', $xlsx) : ('--canon', $canon_dir)),
            (defined $sales_tools ? ('--sales-tools', $sales_tools) : ()));
   my $spec_fail = system(@v) ? 1 : 0;
   my $price_fail = 0;
@@ -558,7 +562,7 @@ if ($mode eq 'xlsx' && !$dry) {
   if (!$need) { printf "  %-28s no price, package or standard feature moved - not regenerated\n", 'branded price sheets' }
   elsif ($sheets eq 'skip') { push @owed, 'branded price sheets + SALES TOOLS publish (skipped by --sheets skip)' }
   elsif (!-d $pipeline) { push @owed, 'branded price sheets + SALES TOOLS publish: PRICE SHEETS/_PIPELINE not reachable (P3, or a Mac that syncs it)' }
-  elsif ((in_dir($pipeline, sub { system('perl', 'WBFonts.pm') }))[0]) { push @owed, 'branded price sheets + SALES TOOLS publish: Rockwell is not installed here (P3, or a Mac with Rockwell in Font Book)' }
+  elsif ((in_dir($pipeline, sub { system($^X, 'WBFonts.pm') }))[0]) { push @owed, 'branded price sheets + SALES TOOLS publish: Rockwell is not installed here (P3, or a Mac with Rockwell in Font Book)' }
   else {
     my $o = "$tmpd/sheets"; mkdir $o or die "cannot make $o\n";
     my $reason = defined $why && length $why ? $why : 'canon update';
@@ -570,7 +574,7 @@ if ($mode eq 'xlsx' && !$dry) {
           my ($env, $script, @args) = @$s;
           local @ENV{ keys %$env } = values %$env;
           print "    perl $script\n";
-          my $r = system('perl', $script, @args);
+          my $r = system($^X, $script, @args);
           die "branded price sheets: $script failed (exit " . ($r >> 8) . ") - nothing after it ran; the website and canon are already written and proved\n" if $r;
         }
       });
@@ -662,7 +666,7 @@ if ($mode eq 'xlsx' && !$dry) {
   #    It finds SALES TOOLS itself with the same lookup; a --sales-tools given to this command is passed on.
   my $bf = "$canon_root/_build/BOAT FACTS/build_boat_facts.pl";
   if (-f $bf) {
-    my $r = system('perl', $bf, '--canon', $canon_root, '--repo', $repo, (defined $sales_opt && defined $sales_tools ? ('--sales-tools', $sales_tools) : ()));
+    my $r = system($^X, $bf, '--canon', $canon_root, '--repo', $repo, (defined $sales_opt && defined $sales_tools ? ('--sales-tools', $sales_tools) : ()));
     if ($r) { print "  !! build_boat_facts.pl failed (exit " . ($r >> 8) . ") - the Boat facts view in CANON.html is stale\n";
               push @owed, 'Boat facts view (CANON.html): build_boat_facts.pl failed - read its message above and re-run it' }
     else { push @done, 'Boat facts view (CANON.html) rebuilt' }
