@@ -36,6 +36,8 @@ my $footer_close = qr{<!--\s*/PARTIAL:footer\s*-->};
 
 my $n = 0;
 find(sub {
+  # never walk into .claude: it can hold other sessions' git worktrees, whose pages are not this site's (2026-10-21)
+  if (-d $_ && $_ eq '.claude') { $File::Find::prune = 1; return }
   return unless -f and /\.html$/i;
   my $path = $File::Find::name;
   return if $path eq "$root/header.html" or $path eq "$root/footer.html";

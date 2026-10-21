@@ -48,6 +48,8 @@ die "not a directory: $root\n" unless -d $root;
 # ── collect html files, skipping git and the build folder itself ──
 my @html;
 find(sub {
+  # never walk into .claude: it can hold other sessions' git worktrees, whose pages are not this site's (2026-10-21)
+  if (-d $_ && $_ eq '.claude') { $File::Find::prune = 1; return }
   return unless -f;
   return unless /\.html?$/i;
   my $p = $File::Find::name;

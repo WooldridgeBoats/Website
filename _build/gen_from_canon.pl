@@ -499,7 +499,16 @@ my $is_win = ($^O =~ /^(MSWin32|cygwin|msys)$/);
 my @done;
 my ($packages_changed, $addons_changed) = (0, 0);
 my $mirror_changed = sub { my ($t) = @_; my $p = "$canon_dir/$t.csv"; return (-f $p ? slurp_bytes($p) : '') ne ($old_mirror{$t} // '') };
-sub winpath { my ($p) = @_; return $p unless $^O eq 'cygwin' || $^O eq 'msys'; my $w = `cygpath -w "$p"`; chomp $w; return $w }
+# cygpath is called by its full path beside this perl, never by bare name: Stephen's PowerShell has no Git on PATH,
+# and the bare call returned '' so the PACKAGES write and the census both got an empty -File (2026-10-21).
+sub winpath {
+  my ($p) = @_; return $p unless $^O eq 'cygwin' || $^O eq 'msys';
+  my $cp = dirname($^X) . '/cygpath';
+  open(my $fh, '-|', $cp, '-w', $p) or die "cannot run $cp: $!\n";
+  my $w = <$fh>; close $fh; $w = '' unless defined $w; chomp $w; $w =~ s/\r$//;
+  die "cygpath gave no Windows path for $p\n" unless length $w;
+  return $w;
+}
 sub same_but_stamps {                # generated pages carry a build time; compare without it
   my ($a, $b) = @_;
   for ($a, $b) { s/\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}(?::\d{2})?//g; s/^.*"canon_engines_file".*$//mg }

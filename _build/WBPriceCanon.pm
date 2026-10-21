@@ -597,7 +597,9 @@ sub option_guide_plan {              # (repo, tabs) -> { text, eol, lines, chang
       my %v = (@p ? (min => _money($p[0]), max => _money($p[-1])) : ());
       $v{price} = _money($p[0]) if @p == 1;
       if ($m->{shows} =~ /\{both\}/) { my ($b) = map { /both sides = \$([\d,]+)/ ? $1 : () } @{ $m->{names} }; if (defined $b) { $b =~ s/,//g; $v{both} = _money($b) } }
-      (my $want = $m->{shows}) =~ s/\{(\w+)\}/defined $v{$1} ? $v{$1} : do { $err .= ($1 eq 'price' && @p > 1) ? 'canon holds ' . scalar(@p) . ' prices for it - show {min}-{max} instead of {price}; ' : "{$1} has no value; "; '' }/ge;
+      # a range whose ends meet reads as one price, never "$1,099–$1,099" (2026-10-21: the audit moved both windshields to one price)
+      my $shows = $m->{shows}; $shows =~ s/\{min\}\s*\S{1,3}\s*\{max\}/{price}/g if @p == 1;
+      (my $want = $shows) =~ s/\{(\w+)\}/defined $v{$1} ? $v{$1} : do { $err .= ($1 eq 'price' && @p > 1) ? 'canon holds ' . scalar(@p) . ' prices for it - show {min}-{max} instead of {price}; ' : "{$1} has no value; "; '' }/ge;
       if ($err) { push @problems, "'$g': $err"; next }
       next if $want eq $have;
       (my $js = $want) =~ s/([\\'])/\\$1/g;
