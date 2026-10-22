@@ -2881,7 +2881,7 @@ html.blueprint body{ background:transparent; }
 .hprev:hover,.hnext:hover{ background:var(--blue); border-color:var(--blue); }
 .hprev:hover::after,.hnext:hover::after{ border-color:#fff; }
 .hprev:disabled,.hnext:disabled{ opacity:.35; pointer-events:none; }
-.hcount{ min-width:64px; text-align:center; padding-left:.16em; /* balances the trailing letter-spacing so "1 / 5" sits dead centre (Tyler, 2026-10-22) */ font-weight:600; font-size:12px; letter-spacing:.16em; color:var(--muted); }
+.hcount{ min-width:72px; text-align:center; padding-left:.16em; /* balances the trailing letter-spacing so "1 / 5" sits dead centre (Tyler, 2026-10-22) */ font-weight:600; font-size:14px; /* was 12px; a tad bigger (Tyler, 2026-10-22) */ letter-spacing:.16em; color:var(--muted); }
 .hcount b{ color:var(--blue); font-weight:700; }
 
 /* flip-through viewer: one continuous book, page after page, era after era */
