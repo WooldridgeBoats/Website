@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../house.css?v=bb7c99ec">
+<link rel="stylesheet" href="../../house.css?v=729d5f39">
 <link rel="canonical" href="https://www.wooldridgeboats.com/models/supersportoffshorepilothouse/">
 <link rel="icon" href="/favicon.ico?v=b2a8a002" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png?v=b2a8a002">
@@ -131,33 +131,18 @@
 
   <div class="sechead tight"><div class="eyebrow">Watch</div>
         <h2 style="font-size:clamp(20px,2.6vw,28px);">See it on the water</h2></div>
-        <!-- three videos stacked like the Pybus gallery cards: two across, the third centred below (.vid2.vidstack;
-             Tyler, 2026-10-15). The 29' and 24' videos had no full-size YouTube thumbnail yet (only hqdefault
-             480x360); swap in Tyler's own if he sends them. -->
-        <div class="vid2 vidstack">
-          <figure class="vidsec">
-            <button class="vidfacade" type="button" data-yt="h6p-gE16A9s" data-vtitle="30' Wooldridge Super Sport Offshore Pilothouse" aria-label="Play video: 30' Wooldridge Super Sport Offshore Pilothouse">
-              <img src="https://i.ytimg.com/vi/h6p-gE16A9s/maxresdefault.jpg" alt="30' Wooldridge Super Sport Offshore Pilothouse" loading="lazy" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/h6p-gE16A9s/hqdefault.jpg';">
-              <span class="vidplay" aria-hidden="true"></span>
-            </button>
-            <figcaption>30' Wooldridge Super Sport Offshore Pilothouse<span class="ref">WOOLDRIDGE BOATS ON YOUTUBE</span></figcaption>
-          </figure>
-          <figure class="vidsec">
-            <button class="vidfacade" type="button" data-yt="Z1bT5sTSTZM" data-vtitle="29' Wooldridge Super Sport Offshore Pilothouse" aria-label="Play video: 29' Wooldridge Super Sport Offshore Pilothouse">
-              <img src="https://i.ytimg.com/vi/Z1bT5sTSTZM/hqdefault.jpg" alt="29' Wooldridge Super Sport Offshore Pilothouse" loading="lazy">
-              <span class="vidplay" aria-hidden="true"></span>
-            </button>
-            <figcaption>29' Wooldridge Super Sport Offshore Pilothouse<span class="ref">WOOLDRIDGE BOATS ON YOUTUBE</span></figcaption>
-          </figure>
-          <figure class="vidsec">
-            <button class="vidfacade" type="button" data-yt="h8PE4mrXajQ" data-vtitle="Wooldridge 24' Super Sport Offshore Pilothouse" aria-label="Play video: Wooldridge 24' Super Sport Offshore Pilothouse">
-              <img src="https://i.ytimg.com/vi/h8PE4mrXajQ/hqdefault.jpg" alt="Wooldridge 24' Super Sport Offshore Pilothouse" loading="lazy">
-              <span class="vidplay" aria-hidden="true"></span>
-            </button>
-            <figcaption>24' Wooldridge Super Sport Offshore Pilothouse<span class="ref">WOOLDRIDGE BOATS ON YOUTUBE</span></figcaption>
-          </figure>
-        </div>
-  <div class="sechead tight"><div class="eyebrow">In The Field</div>
+    <!-- Pilothouse Videos: the homepage's Featured Videos strip (.hvidcar, played by assets/history.js);
+         Tyler 2026-10-22: 3+ videos get this strip. TO ADD A VIDEO: copy one <button> line and
+         change the YouTube ID (data-yt + the img URL), the title (data-vtitle + .hpc) and the length. -->
+    <div class="hcar hvidcar" data-label="Pilothouse Videos">
+      <div class="htrack">
+        <button type="button" class="htile vid hv wide" data-yt="h6p-gE16A9s" data-vtitle="30′ Wooldridge Super Sport Offshore Pilothouse"><span class="hpic"><img src="https://i.ytimg.com/vi/h6p-gE16A9s/maxresdefault.jpg" alt="" loading="lazy" decoding="async"><span class="hplay" aria-hidden="true"></span><span class="hdur">15:11</span></span><span class="hpc">30′ Wooldridge Super Sport Offshore Pilothouse</span></button>
+        <button type="button" class="htile vid hv wide" data-yt="Z1bT5sTSTZM" data-vtitle="29′ Wooldridge Super Sport Offshore Pilothouse"><span class="hpic"><img src="https://i.ytimg.com/vi/Z1bT5sTSTZM/hqdefault.jpg" alt="" loading="lazy" decoding="async"><span class="hplay" aria-hidden="true"></span><span class="hdur">31:06</span></span><span class="hpc">29′ Wooldridge Super Sport Offshore Pilothouse</span></button>
+        <button type="button" class="htile vid hv wide" data-yt="h8PE4mrXajQ" data-vtitle="Wooldridge 24′ Super Sport Offshore Pilothouse"><span class="hpic"><img src="https://i.ytimg.com/vi/h8PE4mrXajQ/hqdefault.jpg" alt="" loading="lazy" decoding="async"><span class="hplay" aria-hidden="true"></span><span class="hdur">18:02</span></span><span class="hpc">Wooldridge 24′ Super Sport Offshore Pilothouse</span></button>
+      </div>
+      <div class="hcarui"><button type="button" class="hprev" aria-label="Previous video"></button><span class="hcount"></span><button type="button" class="hnext" aria-label="Next video"></button></div>
+    </div>
+<div class="sechead tight"><div class="eyebrow">In The Field</div>
         <h2 style="font-size:clamp(20px,2.6vw,28px);">Photo gallery</h2>
         <p class="lede">The Super Sport Offshore Pilothouse. Tap any photo to view it full size.</p></div>
         <div class="gallery captioned">
@@ -288,6 +273,7 @@
 <script>window.WB_COVERS={"supersportoffshorepilothouse":{"26":"../../assets/photos/supersportoffshorepilothouse/thumbs/cover-26.jpg","29":"../../assets/photos/supersportoffshorepilothouse/thumbs/cover-29.jpg","31":"../../assets/photos/supersportoffshorepilothouse/thumbs/cover-31.jpg"}};</script>
 <script>window.WB_MOBILE={"supersportoffshorepilothouse":{"26":[{"f":"4084-26-pilothouse-01.jpg","cfg":"Pilothouse","hull":"4084"},{"f":"4084-26-pilothouse-02.jpg","cfg":"Pilothouse","hull":"4084"},{"f":"4084-26-pilothouse-03.jpg","cfg":"Pilothouse","hull":"4084"},{"f":"4084-26-pilothouse-04.jpg","cfg":"Pilothouse","hull":"4084"},{"f":"4084-26-pilothouse-05.jpg","cfg":"Pilothouse","hull":"4084"},{"f":"4084-26-pilothouse-06.jpg","cfg":"Pilothouse","hull":"4084"},{"f":"4084-26-pilothouse-07.jpg","cfg":"Pilothouse","hull":"4084"},{"f":"4084-26-pilothouse-08.jpg","cfg":"Pilothouse","hull":"4084"},{"f":"4084-26-pilothouse-09.jpg","cfg":"Pilothouse","hull":"4084"},{"f":"4084-26-pilothouse-10.jpg","cfg":"Pilothouse","hull":"4084"},{"f":"4084-26-pilothouse-11.jpg","cfg":"Pilothouse","hull":"4084"},{"f":"4084-26-pilothouse-12.jpg","cfg":"Pilothouse","hull":"4084"},{"f":"4084-26-pilothouse-13.jpg","cfg":"Pilothouse","hull":"4084"},{"f":"4084-26-pilothouse-14.jpg","cfg":"Pilothouse","hull":"4084"},{"f":"4084-26-pilothouse-15.jpg","cfg":"Pilothouse","hull":"4084"},{"f":"4084-26-pilothouse-16.jpg","cfg":"Pilothouse","hull":"4084"},{"f":"4084-26-pilothouse-17.jpg","cfg":"Pilothouse","hull":"4084"},{"f":"4084-26-pilothouse-18.jpg","cfg":"Pilothouse","hull":"4084"},{"f":"4084-26-pilothouse-19.jpg","cfg":"Pilothouse","hull":"4084"},{"f":"4084-26-pilothouse-20.jpg","cfg":"Pilothouse","hull":"4084"},{"f":"4084-26-pilothouse-21.jpg","cfg":"Pilothouse","hull":"4084"},{"f":"4084-26-pilothouse-22.jpg","cfg":"Pilothouse","hull":"4084"},{"f":"4084-26-pilothouse-23.jpg","cfg":"Pilothouse","hull":"4084"},{"f":"4084-26-pilothouse-24.jpg","cfg":"Pilothouse","hull":"4084"},{"f":"4084-26-pilothouse-25.jpg","cfg":"Pilothouse","hull":"4084"},{"f":"4084-26-pilothouse-26.jpg","cfg":"Pilothouse","hull":"4084"}],"29":[{"f":"3527-29-pilothouse-01.jpg","cfg":"Pilothouse","hull":"3527"},{"f":"3527-29-pilothouse-02.jpg","cfg":"Pilothouse","hull":"3527"},{"f":"3527-29-pilothouse-03.jpg","cfg":"Pilothouse","hull":"3527"},{"f":"3527-29-pilothouse-04.jpg","cfg":"Pilothouse","hull":"3527"},{"f":"3527-29-pilothouse-05.jpg","cfg":"Pilothouse","hull":"3527"},{"f":"3527-29-pilothouse-06.jpg","cfg":"Pilothouse","hull":"3527"},{"f":"3527-29-pilothouse-07.jpg","cfg":"Pilothouse","hull":"3527"},{"f":"3527-29-pilothouse-08.jpg","cfg":"Pilothouse","hull":"3527"},{"f":"3527-29-pilothouse-09.jpg","cfg":"Pilothouse","hull":"3527"},{"f":"3527-29-pilothouse-10.jpg","cfg":"Pilothouse","hull":"3527"},{"f":"3527-29-pilothouse-11.jpg","cfg":"Pilothouse","hull":"3527"},{"f":"3527-29-pilothouse-12.jpg","cfg":"Pilothouse","hull":"3527"},{"f":"3527-29-pilothouse-13.jpg","cfg":"Pilothouse","hull":"3527"},{"f":"3527-29-pilothouse-14.jpg","cfg":"Pilothouse","hull":"3527"},{"f":"3527-29-pilothouse-15.jpg","cfg":"Pilothouse","hull":"3527"},{"f":"3527-29-pilothouse-16.jpg","cfg":"Pilothouse","hull":"3527"},{"f":"3527-29-pilothouse-17.jpg","cfg":"Pilothouse","hull":"3527"},{"f":"3527-29-pilothouse-18.jpg","cfg":"Pilothouse","hull":"3527"}],"31":[{"f":"4441-31-pilothouse-01.jpg","cfg":"Pilothouse","hull":"4441"},{"f":"4441-31-pilothouse-02.jpg","cfg":"Pilothouse","hull":"4441"},{"f":"4441-31-pilothouse-03.jpg","cfg":"Pilothouse","hull":"4441"},{"f":"4441-31-pilothouse-04.jpg","cfg":"Pilothouse","hull":"4441"},{"f":"4441-31-pilothouse-05.jpg","cfg":"Pilothouse","hull":"4441"},{"f":"4441-31-pilothouse-06.jpg","cfg":"Pilothouse","hull":"4441"},{"f":"4441-31-pilothouse-07.jpg","cfg":"Pilothouse","hull":"4441"},{"f":"4441-31-pilothouse-08.jpg","cfg":"Pilothouse","hull":"4441"},{"f":"4441-31-pilothouse-09.jpg","cfg":"Pilothouse","hull":"4441"},{"f":"4441-31-pilothouse-10.jpg","cfg":"Pilothouse","hull":"4441"},{"f":"4441-31-pilothouse-11.jpg","cfg":"Pilothouse","hull":"4441"},{"f":"4441-31-pilothouse-12.jpg","cfg":"Pilothouse","hull":"4441"},{"f":"4441-31-pilothouse-13.jpg","cfg":"Pilothouse","hull":"4441"},{"f":"4441-31-pilothouse-14.jpg","cfg":"Pilothouse","hull":"4441"},{"f":"4441-31-pilothouse-15.jpg","cfg":"Pilothouse","hull":"4441"},{"f":"4441-31-pilothouse-16.jpg","cfg":"Pilothouse","hull":"4441"},{"f":"4441-31-pilothouse-17.jpg","cfg":"Pilothouse","hull":"4441"},{"f":"4441-31-pilothouse-18.jpg","cfg":"Pilothouse","hull":"4441"},{"f":"4441-31-pilothouse-19.jpg","cfg":"Pilothouse","hull":"4441"},{"f":"4441-31-pilothouse-20.jpg","cfg":"Pilothouse","hull":"4441"},{"f":"4441-31-pilothouse-21.jpg","cfg":"Pilothouse","hull":"4441"},{"f":"4441-31-pilothouse-22.jpg","cfg":"Pilothouse","hull":"4441"},{"f":"4441-31-pilothouse-23.jpg","cfg":"Pilothouse","hull":"4441"}]}};</script>
 <script src="../../assets/photo-data.js?v=7f95cf9d"></script><script src="../../assets/gallery.js?v=c3e2ecbc"></script><script src="../../assets/shop.js?v=14ae84c5"></script><script src="../../assets/modelpage.js?v=bcf2247d"></script>
+<script defer src="/assets/history.js?v=beb0cfd7"></script>
 <script src="/assets/pagenav.js?v=aad8e690" defer></script>
 </body>
 </html>
