@@ -3081,7 +3081,7 @@ body.hlb-open{ overflow:hidden; }
 }
 .hvidcar .hplay::after{ left:50%; top:50%; transform:translate(-40%,-50%); border-width:9px 0 9px 15px; }
 .hvidcar .htile:hover .hplay{ background:var(--blue); transform:none; }
-.hvidcar .hpc{ height:auto; min-height:2.8em; margin-top:9px; padding:0 2px; text-align:left; color:var(--body); font-size:13.5px; }
+.hvidcar .hpc{ height:auto; min-height:2.8em; margin-top:9px; padding:0 2px; text-align:center; /* centred under the thumbnail (Tyler, 2026-10-22) */ color:var(--body); font-size:13.5px; }
 .hdur{
   position:absolute; right:8px; bottom:8px; padding:2px 7px; border-radius:4px;
   background:rgba(10,15,20,.85); color:#fff; font-weight:600; font-size:11px; letter-spacing:.02em;
