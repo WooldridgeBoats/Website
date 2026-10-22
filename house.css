@@ -2968,7 +2968,7 @@ body.hlb-open{ overflow:hidden; }
 /* phones + small tablets: title stays on the photo, the first line drops under it */
 @media (max-width:900px){
   .hhero-in{ display:contents; }
-  .hhero-media{ height:auto; aspect-ratio:4/5; max-height:76svh; }
+  .hhero-media{ width:100%; height:auto; aspect-ratio:4/5; max-height:76svh; } /* width:100% so the height cap trims the photo instead of shrinking the box to one side (Tyler, 2026-10-22) */
   .hhero-media img{ object-position:57% 0; }
   .hhero h1{ grid-area:1/1; align-self:start; position:relative; z-index:1; padding:30px 18px 0; font-size:clamp(28px,7.6vw,46px); }
   .hhero-lead{

@@ -180,6 +180,7 @@ perl _build/stamp_assets.pl               # REQUIRED after any house.css / histo
 - 2026-008 caption: "…in **his** 20-foot Alaskan XLT" (whose?). 2026-009 is a 2022 photo in the 2026 folder.
 - ~27 originals are small scans (short side under 600px); their tiles can look a little soft. Only bigger
   scans fix that (`--captions` run lists them as "low-res originals").
+- Phones (≤900px): the hero box is `width:100%` + 4:5 + `max-height:76svh`. Without the width it shrank to one side on short screens (fixed 2026-10-22).
 - Hero file is 1200px wide; a re-export at 2400px+ would be sharper on big screens.
 - The other photos in `GENERAL HISTORICAL-UNKOWN DATES` (1914 Grants Pass, bar blasting, Truman Bradley…)
   aren't on the page yet.
