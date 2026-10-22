@@ -31,9 +31,9 @@ Repo `~/Desktop/LOCAL-WEBSITE` (dev.wooldridgeboats.com). I commit; Tyler pushes
 5. **Stephen (Tingis Pingis):** blurb rewrite DONE + live (4d2fef54). SSD OB brochure stays OFF the website
    (stays in SALES TOOLS). Tyler is answering the Build Hub "25 THINGS THAT NEED YOU" form himself.
 
-6. **SSD IB rebuild pending (2026-10-21):** master 23′ desktop renumbered 01–20 and 23′ phone 01–17 (gaps/dup
+6. **SSD IB / XL / XL IB rebuilt 2026-10-21 (numbers in sequence):** master 23′ desktop renumbered 01–20 and 23′ phone 01–17 (gaps/dup
    closed), 21′ phone names got `-MOBILE`, cover typos fixed (XL, XLT, SSD IB). Same renames done on Grizzly
-   (`/Volumes/GRIZZLY/PHOTOS-BOAT MODEL-MASTER/<MODEL>/<MODEL>-WEB/`; FULL RES left as is). Re-run
+   (`/Volumes/GRIZZLY/PHOTOS-BOAT MODEL-MASTER/<MODEL>/<MODEL>-WEB/`; FULL RES left as is). Done.
    `apply_model_photos.sh supersportdrifterinboard` when Tyler says so. Alaskan LT phone commit 61c02c1f awaiting push.
 
 ## Rules picked up this session (also in memory / CLAUDE.md)
