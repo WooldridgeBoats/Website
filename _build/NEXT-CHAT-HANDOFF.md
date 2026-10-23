@@ -24,9 +24,9 @@ Repo `~/Desktop/LOCAL-WEBSITE` (dev.wooldridgeboats.com). I commit; Tyler pushes
 3. **Any menu change:** also regenerate + push the store header (`gen_header.py`, `themeFilesUpsert`),
    Tyler's OK each time (auto mode blocks it as a production deploy). Store menu must ALWAYS match.
 
-4. **Phone galleries still to make (as of 2026-10-20 end of day):** (Alaskan, LT, XL, XL IB DONE 10-21),
-   (Rogue HDPE + Skagit DONE 10-22, Sport + Sportster full rebuilds DONE 10-23; Sportster 20′ gallery dropped, no 20′ model),
-   SSD 23; custom: Pybus 33′ DONE 10-22.  Build via Model Ready (check first).
+4. **Phone galleries: ALL DONE (2026-10-23).** Every main model + custom build has a phone set (SSD was last).
+   Sport, Sportster, Rogue got full desktop+phone rebuilds; Sportster has no 20′ (gallery removed).
+   New sets or swaps: Model Ready as usual (check first).
 5. **Stephen (Tingis Pingis):** blurb rewrite DONE + live (4d2fef54). SSD OB brochure stays OFF the website
    (stays in SALES TOOLS). Tyler is answering the Build Hub "25 THINGS THAT NEED YOU" form himself.
 
