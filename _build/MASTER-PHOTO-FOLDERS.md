@@ -30,7 +30,7 @@ Command: `[PHOTOSLUG=x] _build/apply_model_photos.sh <slug> "<Name>" "<MASTER>/B
 Check first: `_build/check_model_photos.sh "<same folder>"`. Use `NOCFG=1` on both when the file names
 carry no trim (see BOAT-MODEL-IMAGE-UPDATES-HANDOFF.md).
 
-| Folder | Page `models/<slug>/` | Name | Lengths (phone folders on 10-20) |
+| Folder | Page `models/<slug>/` | Name | Lengths (every length has a `-MOBILE` phone folder since 2026-10-23) |
 |---|---|---|---|
 | `ALASKAN-LT-WEB` | `alaskan-lt` | Alaskan LT | 16, 18, 20 (subfolders are named `16-AK LT-WEB` etc., the only ones with `-WEB` on the length folder) |
 | `ALASKAN-WEB` | `alaskan` | Alaskan | 18, 20 |
@@ -46,7 +46,7 @@ carry no trim (see BOAT-MODEL-IMAGE-UPDATES-HANDOFF.md).
 | `SPORT-WEB` | `sport` | Sport | 18, 20 |
 | `SPORT IB-WEB` | `sportinboard` | Sport Inboard | 20 (phone set) |
 | `SPORT OFF-WEB` | `sportoffshore` | Sport Offshore | 20, 21 (phone sets) |
-| `SPORTSTER-WEB` | `sportster` | Sportster | 20, 21, 23, 25; also 2 `VIDEO-THUMB-21-…` files |
+| `SPORTSTER-WEB` | `sportster` | Sportster | 21, 23, 25 (no 20′ model; gallery removed 2026-10-23) |
 | `SSD-WEB` | `supersportdrifter` | Super Sport Drifter | 23 |
 | `SSD IB-WEB` | `supersportdrifterinboard` | Super Sport Drifter Inboard | 21, 23, 24, 25 (phone sets) |
 | `SSOFF-WEB` | `super-sport-offshore` | Super Sport Offshore | 20, 21 (phone sets) |
@@ -59,9 +59,9 @@ carry no trim (see BOAT-MODEL-IMAGE-UPDATES-HANDOFF.md).
 | `CANYON-WEB` | `models/canyon/` | `NOCFG=1 apply_model_photos.sh canyon "Canyon" …` |
 | `DEEPWATER-WEB` | `models/deepwater/` | `BYCFG=1 apply_model_photos.sh deepwater "Deepwater" …` |
 | `LANDING CRAFT-WEB` | `models/landing-craft/` | `apply_model_photos.sh landing-craft "Landing Craft" …` (hand-written hero slider) |
-| `PYBUS-WEB` | `models/pybus-offshore/` | `apply_model_photos.sh pybus-offshore "Pybus Point Lodge" …` (33′ phone set still to come) |
+| `PYBUS-WEB` | `models/pybus-offshore/` | `apply_model_photos.sh pybus-offshore "Pybus Point Lodge" …` |
 | `RIVER RAT-WEB` | `models/riverrat-diy-kit/` | `_build/build_riverrat.sh`. Default path already points here |
-| `SSO PILOTHOUSE-WEB` | `models/supersportoffshorepilothouse/` | `apply_model_photos.sh supersportoffshorepilothouse "Super Sport Offshore" …` (29′ phone + 31′ to come) |
+| `SSO PILOTHOUSE-WEB` | `models/supersportoffshorepilothouse/` | `apply_model_photos.sh supersportoffshorepilothouse "Super Sport Offshore" …` |
 | `SSOFF-ANGLER-WEB` | `models/angler/` | `apply_model_photos.sh angler "Super Sport Offshore" …` (a 24-footer, hull 4660) |
 
 ## Rules
