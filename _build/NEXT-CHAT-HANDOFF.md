@@ -25,7 +25,7 @@ Repo `~/Desktop/LOCAL-WEBSITE` (dev.wooldridgeboats.com). I commit; Tyler pushes
    Tyler's OK each time (auto mode blocks it as a production deploy). Store menu must ALWAYS match.
 
 4. **Phone galleries still to make (as of 2026-10-20 end of day):** (Alaskan, LT, XL, XL IB DONE 10-21),
-   (Rogue HDPE DONE 10-22, full desktop+phone rebuild), Skagit 18/20, Sport 18/20, Sportster 20/21/23/25,
+   (Rogue HDPE + Skagit DONE 10-22), Sport 18/20, Sportster 20/21/23/25,
    SSD 23; custom: Pybus 33′ DONE 10-22. Sportster `20-SPORTSTER` folder is odd
    (lineup sells 21/23/25): ask Tyler. Build via Model Ready (check first).
 5. **Stephen (Tingis Pingis):** blurb rewrite DONE + live (4d2fef54). SSD OB brochure stays OFF the website
