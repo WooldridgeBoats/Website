@@ -268,6 +268,8 @@ RR.Engine = {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         // Phone controls feed their virtual keys in before anything reads them.
         if (RR.Touch) RR.Touch.update(dt);
+        // The speaker button eats its own click before any scene can.
+        if (RR.SoundButton) RR.SoundButton.update();
 
         var ov = this.overlay;
         if (ov) {
@@ -295,6 +297,7 @@ RR.Engine = {
             if (this.overlay && this.overlay.render) this.overlay.render(this.ctx);
         }
 
+        if (RR.SoundButton) RR.SoundButton.render(this.ctx);
         this.renderTransition(dt);
     },
 
@@ -307,5 +310,56 @@ RR.Engine = {
         this.ctx.fillStyle = RR.Config.WB_DEEP;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.restore();
+    }
+};
+
+// ---------------------------------------------------------------------------
+// SOUND BUTTON (Tyler, 2026-10-26: "a clickable speaker icon would be
+// helpful"). A speaker in the top-right corner of every screen; click or tap
+// it to switch sound on or off -- the same toggle as M. Waves when on, a
+// slash when muted. On the river it drops below the SPEED readout (and below
+// the phone PAUSE button, when that's showing).
+// ---------------------------------------------------------------------------
+RR.SoundButton = {
+    R: 26,
+    pos: function () {
+        var river = RR.Engine.scene === RR.RiverScene;
+        if (!river) return { x: 1236, y: 44 };
+        return { x: 1224, y: (RR.Touch && RR.Touch.active) ? 200 : 124 };
+    },
+    hit: function (x, y) {
+        var p = this.pos(), dx = x - p.x, dy = y - p.y;
+        return dx * dx + dy * dy <= (this.R + 10) * (this.R + 10);
+    },
+    update: function () {
+        var I = RR.Input;
+        if (I.clicked && this.hit(I.mouseX, I.mouseY)) {
+            I.clicked = false;
+            RR.Audio.toggleMute();
+        }
+    },
+    render: function (ctx) {
+        if (RR.Engine.scene === RR.NameEntryScene) return;   // its own buttons sit there
+        var p = this.pos(), r = this.R, on = !RR.Audio.muted;
+        var hover = RR.Input.inside && this.hit(RR.Input.mouseX, RR.Input.mouseY);
+        ctx.save();
+        ctx.fillStyle = hover ? 'rgba(27,117,187,0.85)' : 'rgba(8,14,20,0.55)';
+        ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = 'rgba(223,227,230,0.6)'; ctx.lineWidth = 2; ctx.stroke();
+        // speaker body
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.moveTo(p.x - 13, p.y - 5); ctx.lineTo(p.x - 7, p.y - 5); ctx.lineTo(p.x + 1, p.y - 12);
+        ctx.lineTo(p.x + 1, p.y + 12); ctx.lineTo(p.x - 7, p.y + 5); ctx.lineTo(p.x - 13, p.y + 5);
+        ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.4; ctx.lineCap = 'round';
+        if (on) {
+            ctx.beginPath(); ctx.arc(p.x + 3, p.y, 6, -0.8, 0.8); ctx.stroke();
+            ctx.beginPath(); ctx.arc(p.x + 3, p.y, 11, -0.85, 0.85); ctx.stroke();
+        } else {
+            ctx.beginPath(); ctx.moveTo(p.x + 6, p.y - 6); ctx.lineTo(p.x + 14, p.y + 6); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(p.x + 14, p.y - 6); ctx.lineTo(p.x + 6, p.y + 6); ctx.stroke();
+        }
+        ctx.restore();
     }
 };

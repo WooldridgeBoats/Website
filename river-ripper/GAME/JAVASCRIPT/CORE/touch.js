@@ -99,6 +99,7 @@ RR.Touch = {
 
             if (this._riverLive()) {
                 if (this._hit(p, this.PAUSE)) { RR.Input.latch.Escape = true; continue; }
+                if (RR.SoundButton && RR.SoundButton.hit(p.x, p.y)) { RR.Audio.toggleMute(); continue; }
                 if (this._hit(p, this.JUMP)) { RR.Input.latch.Space = true; this._jumpId = t.identifier; continue; }
                 if (this._hit(p, this.BRAKE)) { this.brake = true; this._brakeId = t.identifier; continue; }
                 if (p.x < 760 && this._steerId === null) {
