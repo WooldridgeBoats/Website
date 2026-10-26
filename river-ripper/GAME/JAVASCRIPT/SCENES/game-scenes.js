@@ -857,7 +857,9 @@ RR.RiverScene = {
 
         this.drawSalmonBonus(ctx, W, H);
         this.drawShortcutBonus(ctx, W, H);
-        this.drawMiniMap(ctx, W, H, boat);
+        // On a phone the bottom-right corner belongs to the JUMP button.
+        if (!(RR.Touch && RR.Touch.active)) this.drawMiniMap(ctx, W, H, boat);
+        if (RR.Touch) RR.Touch.drawHUD(ctx);
 
         if (boat.jumpCooldown > 0) {
             var cdPct = boat.jumpCooldown / C.JUMP_COOLDOWN;
@@ -1371,12 +1373,26 @@ RR.PauseScene = {
         if (RR.Input.justPressed('KeyM')) {
             RR.Audio.toggleMute();
         }
+        // Phones: tap QUIT, the sound line, or anywhere else to resume.
+        if (RR.Input.clicked) {
+            RR.Input.clicked = false;
+            var y = RR.Input.mouseY, H = RR.Config.CANVAS_HEIGHT;
+            if (Math.abs(y - H * 0.55) < 22) {
+                RR.Engine.popOverlay();
+                RR.Engine.changeScene(RR.MenuScene);
+            } else if (Math.abs(y - H * 0.62) < 22) {
+                RR.Audio.toggleMute();
+            } else {
+                RR.Engine.popOverlay();
+            }
+        }
     },
 
     render: function (ctx) {
         var W = RR.Config.CANVAS_WIDTH;
         var H = RR.Config.CANVAS_HEIGHT;
         var C = RR.Config;
+        var touch = RR.Touch && RR.Touch.active;
 
         ctx.fillStyle = 'rgba(0,0,0,0.75)';
         ctx.fillRect(0, 0, W, H);
@@ -1390,9 +1406,9 @@ RR.PauseScene = {
         ctx.restore();
         RR.UI.headline(ctx, 'PAUSED', W / 2, H * 0.32, 46, C.WB_WHITE, C.WB_BLUE);
 
-        RR.UI.label(ctx, 'ESC / ENTER — RESUME', W / 2, H * 0.48, 16, 'rgba(223,227,230,0.85)', 500);
-        RR.UI.label(ctx, 'Q — QUIT TO MENU', W / 2, H * 0.55, 16, 'rgba(223,227,230,0.62)', 500);
-        RR.UI.label(ctx, 'M — TOGGLE SOUND (' + (RR.Audio.muted ? 'OFF' : 'ON') + ')', W / 2, H * 0.62, 16, 'rgba(223,227,230,0.62)', 500);
+        RR.UI.label(ctx, touch ? 'TAP TO RESUME' : 'ESC / ENTER — RESUME', W / 2, H * 0.48, 16, 'rgba(223,227,230,0.85)', 500);
+        RR.UI.label(ctx, touch ? 'QUIT TO MENU' : 'Q — QUIT TO MENU', W / 2, H * 0.55, 16, 'rgba(223,227,230,0.62)', 500);
+        RR.UI.label(ctx, (touch ? 'SOUND ' : 'M — TOGGLE SOUND (') + (RR.Audio.muted ? 'OFF' : 'ON') + (touch ? '' : ')'), W / 2, H * 0.62, 16, 'rgba(223,227,230,0.62)', 500);
     }
 };
 

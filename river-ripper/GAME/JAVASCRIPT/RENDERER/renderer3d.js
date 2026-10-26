@@ -91,9 +91,13 @@ RR.Renderer3D = {
             document.body.insertBefore(this.canvas3d, document.body.firstChild);
         }
 
+        // RR.Config.LITE: phones and tablets (set by CORE/touch.js before this
+        // runs). No antialiasing, no shadows, pixel ratio 1, fewer and simpler
+        // trees -- smooth frame rate and less battery on a phone GPU.
+        var LITE = !!RR.Config.LITE;
         this.renderer = new THREE.WebGLRenderer({
             canvas: this.canvas3d,
-            antialias: true,
+            antialias: !LITE,
             alpha: false
         });
         // updateStyle=false: without it Three.js writes inline width/height
@@ -102,7 +106,7 @@ RR.Renderer3D = {
         // below every menu and overlay.
         this.renderer.setSize(RR.Config.CANVAS_WIDTH, RR.Config.CANVAS_HEIGHT, false);
         // Sharper 3D on modern displays without doubling the GPU cost.
-        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+        this.renderer.setPixelRatio(LITE ? 1 : Math.min(window.devicePixelRatio || 1, 1.5));
         // ---- SHADOWS ------------------------------------------------------
         // There were NONE in this renderer -- castShadow, receiveShadow and
         // shadowMap did not appear once in 3,954 lines. A Godot spike on
@@ -116,7 +120,7 @@ RR.Renderer3D = {
         //
         // index.html?shadows=0 turns them off, for an honest A/B and as an
         // escape hatch on slower hardware.
-        RR.Config.SHADOWS = true;
+        RR.Config.SHADOWS = !LITE;
         try {
             if (/[?&]shadows=0\b/.test(window.location.search)) RR.Config.SHADOWS = false;
         } catch (e) {}
@@ -2504,7 +2508,7 @@ RR.Renderer3D = {
             for (var row = 0; row < rows; row++) {
                 var spread = this.BANK_WIDTH * 0.2 + row * this.TREE_SPREAD * 0.25 + Math.random() * 6;
                 // Big crowns overlap, so far fewer trees make the same wall.
-                var pChance = Math.min(0.6, 0.36 * Math.min(1.35, density));
+                var pChance = Math.min(0.6, 0.36 * Math.min(1.35, density)) * (RR.Config.LITE ? 0.55 : 1);
                 if (Math.random() < pChance) plant(i, p, n, 0, spread, narrow, row);
                 if (Math.random() < pChance) plant(i, p, n, 1, spread, narrow, row);
             }
@@ -2638,7 +2642,7 @@ RR.Renderer3D = {
             }
             geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
         }
-        var blobGeo = new THREE.SphereGeometry(1, 12, 9);
+        var blobGeo = RR.Config.LITE ? new THREE.SphereGeometry(1, 8, 6) : new THREE.SphereGeometry(1, 12, 9);
         (function () {
             var pos = blobGeo.attributes.position;
             for (var v = 0; v < pos.count; v++) {

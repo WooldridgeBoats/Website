@@ -82,7 +82,11 @@ page = """<!DOCTYPE html>
   .rr-help b { color: #fff; font-weight: 700; }
   .rr-touch { display: none; color: #F2C14E; text-align: center; font: 600 14px Inter, -apple-system, Segoe UI, Arial, sans-serif;
               margin: 0 0 12px; }
-  @media (hover: none) and (pointer: coarse) { .rr-touch { display: block; } }
+  .rr-touchhelp { display: none; }
+  @media (hover: none) and (pointer: coarse) {
+    .rr-touch, .rr-touchhelp { display: block; }
+    .rr-keyhelp { display: none; }
+  }
   /* See-through OUR BOATS dropdown on this page only (Tyler, 2026-10-26):
      the game stays visible behind it, softened by a blur so the boat names
      still read. Every other page keeps the solid white panel. */
@@ -97,12 +101,13 @@ page = """<!DOCTYPE html>
 <!-- PARTIAL:header -->
 <!-- /PARTIAL:header -->
 <main class="rr-stage">
-  <p class="rr-touch">River Ripper is played with a keyboard &mdash; try it on a computer.</p>
+  <p class="rr-touch">Tap the game to play &mdash; turn your phone sideways.</p>
   <div class="rr-frame">
     <canvas id="glCanvas" width="1280" height="720"></canvas>
     <canvas id="gameCanvas" width="1280" height="720"></canvas>
   </div>
-  <p class="rr-help"><b>ENTER</b> start &nbsp;·&nbsp; <b>W / &uarr;</b> throttle &nbsp;·&nbsp; <b>A D / &larr; &rarr;</b> steer &nbsp;·&nbsp; <b>SPACE</b> jump &nbsp;·&nbsp; <b>ESC</b> pause &nbsp;·&nbsp; <b>M</b> sound</p>
+  <p class="rr-help rr-touchhelp"><b>LEFT THUMB</b> slide to steer &nbsp;·&nbsp; <b>JUMP</b> &amp; <b>BRAKE</b> right thumb &nbsp;·&nbsp; the throttle runs itself</p>
+  <p class="rr-help rr-keyhelp"><b>ENTER</b> start &nbsp;·&nbsp; <b>&uarr;</b> throttle &nbsp;·&nbsp; <b>&larr; &rarr;</b> steer &nbsp;·&nbsp; <b>&darr;</b> brake &nbsp;·&nbsp; <b>SPACE</b> jump &nbsp;·&nbsp; <b>ESC</b> pause &nbsp;·&nbsp; <b>M</b> sound &nbsp;·&nbsp; <span style="opacity:.7">W A S D work too</span></p>
 </main>
 <script>
   (function () {

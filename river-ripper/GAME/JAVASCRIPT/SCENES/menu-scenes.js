@@ -273,7 +273,7 @@ RR.TitleScene = {
 
         var flashAlpha = (Math.sin(t * 3) + 1) * 0.5;
         ctx.globalAlpha = 0.55 + flashAlpha * 0.45;
-        UI.label(ctx, 'PRESS ENTER TO START', W / 2, H * 0.78, 19, C.WB_WHITE, 600);
+        UI.label(ctx, (RR.Touch && RR.Touch.phoneClass()) ? 'TAP TO START' : 'PRESS ENTER TO START', W / 2, H * 0.78, 19, C.WB_WHITE, 600);
         ctx.globalAlpha = 1;
 
         UI.label(ctx, 'SIX REAL WOOLDRIDGE MODELS · HOME WATER + ' +
@@ -537,7 +537,7 @@ RR.MenuScene = {
         var selectedRiver = RR.RiverLevels.getSelected();
         UI.label(ctx, 'SELECTED · ' + selectedBoat.model + ' ' + selectedBoat.variant, W / 2, H * 0.77, 13, C.WB_BLUE, 600);
         UI.label(ctx, 'START ON ' + selectedRiver.name + ' · ' + RR.RiverLevels.profiles.length + ' DISTINCT RIVERS', W / 2, H * 0.805, 11, 'rgba(223,227,230,0.50)', 600);
-        UI.label(ctx, 'A / D CHANGES RIVER OR DIFFICULTY WHEN HIGHLIGHTED', W / 2, H * 0.84, 10, 'rgba(223,227,230,0.32)', 500);
+        UI.label(ctx, '← → CHANGES RIVER OR DIFFICULTY WHEN HIGHLIGHTED', W / 2, H * 0.84, 10, 'rgba(223,227,230,0.32)', 500);
         UI.label(ctx, '[M] TOGGLE SOUND · ' + (RR.Audio.muted ? 'OFF' : 'ON'), W / 2, H * 0.875, 12, 'rgba(223,227,230,0.38)', 500);
 
         RR.Scoring.loadHighScore();
@@ -843,7 +843,7 @@ RR.RiverSelectScene = {
             ctx.restore();
         }
         UI.label(ctx, 'PLAY  ·  ENTER', W / 2, z.play.y + z.play.h / 2, 18, C.WB_WHITE, 700);
-        UI.label(ctx, 'A / D OR ← / → TO CHOOSE · ESC TO CHANGE BOAT',
+        UI.label(ctx, '← → TO CHOOSE · ESC TO CHANGE BOAT',
             W / 2, H * 0.91, 11, 'rgba(223,227,230,0.46)', 500);
     }
 };
@@ -878,6 +878,26 @@ RR.NameEntryScene = {
     },
 
     enter: function () { this.time = 0; },
+
+    // PHONES (CORE/touch.js calls this from inside the tap, which is the only
+    // moment an iPhone lets a page open its keyboard). Tapping a name box
+    // opens the keyboard on that field; the on-screen buttons stand in for
+    // ENTER and ESC. Returns true when it used the tap.
+    touchTap: function (x, y) {
+        var W = RR.Config.CANVAS_WIDTH, H = RR.Config.CANVAS_HEIGHT;
+        var fw = W * 0.34, fx = W / 2 - fw / 2;
+        var by = H * 0.80;
+        if (y > by - 28 && y < by + 28) {
+            if (x > W / 2 + 20 && x < W / 2 + 240) { RR.Input.latch.Enter = true; RR.Touch.openKeyboard(); return true; }
+            if (x > W / 2 - 240 && x < W / 2 - 20) { RR.Input.latch.Escape = true; return true; }
+        }
+        if (x > fx && x < fx + fw) {
+            if (Math.abs(y - H * 0.42) < 30) { this.field = 0; }
+            else if (Math.abs(y - H * 0.62) < 30 && RR.Scores.cleanName(this.first)) { this.field = 1; }
+        }
+        RR.Touch.openKeyboard();
+        return true;
+    },
 
     finish: function (save) {
         if (save && RR.Scores.cleanName(this.first)) {
@@ -971,11 +991,26 @@ RR.NameEntryScene = {
         UI.label(ctx, this.initial + (this.field === 1 && caret ? '_' : ''),
             W / 2, iy, 26, C.WB_WHITE, 600);
 
-        UI.label(ctx, this.field === 0 ? 'TYPE YOUR FIRST NAME · ENTER TO CONTINUE'
-                                       : 'TYPE YOUR LAST NAME · ENTER TO SAVE',
-            W / 2, H * 0.79, 13, C.WB_WHITE, 600);
-        UI.label(ctx, 'ESC — SKIP AND CARRY ON WITHOUT SAVING', W / 2, H * 0.845, 12,
-            'rgba(223,227,230,0.45)', 500);
+        if (RR.Touch && RR.Touch.active) {
+            // Phone: tap a box to type; buttons for NEXT/SAVE and SKIP.
+            var by = H * 0.80;
+            var tbtn = function (cx, label, primary) {
+                ctx.fillStyle = primary ? 'rgba(27,117,187,0.9)' : 'rgba(223,227,230,0.08)';
+                UI.pill(ctx, cx - 110, by - 26, 220, 52, 6); ctx.fill();
+                ctx.strokeStyle = primary ? C.WB_BLUE : 'rgba(223,227,230,0.25)'; ctx.lineWidth = 2;
+                UI.pill(ctx, cx - 110, by - 26, 220, 52, 6); ctx.stroke();
+                UI.label(ctx, label, cx, by, 16, C.WB_WHITE, 700);
+            };
+            tbtn(W / 2 - 130, 'SKIP', false);
+            tbtn(W / 2 + 130, this.field === 0 ? 'NEXT \u203A' : 'SAVE', true);
+            UI.label(ctx, 'TAP A BOX TO TYPE', W / 2, H * 0.30, 12, 'rgba(223,227,230,0.55)', 600);
+        } else {
+            UI.label(ctx, this.field === 0 ? 'TYPE YOUR FIRST NAME · ENTER TO CONTINUE'
+                                           : 'TYPE YOUR LAST NAME · ENTER TO SAVE',
+                W / 2, H * 0.79, 13, C.WB_WHITE, 600);
+            UI.label(ctx, 'ESC — SKIP AND CARRY ON WITHOUT SAVING', W / 2, H * 0.845, 12,
+                'rgba(223,227,230,0.45)', 500);
+        }
     }
 };
 
@@ -1086,14 +1121,24 @@ RR.HowToPlayScene = {
 
         UI.headline(ctx, 'HOW TO PLAY', W / 2, H * 0.10, 38, C.WB_WHITE, C.WB_BLUE);
 
-        var controls = [
-            ['A / D', 'Aim the bow into the turn'],
-            ['← / →', 'Shape the stern and course — combine with A / D for a clean carve'],
-            ['W   (↑)', 'Throttle up — more thrust gives you more steering authority'],
-            ['S   (↓)', 'Slow down / brake'],
-            ['SPACE', 'Jump over obstacles'],
+        // ARROWS FIRST (Tyler, 2026-10-26: easier for most people). W A S D
+        // are exact aliases -- same keys in boat.js -- so they're listed as
+        // the alternative. Phones get their own list.
+        var touch = RR.Touch && RR.Touch.active;
+        var controls = touch ? [
+            ['LEFT THUMB', 'Touch the left side and slide — the boat steers where you slide'],
+            ['THROTTLE', 'Runs by itself — you just steer'],
+            ['BRAKE', 'Hold to slow down'],
+            ['JUMP', 'Jump logs and rocks'],
+            ['II', 'Pause the game'],
+            ['✕', 'Leave full screen and go back to the website']
+        ] : [
+            ['↑   (or W)', 'Throttle — more speed gives you more steering'],
+            ['← →   (or A D)', 'Steer the boat'],
+            ['↓   (or S)', 'Slow down / brake'],
+            ['SPACE', 'Jump logs and rocks'],
             ['ESC', 'Pause the game'],
-            ['M', 'Toggle sound on/off']
+            ['M', 'Sound on / off']
         ];
 
         var startY = H * 0.21;
@@ -1122,11 +1167,11 @@ RR.HowToPlayScene = {
             'Your selected ' + chosen.model + ' carries its own power, mass, beam and steering response.',
             difficulty.label + ': ' + difficulty.description,
             'Read the water — darker is deeper, lighter is shallow danger.',
-            'Aim the bow with A / D, shape the stern with ← / →, and hold W to carve across the current.',
+            'Hold ↑ and steer with ← → — the boat goes where the bow points.',
             'The wake follows the boat’s real path. A little hull angle in a hard turn is normal planing skid.',
-            'The current now forms moving eddies. Aim upstream before the push arrives.',
+            'The current sets you toward the outside of a bend and splits around islands — steer early.',
             'Larger boats carry momentum but lose bank room and rotate more slowly.',
-            'Jump logs with SPACE but watch the cooldown timer.',
+            'Jump logs with SPACE (or the JUMP button) but watch the cooldown timer.',
             'Shallow water slows you down. Stay too long and you ground out.',
             'Salmon are harmless. Bears are not—leave room beside an occupied bank.'
         ];

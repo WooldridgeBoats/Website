@@ -131,6 +131,8 @@ RR.Boat = {
         var steerInput = 0;
         if (Input.isDown('KeyA') || Input.isDown('ArrowLeft')) steerInput -= 1;
         if (Input.isDown('KeyD') || Input.isDown('ArrowRight')) steerInput += 1;
+        // Phone stick (CORE/touch.js): analog, -1..1, same single bow axis.
+        if (RR.Touch && RR.Touch.steering) steerInput = RR.Touch.steer;
 
         // A jet boat needs thrust to point. A little authority remains at idle,
         // but the usable angle grows with speed.

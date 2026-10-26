@@ -266,6 +266,8 @@ RR.Engine = {
 
     step: function (dt) {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        // Phone controls feed their virtual keys in before anything reads them.
+        if (RR.Touch) RR.Touch.update(dt);
 
         var ov = this.overlay;
         if (ov) {
