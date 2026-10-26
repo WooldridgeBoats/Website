@@ -3466,6 +3466,61 @@ RR.Renderer3D = {
         var mat = new THREE.MeshStandardMaterial({
             vertexColors: true, roughness: 0.42, metalness: 0.28, side: THREE.DoubleSide
         });
+
+        // THE LOGO IS PAINTED INTO THE HULL (2026-10-26). It used to be a flat
+        // decal quad stood off the widest point of the hull; on a curved,
+        // flared CAD skin most of it hung in the air -- Tyler: "it looked like
+        // a logo next to the boat ... painted on the side please." Now the
+        // hull's own shader paints it: any fragment of OUTWARD-facing skin
+        // whose boat-local (z, y) falls inside the logo rectangle takes the
+        // logo's colour, so it follows every curve like the paint does. Inner
+        // faces point inboard and never get it, so it can't show through.
+        // The rectangle is ~21% of the hull length on the aft quarter (Tyler's
+        // measured 19-27%), hung just under the sheer.
+        var dec = this._decals && this._decals.white;
+        if (dec && dec.port) {
+            var dW = 2.1, dH = dW / dec.arPort;
+            var za = -4.6, zf = za + dW;
+            var shA = (sheer[Math.min(nb - 1, Math.floor(((za + 5) / u) / BIN))] - mn[2]) * u;
+            var y1 = shA - 0.2, y0d = y1 - dH;
+            var logoU = {
+                uLogo: { value: dec.port },
+                uLogoRect: { value: new THREE.Vector4(za, zf, y0d, y1) }
+            };
+            mat.onBeforeCompile = function (sh) {
+                sh.uniforms.uLogo = logoU.uLogo;
+                sh.uniforms.uLogoRect = logoU.uLogoRect;
+                sh.vertexShader = sh.vertexShader
+                    .replace('#include <common>',
+                        '#include <common>\nvarying vec3 vLogoPos;\nvarying vec3 vLogoNrm;')
+                    .replace('#include <begin_vertex>',
+                        '#include <begin_vertex>\nvLogoPos = position;\nvLogoNrm = normal;');
+                sh.fragmentShader = sh.fragmentShader
+                    .replace('#include <common>',
+                        '#include <common>\nuniform sampler2D uLogo;\nuniform vec4 uLogoRect;\n' +
+                        'varying vec3 vLogoPos;\nvarying vec3 vLogoNrm;')
+                    .replace('#include <color_fragment>', [
+                        '#include <color_fragment>',
+                        '{',
+                        '  float lgSide = vLogoPos.x >= 0.0 ? 1.0 : -1.0;',
+                        '  vec3 lgN = normalize(vLogoNrm);',
+                        '  if (lgN.x * lgSide > 0.3) {',
+                        // u = 0 at the viewer's left on both sides: from +x the
+                        // bow (+z) is on the left, from -x it is on the right.
+                        '    float lgU = (vLogoPos.z - uLogoRect.x) / (uLogoRect.y - uLogoRect.x);',
+                        '    if (lgSide > 0.0) lgU = 1.0 - lgU;',
+                        '    float lgV = (vLogoPos.y - uLogoRect.z) / (uLogoRect.w - uLogoRect.z);',
+                        '    if (lgU > 0.0 && lgU < 1.0 && lgV > 0.0 && lgV < 1.0) {',
+                        '      vec4 lg = texture2D(uLogo, vec2(lgU, lgV));',
+                        '      diffuseColor.rgb = mix(diffuseColor.rgb, lg.rgb, lg.a);',
+                        '    }',
+                        '  }',
+                        '}'
+                    ].join('\n'));
+            };
+            mat.customProgramCacheKey = function () { return 'cadLogo'; };
+        }
+
         var grp = new THREE.Group();
         grp.name = 'cad:' + model.id;
         grp.add(new THREE.Mesh(geo, mat));
@@ -3477,39 +3532,6 @@ RR.Renderer3D = {
         var bs = model.beamScale || 1, hs = model.heightScale || 1, ls = model.lengthScale || 1;
         grp.scale.set(ls / bs, ls / hs, 1);
 
-        // Logo on the aft quarter of the CAD skin, white lockup.
-        var dec = this._decals && this._decals.white;
-        if (dec && dec.port) {
-            // ~21% of hull length -- inside Tyler's measured 19-27% range,
-            // and short enough (the white lockup is 3.3:1) to clear the water.
-            var dW = 2.1, dH = dW / dec.arPort;
-            var za = -4.6, zf = za + dW;
-            var xa = (hwAt(mn[1] + (za + 5) / u) * u) + 0.035;
-            var xf = (hwAt(mn[1] + (zf + 5) / u) * u) + 0.035;
-            var shA = (sheer[Math.floor(((za + 5) / u) / BIN)] - mn[2]) * u;
-            var y1 = shA - 0.2, y0d = y1 - dH;
-            [-1, 1].forEach(function (s) {
-                var g2 = new THREE.BufferGeometry();
-                var pts = s < 0
-                    ? [[-xa, y0d, za], [-xf, y0d, zf], [-xf, y1, zf], [-xa, y1, za]]
-                    : [[xf, y0d, zf], [xa, y0d, za], [xa, y1, za], [xf, y1, zf]];
-                g2.setAttribute('position', new THREE.BufferAttribute(new Float32Array([
-                    pts[0][0], pts[0][1], pts[0][2], pts[1][0], pts[1][1], pts[1][2], pts[2][0], pts[2][1], pts[2][2],
-                    pts[0][0], pts[0][1], pts[0][2], pts[2][0], pts[2][1], pts[2][2], pts[3][0], pts[3][1], pts[3][2]
-                ]), 3));
-                g2.setAttribute('uv', new THREE.BufferAttribute(new Float32Array([0,0, 1,0, 1,1, 0,0, 1,1, 0,1]), 2));
-                var dm = new THREE.Mesh(g2, new THREE.MeshBasicMaterial({
-                    // Stood just clear of the skin with NO polygon offset: the
-                    // CAD wall is under an inch thick, and a pulled-forward
-                    // decal showed through it from inside the boat.
-                    // Front side only: winding faces outboard, so the far
-                    // decal can never be seen over the gunwale from inside.
-                    map: dec.port, transparent: true, side: THREE.FrontSide, depthWrite: false
-                }));
-                dm.renderOrder = 2;
-                grp.add(dm);
-            });
-        }
         grp.userData.transomHalf = hw[0] * u;
         return grp;
     },
