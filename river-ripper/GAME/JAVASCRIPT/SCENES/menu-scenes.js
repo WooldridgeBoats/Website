@@ -676,14 +676,16 @@ RR.BoatSelectScene = {
         lines.push(line);
         for (wi = 0; wi < lines.length; wi++) ctx.fillText(lines[wi], 92, 282 + wi * 20);
 
-        var specs = [
-            ['LENGTH', model.length], ['BEAM', model.beam], ['BOTTOM', model.bottom],
-            ['DRY WEIGHT', model.weight.toLocaleString() + ' LB'], ['MAX JET HP', String(model.maxJetHp)]
-        ];
+        // The website's published figures (BOAT-LINEUP.js specRows).
+        var specs = RR.BoatCatalog.specRows(model);
         for (var si = 0; si < specs.length; si++) {
             var sy = 338 + si * 29;
             UI.label(ctx, specs[si][0], 92, sy, 11, 'rgba(223,227,230,0.48)', 500, 'left');
             UI.label(ctx, specs[si][1], 330, sy, 13, C.WB_WHITE, 600, 'right');
+        }
+        if (RR.BoatCatalog.webSpecs) {
+            UI.label(ctx, 'SPECS FROM WOOLDRIDGEBOATS.COM', 92, 338 + specs.length * 29 - 4, 9,
+                'rgba(27,117,187,0.85)', 600, 'left');
         }
 
         this.statBar(ctx, 'POWER', model.power, 382, 352, 175);

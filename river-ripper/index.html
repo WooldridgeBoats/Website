@@ -1,48 +1,225 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="robots" content="noindex, nofollow">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>River Ripper</title>
-    <link rel="icon" type="image/png" href="GAME/ASSETS/UI/RIVER-RIPPER-ICON.png">
-    <link rel="stylesheet" href="GAME/CSS/style.css">
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>River Ripper Game — Wooldridge Boats</title>
+<meta name="description" content="River Ripper: run real Wooldridge jet boats up eight of the world's rivers.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/house.css?v=01b20bca">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/brand/favicon-180.png">
+<style>
+  /* The game draws at a fixed 1280x720 and scales to whatever box holds it,
+     so the frame only has to be 16:9 and fit under the menu. --rr-top is the
+     menu's real height, measured below; 150px until then. */
+  .rr-stage { background: #0d141a; padding: 18px 16px 20px; }
+  .rr-frame {
+    position: relative; margin: 0 auto;
+    width: min(100%, 1280px, calc((100vh - var(--rr-top, 150px) - 74px) * 16 / 9));
+    aspect-ratio: 16 / 9; background: #0a0a14; border-radius: 6px; overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  }
+  .rr-frame canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  #glCanvas { z-index: 1; }
+  #gameCanvas { z-index: 2; pointer-events: none; }
+  .rr-help { color: #DFE3E6; opacity: .72; text-align: center; font: 500 13px Inter, -apple-system, Segoe UI, Arial, sans-serif;
+             letter-spacing: .06em; margin: 12px 0 0; }
+  .rr-help b { color: #fff; font-weight: 700; }
+  .rr-touch { display: none; color: #F2C14E; text-align: center; font: 600 14px Inter, -apple-system, Segoe UI, Arial, sans-serif;
+              margin: 0 0 12px; }
+  @media (hover: none) and (pointer: coarse) { .rr-touch { display: block; } }
+  /* See-through OUR BOATS dropdown on this page only (Tyler, 2026-10-26):
+     the game stays visible behind it, softened by a blur so the boat names
+     still read. Every other page keeps the solid white panel. */
+  .rr-page .mega-in {
+    background: rgba(255, 255, 255, 0.82);
+    -webkit-backdrop-filter: blur(7px) saturate(1.15);
+    backdrop-filter: blur(7px) saturate(1.15);
+  }
+</style>
 </head>
-<body>
+<body class="rr-page">
+<!-- PARTIAL:header -->
+<div class="topstrip">
+  <div class="wrap">
+    <div>FACTORY &amp; SHOWROOM — 1303 S 96TH ST, SEATTLE, WA 98108 &nbsp;·&nbsp; <a href="tel:+12067228998">(206) 722-8998</a> &nbsp;·&nbsp; MON–THU 6:00AM–4:30PM</div>
+    <div class="soc"><a href="https://www.instagram.com/wooldridgeboats/">Instagram</a><a href="https://www.facebook.com/WooldridgeBoats/">Facebook</a><a href="https://www.youtube.com/channel/UC-hVTJ7HySkqCjUENQY5CCQ">YouTube</a></div>
+  </div>
+</div>
+<script src="/assets/instock.js?v=714749b5"></script><!-- sets html.wb-instock while a shop boat is for sale: shows the In Stock link (store header loads it too) -->
+<nav class="nav" aria-label="Primary">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Wooldridge Boats &#8212; Home">
+      <img src="/assets/brand/logo-wing-dark.png" alt="Wooldridge Boats 1915">
+    </a>
+    <a href="/">Home</a>
+    <span class="hasmega">
+      <a href="/#fleet">Our Boats</a>
+      <div class="mega" role="menu">
+        <div class="mega-in">
+          <div class="mcol-inboard">
+            <h5>Inboard Jet</h5>
+            <ul>
+              <li><a href="/models/alaskan-xl-inboard/">Alaskan XL Inboard</a></li>
+              <li><a href="/models/scout/">Scout</a></li>
+              <li><a href="/models/scout-widebody/">Scout Widebody</a></li>
+              <li><a href="/models/skagit-inboard/">Skagit Inboard</a></li>
+              <li><a href="/models/skagit-x/">Skagit-X</a></li>
+              <li><a href="/models/sportinboard/">Sport Inboard</a></li>
+              <li><a href="/models/supersportdrifterinboard/">Super Sport Drifter Inboard</a></li>
+            </ul>
+          </div>
+          <div class="mcol-outboard">
+            <h5>Outboard Jet</h5>
+            <ul>
+              <li><a href="/models/alaskan/">Alaskan</a></li>
+              <li><a href="/models/alaskan-lt/">Alaskan LT</a></li>
+              <li><a href="/models/alaskanxl/">Alaskan XL</a></li>
+              <li><a href="/models/xlt/">Alaskan XLT</a></li>
+              <li><a href="/models/rogue/">Rogue</a></li>
+              <li><a href="/models/skagit/">Skagit</a></li>
+              <li><a href="/models/sport/">Sport</a></li>
+              <li><a href="/models/sportster/">Sportster</a></li>
+              <li><a href="/models/supersportdrifter/">Super Sport Drifter</a></li>
+            </ul>
+          </div>
+          <div class="mcol-offshore">
+            <h5>Offshore</h5>
+            <ul>
+              <li><a href="/models/sportoffshore/">Sport Offshore</a></li>
+              <li><a href="/models/super-sport-offshore/">Super Sport Offshore</a></li>
+            </ul>
+          </div>
+          <div class="mcol-custom">
+            <h5>Custom Builds</h5>
+            <ul>
+              <li><a href="/agency-work-boats/">Agency &amp; Work Boats</a></li>
+              <li><a href="/models/landing-craft/">Landing Craft</a></li>
+              <li><a href="/models/angler/">SSO Angler</a></li>
+              <li><a href="/models/pybus-offshore/">Pybus Point Lodge</a></li>
+              <li><a href="/models/deepwater/">Deepwater Series</a></li>
+              <li><a href="/models/canyon/">Canyon</a></li>
+              <li><a href="/models/supersportoffshorepilothouse/">SSO Pilothouse</a></li>
+              <li><a href="/models/riverrat-diy-kit/">River Rat DIY Kit</a></li>
+            </ul>
+          </div>
+          <!-- Q-C-9 / WEB-N-03: titled like the model columns, duplicates of the
+               main nav bar (New Boats / Pre-Owned / Custom Builds) removed -->
+          <div class="megaside">
+            <h5>Tools</h5>
+            <a href="/build-and-price/">Build &amp; Price</a>
+            <a href="/which-wooldridge/">Which Wooldridge Quiz</a>
+            <a href="/request-a-quote/">Request a Quote</a>
+            <a href="/compare/">Compare Models</a>
+            <a href="/option-guide/">Options &amp; Terms, Explained</a>
+          </div>
+        </div>
+      </div>
+    </span>
+    <a href="/pre-owned/">Pre-Owned</a>
+    <a class="nav-instock" href="/new-inventory/">In Stock</a>
+    <a href="/our-history/">About | History</a>
+    <a href="/dealers/">Dealers</a>
+    <a href="https://store.wooldridgeboats.com/">Store</a>
+    <a href="/contact/">Contact</a>
+    <a class="nav-cta" href="/build-and-price/">Build &amp; Price</a>
+    <span class="navsoc">
+      <a href="https://www.instagram.com/wooldridgeboats/" aria-label="Instagram"><img src="/assets/brand/ic-instagram.png" alt="Instagram"></a>
+      <a href="https://www.facebook.com/WooldridgeBoats/" aria-label="Facebook"><img src="/assets/brand/ic-facebook.png" alt="Facebook"></a>
+      <a href="https://www.youtube.com/channel/UC-hVTJ7HySkqCjUENQY5CCQ" aria-label="YouTube"><img src="/assets/brand/ic-youtube.png" alt="YouTube"></a>
+    </span>
+  </div>
+</nav>
+<!-- /PARTIAL:header -->
+<main class="rr-stage">
+  <p class="rr-touch">River Ripper is played with a keyboard &mdash; try it on a computer.</p>
+  <div class="rr-frame">
     <canvas id="glCanvas" width="1280" height="720"></canvas>
     <canvas id="gameCanvas" width="1280" height="720"></canvas>
-
-    <!-- Three.js -->
+  </div>
+  <p class="rr-help"><b>ENTER</b> start &nbsp;·&nbsp; <b>W / &uarr;</b> throttle &nbsp;·&nbsp; <b>A D / &larr; &rarr;</b> steer &nbsp;·&nbsp; <b>SPACE</b> jump &nbsp;·&nbsp; <b>ESC</b> pause &nbsp;·&nbsp; <b>M</b> sound</p>
+</main>
+<script>
+  (function () {
+    function fit() {
+      var nav = document.querySelector('.nav');
+      if (nav) document.documentElement.style.setProperty('--rr-top', Math.ceil(nav.getBoundingClientRect().bottom + window.scrollY) + 'px');
+    }
+    fit(); window.addEventListener('resize', fit); window.addEventListener('load', fit);
+  })();
+</script>
+<!-- PARTIAL:footer -->
+<footer>
+  <div class="wrap">
+    <div class="flogo"><img src="/assets/brand/logo-wing-dark.png" alt="Wooldridge Boats 1915"></div>
+    <div class="fcontact">
+      <a href="tel:+12067228998">206.722.8998</a><span class="sep">|</span><a href="mailto:data@wooldridgeboats.com?cc=info@wooldridgeboats.com">data@wooldridgeboats.com</a>
+    </div>
+    <div class="faddr">Factory | Showroom<br>1303 S 96th St.<br>Seattle, WA 98108-5011</div>
+    <div class="fhours">Monday &ndash; Thursday 6:00AM &ndash; 4:30PM</div>
+    <div class="fsoc">
+      <a href="https://www.instagram.com/wooldridgeboats/" aria-label="Instagram"><img src="/assets/brand/ic-instagram.png" alt="Instagram"></a>
+      <a href="https://www.facebook.com/WooldridgeBoats/" aria-label="Facebook"><img src="/assets/brand/ic-facebook.png" alt="Facebook"></a>
+      <a href="https://www.youtube.com/channel/UC-hVTJ7HySkqCjUENQY5CCQ" aria-label="YouTube"><img src="/assets/brand/ic-youtube.png" alt="YouTube"></a>
+    </div>
+    <div class="frow">
+      <a href="/#fleet">Our Boats</a>
+      <a href="/pre-owned/">Pre-Owned</a>
+      <a href="/new-inventory/">New Boats</a>
+      <a href="/agency-work-boats/">Agency &amp; Work Boats</a>
+      <a href="/dealers/">Dealers</a>
+      <a href="/our-history/">About | History</a>
+      <a href="/faq/">FAQ</a>
+      <a href="https://store.wooldridgeboats.com/">Store</a>
+      <a href="/contact/">Contact</a>
+    </div>
+    <div class="frow frow2">
+      <a href="/build-and-price/">Build &amp; Price</a>
+      <a href="/which-wooldridge/">Which Wooldridge Quiz</a>
+      <a href="/compare/">Compare Models</a>
+      <a href="/request-a-quote/">Request a Quote</a>
+      <a href="/option-guide/">Options &amp; Terms, Explained</a>
+      <a href="/photos/">Photos</a>
+      <a href="/river-ripper/">River Ripper Game</a>
+      <a href="/dealer-resources/">Dealer Resources</a>
+      <a href="/careers/">Careers</a>
+      <a href="/privacy-policy/">Privacy Policy</a>
+      <a href="/return-policy/">Returns</a>
+    </div>
+  </div>
+  <div class="legal">
+    <div class="wrap">
+      <span class="fineprint">&copy; 2026 WOOLDRIDGE BOATS. ALL RIGHTS RESERVED.</span>
+      <span class="fineprint">ALL HULLS 5052 &amp; 5086 MARINE-GRADE ALUMINUM, WELDED BY HAND IN SEATTLE, WA.</span>
+      <span class="fineprint">PRICES SUBJECT TO CHANGE &#8212; CONTACT WOOLDRIDGE BOATS DIRECTLY FOR AN OFFICIAL QUOTE.</span>
+      <span class="fineprint">FAMILY BUILT SINCE 1915.</span>
+    </div>
+  </div>
+<script defer src="/assets/media-provenance.js?v=c5a22020"></script><script defer src="/assets/media-fade.js?v=a48a467c"></script><script defer src="/assets/tool-nudge.js?v=ce186112"></script>
+</footer>
+<!-- /PARTIAL:footer -->
     <script src="GAME/JAVASCRIPT/LIB/three.min.js"></script>
-
-    <!-- Core -->
     <script src="GAME/JAVASCRIPT/CORE/config.js?v=20261026a"></script>
-    <script src="GAME/DATA/BOAT-LINEUP.js?v=20261026c"></script>
+    <script src="GAME/DATA/BOAT-LINEUP.js?v=20261026d"></script>
     <script src="GAME/DATA/DIFFICULTY.js?v=20260902b"></script>
     <script src="GAME/DATA/RIVER-LEVELS.js?v=20261026a"></script>
     <script src="GAME/JAVASCRIPT/CORE/engine.js?v=20260902a"></script>
     <script src="GAME/JAVASCRIPT/CORE/audio.js?v=20261026a"></script>
-
-    <!-- 3D Renderer -->
     <script src="GAME/JAVASCRIPT/RENDERER/renderer3d.js?v=20261026d"></script>
-
-    <!-- Course data traced from the satellite imagery -->
     <script src="GAME/DATA/RIVER-COURSE.js?v=20260902a"></script>
-
-    <!-- Systems -->
     <script src="GAME/JAVASCRIPT/SYSTEMS/river.js?v=20261026a"></script>
     <script src="GAME/JAVASCRIPT/SYSTEMS/collision.js?v=20261026a"></script>
     <script src="GAME/JAVASCRIPT/SYSTEMS/scoring.js?v=20261026a"></script>
     <script src="GAME/JAVASCRIPT/SYSTEMS/highscores.js?v=20261026c"></script>
-
-    <!-- Entities -->
     <script src="GAME/JAVASCRIPT/ENTITIES/boat.js?v=20261026a"></script>
-
-    <!-- Scenes -->
-    <script src="GAME/JAVASCRIPT/SCENES/menu-scenes.js?v=20261026c"></script>
+    <script src="GAME/JAVASCRIPT/SCENES/menu-scenes.js?v=20261026d"></script>
     <script src="GAME/JAVASCRIPT/SCENES/game-scenes.js?v=20261026b"></script>
-
-    <!-- Entry Point -->
     <script src="GAME/JAVASCRIPT/main.js?v=20261026a"></script>
+<script src="/assets/shop.js?v=14ae84c5"></script>
 </body>
 </html>

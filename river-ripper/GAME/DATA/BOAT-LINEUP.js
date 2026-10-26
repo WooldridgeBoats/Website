@@ -29,6 +29,7 @@ RR.BoatCatalog = {
     models: [
         {
             id: 'alaskan-lt-16', model: "16' ALASKAN LT", variant: 'CENTER CONSOLE',
+            spec: ['lt', '16', 'weightCenterConsole'],
             length: "16'8\"", beam: '80\"', bottom: '60\"', weight: 715, maxJetHp: 90,
             character: 'Light, efficient and exceptionally quick to place in tight water.',
             power: 2, size: 2, maneuver: 5,
@@ -51,6 +52,7 @@ RR.BoatCatalog = {
         },
         {
             id: 'rogue-18', model: "18' ROGUE", variant: 'CENTER CONSOLE',
+            spec: ['rogue', '18', 'weightCenterConsole'],
             length: "20' W/PODS", beam: '86\"', bottom: '66\"', weight: 1090, maxJetHp: 200,
             character: 'Blacked-out centre-console rocket. Fastest hull in the lineup, and HDPE armour shrugs off strikes that end other boats.',
             power: 5, size: 3, maneuver: 4,
@@ -76,6 +78,7 @@ RR.BoatCatalog = {
         },
         {
             id: 'alaskan-18', model: "18' ALASKAN", variant: 'WINDSHIELD',
+            spec: ['ak', '18', 'weightWindshield'],
             length: "20'1\" W/PODS", beam: '82\"', bottom: '66\"', weight: 1250, maxJetHp: 200,
             character: 'The balanced benchmark: fast, predictable and agile in shallow rivers.',
             power: 4, size: 3, maneuver: 5,
@@ -87,6 +90,7 @@ RR.BoatCatalog = {
         },
         {
             id: 'alaskan-xl-20', model: "20' ALASKAN XL", variant: 'WINDSHIELD',
+            spec: ['xl', '20', 'weightWindshield'],
             length: "20'9\" W/PODS", beam: '99\"', bottom: '80\"', weight: 1350, maxJetHp: 250,
             character: 'Broad, powerful load-hauler; stable at speed but needs room to rotate.',
             power: 5, size: 4, maneuver: 3,
@@ -110,6 +114,7 @@ RR.BoatCatalog = {
         },
         {
             id: 'skagit-20', model: "20' SKAGIT", variant: 'WINDSHIELD',
+            spec: ['skagit', '20', 'weightWindshield'],
             length: "20'10\" W/PODS", beam: '93\"', bottom: '72\"', weight: 1600, maxJetHp: 250,
             character: 'Heavy-duty jet tunnel power with a surprisingly crisp cornering bite.',
             power: 5, size: 4, maneuver: 4,
@@ -132,6 +137,7 @@ RR.BoatCatalog = {
         },
         {
             id: 'sportster-21', model: "21' SPORTSTER", variant: 'HARDTOP',
+            spec: ['sportster', '21', 'weightWindshield'],
             length: "21'8\"", beam: '106\"', bottom: '88\"', weight: 1905, maxJetHp: 250,
             character: 'Big, planted and powerful—with real momentum and the widest footprint.',
             power: 5, size: 5, maneuver: 2,
@@ -161,6 +167,65 @@ RR.BoatCatalog = {
         return v === undefined ? this.defaults[key] : v;
     },
 
+    // SPECS COME FROM THE WEBSITE (Tyler, 2026-10-26: "very important that
+    // the specs for each boat ... pull specs directly from the website").
+    // The site publishes every model's figures in /tools/SPEC_DATA.js
+    // (generated from the CANON workbook; the compare page reads it too).
+    // That file is loaded here and the CHOOSE BOAT screen shows its numbers,
+    // in its wording. `spec` on each model is [model key, length, which
+    // weight row]. The length/beam/weight literals above are only the
+    // fallback for when no copy of the site can be reached.
+    //
+    // Same site first (the copy at /river-ripper/); from the Mac app it
+    // reaches out to the live site -- www first, so it keeps working after
+    // the dev -> www cutover, then dev.
+    webSpecs: null,
+    specSource: '',
+    loadWebsiteSpecs: function () {
+        var self = this, urls = [];
+        var h = (window.location && window.location.hostname) || '';
+        var local = !h || h === 'localhost' || h === '127.0.0.1';
+        if (!local) urls.push('/tools/SPEC_DATA.js');
+        urls.push('https://www.wooldridgeboats.com/tools/SPEC_DATA.js');
+        urls.push('https://dev.wooldridgeboats.com/tools/SPEC_DATA.js');
+        function next(i) {
+            if (i >= urls.length) return;
+            var s = document.createElement('script');
+            s.src = urls[i] + '?d=' + new Date().toISOString().slice(0, 10);
+            s.onload = function () {
+                var got = null;
+                try { got = (typeof WB_SPECS !== 'undefined') ? WB_SPECS : null; } catch (e) {}
+                if (got && got.ak) { self.webSpecs = got; self.specSource = urls[i]; }
+                else next(i + 1);
+            };
+            s.onerror = function () { next(i + 1); };
+            document.head.appendChild(s);
+        }
+        next(0);
+    },
+
+    // The five spec rows for the CHOOSE BOAT screen: the website's figures
+    // when they're loaded, the built-in ones otherwise. A figure the website
+    // doesn't publish for that boat is replaced by one it does (the Rogue
+    // lists no weight, so its fourth row is side height) -- never invented.
+    specRows: function (model) {
+        var w = this.webSpecs, sp = model.spec, row = null;
+        if (w && sp && w[sp[0]] && w[sp[0]][sp[1]]) row = w[sp[0]][sp[1]];
+        if (!row) {
+            return [['LENGTH', model.length], ['BEAM', model.beam], ['BOTTOM', model.bottom],
+                    ['DRY WEIGHT', model.weight.toLocaleString() + ' LB'], ['MAX JET HP', String(model.maxJetHp)]];
+        }
+        function up(v) { return String(v || '').toUpperCase().replace(/\s*\(.*?\)\s*/g, ' ').trim(); }
+        var weight = row[sp[2]] || row.weightWindshield || row.weightOpen || row.weightCenterConsole || row.weight;
+        return [
+            ['LENGTH', up(row.lengthOverall) || model.length],
+            ['BEAM', up(row.beam) || model.beam],
+            ['BOTTOM', up(row.bottomWidth) || model.bottom],
+            weight ? ['DRY WEIGHT', up(weight)] : ['SIDE HEIGHT', up(row.sideHeight)],
+            ['MAX JET HP', up(row.maxJetHP) || String(model.maxJetHp)]
+        ];
+    },
+
     getSelected: function () {
         return this.models[this.selectedIndex] || this.models[2];
     },
@@ -180,3 +245,4 @@ RR.BoatCatalog = {
 };
 
 RR.BoatCatalog.load();
+RR.BoatCatalog.loadWebsiteSpecs();
