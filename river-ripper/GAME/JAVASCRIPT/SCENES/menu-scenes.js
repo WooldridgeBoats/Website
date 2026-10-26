@@ -849,7 +849,8 @@ RR.RiverSelectScene = {
 // ---------------------------------------------------------------------------
 // NAME ENTRY -- shown when a finished run makes the top ten, and only then.
 //
-// Two fields: first name, then last initial. ENTER moves on and finally saves;
+// Two fields: first name, then last name (a full last name since 2026-10-26 --
+// Tyler; it was a single initial). ENTER moves on and finally saves;
 // ESC skips the whole thing and drops straight to the crash screen with the
 // score unrecorded. Skipping must always work, from either field -- a player
 // who does not want to be on the board should never be trapped here.
@@ -857,7 +858,7 @@ RR.RiverSelectScene = {
 RR.NameEntryScene = {
     first: '',
     initial: '',
-    field: 0,          // 0 = first name, 1 = last initial
+    field: 0,          // 0 = first name, 1 = last name (stored as `initial`)
     time: 0,
     score: 0,
     rank: 0,
@@ -897,8 +898,9 @@ RR.NameEntryScene = {
         for (i = 0; i < typed.length; i++) {
             ch = typed[i];
             if (ch === '\b') {
+                // Backspace on an empty last name steps back to the first.
                 if (this.field === 1 && !this.initial) this.field = 0;
-                else if (this.field === 1) this.initial = '';
+                else if (this.field === 1) this.initial = this.initial.slice(0, -1);
                 else this.first = this.first.slice(0, -1);
                 continue;
             }
@@ -907,8 +909,8 @@ RR.NameEntryScene = {
                 if (/[A-Za-z ]/.test(ch) && this.first.length < 12) {
                     this.first += ch.toUpperCase();
                 }
-            } else if (/[A-Za-z]/.test(ch)) {
-                this.initial = ch.toUpperCase();
+            } else if (/[A-Za-z' -]/.test(ch) && this.initial.length < 14) {
+                this.initial += ch.toUpperCase();
             }
         }
 
@@ -954,11 +956,11 @@ RR.NameEntryScene = {
         UI.label(ctx, (this.first || (this.field === 0 ? '' : '—')) +
             (this.field === 0 && caret ? '_' : ''), W / 2, fy, 26, C.WB_WHITE, 600);
 
-        // LAST INITIAL
+        // LAST NAME
         var iy = H * 0.62;
-        UI.label(ctx, 'LAST INITIAL', W / 2, iy - 44, 12,
+        UI.label(ctx, 'LAST NAME', W / 2, iy - 44, 12,
             this.field === 1 ? C.WB_BLUE : 'rgba(223,227,230,0.4)', 600);
-        var iw = 96, ix = W / 2 - iw / 2;
+        var iw = fw, ix = W / 2 - iw / 2;
         ctx.fillStyle = this.field === 1 ? 'rgba(27,117,187,0.16)' : 'rgba(223,227,230,0.05)';
         UI.pill(ctx, ix, iy - 26, iw, 52, 6); ctx.fill();
         ctx.strokeStyle = this.field === 1 ? C.WB_BLUE : 'rgba(223,227,230,0.16)';
@@ -968,7 +970,7 @@ RR.NameEntryScene = {
             W / 2, iy, 26, C.WB_WHITE, 600);
 
         UI.label(ctx, this.field === 0 ? 'TYPE YOUR FIRST NAME · ENTER TO CONTINUE'
-                                       : 'TYPE ONE LETTER · ENTER TO SAVE',
+                                       : 'TYPE YOUR LAST NAME · ENTER TO SAVE',
             W / 2, H * 0.79, 13, C.WB_WHITE, 600);
         UI.label(ctx, 'ESC — SKIP AND CARRY ON WITHOUT SAVING', W / 2, H * 0.845, 12,
             'rgba(223,227,230,0.45)', 500);
@@ -1022,7 +1024,17 @@ RR.HighScoresScene = {
 
             UI.label(ctx, String(i + 1), x0 + 18, ry, 13,
                 i === 0 ? C.UI_GOLD : 'rgba(223,227,230,0.55)', 600, 'left');
-            UI.label(ctx, RR.Scores.display(e), x0 + 62, ry, 14,
+            // Full names can run long: shrink the type to fit the column
+            // rather than run into BOAT · RIVER.
+            var nm = RR.Scores.display(e), nfs = 14;
+            var nAvail = W * 0.44 - (x0 + 62) - 14;
+            ctx.font = '600 ' + nfs + 'px ' + C.FONT_UI;
+            // (+ the 0.09em tracking UI.label adds per letter)
+            while (nfs > 10 && ctx.measureText(nm).width + nm.length * nfs * 0.09 > nAvail) {
+                nfs--;
+                ctx.font = '600 ' + nfs + 'px ' + C.FONT_UI;
+            }
+            UI.label(ctx, nm, x0 + 62, ry, nfs,
                 i === 0 ? C.UI_GOLD : C.WB_WHITE, 600, 'left');
 
             ctx.font = '400 11px ' + C.FONT_UI;

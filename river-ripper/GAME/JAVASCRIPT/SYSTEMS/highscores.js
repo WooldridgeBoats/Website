@@ -36,7 +36,9 @@ RR.Scores = {
                 if (!e || typeof e.score !== 'number' || !isFinite(e.score)) continue;
                 this.list.push({
                     name: String(e.name || '').slice(0, 12),
-                    initial: String(e.initial || '').slice(0, 1),
+                    // Full last name since 2026-10-26 (Tyler). Older boards
+                    // stored a single initial in the same field; both load.
+                    initial: String(e.initial || '').slice(0, 14),
                     score: Math.floor(e.score),
                     distance: Math.floor(e.distance || 0),
                     boat: String(e.boat || ''),
@@ -130,15 +132,26 @@ RR.Scores = {
             .slice(0, 12);
     },
 
+    // The LAST NAME (the field kept its old name, `initial`, so boards saved
+    // before 2026-10-26 still load). Letters, hyphen, apostrophe and single
+    // spaces -- O'NEIL, SMITH-JONES, VAN DYKE.
     cleanInitial: function (s) {
-        return String(s || '').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 1);
+        return String(s || '')
+            .toUpperCase()
+            .replace(/[^A-Z' -]/g, '')
+            .replace(/\s+/g, ' ')
+            .replace(/^ /, '')
+            .slice(0, 14)
+            .replace(/ $/, '');
     },
 
-    // "TYLER L." for the board, or "TYLER" if they gave no initial.
+    // "TYLER LEE" for the board. An old single-letter entry still reads
+    // "TYLER L.", and no last name reads "TYLER".
     display: function (entry) {
         if (!entry) return '';
         var n = entry.name || 'RIPPER';
-        return entry.initial ? n + ' ' + entry.initial + '.' : n;
+        if (!entry.initial) return n;
+        return entry.initial.length === 1 ? n + ' ' + entry.initial + '.' : n + ' ' + entry.initial;
     },
 
     clear: function () {
