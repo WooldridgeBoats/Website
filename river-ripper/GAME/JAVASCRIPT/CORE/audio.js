@@ -42,6 +42,31 @@ RR.Audio = {
             if (/[?&]mute=1\b/.test(window.location.search)) this.muted = true;
         } catch (e) {}
 
+        // SOUND STARTS OFF ON THE WEBSITE (Tyler, 2026-10-26). Music that
+        // starts by itself on a web page is the classic annoyance, so on the
+        // site the game opens muted and the speaker button (engine.js) turns
+        // it on. The player's choice is remembered in this browser
+        // (rr_sound). The Mac app (localhost) keeps sound on by default --
+        // opening the app is already choosing to play.
+        if (!this.muted) {
+            var pref = null;
+            try { pref = localStorage.getItem('rr_sound'); } catch (e) {}
+            if (pref === 'off') this.muted = true;
+            else if (pref !== 'on') {
+                var h = '';
+                try { h = window.location.hostname; } catch (e) {}
+                if (h && h !== 'localhost' && h !== '127.0.0.1') this.muted = true;
+            }
+        }
+
+        // Tab or app switched away: pause everything, pick it back up on
+        // return (unless muted in the meantime).
+        var selfV = this;
+        document.addEventListener('visibilitychange', function () {
+            selfV._hidden = document.hidden;
+            selfV._applyMute();
+        });
+
         var AC = window.AudioContext || window.webkitAudioContext;
         if (AC) {
             try {
@@ -153,11 +178,14 @@ RR.Audio = {
         return clone;
     },
 
+    // Muted loops and music are still REGISTERED (just not started), so
+    // turning sound on mid-run brings the river and the music back.
     playLoop: function (name, vol) {
-        if (this.muted) return null;
         var el = this.sounds[name];
         if (!el) return null;
-        this._playElement(el, (vol !== undefined ? vol : 1.0) * this.volume, true);
+        el._vol = (vol !== undefined ? vol : 1.0) * this.volume;
+        if (!this.muted && !this._hidden) this._playElement(el, el._vol, true);
+        else { el._wanted = false; el.volume = el._vol; el.loop = true; }
         this.activeSounds.push(el);
         return el;
     },
@@ -177,11 +205,12 @@ RR.Audio = {
 
     playMusic: function (name) {
         this.stopMusic();
-        if (this.muted) return;
         var el = this.sounds[name];
         if (!el) return;
         this.currentMusic = el;
-        this._playElement(el, this.volume * (RR.Config.MUSIC_MIX !== undefined ? RR.Config.MUSIC_MIX : 0.38), true);
+        el._vol = this.volume * (RR.Config.MUSIC_MIX !== undefined ? RR.Config.MUSIC_MIX : 0.38);
+        if (!this.muted && !this._hidden) this._playElement(el, el._vol, true);
+        else { el._wanted = false; el.volume = el._vol; el.loop = true; }
     },
 
     stopMusic: function () {
@@ -296,17 +325,23 @@ RR.Audio = {
 
     toggleMute: function () {
         this.muted = !this.muted;
-        if (this.master) {
-            this.master.gain.setTargetAtTime(this.muted ? 0 : this.volume, this.ctx.currentTime, 0.02);
-        }
-        var i;
-        if (this.muted) {
-            if (this.currentMusic) this.currentMusic.pause();
-            for (i = 0; i < this.activeSounds.length; i++) this.activeSounds[i].pause();
-        } else {
-            if (this.currentMusic) this.currentMusic.play().catch(function () {});
-            for (i = 0; i < this.activeSounds.length; i++) this.activeSounds[i].play().catch(function () {});
-        }
+        try { localStorage.setItem('rr_sound', this.muted ? 'off' : 'on'); } catch (e) {}
+        this._applyMute();
         return this.muted;
+    },
+
+    // Silent = muted OR the tab is hidden.
+    _applyMute: function () {
+        var silent = this.muted || this._hidden, i, el;
+        if (this.master && this.ctx) {
+            this.master.gain.setTargetAtTime(silent ? 0 : this.volume, this.ctx.currentTime, 0.02);
+        }
+        var els = this.activeSounds.slice();
+        if (this.currentMusic) els.push(this.currentMusic);
+        for (i = 0; i < els.length; i++) {
+            el = els[i];
+            if (silent) { el._wanted = false; el.pause(); }
+            else { el._wanted = true; el.muted = false; el.play().catch(function () {}); }
+        }
     }
 };
