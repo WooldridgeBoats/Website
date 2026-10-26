@@ -978,7 +978,7 @@ RR.NameEntryScene = {
 };
 
 RR.HighScoresScene = {
-    enter: function () { RR.Scoring.loadHighScore(); RR.Scores.load(); },
+    enter: function () { RR.Scoring.loadHighScore(); RR.Scores.refresh(); RR.Scores.load(); },
 
     update: function (dt) {
         if (RR.Input.justPressed('Escape') || RR.Input.justPressed('Enter') ||
@@ -997,7 +997,7 @@ RR.HighScoresScene = {
         ctx.textBaseline = 'middle';
         UI.headline(ctx, 'HIGH SCORES', W / 2, H * 0.14, 42, C.WB_WHITE, C.WB_BLUE);
 
-        var list = RR.Scores.load();
+        var list = RR.Scores.load();     // re-read each frame: the shared board lands async
         var x0 = W * 0.13, x1 = W * 0.87, rowH = 40, top = H * 0.235;
 
         // Column header
@@ -1047,7 +1047,8 @@ RR.HighScoresScene = {
                 i === 0 ? C.UI_GOLD : C.WB_WHITE, 600, 'right');
         }
 
-        UI.label(ctx, 'TOP TEN ONLY · SAVED IN THIS BROWSER', W / 2, H * 0.845, 11,
+        UI.label(ctx, RR.Scores.online ? 'TOP TEN · EVERYONE WHO PLAYS AT WOOLDRIDGEBOATS.COM'
+                                       : 'TOP TEN ONLY · SAVED IN THIS BROWSER', W / 2, H * 0.845, 11,
             'rgba(223,227,230,0.38)', 500);
         UI.label(ctx, 'PRESS ENTER OR ESC TO RETURN', W / 2, H * 0.90, 12,
             'rgba(223,227,230,0.4)', 500);

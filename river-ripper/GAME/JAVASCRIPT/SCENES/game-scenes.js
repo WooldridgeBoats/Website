@@ -541,6 +541,9 @@ RR.RiverScene = {
         RR.Audio.playMusic('music_gameplay');
         this.riverAmbience = RR.Audio.playLoop('ambience', RR.Config.AMBIENCE_MIX);
         RR.Audio.engineStart();
+        // Fresh shared board, so "does this run make the top ten?" at the
+        // crash or the finish is judged against everyone's latest scores.
+        if (RR.Scores && RR.Scores.refresh) RR.Scores.refresh();
     },
 
     exit: function () {
