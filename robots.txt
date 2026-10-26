@@ -22,5 +22,7 @@
 User-agent: *
 Allow: /
 Disallow: /forms/
+# River Ripper game, unlisted while it is being play-tested (Tyler 2026-10-26).
+Disallow: /river-ripper/
 
 Sitemap: https://www.wooldridgeboats.com/sitemap.xml
