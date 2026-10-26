@@ -855,6 +855,50 @@ html.blueprint .tagband .tb-more a{ color:#e8b64c; }   /* Night Run theme: gold,
 .tooltab b{ display:block; font-weight:500; font-size:16.5px; color:var(--ink); margin-bottom:4px; }
 .tooltab span:last-child{ font-weight:400; font-size:13px; color:var(--body); }
 
+/* ── tool-card icons - 2026-10-26, Stephen ────────────────────────────────
+   One small drawing "punctuates" each planning-tool card: a fishhook bent into
+   a question mark (quiz - barb at the tip, the hook's eye is the dot), a build
+   sheet on a clipboard (Build & Price), a balance whose pans are little hulls
+   (Compare), a handheld VHF radio (Request a Quote). Stephen picked each from
+   three candidates, placed as a 40px corner stamp across from the .k label so
+   no card grows taller. The livelier alternatives he saw and turned down -
+   two boats passing port to port, a half-welded hull, a paper boat, a message
+   in a bottle, a ring buoy - are not to be swapped back in to "liven them up".
+
+   The drawings are inline SVG in index.html with no colour of their own: they
+   inherit currentColor, so they are blue here and pick up the Night Run gold
+   below. Stroke settings live here once instead of on every path; the two
+   attribute overrides in the markup (the clipboard's scaled-down hull keeps
+   its stroke-width, the tick marks carry their own dash pattern) are deliberate.
+
+   Motion follows the 2026-08-31 "nothing too overbearing" ruling for these
+   cards: each move plays ONCE, under a second, only while the card is hovered
+   or keyboard-focused, never on a loop - and not at all for visitors whose
+   device asks for reduced motion (same suppress-the-motion shape as above). */
+.tooltab .tool-ico{
+  position:absolute; top:16px; right:18px; width:40px; height:40px;
+  color:var(--blue); fill:none; stroke:currentColor; stroke-width:2.5;
+  stroke-linecap:round; stroke-linejoin:round; pointer-events:none;
+}
+/* keep the label and title clear of the stamp; the description starts below it */
+.tooltab .k,.tooltab b{ padding-right:42px; }
+.tool-ico *{ transform-box:view-box; }
+.tool-ico .ico-swing{ transform-origin:24.5px 3px; }    /* the hook hangs from its top */
+.tool-ico .ico-teeter{ transform-origin:24px 13px; }    /* the beam pivots on the post */
+.tooltab:hover .ico-swing,.tooltab:focus-visible .ico-swing{ animation:ico-swing .9s ease-in-out; }
+.tooltab:hover .ico-tick,.tooltab:focus-visible .ico-tick{ animation:ico-tick .7s ease-out; }
+.tooltab:hover .ico-teeter,.tooltab:focus-visible .ico-teeter{ animation:ico-teeter 1s ease-in-out; }
+.tooltab:hover .ico-wave1,.tooltab:focus-visible .ico-wave1{ animation:ico-wave .8s ease-out; }
+.tooltab:hover .ico-wave2,.tooltab:focus-visible .ico-wave2{ animation:ico-wave .8s ease-out .12s backwards; }
+@keyframes ico-swing{ 30%{ transform:rotate(-10deg); } 65%{ transform:rotate(7deg); } }
+@keyframes ico-tick{ from{ stroke-dashoffset:1; } }
+@keyframes ico-teeter{ 30%{ transform:rotate(-7deg); } 65%{ transform:rotate(5deg); } }
+@keyframes ico-wave{ 0%{ opacity:0; } 35%{ opacity:1; } 60%{ opacity:.25; } 100%{ opacity:1; } }
+@media (prefers-reduced-motion: reduce){
+  .tooltab:hover .tool-ico *,.tooltab:focus-visible .tool-ico *{ animation:none; }
+}
+html.blueprint .tooltab .tool-ico{ color:#e8b64c; }   /* Night Run theme: gold, like its titles */
+
 /* ── heritage / our story ──────────────────────────────────────────────── */
 /* Tyler 2026-10-20: rope sits ~half as far from the title and the text. rope-trim.png has the
    PNG's empty top/bottom padding cut off (rope.png: 60px + 73px of 197); the negative top margin
