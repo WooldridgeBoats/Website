@@ -88,7 +88,15 @@ RR.Audio = {
 
         var self = this;
         var unlock = function () { self._unlock(); };
-        ['keydown', 'pointerdown', 'mousedown', 'touchstart'].forEach(function (ev) {
+        // PHONES UNLOCK ON THE LIFT, NOT THE TOUCH (2026-10-26). iOS and
+        // Android count touchend / pointerup / click as the user's gesture --
+        // NOT touchstart -- and touch.js cancels the click a tap would make.
+        // Unlocking only on touchstart left phones silent. Listen to all of
+        // them; _unlock keeps trying until the music elements really play.
+        // On iPhones, mark the page as media playback so the silent switch
+        // doesn't mute the game where Safari allows it.
+        try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
+        ['keydown', 'pointerdown', 'mousedown', 'touchstart', 'touchend', 'pointerup', 'click'].forEach(function (ev) {
             window.addEventListener(ev, unlock, true);
         });
     },
@@ -125,26 +133,40 @@ RR.Audio = {
         if (this.ctx && this.ctx.state !== 'running') {
             try { this.ctx.resume(); } catch (e) {}
         }
-        if (this.unlocked) return;
-        this.unlocked = true;
-        var self = this;
+        if (this.unlocked || this._unlocking) return;
+        this._unlocking = true;
+        var self = this, pending = 0, okAll = true;
+        var done = function (ok) {
+            if (!ok) okAll = false;
+            if (--pending > 0) return;
+            self._unlocking = false;
+            // Only a gesture the browser actually honoured counts; a refused
+            // one (a phone's touchstart) leaves us trying on the next.
+            if (okAll) self.unlocked = true;
+        };
         Object.keys(this.sounds).forEach(function (name) {
             var el = self.sounds[name];
-            if (el._wanted) {
+            pending++;
+            if (el._wanted && !(self.muted || self._hidden)) {
                 // Something asked for this before the gesture and was refused.
-                el.play().catch(function () {});
+                var pw = el.play();
+                if (pw && pw.then) pw.then(function () { done(true); }, function () { done(false); });
+                else done(true);
                 return;
             }
             el.muted = true;
             var p = el.play();
-            var settle = function () {
+            var settle = function (ok) {
                 // A real request may have arrived while the bless was in
                 // flight -- the first ENTER both unlocks and starts the run.
-                if (!el._wanted) el.pause();
+                if (!el._wanted || self.muted || self._hidden) el.pause();
                 el.muted = false;
+                done(ok);
             };
-            if (p && p.then) p.then(settle, settle); else settle();
+            if (p && p.then) p.then(function () { settle(true); }, function () { settle(false); });
+            else settle(true);
         });
+        if (!pending) { this._unlocking = false; this.unlocked = true; }
     },
 
     _playElement: function (el, vol, loop) {
