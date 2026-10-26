@@ -10,9 +10,9 @@
 # Left out: the .wav audio masters (384 MB; the game loads the .m4a copies),
 # the local-server script, empty and test folders, and backups.
 #
-# UNLISTED FOR NOW: the copy gets a noindex meta tag here and robots.txt
-# disallows /river-ripper/, and nothing on the site links to it. When Tyler
-# wants it public, drop both and link it.
+# KEPT OUT OF GOOGLE FOR NOW: the copy gets a noindex meta tag here and
+# robots.txt disallows /river-ripper/. It IS linked from the footer ("River
+# Ripper Game", Tyler 2026-10-26). To let search engines in, drop both.
 #
 # Usage: _build/build_river_ripper.sh [--dry-run]
 set -eu
