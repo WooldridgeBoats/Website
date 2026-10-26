@@ -5,7 +5,7 @@
    Do not hand-edit: change the canon and re-run perl _build/gen_from_canon.pl.
    Consumed by compare/index.html (WB_SPEC_GROUPS + WB_SPECS). */
 const WB_SPEC_GROUPS = [
-  ["Dimensions & Construction", [["lengthOverall","Length Overall"],["beam","Beam"],["bottomWidth","Bottom Width"],["sideHeight","Side Height"],["bottomGauge","Bottom Gauge"],["centerBottomGauge","Center Bottom Gauge"],["sideGauge","Side Gauge"],["deadrise","Deadrise"],["deadriseAtBow","Deadrise At Bow"],["fuelTank","Fuel Tank"],["weight","Weight"],["standardSideHeight","Standard Side Height"],["optionalLowerSideHeight","Optional Lower Side Height"],["deltaPadGauge","Delta Pad Gauge"],["interiorFloorWidth","Interior Floor Width"],["interiorSideHeight","Interior Side Height"]]],
+  ["Dimensions & Construction", [["lengthOverall","Length Overall"],["beam","Beam"],["bottomWidth","Bottom Width"],["sideHeight","Side Height"],["bottomGauge","Bottom Gauge"],["centerBottomGauge","Center Bottom Gauge"],["sideGauge","Side Gauge"],["deadrise","Deadrise"],["deadriseAtBow","Deadrise At Bow"],["fuelTank","Fuel Tank"],["weight","Weight"],["transomGauge","Transom Gauge"],["standardSideHeight","Standard Side Height"],["optionalLowerSideHeight","Optional Lower Side Height"],["deltaPadGauge","Delta Pad Gauge"],["interiorFloorWidth","Interior Floor Width"],["interiorSideHeight","Interior Side Height"]]],
   ["Weight by Configuration", [["weightTiller","Weight (Tiller)"],["weightCenterConsole","Weight (Center Console)"],["weightWindshield","Weight (Windshield)"],["weightOpen","Weight (Open)"]]],
   ["Power Ratings", [["maxJetHP","Max Jet HP"],["maxPropHP","Max Prop HP"],["maxTillerHP","Max Tiller HP"],["standardMotor","Standard Motor"],["standardJet","Standard Jet"],["maxJetTillerHP","Max Jet Tiller HP"]]]
 ];
@@ -27,9 +27,9 @@ const WB_SPECS = {
     "20": {"beam":"99 in.","bottomGauge":".160 in.","bottomWidth":"80 in.","deadrise":"9\u00b0","deadriseAtBow":"9\u00b0","fuelTank":"52 gal.","lengthOverall":"20 ft. 9 in.","maxJetHP":"250 hp","maxPropHP":"150 hp","maxTillerHP":"250 hp","sideGauge":".125 in.","sideHeight":"29.5 in.","weightOpen":"1,250 lbs.","weightWindshield":"1,350 lbs."}
   },
   "rogue": {
-    "16": {"beam":"85 in.","bottomGauge":".500 in.","bottomWidth":"60 in.","deadrise":"9\u00b0","fuelTank":"14 gal.","lengthOverall":"17 ft. 11 in.","maxJetHP":"115 hp","maxPropHP":"60 hp","sideGauge":".500 in.","sideHeight":"28 in."},
-    "18": {"beam":"86 in.","bottomGauge":".500 in.","bottomWidth":"66 in.","deadrise":"9\u00b0","fuelTank":"15 gal.","lengthOverall":"20 ft. 2 in.","maxJetHP":"200 hp","maxPropHP":"115 hp","sideGauge":".500 in.","sideHeight":"32 in."},
-    "20": {"beam":"86 in.","bottomGauge":".625 in.","bottomWidth":"66 in.","deadrise":"9\u00b0","fuelTank":"50 gal.","lengthOverall":"21 ft. 11 in.","maxJetHP":"250 hp","maxPropHP":"115 hp","sideGauge":".500 in.","sideHeight":"32 in."}
+    "16": {"beam":"85 in.","bottomGauge":".500 in.","bottomWidth":"60 in.","deadrise":"9\u00b0","fuelTank":"14 gal.","lengthOverall":"17 ft. 11 in.","maxJetHP":"115 hp","maxPropHP":"60 hp","sideGauge":".500 in.","sideHeight":"28 in.","transomGauge":"Not listed"},
+    "18": {"beam":"86 in.","bottomGauge":".500 in.","bottomWidth":"66 in.","deadrise":"9\u00b0","fuelTank":"15 gal.","lengthOverall":"20 ft. 2 in.","maxJetHP":"200 hp","maxPropHP":"115 hp","sideGauge":".500 in.","sideHeight":"32 in.","transomGauge":"1 in."},
+    "20": {"beam":"86 in.","bottomGauge":".625 in.","bottomWidth":"66 in.","deadrise":"9\u00b0","fuelTank":"50 gal.","lengthOverall":"21 ft. 11 in.","maxJetHP":"250 hp","maxPropHP":"115 hp","sideGauge":".500 in.","sideHeight":"32 in.","transomGauge":"1.5 in."}
   },
   "skagit": {
     "18": {"beam":"93 in.","bottomGauge":".190 in.","bottomWidth":"72 in.","deadrise":"10\u00b0","deadriseAtBow":"14\u00b0","fuelTank":"50 gal.","lengthOverall":"20 ft. 5 in.*","maxJetHP":"200 hp","maxPropHP":"115 hp","sideGauge":".125 in.","sideHeight":"34.5 in.","weightOpen":"1,425 lbs.","weightWindshield":"1,500 lbs."},

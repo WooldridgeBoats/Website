@@ -91,6 +91,10 @@ open my $f,'<',$prov or die $!; local $/; my $h=<$f>; close $f;
 $h =~ s/"\Q$s\E\/[^"]*":[01],//g;
 my $ins=join('',map {"\"$s/$_\":1,"} @files);
 $h =~ s/(window\.WB_VETTED\s*=\s*\{)/$1$ins/ or die "no WB_VETTED anchor";
+# drop keys whose photo is gone (old folders, renamed sets, the list's last key) (2026-10-23)
+(my $ph=$prov)=~s{media-provenance\.js$}{photos}; my $gone=0;
+$h =~ s{"([^"]+)":[01],?}{ -e "$ph/$1" ? $& : do { $gone++; '' } }ge; $h =~ s/,\}/}/g;
+print "  provenance: dropped $gone dead key(s)\n" if $gone;
 open my $o,'>',$prov or die $!; print $o $h; close $o;
 print "  provenance: ".scalar(@files)." keys\n";
 PERL

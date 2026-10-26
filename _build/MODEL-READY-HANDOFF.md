@@ -38,12 +38,9 @@ Trigger: I say "Model Ready! <Model>" + attach the master folder
    CONFIRM any data-yt with me (inboard ≠ outboard); check legacy tags render.
 6. Give me the commit line — I push. Commit each model before the next.
 
-State: the 18 MAIN models (the ones tied to the build configurator) all have
-new desktop galleries; 8 also have mobile. The 10 pre-Scout models (Alaskan LT,
-Alaskan, Alaskan XL, XLT, Rogue, Skagit, Sport, SSD, Sportster, Alaskan XL IB)
-still need *-MOBILE exports from me, then a re-run. The 7 CUSTOM builds (Angler,
-Canyon, Deepwater, Landing Craft, Pybus Offshore, RiverRat DIY Kit, SSO
-Pilothouse) aren't part of the main lineup — their photos will come over time.
+State (2026-10-23): ALL 18 main models AND all custom builds have desktop + phone
+galleries matching the master (full audit 2026-10-23). From here, Model Ready = swaps and
+additions. Tyler wants no skipped numbers: close gaps in the master before building.
 Legacy tagging is live (gold #c37d0f): a gallery length the model no longer
 offers gets tagged automatically. Per-photo LM tags are RARE and only come on
 files I supply — never add one yourself. Known trims: cc, ws, tiller, aft-ws,

@@ -418,6 +418,10 @@ open my $vf, '<', $PROV or die "$PROV: $!"; my $v = do { local $/; <$vf> }; clos
 for my $k (@keys) { $v =~ s/"\Q$k\E\/[^"]*":[01],//g }
 my $ins = join '', map { "\"$_\":1," } sort @prov;   # sorted, so moving a card doesn't change this file (and every page's stamp)
 $v =~ s/(window\.WB_VETTED\s*=\s*\{)/$1$ins/ or die "no WB_VETTED anchor\n";
+# drop keys whose photo is gone, e.g. a boat folder that was renamed or removed (2026-10-23)
+(my $ph = $PROV) =~ s{media-provenance\.js$}{photos}; my $gone = 0;
+$v =~ s{"([^"]+)":[01],?}{ -e "$ph/$1" ? $& : do { $gone++; '' } }ge; $v =~ s/,\}/}/g;
+print "  provenance: dropped $gone dead key(s)\n" if $gone;
 open my $vo, '>', $PROV or die $!; print $vo $v; close $vo;
 print "  provenance: " . scalar(@prov) . " keys\n";
 
