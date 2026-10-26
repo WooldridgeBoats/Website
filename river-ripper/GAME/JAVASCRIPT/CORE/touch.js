@@ -284,6 +284,7 @@ RR.Touch = {
         if (root.classList.contains('rr-playing')) return;
         root.classList.add('rr-playing');
         window.scrollTo(0, 0);
+        if (RR.Audio && RR.Audio.setAway) RR.Audio.setAway(false);
         // Real full screen where the browser allows it (Android); the CSS above
         // already fills the screen everywhere else (iPhone Safari has no
         // element full screen).
@@ -301,6 +302,8 @@ RR.Touch = {
 
     _exitPlaying: function () {
         document.documentElement.classList.remove('rr-playing');
+        // Back on the website page: the game's sound waits until they return.
+        if (RR.Audio && RR.Audio.setAway) RR.Audio.setAway(true);
         try {
             if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(function () {});
             else if (document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen();

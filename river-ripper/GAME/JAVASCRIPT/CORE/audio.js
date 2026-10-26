@@ -67,6 +67,25 @@ RR.Audio = {
             selfV._applyMute();
         });
 
+        // OUT OF SIGHT, OUT OF EARSHOT (Tyler, 2026-10-26: "music won't stop
+        // playing"). On the website the game is part of a page you can scroll
+        // past, and on a phone the X drops you back onto that page -- the game
+        // kept running and the music followed you round the site. Now sound
+        // is held while less than a quarter of the game is on screen, or
+        // while a phone has left full screen (touch.js setAway).
+        if (window.IntersectionObserver) {
+            var watchGame = function () {
+                var c = document.getElementById('glCanvas');
+                if (!c) return;
+                new IntersectionObserver(function (es) {
+                    selfV._offscreen = !es[0].isIntersecting || es[0].intersectionRatio < 0.25;
+                    selfV._applyMute();
+                }, { threshold: [0, 0.25, 0.5] }).observe(c);
+            };
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watchGame);
+            else watchGame();
+        }
+
         var AC = window.AudioContext || window.webkitAudioContext;
         if (AC) {
             try {
@@ -147,7 +166,7 @@ RR.Audio = {
         Object.keys(this.sounds).forEach(function (name) {
             var el = self.sounds[name];
             pending++;
-            if (el._wanted && !(self.muted || self._hidden)) {
+            if (el._wanted && !self._quiet()) {
                 // Something asked for this before the gesture and was refused.
                 var pw = el.play();
                 if (pw && pw.then) pw.then(function () { done(true); }, function () { done(false); });
@@ -159,7 +178,7 @@ RR.Audio = {
             var settle = function (ok) {
                 // A real request may have arrived while the bless was in
                 // flight -- the first ENTER both unlocks and starts the run.
-                if (!el._wanted || self.muted || self._hidden) el.pause();
+                if (!el._wanted || self._quiet()) el.pause();
                 el.muted = false;
                 done(ok);
             };
@@ -206,7 +225,7 @@ RR.Audio = {
         var el = this.sounds[name];
         if (!el) return null;
         el._vol = (vol !== undefined ? vol : 1.0) * this.volume;
-        if (!this.muted && !this._hidden) this._playElement(el, el._vol, true);
+        if (!this._quiet()) this._playElement(el, el._vol, true);
         else { el._wanted = false; el.volume = el._vol; el.loop = true; }
         this.activeSounds.push(el);
         return el;
@@ -231,7 +250,7 @@ RR.Audio = {
         if (!el) return;
         this.currentMusic = el;
         el._vol = this.volume * (RR.Config.MUSIC_MIX !== undefined ? RR.Config.MUSIC_MIX : 0.38);
-        if (!this.muted && !this._hidden) this._playElement(el, el._vol, true);
+        if (!this._quiet()) this._playElement(el, el._vol, true);
         else { el._wanted = false; el.volume = el._vol; el.loop = true; }
     },
 
@@ -352,9 +371,19 @@ RR.Audio = {
         return this.muted;
     },
 
-    // Silent = muted OR the tab is hidden.
+    setAway: function (away) {
+        this._away = !!away;
+        this._applyMute();
+    },
+
+    // Silent = muted, the tab hidden, the game scrolled off screen, or a
+    // phone that has left full screen.
+    _quiet: function () {
+        return !!(this.muted || this._hidden || this._offscreen || this._away);
+    },
+
     _applyMute: function () {
-        var silent = this.muted || this._hidden, i, el;
+        var silent = this._quiet(), i, el;
         if (this.master && this.ctx) {
             this.master.gain.setTargetAtTime(silent ? 0 : this.volume, this.ctx.currentTime, 0.02);
         }
