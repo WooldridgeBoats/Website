@@ -61,6 +61,30 @@ RR.Touch = {
         document.addEventListener('touchmove', function (e) { self._move(e); }, opts);
         document.addEventListener('touchend', function (e) { self._end(e); }, opts);
         document.addEventListener('touchcancel', function (e) { self._end(e); }, opts);
+        // Turning the phone sideways with the game on screen takes it full
+        // screen by itself (Tyler, 2026-10-27). EXIT opts out until the phone
+        // goes upright again. (Browsers only allow the REAL full-screen call
+        // inside a tap, so Android finishes the job on the first tap.)
+        if (this.phoneClass()) {
+            var check = function () { setTimeout(function () { self._autoSideways(); }, 250); };
+            window.addEventListener('orientationchange', check);
+            window.addEventListener('resize', check);
+            check();
+        }
+    },
+
+    _optedOut: false,
+    _autoSideways: function () {
+        var sideways = window.innerWidth > window.innerHeight;
+        if (!sideways) { this._optedOut = false; return; }
+        if (this._optedOut || document.documentElement.classList.contains('rr-playing')) return;
+        var box = this._container();
+        if (!box) return;
+        var r = box.getBoundingClientRect();
+        var shown = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0);
+        if (shown < r.height * 0.4) return;     // game scrolled away: leave the page alone
+        if (!this.active) { this.active = true; this._setupDom(); }
+        this._enterPlaying();
     },
 
     // Page -> canvas coordinates WITHOUT the bounds check, so a thumb that
@@ -260,8 +284,10 @@ RR.Touch = {
             '  width: 100vw !important; height: 100vh !important; height: 100dvh !important; max-width: none !important;',
             '  margin: 0 !important; border-radius: 0 !important; aspect-ratio: auto !important; z-index: 10000; background: #05080b; }',
             'html.rr-playing .rr-touchbox canvas { width: 100% !important; height: 100% !important; object-fit: contain; }',
-            '.rr-x { display: none; position: absolute; left: 10px; top: 10px; z-index: 10002; width: 44px; height: 44px;',
-            '  border-radius: 22px; border: 0; background: rgba(8,14,20,0.6); color: #fff; font: 600 22px/44px Inter, Arial, sans-serif; }',
+            '.rr-x { display: none; position: absolute; left: max(8px, env(safe-area-inset-left)); top: 8px; z-index: 10002;',
+            '  width: 58px; height: 58px; padding: 0; border-radius: 12px; border: 2px solid rgba(255,255,255,0.75);',
+            '  background: rgba(8,14,20,0.7); color: #fff; font: 600 22px/1 Inter, Arial, sans-serif; }',
+            '.rr-x small { display: block; margin-top: 3px; font: 700 11px/1 Inter, Arial, sans-serif; letter-spacing: .08em; }',
             'html.rr-playing .rr-x { display: block; }',
             '.rr-rotate { display: none; position: absolute; inset: 0; z-index: 10001; background: #05080b; color: #fff;',
             '  align-items: center; justify-content: center; flex-direction: column; gap: 14px; text-align: center;',
@@ -275,7 +301,7 @@ RR.Touch = {
         x.className = 'rr-x';
         x.setAttribute('aria-label', 'Leave full screen');
         x.setAttribute('data-rr-ui', '1');
-        x.textContent = '✕';
+        x.innerHTML = '✕<small>EXIT</small>';
         var self = this;
         x.addEventListener('click', function (e) { e.stopPropagation(); self._exitPlaying(); });
         x.addEventListener('touchend', function (e) { e.preventDefault(); e.stopPropagation(); self._exitPlaying(); });
@@ -309,6 +335,7 @@ RR.Touch = {
     },
 
     _exitPlaying: function () {
+        this._optedOut = true;
         document.documentElement.classList.remove('rr-playing');
         // Back on the website page: the game's sound waits until they return.
         if (RR.Audio && RR.Audio.setAway) RR.Audio.setAway(true);
