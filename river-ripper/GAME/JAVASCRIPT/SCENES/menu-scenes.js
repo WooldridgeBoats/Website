@@ -1170,8 +1170,8 @@ RR.HowToPlayScene = {
             'Hold ↑ and steer with ← → — the boat goes where the bow points.',
             'The wake follows the boat’s real path. A little hull angle in a hard turn is normal planing skid.',
             'The current sets you toward the outside of a bend and splits around islands — steer early.',
-            'Larger boats carry momentum but lose bank room and rotate more slowly.',
-            'Jump logs with SPACE (or the JUMP button) but watch the cooldown timer.',
+            'Drive straight up a gold-chevron ramp for an automatic jump and 3.2-second boost.',
+            'Clear a log with SPACE / JUMP for +500. Watch the cooldown timer.',
             'Shallow water slows you down. Stay too long and you ground out.',
             'Salmon are harmless. Bears are not—leave room beside an occupied bank.'
         ];

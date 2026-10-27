@@ -216,7 +216,7 @@ RR.LaunchScene = {
         }
 
         if (R.skyDome) R.skyDome.position.set(R.camera.position.x, 0, R.camera.position.z);
-        if (R.waterUniforms) R.waterUniforms.uTime.value = t;
+        if (R.waterUniforms) { R.waterUniforms.uTime.value = t; R.waterUniforms.uCamPos.value.copy(R.camera.position); }
         R._updateVisibleObjects(RR.Boat);
         R._updateWildlife(RR.Boat, RR.Engine.totalTime);
         R.render();
@@ -319,6 +319,8 @@ RR.LaunchScene = {
 // wetLine: local y the river has climbed to on the rig, or null for dry land.
 // reversing: paints the reverse lights.
 // ---------------------------------------------------------------------------
+RR.LaunchScene.truckImage = new Image();
+RR.LaunchScene.truckImage.src = 'GAME/ASSETS/UI/SUBURBAN-CUTOUT.png';
 RR.LaunchScene.drawRig = function (ctx, C, carryingBoat, wetLine, reversing) {
     var BODY = '#B9BEC4', BODY_HI = '#D3D7DB', BODY_LO = '#8E949B';
     var GLASS = '#20262C', CHROME = '#E2E6EA', TRIM = '#15181B';
@@ -399,6 +401,12 @@ RR.LaunchScene.drawRig = function (ctx, C, carryingBoat, wetLine, reversing) {
     }
 
     // ---------------- Suburban ----------------
+    var truck = RR.LaunchScene.truckImage;
+    if (truck.complete && truck.naturalWidth) {
+        var truckW=194,truckH=truckW*truck.naturalHeight/truck.naturalWidth;
+        ctx.drawImage(truck,-204,-truckH,truckW,truckH);
+        if(reversing){ctx.fillStyle='#fff4d2';ctx.fillRect(-14,-32,3,4);}
+    } else {
     ctx.fillStyle = BODY;
     ctx.beginPath();
     ctx.moveTo(-176, -42);
@@ -469,6 +477,7 @@ RR.LaunchScene.drawRig = function (ctx, C, carryingBoat, wetLine, reversing) {
 
     wheel(-148, -21, 21);
     wheel(-36, -21, 21);
+    }
 
     // ---------------- the river coming up the rig ----------------
     if (wetLine !== null && wetLine !== undefined && wetLine < 0) {
@@ -562,6 +571,7 @@ RR.RiverScene = {
     update: function (dt) {
         this.time += dt;
         var boat = RR.Boat;
+        if (RR.Scoring.logJumpFlash > 0) RR.Scoring.logJumpFlash -= dt;
         if (RR.Scoring.salmonFlash > 0) RR.Scoring.salmonFlash -= dt;
         if (RR.Scoring.shortcutFlash > 0) RR.Scoring.shortcutFlash -= dt;
 
@@ -574,6 +584,7 @@ RR.RiverScene = {
         }
 
         boat.update(dt);
+        if (RR.Ramps) RR.Ramps.update(boat);
         RR.Audio.setEngine(boat.crashed ? 0 : boat.throttle,
             boat.crashed ? 0 : boat.speed / Math.max(1, boat.getMaxSpeed()));
         RR.Collision.checkAll(boat);
@@ -635,6 +646,13 @@ RR.RiverScene = {
         var H = C.CANVAS_HEIGHT;
         this.drawHUD(ctx, W, H);
         this.drawRiverIntro(ctx, W, H);
+        if (RR.Scoring.logJumpFlash > 0 || RR.Boat.boostTimer > 0) {
+            ctx.save();ctx.textAlign='center';ctx.font='bold 22px ' + C.FONT_UI;
+            ctx.fillStyle='rgba(10,24,32,0.86)';RR.UI.pill(ctx,W/2-150,H*0.17,300,42,8);ctx.fill();
+            ctx.fillStyle='#f5ce72';
+            ctx.fillText(RR.Scoring.logJumpFlash > 0 ? 'LOG CLEARED  +500' : 'RAMP BOOST  ' + RR.Boat.boostTimer.toFixed(1) + 's',W/2,H*0.17+28);
+            ctx.restore();
+        }
     },
 
     drawRiverIntro: function (ctx, W, H) {
@@ -1084,11 +1102,11 @@ RR.RiverScene.drawMiniMap = function (ctx, W, H, boat) {
 
     // Tall and narrow: a river is long and thin, and a wide box wasted the
     // corner. 96 x 208 instead of 132 x 176.
-    var bw = 96, bh = 208, pad = 10;
+    var bw = 164, bh = 228, pad = 18;
     var bx = W - bw - 16, by = H - bh - 16;
 
     ctx.save();
-    ctx.fillStyle = 'rgba(8,14,20,0.62)';
+    ctx.fillStyle = 'rgba(8,25,30,0.86)';
     RR.UI.pill(ctx, bx, by, bw, bh, 8);
     ctx.fill();
     ctx.strokeStyle = 'rgba(223,227,230,0.22)';
@@ -1107,11 +1125,11 @@ RR.RiverScene.drawMiniMap = function (ctx, W, H, boat) {
     // and the gold finish dot sits at the bottom. Tyler's call, and it matches
     // the way you read a river running away from you down the screen.
     var spanX = Math.max(1, m.maxX - m.minX), spanZ = Math.max(1, m.maxZ - m.minZ);
-    var scZ = (bh - pad * 2 - 14) / spanZ;
+    var scZ = (bh - pad * 2 - 32) / spanZ;
     var scX = Math.min((bw - pad * 2) / spanX, scZ * 7);
     var ox = bx + bw / 2 - ((m.minX + m.maxX) / 2) * scX;
-    var oy = by + pad + 8;
-    var P = function (p) { return { x: ox + p.x * scX, y: oy + (p.z - m.minZ) * scZ }; };
+    var oy = by + bh - pad - 12;
+    var P = function (p) { return { x: ox + p.x * scX, y: oy - (p.z - m.minZ) * scZ }; };
 
     var i, p;
     ctx.beginPath();
@@ -1120,13 +1138,23 @@ RR.RiverScene.drawMiniMap = function (ctx, W, H, boat) {
         if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
     }
     ctx.strokeStyle = 'rgba(90,160,180,0.55)';
-    ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.lineWidth = 9; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
     ctx.stroke();
     ctx.strokeStyle = C.WB_BLUE;
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // start (top) and finish (bottom, gold)
+    // Gold diamonds show optional ramps on the same course coordinates.
+    if (RR.Ramps) RR.Ramps.items.forEach(function (ramp) {
+        var rp = P(RR.Renderer3D.getWorldPos(ramp.z, 0));
+        ctx.fillStyle = ramp.used ? '#62716c' : '#f5ce72';
+        ctx.beginPath();ctx.moveTo(rp.x,rp.y-4);ctx.lineTo(rp.x+4,rp.y);
+        ctx.lineTo(rp.x,rp.y+4);ctx.lineTo(rp.x-4,rp.y);ctx.closePath();ctx.fill();
+    });
+    ctx.font='bold 9px '+C.FONT_UI;ctx.fillStyle='#DFE3E6';ctx.textAlign='center';
+    ctx.fillText('RIVER RUN  ◆ RAMPS',bx+bw/2,by+14);
+
+    // Start at the bottom; the finish sits upstream at the top.
     var st = P(m.pts[0]);
     ctx.fillStyle = 'rgba(223,227,230,0.55)';
     ctx.fillRect(st.x - 2.5, st.y - 2.5, 5, 5);
@@ -1134,7 +1162,8 @@ RR.RiverScene.drawMiniMap = function (ctx, W, H, boat) {
     // No index arithmetic, which is what the earlier attempt threw on.
     var fin = P(m.pts[m.pts.length - 1]);
     ctx.fillStyle = C.UI_GOLD;
-    ctx.fillRect(fin.x - 3.5, fin.y - 3.5, 7, 7);
+    ctx.fillRect(fin.x - 4, fin.y - 4, 8, 8);
+    ctx.font='bold 9px '+C.FONT_UI;ctx.fillText('FINISH',fin.x,fin.y-7);
 
     // the boat
     // Normalise on the finish GATE, not the last segment. The course runs to

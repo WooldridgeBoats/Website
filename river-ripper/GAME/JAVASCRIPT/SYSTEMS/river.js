@@ -641,6 +641,19 @@ RR.River = {
 
         this.totalLength = this.segments.length * RR.Config.SEGMENT_LENGTH;
         this.finishZ = this.finishSegment * RR.Config.SEGMENT_LENGTH;
+        // Sparse lone snags; most remaining timber is a low root/branch
+        // cluster beside a bank, anchored visually by a small boulder.
+        this.segments.forEach(function(seg,index){
+            seg.obstacles=seg.obstacles.filter(function(o,j){
+                if(o.type!=='tree')return true;
+                var seed=Math.abs(Math.sin(index*12.9898+j*78.233)*43758.5453)%1;
+                if(seed>0.38)return false;
+                o.cluster=seed>0.065;
+                if(o.cluster)o.x=(o.x<0?-1:1)*(0.48+seed*0.45);
+                return true;
+            });
+        });
+        if (RR.Ramps) RR.Ramps.generate();
 
         // INVALIDATE THE RENDERER'S BUILD SIGNATURE.
         //

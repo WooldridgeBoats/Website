@@ -69,7 +69,7 @@ RR.Renderer3D = {
     // angle; at 25 it is 5. The easing you see comes from the bow's own
     // STEER_RESPONSE, which is already smoothed.
     CAM_YAW_SMOOTH: 25.0,
-    RIVER_SCALE: 0.05,
+    RIVER_SCALE: RR.Config.WORLD_SCALE,
     // Half-width of the sun's shadow box, and how far ahead of the hull it
     // rides. 300 covers the channel (~102 half width) plus the bank timber
     // (out to ~200 beyond the waterline) with 2048 texels across it, which is
@@ -1384,6 +1384,7 @@ RR.Renderer3D = {
         this._createLandmarks();
         this._allocateCrocPool();
         this._applyBoatModel();
+        if (RR.Ramps) RR.Ramps.buildMeshes(this);
         this._tagTexturesSRGB();
         this._applyShadowFlags();
         this._camYaw = null;   // re-seed the chase camera on the new course
@@ -1950,26 +1951,26 @@ RR.Renderer3D = {
         // horizon ahead of the camera every frame. Keep their offsets here.
         this._backdrop = [];
         var layers = [
-            { color: 0x7888A0, y: 120, z: 2500, scaleY: 180, opacity: 0.8, snow: true },
-            { color: 0x5A6878, y: 80, z: 1800, scaleY: 140, opacity: 0.9, snow: false },
-            { color: 0x3A4A5C, y: 50, z: 1200, scaleY: 100, opacity: 1.0, snow: false }
+            { color: 0xA9BAC4, y: 60, z: 2500, scaleY: 180, opacity: 0.8, snow: true },
+            { color: 0x8AA0A7, y: 30, z: 1800, scaleY: 140, opacity: 0.9, snow: false },
+            { color: 0x6F8989, y: 0, z: 1200, scaleY: 100, opacity: 1.0, snow: false }
         ];
 
         for (var li = 0; li < layers.length; li++) {
             var L = layers[li];
             var shape = new THREE.Shape();
             var W = 6000;
-            shape.moveTo(-W, 0);
-            var peaks = 12;
+            shape.moveTo(-W, -180);
+            var peaks = 160;
             for (var p = 0; p <= peaks; p++) {
                 var px = -W + (p / peaks) * W * 2;
-                var py = (Math.sin(p * 1.7 + li * 2.3) * 0.5 + 0.5) * L.scaleY;
-                py += Math.sin(p * 3.1 + li) * L.scaleY * 0.2;
+                var py = (Math.sin(p * 0.15 + li * 2.3) * 0.5 + 0.5) * L.scaleY;
+                py += Math.sin(p * 0.37 + li) * L.scaleY * 0.15 + Math.sin(p * 1.43) * L.scaleY * 0.025;
                 if (p === 0 || p === peaks) py *= 0.5;
                 shape.lineTo(px, py);
             }
-            shape.lineTo(W, 0);
-            shape.lineTo(-W, 0);
+            shape.lineTo(W, -180);
+            shape.lineTo(-W, -180);
 
             var geo = new THREE.ShapeGeometry(shape);
             var mat = new THREE.MeshBasicMaterial({
@@ -1982,35 +1983,7 @@ RR.Renderer3D = {
             this.scene.add(mesh);
             this._backdrop.push({ mesh: mesh, y: L.y, dist: L.z });
 
-            if (L.snow) {
-                var snowShape = new THREE.Shape();
-                snowShape.moveTo(-W, 0);
-                for (var sp = 0; sp <= peaks; sp++) {
-                    var spx = -W + (sp / peaks) * W * 2;
-                    var baseH = (Math.sin(sp * 1.7 + li * 2.3) * 0.5 + 0.5) * L.scaleY;
-                    baseH += Math.sin(sp * 3.1 + li) * L.scaleY * 0.2;
-                    if (sp === 0 || sp === peaks) baseH *= 0.5;
-                    var snowH = baseH * 0.85;
-                    if (baseH > L.scaleY * 0.5) {
-                        snowShape.lineTo(spx - 8, snowH);
-                        snowShape.lineTo(spx, baseH);
-                        snowShape.lineTo(spx + 8, snowH);
-                    } else {
-                        snowShape.lineTo(spx, baseH * 0.3);
-                    }
-                }
-                snowShape.lineTo(W, 0);
-                snowShape.lineTo(-W, 0);
-                var snowGeo = new THREE.ShapeGeometry(snowShape);
-                var snowMat = new THREE.MeshBasicMaterial({
-                    color: 0xE0E8F0, side: THREE.DoubleSide, fog: false
-                });
-                var snowMesh = new THREE.Mesh(snowGeo, snowMat);
-                snowMesh.position.set(0, L.y, L.z - 1);
-                snowMesh.renderOrder = -9 + li;
-                this.scene.add(snowMesh);
-                this._backdrop.push({ mesh: snowMesh, y: L.y, dist: L.z - 1 });
-            }
+
         }
 
         var treeLineGeo = new THREE.PlaneGeometry(6000, 170);
@@ -2077,10 +2050,15 @@ RR.Renderer3D = {
         if (this.waterMesh) {
             this.scene.remove(this.waterMesh);
             this.waterMesh.geometry.dispose();
+            this.waterMesh.material.dispose();
         }
 
-        var path = this.riverPath;
-        var normals = this.riverNormals;
+        // Water extends behind the starting boat and chase camera. Without
+        // this apron, the lower screen shows the pale scene background at z=0.
+        var first = this.riverPath[0];
+        var path = [{x:first.x-Math.sin(first.heading)*400,
+            z:first.z-Math.cos(first.heading)*400,width:first.width,seg:first.seg}].concat(this.riverPath);
+        var normals = [this.riverNormals[0]].concat(this.riverNormals);
         var total = path.length - 1;
         var verts = new Float32Array(total * 6 * 3);
         var uvs = new Float32Array(total * 6 * 2);
@@ -2152,6 +2130,13 @@ RR.Renderer3D = {
         var bankCol = (RR.River.profile && RR.River.profile.colors && RR.River.profile.colors.bank) || 0xA09070;
         this.waterUniforms = {
             uGravelColor: { value: new THREE.Color(bankCol).multiplyScalar(0.62) },
+            uChop: { value: 1 },
+            uSediment: { value: 0.1 },
+            uFogDensity: { value: 0.0015 },
+            uReflection: { value: null },
+            uReflectionMatrix: { value: new THREE.Matrix4() },
+            uReflectionStrength: { value: 0 },
+            uFogColor: { value: this.scene.fog.color },
             uTime: { value: 0 },
             uDeepColor: { value: new THREE.Color(0x1E4540) },
             uMidColor: { value: new THREE.Color(0x2A5E52) },
@@ -2189,6 +2174,13 @@ RR.Renderer3D = {
                 'uniform vec3 uSunDir;',
                 'uniform vec3 uCamPos;',
                 'uniform vec3 uGravelColor;',
+                'uniform float uChop;',
+                'uniform float uSediment;',
+                'uniform float uFogDensity;',
+                'uniform sampler2D uReflection;',
+                'uniform mat4 uReflectionMatrix;',
+                'uniform float uReflectionStrength;',
+                'uniform vec3 uFogColor;',
                 'varying vec2 vUv;',
                 'varying vec2 vShallow;',
                 'varying vec3 vWorldPos;',
@@ -2225,8 +2217,18 @@ RR.Renderer3D = {
                 '  float ripple2 = fbm(flowUV * 6.0 - uTime * 0.2);',
                 '  float wave = ripple * 0.6 + ripple2 * 0.4;',
                 '',
+                // Analytic wave slopes: long wind ripples crossed by short chop.
+                '  float a = dot(vWorldPos.xz, vec2(0.28, 0.19)) + uTime * 1.9;',
+                '  float b = dot(vWorldPos.xz, vec2(-0.48, 0.32)) + uTime * 2.7;',
+                '  float c = dot(vWorldPos.xz, vec2(1.16, 0.57)) - uTime * 3.8;',
+                '  float dist = length(uCamPos - vWorldPos);',
+                '  float detail = 1.0 - smoothstep(80.0, 650.0, dist);',
+                '  vec2 slope = vec2(0.28,0.19)*cos(a)*0.24 + vec2(-0.48,0.32)*cos(b)*0.12;',
+                '  slope += vec2(1.16,0.57)*cos(c)*0.038*detail;',
+                '  slope *= uChop;',
+                '  vec3 perturbNormal = normalize(vec3(-slope.x, 1.0, -slope.y));',
                 '  vec3 viewDir = normalize(uCamPos - vWorldPos);',
-                '  float fresnel = pow(1.0 - max(dot(viewDir, vec3(0.0, 1.0, 0.0)), 0.0), 3.0);',
+                '  float fresnel = pow(1.0 - max(dot(viewDir, perturbNormal), 0.0), 3.0);',
                 '  fresnel = mix(0.1, 0.9, fresnel);',
                 '',
                 '  float depth = vUv.x;',
@@ -2235,10 +2237,15 @@ RR.Renderer3D = {
                 '  waterCol = mix(waterCol, uMidColor, wave * 0.3);',
                 '',
                 '  vec3 reflCol = mix(uReflectColor, uSkyColor, fresnel);',
-                '  vec3 col = mix(waterCol, reflCol, fresnel * 0.42);',
+                '  vec4 projected = uReflectionMatrix * vec4(vWorldPos, 1.0);',
+                '  vec2 reflectionUV = projected.xy / max(projected.w, 0.001);',
+                '  reflectionUV += slope * (0.018 * detail + 0.002);',
+                '  vec3 reflected = texture2D(uReflection, clamp(reflectionUV, 0.002, 0.998)).rgb;',
+                '  reflCol = mix(reflCol, reflected, uReflectionStrength);',
+                '  vec3 col = mix(waterCol, reflCol, (0.12 + fresnel * 0.72) * (1.0 - 0.62*uSediment));',
                 '',
                 '  float streaks = smoothstep(0.48, 0.52, noise(flowUV * vec2(1.0, 8.0) + uTime * 0.4));',
-                '  col = mix(col, uReflectColor, streaks * 0.20);',
+                '  col = mix(col, uReflectColor, streaks * 0.055);',
                 '',
                 '  float edgeNoise = fbm(flowUV * vec2(1.8, 5.5) - uTime * 0.22);',
                 '  float edgeFoam = (1.0 - smoothstep(0.0, 0.11, edgeDist)) *',
@@ -2247,11 +2254,6 @@ RR.Renderer3D = {
                 '  float glint = pow(max(0.0, wave - 0.68), 2.0) * (0.2 + fresnel);',
                 '  col += ' + this._waterVec('glint') + ' * glint * ' + this.WATER_GLINT_AMT.toFixed(3) + ';',
                 '',
-                '  vec3 perturbNormal = normalize(vec3(',
-                '    (noise(flowUV * 5.0 + uTime) - 0.5) * 0.3,',
-                '    1.0,',
-                '    (noise(flowUV * 5.0 + uTime + 100.0) - 0.5) * 0.3',
-                '  ));',
                 '  float spec = pow(max(dot(reflect(-uSunDir, perturbNormal), viewDir), 0.0), 64.0);',
                 '  col += ' + this._waterVec('spec') + ' * spec * ' + this.WATER_SPEC_AMT.toFixed(3) + ';',
                 '',
@@ -2268,6 +2270,8 @@ RR.Renderer3D = {
                 '    riff = smoothstep(0.62, 0.78, riff) * (0.6 + 0.4 * noise(flowUV * 2.0 - uTime));',
                 '    col = mix(col, ' + this._waterVec('foam') + ', riff * sh * 0.55);',
                 '  }',
+                '  float haze = 1.0 - exp(-uFogDensity * uFogDensity * dist * dist);',
+                '  col = mix(col, uFogColor, haze);',
                 '  gl_FragColor = vec4(col, 1.0);'
             ]),
             transparent: false,
@@ -2655,7 +2659,17 @@ RR.Renderer3D = {
         })();
 
         // Cone with its base at y = 0 and apex at y = 1.
-        var coneGeo = new THREE.ConeGeometry(1, 1, 8, 2);
+        var coneGeo = new THREE.ConeGeometry(1, 1, RR.Config.LITE ? 8 : 12, RR.Config.LITE ? 2 : 18);
+        if (!RR.Config.LITE) {
+            var cp = coneGeo.attributes.position;
+            for (var cv = 0; cv < cp.count; cv++) {
+                var cy = cp.getY(cv), cx = cp.getX(cv), cz = cp.getZ(cv);
+                var branch = 0.76 + 0.24 * Math.cos((cy + 0.5) * Math.PI * 12);
+                var irregular = 1 + 0.12 * Math.sin(Math.atan2(cz,cx)*7 + cy*19);
+                cp.setXYZ(cv, cx*branch*irregular, cy, cz*branch*irregular);
+            }
+            coneGeo.computeVertexNormals();
+        }
         coneGeo.translate(0, 0.5, 0);
         shadeByHeight(coneGeo, 0.6, 1.05);
 
@@ -2860,6 +2874,18 @@ RR.Renderer3D = {
             tree.add(snagRight);
             tree.visible = false;
             g.add(tree);
+            var branches = new THREE.Group();branches.name='branches';
+            var rootBall = new THREE.Mesh(new THREE.DodecahedronGeometry(0.7,0),treeObsMat);
+            rootBall.position.set(0,0.35,0);rootBall.scale.set(1.4,0.8,1);branches.add(rootBall);
+            var anchor = new THREE.Mesh(rockGeo,rockMat);anchor.scale.set(1.1,0.6,0.9);anchor.position.set(0.6,0.25,0.4);branches.add(anchor);
+            for(var bi=0;bi<9;bi++){
+                var branch=new THREE.Mesh(bi<3?snagTrunkGeo:snagBranchGeo,treeObsMat);
+                var ang=bi*2.399;
+                branch.position.set(Math.cos(ang)*0.7,0.45+(bi%3)*0.18,Math.sin(ang)*0.7);
+                branch.rotation.set(0.9+bi*0.17,ang,1.05+bi*0.08);
+                branch.scale.set(0.65,bi<3?0.7:1.2,0.65);branches.add(branch);
+            }
+            branches.visible=false;g.add(branches);
 
             g.visible = false;
             g.userData.active = false;
@@ -3468,7 +3494,7 @@ RR.Renderer3D = {
         geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
         geo.computeBoundingSphere();
         var mat = new THREE.MeshStandardMaterial({
-            vertexColors: true, roughness: 0.42, metalness: 0.28, side: THREE.DoubleSide
+            vertexColors: true, roughness: 0.32, metalness: 0.72, side: THREE.DoubleSide
         });
 
         // THE LOGO IS PAINTED INTO THE HULL (2026-10-26). It used to be a flat
@@ -3553,21 +3579,21 @@ RR.Renderer3D = {
         this.boatGroup.add(consoleRig);
 
         var hullMat = new THREE.MeshStandardMaterial({
-            color: 0xC9CCD1, roughness: 0.42, metalness: 0.28, side: THREE.DoubleSide
+            color: 0xC9CCD1, roughness: 0.34, metalness: 0.72, side: THREE.DoubleSide
         });
         var capMat = new THREE.MeshStandardMaterial({
-            color: 0xE8EAEE, roughness: 0.28, metalness: 0.34, side: THREE.DoubleSide
+            color: 0xE8EAEE, roughness: 0.24, metalness: 0.80, side: THREE.DoubleSide
         });
         // Diamond/tread plate reads as a lighter, flatter gray from above.
         var deckMat = new THREE.MeshStandardMaterial({
-            color: 0xB4B8BE, roughness: 0.78, metalness: 0.18, side: THREE.DoubleSide
+            color: 0xB4B8BE, roughness: 0.48, metalness: 0.68, side: THREE.DoubleSide
         });
         var soleMat = new THREE.MeshStandardMaterial({
-            color: 0xA2A7AD, roughness: 0.82, metalness: 0.14, side: THREE.DoubleSide
+            color: 0xA2A7AD, roughness: 0.52, metalness: 0.62, side: THREE.DoubleSide
         });
-        var glassMat = new THREE.MeshStandardMaterial({
+        var glassMat = new THREE.MeshPhysicalMaterial({
             color: 0x1A3A44, roughness: 0.05, metalness: 0.15,
-            transparent: true, opacity: 0.55, side: THREE.DoubleSide
+            transparent: true, opacity: 0.42, clearcoat: 1, clearcoatRoughness: 0.06, envMapIntensity: 1.1, side: THREE.DoubleSide
         });
         var frameMat = new THREE.MeshStandardMaterial({
             color: 0x222428, roughness: 0.55, metalness: 0.22
@@ -3575,8 +3601,9 @@ RR.Renderer3D = {
         var vinylMat = new THREE.MeshStandardMaterial({
             color: 0x14151A, roughness: 0.85, metalness: 0.05
         });
-        var motorMat = new THREE.MeshStandardMaterial({
-            color: 0x191A1F, roughness: 0.40, metalness: 0.30
+        var motorMat = new THREE.MeshPhysicalMaterial({
+            clearcoat: 1, clearcoatRoughness: 0.13,
+            color: 0x191A1F, roughness: 0.22, metalness: 0.35
         });
         var intakeFootMat = new THREE.MeshStandardMaterial({
             color: 0xFFD800, roughness: 0.48, metalness: 0.22,
@@ -3584,6 +3611,26 @@ RR.Renderer3D = {
             emissive: 0x8A6100, emissiveIntensity: 0.55
         });
 
+        // Object-space tread survives the hand-built quads without UV seams.
+        [deckMat, soleMat].forEach(function(mat) {
+            mat.onBeforeCompile=function(shader) {
+                shader.vertexShader='varying vec3 vTreadPos;\n'+shader.vertexShader;
+                shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvTreadPos=position;');
+                shader.fragmentShader='varying vec3 vTreadPos;\n'+shader.fragmentShader;
+                shader.fragmentShader=shader.fragmentShader.replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
+                    vec2 tp=vTreadPos.xz*8.0;
+                    vec2 cell=floor(tp);vec2 q=fract(tp)-0.5;
+                    float parity=mod(cell.x+cell.y,2.0)*2.0-1.0;
+                    vec2 diagonal=vec2(q.x+parity*q.y,q.x-parity*q.y)*0.7071;
+                    float aa=max(fwidth(tp.x),fwidth(tp.y));
+                    float tread=(1.0-smoothstep(0.07,0.07+aa,abs(diagonal.x)))*(1.0-smoothstep(0.30,0.30+aa,abs(diagonal.y)));
+                    float fade=1.0-smoothstep(0.45,1.2,aa);
+                    diffuseColor.rgb*=1.0+fade*(tread*0.36-0.07);
+                    roughnessFactor=clamp(roughnessFactor-fade*tread*0.14,0.12,1.0);
+                `);
+            };
+            mat.customProgramCacheKey=function(){return 'wooldridge-tread-v1';};
+        });
         var self = this;
         // quad/box/tube append here. Reassign to route a block into a rig.
         var addTo = this.boatGroup;
@@ -3605,6 +3652,17 @@ RR.Renderer3D = {
             m.position.set(x, y, z);
             addTo.add(m);
             return m;
+        }
+
+        function softBox(w,h,d,x,y,z,r,mat) {
+            var g=new THREE.BoxGeometry(w,h,d,4,4,4),p=g.attributes.position,n=g.attributes.normal;
+            for(var j=0;j<p.count;j++) {
+                var v=new THREE.Vector3().fromBufferAttribute(p,j);
+                var core=new THREE.Vector3(Math.max(-w/2+r,Math.min(w/2-r,v.x)),Math.max(-h/2+r,Math.min(h/2-r,v.y)),Math.max(-d/2+r,Math.min(d/2-r,v.z)));
+                var normal=v.clone().sub(core).normalize();v.copy(core).addScaledVector(normal,r);
+                p.setXYZ(j,v.x,v.y,v.z);n.setXYZ(j,normal.x,normal.y,normal.z);
+            }
+            var mesh=new THREE.Mesh(g,mat);mesh.position.set(x,y,z);addTo.add(mesh);return mesh;
         }
 
         function tube(x0,y0,z0, x1,y1,z1, r, mat) {
@@ -3723,6 +3781,20 @@ RR.Renderer3D = {
         // From here to the end of the seats belongs to the windshield boats
         // and is hidden entirely on the Rogue.
         // ---------------------------------------------------------------
+        // Aft splashwell, floor access panels and longitudinal side shelves.
+        // These break up the empty floor using the Alaskan interior reference.
+        box(3.64,0.08,0.62,0,0.67,-4.56,deckMat);
+        box(3.64,0.32,0.055,0,0.47,-4.22,hullMat);
+        [-1,1].forEach(function(side){
+            box(0.16,0.06,5.4,side*1.70,0.70,-1.2,deckMat);
+            for(var rib=-3.5;rib<2;rib+=1.5)box(0.045,0.42,0.045,side*(hwAt(rib)-0.08),0.56,rib,capMat);
+        });
+        [-2.9,-1.4].forEach(function(z){
+            var w=1.15,d=0.58,y=soleY+0.008;
+            tube(-w,y,z-d,w,y,z-d,0.009,frameMat);tube(-w,y,z+d,w,y,z+d,0.009,frameMat);
+            tube(-w,y,z-d,-w,y,z+d,0.009,frameMat);tube(w,y,z-d,w,y,z+d,0.009,frameMat);
+            box(0.17,0.022,0.065,0,y+0.01,z+d-0.09,frameMat);
+        });
         addTo = windshieldRig;
 
         var wz = 3.66, wHalf = 1.22, wh = 0.86, rake = 0.30;
@@ -3793,8 +3865,11 @@ RR.Renderer3D = {
         // ---------------------------------------------------------------
         function seat(sx, sz) {
             box(0.12, 0.34, 0.12, sx, soleY + 0.17, sz, frameMat);
-            box(0.52, 0.14, 0.52, sx, soleY + 0.41, sz, vinylMat);
-            box(0.52, 0.52, 0.13, sx, soleY + 0.72, sz - 0.20, vinylMat);
+            softBox(0.60,0.16,0.60,sx,soleY+0.41,sz,0.055,vinylMat);
+            softBox(0.60,0.56,0.17,sx,soleY+0.72,sz-0.23,0.065,vinylMat);
+            // Padded side bolsters and raised center insert catch soft highlights.
+            [-1,1].forEach(function(side){softBox(0.09,0.21,0.52,sx+side*0.255,soleY+0.49,sz,0.04,vinylMat);});
+            softBox(0.38,0.34,0.035,sx,soleY+0.74,sz-0.128,0.015,frameMat);
         }
         seat(-0.80, 1.62);
         seat( 0.86, 1.62);
@@ -3828,6 +3903,19 @@ RR.Renderer3D = {
         ccWheel.position.set(0, ccY + ccH + 0.22, ccZ + 0.16);
         ccWheel.rotation.x = 1.15;
         addTo.add(ccWheel);
+
+        function helmDetail(rig,x,y,z) {
+            addTo=rig;
+            var dash=softBox(0.48,0.19,0.035,x,y,z,0.015,frameMat);
+            [-0.13,0.13].forEach(function(dx){
+                var dial=new THREE.Mesh(new THREE.CircleGeometry(0.065,20),vinylMat);dial.position.set(x+dx,y,z-0.023);dial.rotation.y=Math.PI;addTo.add(dial);
+                var rim=new THREE.Mesh(new THREE.TorusGeometry(0.069,0.009,6,20),capMat);rim.position.copy(dial.position);addTo.add(rim);
+                tube(x+dx,y,z-0.027,x+dx+0.025,y+0.037,z-0.027,0.006,capMat);
+            });
+        }
+        helmDetail(windshieldRig,-0.86,soleY+0.70,2.66);
+        helmDetail(consoleRig,0,ccY+ccH-0.12,ccZ-0.385);
+        addTo=consoleRig;
 
         // Raised bow storage box -- wears the wordmark in ROGUE-2 and ROGUE-3.
         box(1.30, 0.30, 0.80, 0, soleY + 0.15, 2.55, deckMat);
@@ -4071,13 +4159,31 @@ RR.Renderer3D = {
         // ---------------------------------------------------------------
         // OUTBOARD -- boxy cowl, hung on the transom.
         // ---------------------------------------------------------------
+        var motorRig = new THREE.Group();
+        motorRig.position.set(0, 0, -5.14);
+        this.boatGroup.add(motorRig);
+        this._motorRig = motorRig;
+        addTo = motorRig;
         var mz = -5.64;
         box(0.74, 0.56, 0.42,  0, 0.88, -5.14, motorMat);   // transom bracket
-        box(1.02, 1.08, 0.96,  0, 1.24, mz,    motorMat);   // cowl
-        box(0.88, 0.17, 0.82,  0, 1.86, mz,    motorMat);   // cowl cap
+        // Sculpted outboard cowl: rounded rectangular sections, tapered crown.
+        var rings=[[0.70,0.40,0.38],[0.80,0.49,0.45],[1.34,0.54,0.49],[1.70,0.48,0.43],[1.88,0.32,0.30],[1.93,0.04,0.04]];
+        var cp=[],ci=[],steps=32;
+        rings.forEach(function(r){for(var j=0;j<steps;j++){var a=j/steps*Math.PI*2,c=Math.cos(a),sn=Math.sin(a);cp.push(Math.sign(c)*Math.pow(Math.abs(c),0.68)*r[1],r[0],mz+Math.sign(sn)*Math.pow(Math.abs(sn),0.68)*r[2]);}});
+        for(var ri=0;ri<rings.length-1;ri++)for(var cj=0;cj<steps;cj++){var a=ri*steps+cj,b=ri*steps+(cj+1)%steps;ci.push(a,a+steps,b,b,a+steps,b+steps);}
+        var cowlGeo=new THREE.BufferGeometry();cowlGeo.setAttribute('position',new THREE.Float32BufferAttribute(cp,3));cowlGeo.setIndex(ci);cowlGeo.computeVertexNormals();
+        var cowl=new THREE.Mesh(cowlGeo,motorMat);addTo.add(cowl);
+        softBox(0.80,0.065,0.86,0,0.81,mz,0.025,frameMat);
+        // Rear air intake and subtle bright trim, visible from the chase camera.
+        softBox(0.51,0.12,0.035,0,1.61,mz-0.442,0.015,frameMat);
+        for(var vent=0;vent<4;vent++)box(0.42,0.012,0.018,0,1.57+vent*0.025,mz-0.466,capMat);
+        softBox(0.57,0.035,0.025,0,1.02,mz-0.477,0.01,capMat);
         box(0.44, 1.22, 0.48,  0, 0.16, mz,    motorMat);   // midsection
         box(0.34, 0.44, 1.18,  0, -0.54, mz + 0.08, intakeFootMat);  // yellow intake foot
         box(0.09, 0.33, 0.53,  0, -0.88, mz + 0.03, intakeFootMat);  // yellow skeg
+
+        motorRig.children.forEach(function (o) { o.position.z += 5.14; });
+        addTo = this.boatGroup;
 
         // ---------------------------------------------------------------
         // WB FULL LOGO -- where the real boats actually carry it: a badge on
@@ -4372,6 +4478,7 @@ RR.Renderer3D = {
     },
 
     update: function (dt, time) {
+        if (RR.Ramps) RR.Ramps.animate(time || 0);
         if (!this.ready) return;
         var boat = RR.Boat;
         var C = RR.Config;
@@ -4387,8 +4494,8 @@ RR.Renderer3D = {
         var boatHeading = wp.heading;
 
         if (this.boatGroup) {
-            this.boatGroup.scale.set(3 * model.beamScale, 3, 3 * model.lengthScale);
-            this.boatGroup.position.set(wp.x, boat.jumpHeight * S + 0.2, wp.z);
+            this.boatGroup.scale.set(3 * model.beamScale, 3 * (model.heightScale || 1), 3 * model.lengthScale);
+            this.boatGroup.position.set(wp.x, boat.jumpHeight * S + (boat.rampHeight || 0) + 0.2, wp.z);
             // The river supplies the base course heading; A/D add the boat's
             // own bow angle so the model, wake and actual travel all agree.
             // SIGN: +heading, not -heading.
@@ -4410,7 +4517,10 @@ RR.Renderer3D = {
             this.boatGroup.rotation.z = boat.tilt * 0.5;
 
             var pitchTarget = -(boat.speed / boat.getMaxSpeed()) * 0.08;
-            this.boatGroup.rotation.x = pitchTarget;
+            var planing = Math.min(1, boat.speed / boat.getMaxSpeed());
+            this.boatGroup.rotation.x = pitchTarget + (boat.rampPitch || 0) + Math.sin(time * 5.2) * 0.006 * planing;
+            this.boatGroup.position.y += Math.sin(time * 4.3) * 0.055 * planing;
+            if (this._motorRig) this._motorRig.rotation.y = -(boat.helm || 0) * 0.32;
         }
 
         var lookAhead = this.getWorldPos(boat.z + this.CAM_LOOK_AHEAD * this.SEG_LEN * S, boat.lateral * 0.3);
@@ -4472,6 +4582,7 @@ RR.Renderer3D = {
         this._camPos.y += (targetCamY - this._camPos.y) * Math.min(1, 4.0 * dt);
 
         this.camera.position.set(this._camPos.x, this._camPos.y, this._camPos.z);
+        if (this.waterUniforms) this.waterUniforms.uCamPos.value.copy(this.camera.position);
         // AIM ALONG THE CAMERA'S OWN YAW AXIS -- the same axis the camera is
         // positioned on -- so the hull sits pointing UP the screen.
         //
@@ -4738,7 +4849,7 @@ RR.Renderer3D = {
             spray.lookAt(this.camera.position);
         }
 
-        this.wakeGroup.visible = speedRatio > 0.03;
+        this.wakeGroup.visible = speedRatio > 0.03 && boat.jumpHeight < 25 && (boat.rampHeight || 0) < 2;
     },
 
     _updateVisibleObjects: function (boat) {
@@ -4771,6 +4882,8 @@ RR.Renderer3D = {
                 var rock = pool.getObjectByName('rock');
                 var log = pool.getObjectByName('log');
                 var tree = pool.getObjectByName('tree');
+                var branches = pool.getObjectByName('branches');
+                branches.visible = false;
                 rock.visible = false;
                 log.visible = false;
                 tree.visible = false;
@@ -4805,9 +4918,12 @@ RR.Renderer3D = {
                     // and stretched vertically so it breaks the waterline
                     // clearly from a long way off.
                     var tsz = obs.size * C.TREE_OBSTACLE_SCALE;
-                    tree.visible = true;
+                    tree.visible = !obs.cluster;
+                    branches.visible = !!obs.cluster;
                     tree.scale.set(tsz * 0.78, tsz * 1.30, tsz * 0.78);
-                    pool.position.y = 1;
+                    branches.scale.set(tsz,tsz,tsz);
+                    branches.rotation.y=si*1.37+oi;
+                    pool.position.y = obs.cluster ? 0.15 : 1;
                 }
                 obsIdx++;
             }
