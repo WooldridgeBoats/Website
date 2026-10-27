@@ -26,12 +26,18 @@ RR.Collision = {
         var segIdx = Math.floor(boat.z / C.SEGMENT_LENGTH);
         var checkRange = 2;
         var i, seg, j, obs, dx, hitDist, obsReach, hitLen;
-        for (i = segIdx - checkRange; i <= segIdx + checkRange; i++) {
+        var previousZ = boat.previousZ === undefined ? boat.z : boat.previousZ;
+        for (i = Math.floor(previousZ / C.SEGMENT_LENGTH) - checkRange; i <= segIdx + checkRange; i++) {
             if (i < 0 || i >= River.segments.length) continue;
             seg = River.segments[i];
             for (j = 0; j < seg.obstacles.length; j++) {
                 obs = seg.obstacles[j];
-                dx = Math.abs(boat.lateral - obs.x);
+                var obsZ = i * C.SEGMENT_LENGTH;
+                var crossed = previousZ <= obsZ && boat.z >= obsZ;
+                var fraction = crossed ? Math.max(0, Math.min(1, (obsZ - previousZ) / Math.max(0.001, boat.z - previousZ))) : 1;
+                var crossX = crossed ? (boat.previousLateral === undefined ? boat.lateral : boat.previousLateral) +
+                    (boat.lateral - (boat.previousLateral === undefined ? boat.lateral : boat.previousLateral)) * fraction : boat.lateral;
+                dx = Math.abs(crossX - obs.x);
                 hitDist = Math.max(0.08, obs.size * 0.2 + (model.beamScale - 1) * 0.09);
 
                 // Longitudinal reach: the hull's own half length plus the
@@ -45,13 +51,15 @@ RR.Collision = {
 
                 if (dx < hitDist) {
                     var dz = Math.abs(boat.z - i * C.SEGMENT_LENGTH);
-                    if (dz < hitLen) {
+                    if (dz < hitLen || crossed) {
                         // Logs never end a run. Clear one in the air and it
                         // scores; hit one on the water and you just bump over
                         // it. Only rocks and trees standing in the river are
                         // hard enough to stop you.
                         if (obs.type === 'log' || obs.type === 'log_jump') {
-                            if (boat.jumpHeight > 0) {
+                            var clearHeight = crossed ? (boat.previousJumpHeight || 0) +
+                                (boat.jumpHeight - (boat.previousJumpHeight || 0)) * fraction : boat.jumpHeight;
+                            if (clearHeight >= C.LOG_CLEAR_HEIGHT) {
                                 if (!obs._cleared) {
                                     obs._cleared = true;
                                     RR.Scoring.addJumpBonus();
@@ -73,6 +81,10 @@ RR.Collision = {
                             }
                             continue;
                         }
+                        // Clearing low branch piles is possible with the
+                        // stronger jump; standing snags need extra clearance.
+                        var clearance = obs.type === 'tree' ? (obs.cluster ? 110 : 280) : obs.size * C.ROCK_SCALE / C.WORLD_SCALE;
+                        if (boat.jumpHeight > clearance) continue;
                         // Rocks and trees go through takeHit, so an armoured
                         // hull can survive them. _struck stops one obstacle
                         // costing more than one life as the boat rides past.
@@ -204,10 +216,12 @@ RR.Collision = {
     },
 
     resetNearMisses: function () {
+        if (RR.Ramps) RR.Ramps.reset();
         var segs = RR.River.segments;
         var i, j;
         for (i = 0; i < segs.length; i++) {
             for (j = 0; j < segs[i].obstacles.length; j++) {
+                segs[i].obstacles[j]._cleared = false;
                 segs[i].obstacles[j]._nearMissed = false;
                 segs[i].obstacles[j]._bumped = false;
                 segs[i].obstacles[j]._struck = false;

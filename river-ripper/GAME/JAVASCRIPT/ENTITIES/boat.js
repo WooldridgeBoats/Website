@@ -17,6 +17,8 @@ RR.Boat = {
     headingOffset: 0,
     travelHeadingOffset: 0,
     steeringLoad: 0,
+    yawRate: 0,
+    helm: 0,
     throttle: 0,
     bearWarning: false,
     hits: 0,
@@ -31,6 +33,13 @@ RR.Boat = {
 
     reset: function () {
         this.z = 0;
+        this.previousZ = 0;
+        this.previousLateral = 0;
+        this.previousJumpHeight = 0;
+        this.boostTimer = 0;
+        this.rampHeight = 0;
+        this.rampPitch = 0;
+        this._ridingRamp = null;
         this.lateral = 0;
         this.speed = 0;
         this.jumpVelocity = 0;
@@ -46,6 +55,8 @@ RR.Boat = {
         this.headingOffset = 0;
         this.travelHeadingOffset = 0;
         this.steeringLoad = 0;
+        this.yawRate = 0;
+        this.helm = 0;
         this._curS = null;
         this.tookShortcut = false;
         this._curL = null;
@@ -64,6 +75,10 @@ RR.Boat = {
 
     update: function (dt) {
         if (this.crashed || this.grounded) return;
+        this.previousZ = this.z;
+        this.previousLateral = this.lateral;
+        this.previousJumpHeight = this.jumpHeight;
+        this.boostTimer = Math.max(0, (this.boostTimer || 0) - dt);
         var C = RR.Config;
         var Input = RR.Input;
         var River = RR.River;
@@ -102,6 +117,7 @@ RR.Boat = {
             this.speed -= (C.NATURAL_DECEL / Math.sqrt(model.massMult)) * dt;
         }
 
+        if (this.boostTimer > 0 && onThrottle) this.speed += C.ACCELERATION * dt;
         var modelMaxSpeed = this.getMaxSpeed();
         var effectiveMax = modelMaxSpeed;
         if (shallowAmount > 0) {
@@ -118,41 +134,35 @@ RR.Boat = {
         if (shallowAmount > 0) steerMult *= C.SHALLOW_STEER_MULT;
         if (this.jumpHeight > 0) steerMult *= 0.3;
 
-        // ONE AXIS, ONE HEADING. This is deliberately as simple as it can be.
-        //
-        // A/D and the arrow keys are aliases, they set a bow angle, and THE
-        // BOAT GOES WHERE THE BOW POINTS. There is no separate course angle and
-        // no slip. Two earlier models kept a bow angle and a travel angle as
-        // independent values -- first with different influences per key, then
-        // with the bow leading the course by BOW_LEAD under a slip cap -- and
-        // both let the hull sit at an angle to its own path, which is the
-        // "boat drives forwards sideways" this game kept coming back to.
-        // The reference clips have exactly one heading. So does this now.
+        // One helm for keyboard and touch. Jet thrust acts at the stern;
+        // heading responds with damped angular momentum rather than snapping
+        // to a commanded angle. This is an assisted river racer, not a simulator.
         var steerInput = 0;
         if (Input.isDown('KeyA') || Input.isDown('ArrowLeft')) steerInput -= 1;
         if (Input.isDown('KeyD') || Input.isDown('ArrowRight')) steerInput += 1;
-        // Phone stick (CORE/touch.js): analog, -1..1, same single bow axis.
         if (RR.Touch && RR.Touch.steering) steerInput = RR.Touch.steer;
+        this.helm += (steerInput - this.helm) * (1 - Math.exp(-12 * dt));
 
-        // A jet boat needs thrust to point. A little authority remains at idle,
-        // but the usable angle grows with speed.
-        var steerAuthority = C.MIN_STEER_AUTHORITY +
-            (1 - C.MIN_STEER_AUTHORITY) * speedRatio;
+        var steerAuthority = (0.12 + 0.88 * Math.sqrt(speedRatio)) *
+            (0.36 + 0.64 * this.throttle);
         var modelSteerAngle = C.MAX_BOW_ANGLE * model.steerMult;
         var oldHeadingOffset = this.headingOffset;
-
-        var targetHeading = steerInput * modelSteerAngle * steerAuthority * steerMult;
-        var steerResponse = C.STEER_RESPONSE;
-        if (steerInput === 0) steerResponse = C.STEER_RELEASE;
-        else if (this.headingOffset * steerInput < 0) steerResponse = C.STEER_REVERSE_RESPONSE;
-        steerResponse *= model.steerResponseMult;
-
-        this.headingOffset = targetHeading +
-            (oldHeadingOffset - targetHeading) * Math.exp(-steerResponse * dt);
-        if (steerInput === 0 && Math.abs(this.headingOffset) < 0.001) this.headingOffset = 0;
-
-        // The course IS the heading. Kept as its own field only because the
-        // wake mesh and the HUD read it; it is never allowed to differ.
+        var targetHeading = this.helm * modelSteerAngle * steerAuthority * steerMult;
+        var response = (steerInput === 0 ? C.STEER_RELEASE : C.STEER_RESPONSE) *
+            model.steerResponseMult / Math.sqrt(model.massMult);
+        // Exact critically damped spring integration; stable at 30/60/120 Hz.
+        var error = this.headingOffset - targetHeading;
+        var spring = this.yawRate + response * error;
+        var decay = Math.exp(-response * dt);
+        this.headingOffset = targetHeading + (error + spring * dt) * decay;
+        this.yawRate = (this.yawRate - response * spring * dt) * decay;
+        if (steerInput === 0 && Math.abs(this.headingOffset) < 0.0001 && Math.abs(this.yawRate) < 0.001) {
+            this.headingOffset = 0;
+            this.yawRate = 0;
+        }
+        // No persistent sideways crabbing: the hull's drive follows its bow.
+        // The extra displacement below makes that bow sweep about an aft
+        // pivot, while collision and camera still track the actual hull center.
         this.travelHeadingOffset = this.headingOffset;
         var oldTravelHeadingOffset = oldHeadingOffset;
 
@@ -199,6 +209,14 @@ RR.Boat = {
         var riverHalfWidth = Math.max(1, seg.width * C.BASE_RIVER_HALF_WIDTH);
         var crossRiverSpeed = moveSpeed * Math.sin(moveHeading);
         this.lateral += crossRiverSpeed / riverHalfWidth * dt;
+        // Drawn hull length is in renderer units; convert to simulation units.
+        // Pivot is 55% of the half-length aft of center, not at the transom.
+        // Grounded/airborne hulls must not gain a water-driven pivot impulse.
+        var pivot = C.HULL_HALF_LENGTH * model.lengthScale * C.STERN_PIVOT_FRACTION /
+            C.WORLD_SCALE * Math.min(1, speedRatio * 4);
+        if (this.jumpHeight <= 0) {
+            this.lateral += pivot * (Math.sin(this.headingOffset) - Math.sin(oldHeadingOffset)) / riverHalfWidth;
+        }
 
         this.lateral += current.lateral * C.MAX_LATERAL_CURRENT / massResistance * dt * (1 - speedRatio * 0.3);
 
@@ -214,7 +232,7 @@ RR.Boat = {
         var onEdge = false;
         if (this.lateral < -edgeLimit) {
             this.lateral = -edgeLimit;
-            if (this.headingOffset < 0) this.headingOffset = 0;
+            if (this.headingOffset < 0) { this.headingOffset = 0; this.yawRate = 0; }
             onEdge = true;
         }
         // The right edge opens up through the canyon shortcut (river.js).
@@ -225,7 +243,7 @@ RR.Boat = {
             // bounded rate rather than teleporting the hull.
             var over = this.lateral - edgeRight;
             this.lateral = over > 0.05 ? this.lateral - Math.min(over, 1.6 * dt) : edgeRight;
-            if (this.headingOffset > 0) this.headingOffset = 0;
+            if (this.headingOffset > 0) { this.headingOffset = 0; this.yawRate = 0; }
             onEdge = true;
         }
 
@@ -267,11 +285,10 @@ RR.Boat = {
             this.headingOffset *= Math.exp(-C.EDGE_STEER_RECOVERY * edgeAmount * dt);
         }
 
-        // Slip is structurally zero now; kept so steeringLoad reads the same.
-        var slipAngle = 0;
+        // Turn load drives hull bank and spray.
         this.steeringLoad = Math.max(-1, Math.min(1,
             this.travelHeadingOffset / Math.max(0.001, modelSteerAngle) +
-            slipAngle / Math.max(0.001, modelSteerAngle) * 0.45));
+            this.yawRate * 0.22));
         this.travelHeadingOffset = this.headingOffset;
 
         var tiltTarget = this.steeringLoad * 0.18 * speedRatio;
@@ -338,7 +355,8 @@ RR.Boat = {
     },
 
     getMaxSpeed: function () {
-        return RR.Config.MAX_SPEED * this.getModel().speedMult * this.damageSpeedMult();
+        return RR.Config.MAX_SPEED * this.getModel().speedMult * this.damageSpeedMult() *
+            (1 + RR.Config.RAMP_BOOST_MULT * Math.min(1, (this.boostTimer || 0) / 0.7));
     },
 
     // Hull strikes the selected boat can absorb before a run ends. 1 for every

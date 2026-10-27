@@ -16,42 +16,13 @@ RR.Config = {
     ACCELERATION: 1800,
     BRAKING: 2500,
     NATURAL_DECEL: 600,
-    // Split jet-boat steering. A/D aim the bow; left/right arrows shape the
-    // stern/course. The hull and its actual travel direction are deliberately
-    // separate so a hard turn can yaw and skid like a planing boat instead of
-    // sliding sideways or snapping onto one rigid heading.
-    // --- Steering. ONE axis: A/D and the arrow keys are aliases.
-    //
-    // The two-axis build (A/D aimed the bow, arrows shaped the stern, each
-    // with its own influence on the course) is what made the hull crab. Hold D
-    // and the bow reached 33 deg while the course only reached 22 -- a
-    // permanent 11 deg of slip, which is the "driving forwards sideways" Tyler
-    // reported. Holding an arrow was worse: it slipped the OTHER way, so the
-    // two controls fought each other and the boat looked turned around.
-    //
-    // MAX_BOW_ANGLE is now the COURSE angle, and the bow is allowed to lead it
-    // by BOW_LEAD during a turn -- that lead is the visible skid. Slip is hard
-    // capped at MAX_SLIP_ANGLE so the bow can never leave the direction of
-    // travel by more than a hull's worth of angle.
-    //
-    // It also had to come down a long way. Lateral travel is
-    // speed * sin(course) / riverHalfWidth, so at 6000 units/s across a ~2290
-    // half width the old 35.5 deg course crossed the whole river in 0.93 s and
-    // pinned the boat on the bank before the player could react.
-    //
-    // Tuned to Tyler's "sharper" call: bow sits around 20 deg in a turn and
-    // centre-to-bank is about 1.2 s. The crab cap is what keeps that from
-    // turning back into the sideways-driving problem.
-    MAX_BOW_ANGLE: 0.272,
-    BOW_LEAD: 1.65,
-    MAX_SLIP_ANGLE: 0.15,
-    MIN_STEER_AUTHORITY: 0.08,
-    STEER_RESPONSE: 7.0,
-    STEER_RELEASE: 5.0,
-    STEER_REVERSE_RESPONSE: 12.0,
-    COURSE_STEER_RESPONSE: 4.6,
-    COURSE_STEER_RELEASE: 3.8,
-    COURSE_STEER_REVERSE_RESPONSE: 8.2,
+    // Assisted stern-driven helm. The heading spring preserves momentum,
+    // while the aft pivot gives the bow a natural sweep into a turn.
+    WORLD_SCALE: 0.05,
+    STERN_PIVOT_FRACTION: 0.55,
+    MAX_BOW_ANGLE: 0.29,
+    STEER_RESPONSE: 10.0,
+    STEER_RELEASE: 8.0,
     STEER_TILT_RESPONSE: 10.0,
     HIGH_SPEED_STEER_MULT: 0.95,
     // The river may scrub every bit of progress off, but it must never pull
@@ -63,7 +34,10 @@ RR.Config = {
     BOAT_BASE_Y: 0.82,
     BOAT_Y_RANGE: 0.06,
 
-    JUMP_VELOCITY: 800,
+    RAMP_BOOST_SECONDS: 3.2,
+    RAMP_BOOST_MULT: 0.25,
+    LOG_CLEAR_HEIGHT: 90,
+    JUMP_VELOCITY: 1150,
     GRAVITY: 2800,
     JUMP_COOLDOWN: 1.5,
 

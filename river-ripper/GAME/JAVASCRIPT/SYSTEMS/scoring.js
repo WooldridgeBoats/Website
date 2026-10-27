@@ -9,6 +9,7 @@ RR.Scoring = {
     bestDistance: 0,
 
     reset: function () {
+        this.logJumpFlash = 0;
         this.salmonCaught = 0;
         this.salmonFlash = 0;
         this.shortcutFlash = 0;
@@ -75,7 +76,8 @@ RR.Scoring = {
     },
 
     addJumpBonus: function () {
-        this.score += RR.Config.JUMP_POINTS * this.speedMultiplier;
+        this.score += RR.Config.JUMP_POINTS;
+        this.logJumpFlash = 2.0;
     },
 
     addNearMiss: function () {
