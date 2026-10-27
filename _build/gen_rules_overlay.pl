@@ -26,6 +26,7 @@ my %APPROVED = map { $_ => 1 } qw(
   Q-CFG-13
   CANON-2026-10-10-A
   CANON-2026-10-10-B
+  CANON-2026-10-27
 );
 # ───────────────────────────────────────────────────────
 
@@ -318,6 +319,28 @@ for my $m (@$models){
   die "CANON-2026-10-13: ssdib tag still advertises 20 ft ($ssdib->{tag})\n" if ($ssdib->{tag} || '') =~ /\b20\b/;
 }
 
+# ── CANON-2026-10-27: the "Add 6" to width of bench-seat box" option ($49, Scout
+#    Inboard and Scout Widebody Inboard) stays in QuickBooks and stays orderable in
+#    the Sales Order Creator, but leaves the PUBLIC configurator and the PUBLIC
+#    price sheets (Stephen, 2026-10-27, the launch-eve removals pass). hideItems
+#    cannot express that - the SOC honours it too - so this is a separate key,
+#    publicHide, read by build-and-price/index.html, _build/gen_pricesheets.pl
+#    and PRICE SHEETS/_PIPELINE/WBSheet.pm only. The canon OPTIONS rows are
+#    untouched (the canon command's enumeration ignores this key on purpose).
+#    Derived by NAME on the two Scouts and ASSERTED, like the 10-10 blocks.
+my @publicHide;
+for my $m (@$models){
+  next unless $m->{id} eq 'scout' || $m->{id} eq 'scoutwb';
+  for my $c (@{$m->{cats}}){ for my $it (@{$c->{items}}){
+    push @publicHide, $it->{id} if $it->{nm} =~ /^Add 6\x{201d} to width of bench-seat box/;
+  } }
+}
+{
+  my $got  = join(',', sort @publicHide);
+  my $want = join(',', sort qw(scout_seating_4_31 scoutwb_seating_4_30));
+  die "CANON-2026-10-27: bench-seat publicHide set drifted\n  got  $got\n  want $want\n" unless $got eq $want;
+}
+
 # ── blocks, each keyed to its question ──
 my @BLOCKS = (
   { q => 'AUD-TYPO-01', t => 'de-double "helm-seat seat" -> "helm-seat" (the clean spelling the other price sheets use for the same product)',
@@ -366,6 +389,8 @@ my @BLOCKS = (
     live => { renameItems => \%heaterRename } },
   { q => 'CANON-2026-10-10-B', t => q{Sportster (outboard jet) no longer offers the circulation-pump heater or the marine-treated plywood floors (Stephen, 2026-10-10, PRICING CANON change log); the 14 inboard plywood options stay},
     live => { hideItems => \@sportsterHide } },
+  { q => 'CANON-2026-10-27', t => q{"Add 6" to width of bench-seat box" ($49) stays in QuickBooks and the Sales Order Creator but leaves the public configurator and price sheets (Stephen, 2026-10-27); canon rows untouched},
+    live => { publicHide => \@publicHide } },
 );
 
 # ── merge approved blocks into the live keys ──
@@ -380,6 +405,7 @@ my %LIVE = (
   lock241Add      => [],
   catalogPatches  => [],
   hideItems       => [],
+  publicHide      => [],
   addItems        => [],
   catLimits       => [],
 );
@@ -441,7 +467,7 @@ HEAD
 printf $o "/* APPROVED AND LIVE: %s */\n", (@applied ? join(', ', @applied) : 'none yet');
 print  $o "const RULES_OVERLAY = {\n";
 print  $o "  /* ─────────── LIVE — applied at load ─────────── */\n";
-for my $k (qw(radioCategories styleTags qtyMax qtyEnable excludes reqAdd lock241Add catalogPatches renameItems hideItems addItems catLimits addStyles)) {
+for my $k (qw(radioCategories styleTags qtyMax qtyEnable excludes reqAdd lock241Add catalogPatches renameItems hideItems publicHide addItems catLimits addStyles)) {
   printf $o "  %s: %s,\n", $k, $J->encode($LIVE{$k});
 }
 print $o "\n  /* ─────────── PROPOSED — inert until approved ─────────── */\n  PROPOSED: {\n";
