@@ -84,8 +84,9 @@
       setOpen(!nav.classList.contains("nav-open"));
     });
 
-    // "Our Boats" and "Build & Price" dropdowns: tap toggles inline expansion on touch layouts
-    Array.prototype.forEach.call(wrap.querySelectorAll(".hasmega"), function (mega) {
+    // "Our Boats" mega: tap toggles inline expansion on touch layouts
+    var mega = wrap.querySelector(".hasmega");
+    if (mega) {
       var link = mega.querySelector("a");
       link.addEventListener("click", function (e) {
         if (window.matchMedia("(max-width:900px)").matches) {
@@ -93,10 +94,10 @@
           mega.classList.toggle("mega-open");
         }
       });
-    });
+    }
 
-    // tapping a real destination closes the menu (but not the dropdown taps
-    // above, which cancel their navigation to open the submenu instead)
+    // tapping a real destination closes the menu (but not the "Our Boats" tap
+    // above, which cancels its navigation to open the submenu instead)
     wrap.addEventListener("click", function (e) {
       if (e.defaultPrevented) return;
       var a = e.target.closest ? e.target.closest("a") : null;
