@@ -1218,7 +1218,7 @@
       <div class="big" id="rDepAmt">$0</div>
       <div class="sub" id="rDepSub">of your total build</div>
     </div>
-    <p>A <span id="rDepPct2">deposit</span> reserves your place in the Wooldridge build schedule &mdash; 10% on builds under $100,000, 15% on builds of $100,000 and up. Contact Carrie to submit your deposit and lock in your slot.</p>
+    <p>A <span id="rDepPct2">deposit</span> reserves your place in the Wooldridge build schedule &mdash; 20% on builds under $120,000, 10% on builds of $120,000 and up. Contact Carrie to submit your deposit and lock in your slot.</p>
     <a class="rbtn" id="rMail" href="mailto:Carrie@wooldridgeboats.com?cc=data@wooldridgeboats.com">Email Carrie@wooldridgeboats.com</a>
     <a class="rbtn ghost" href="tel:+12067228998">Call (206) 722-8998</a>
   </div>
@@ -2715,7 +2715,7 @@ $('#btnEmail').addEventListener('click', emailBuildSheet);
 const RESERVE_EMAIL = 'Carrie@wooldridgeboats.com';
 const RESERVE_PHONE = '(206) 722-8998';
 function depositInfo(total){
-  const rate = total < 100000 ? 0.10 : 0.15;
+  const rate = total < 120000 ? 0.20 : 0.10;
   return {rate, pct: Math.round(rate * 100) + '%', amt: Math.round(total * rate)};
 }
 function openReserve(){
