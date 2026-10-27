@@ -4496,24 +4496,10 @@ RR.Renderer3D = {
         if (this.boatGroup) {
             this.boatGroup.scale.set(3 * model.beamScale, 3 * (model.heightScale || 1), 3 * model.lengthScale);
             this.boatGroup.position.set(wp.x, boat.jumpHeight * S + (boat.rampHeight || 0) + 0.2, wp.z);
-            // The river supplies the base course heading; A/D add the boat's
-            // own bow angle so the model, wake and actual travel all agree.
-            // SIGN: +heading, not -heading.
-            //
-            // getWorldPos().heading is measured so that the river's true
-            // downstream direction is (sin h, cos h), and a Three.js object
-            // with rotation.y = T points its local +Z at exactly (sin T, cos T).
-            // So the hull must be rotated by +h to lie along the channel.
-            //
-            // It was -(h), which points the boat at (-sin h, cos h) -- mirrored
-            // across the channel axis. On a straight reach h is 0 and nothing
-            // looks wrong, but every bend rotated the hull by TWICE the bend
-            // angle, the wrong way: measured 63 degrees of hull angle on a
-            // 31.5 degree bend with the helm centred, and 68.6 on a 34.3 degree
-            // bend. That is the "boat gets sideways / turned around" that three
-            // rounds of steering tuning could not fix, because the steering was
-            // never what was wrong.
-            this.boatGroup.rotation.y = boatHeading + boat.headingOffset;
+            // Positive lateral is screen-right, along (-cos(h), sin(h)).
+            // Three.js positive yaw turns +Z toward +X, the opposite direction.
+            // Keep river yaw positive, but subtract the simulation's helm angle.
+            this.boatGroup.rotation.y = boatHeading - boat.headingOffset;
             this.boatGroup.rotation.z = boat.tilt * 0.5;
 
             var pitchTarget = -(boat.speed / boat.getMaxSpeed()) * 0.08;
@@ -4537,24 +4523,9 @@ RR.Renderer3D = {
         // steering angle and offsetting the camera made A/D feel disconnected
         // from the screen. Terminal course drift is corrected in river.js, so
         // a conventional astern view remains stable all the way to the gate.
-        // FOLLOW THE BOAT'S OWN HEADING, not just the channel's.
-        //
-        // This is the change that finally makes the hull stay pointing up the
-        // screen. Screen yaw is exactly (boat world yaw - camera world yaw) --
-        // measured, not assumed -- so as long as the camera tracked only
-        // wp.heading, every degree of steering angle showed up as the boat
-        // sitting crooked in frame. Hands off the helm it read up to 15 deg;
-        // weaving it hit 34.6 deg, which is what "the boat gets sideways" is.
-        //
-        // The reference clips in ARCHIVES/REFERENCES/BOAT MOVEMENT/ all do it
-        // this way: the bow stays put and the WORLD rotates around it.
-        //
-        // A PARTIAL follow (62%) was tried on 2026-08-31 and pulled back out as
-        // disorienting -- and it would be, because it neither holds the boat
-        // straight nor holds the world still. CAM_FOLLOW_BOW is 1.0, a full
-        // follow, which is the ordinary racing chase camera. Turn it down only
-        // if Tyler asks; do not split the difference.
-        var targetCamYaw = wp.heading + boat.headingOffset * this.CAM_FOLLOW_BOW;
+        // The channel-relative chase view leaves the bow's turn visible.
+        // If bow-follow is enabled later, use the same sign as the hull.
+        var targetCamYaw = wp.heading - boat.headingOffset * this.CAM_FOLLOW_BOW;
         if (this._camYaw === undefined || this._camYaw === null) this._camYaw = targetCamYaw;
         var dYaw = targetCamYaw - this._camYaw;
         while (dYaw > Math.PI) dYaw -= Math.PI * 2;
@@ -4819,7 +4790,7 @@ RR.Renderer3D = {
         // Wake follows actual travel, not just where the bow points.
         var wp = this.getWorldPos(boat.z, boat.lateral);
         // Same sign fix as the hull -- the wake has to lie along the same axis.
-        this.wakeGroup.rotation.y = wp.heading + (boat.travelHeadingOffset || 0);
+        this.wakeGroup.rotation.y = wp.heading - (boat.travelHeadingOffset || 0);
         var slip = Math.min(1, Math.abs((boat.headingOffset || 0) -
             (boat.travelHeadingOffset || 0)) / 0.42);
 

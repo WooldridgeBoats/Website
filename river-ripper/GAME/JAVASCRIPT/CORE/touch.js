@@ -142,6 +142,7 @@ RR.Touch = {
         this.tiltOn = on;
         try { localStorage.setItem('rr_tilt', on ? 'on' : 'off'); } catch (e) {}
         if (on) this._askTilt();
+        else { this.tilting = false; this.steer = 0; }
     },
 
     _optedOut: false,
@@ -203,7 +204,8 @@ RR.Touch = {
                 if (RR.SoundButton && RR.SoundButton.hit(p.x, p.y)) { RR.Audio.toggleMute(); continue; }
                 if (this._hit(p, this.JUMP)) { RR.Input.latch.Space = true; this._jumpId = t.identifier; continue; }
                 if (this._hit(p, this.REVERSE)) { this.reverse = true; this._reverseId = t.identifier; continue; }
-                if (p.x < 760 && this._steerId === null) {
+                if (p.x < 760 && this._steerId === null &&
+                        !(this.tiltOn && this._tiltOk && Date.now() - this._tiltAt < 500)) {
                     this._steerId = t.identifier;
                     this._steerX0 = this._steerX = p.x;
                     this._steerY0 = this._steerY = p.y;
@@ -279,7 +281,10 @@ RR.Touch = {
             RR.Input.keys.KeyW = !this.reverse;
             RR.Input.keys.KeyS = this.reverse;
             var live = this.tiltOn && this._tiltOk && Date.now() - this._tiltAt < 500;
-            this.tilting = live && !this.steering;
+            this.tilting = live;
+            // Tilt is the primary phone control; clear any fallback thumb hold
+            // as soon as fresh sensor readings arrive.
+            if (live) { this.steering = false; this._steerId = null; }
             if (this.tilting) {
                 // a light smoothing so a shaky hand doesn't twitch the bow
                 this.steer += (this._tiltSteer() - this.steer) * Math.min(1, 14 * (dt || 0.016));

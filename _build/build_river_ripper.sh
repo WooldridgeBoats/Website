@@ -106,7 +106,7 @@ page = """<!DOCTYPE html>
     <canvas id="glCanvas" width="1280" height="720"></canvas>
     <canvas id="gameCanvas" width="1280" height="720"></canvas>
   </div>
-  <p class="rr-help rr-touchhelp"><b>TILT</b> the phone (or slide your <b>left thumb</b>) to steer &nbsp;·&nbsp; <b>JUMP</b> &amp; <b>REVERSE</b> right thumb &nbsp;·&nbsp; the throttle runs itself</p>
+  <p class="rr-help rr-touchhelp"><b>TILT</b> the phone to steer (tap <b>TILT</b> for thumb steering) &nbsp;·&nbsp; <b>JUMP</b> &amp; <b>REVERSE</b> right thumb &nbsp;·&nbsp; the throttle runs itself</p>
   <p class="rr-help rr-keyhelp"><b>ENTER</b> start &nbsp;·&nbsp; <b>&uarr;</b> throttle &nbsp;·&nbsp; <b>&larr; &rarr;</b> steer &nbsp;·&nbsp; <b>&darr;</b> reverse &nbsp;·&nbsp; <b>SPACE</b> jump &nbsp;·&nbsp; <b>ESC</b> pause &nbsp;·&nbsp; <b>M</b> sound &nbsp;·&nbsp; <span style="opacity:.7">W A S D work too</span></p>
 </main>
 <script>

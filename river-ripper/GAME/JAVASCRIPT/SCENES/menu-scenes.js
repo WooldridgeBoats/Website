@@ -1127,7 +1127,7 @@ RR.HowToPlayScene = {
         var touch = RR.Touch && RR.Touch.active;
         var controls = touch ? [
             ['TILT', 'Turn the phone like a steering wheel to steer'],
-            ['LEFT THUMB', 'Or slide your thumb on the left side (TILT button = thumb only)'],
+            ['TILT BUTTON', 'Tap it to steer with your left thumb instead'],
             ['THROTTLE', 'Runs by itself — you just steer'],
             ['REVERSE', 'Hold to back off and slow down'],
             ['JUMP', 'Jump logs and rocks'],
