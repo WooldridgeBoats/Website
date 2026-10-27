@@ -38,7 +38,7 @@ my $models = decode_json($1);
 # overlay keys this sheet needs: display patches, added styles/items, hidden items
 my $ovl = slurp("$root/tools/RULES_OVERLAY.js");
 my %OV;
-for my $k (qw(catalogPatches addStyles addItems hideItems renameItems)){
+for my $k (qw(catalogPatches addStyles addItems hideItems publicHide renameItems)){
   $OV{$k} = $ovl =~ /^\s*\Q$k\E:\s*([\[\{].*?[\]\}]),\r?$/m ? decode_json($1) : undef;
 }
 my %by_id = map { $_->{id} => $_ } @$models;
@@ -96,7 +96,7 @@ for my $a (@{$OV{addItems} || []}){
   my ($at) = grep { $cat->{items}[$_]{id} eq ($a->{after} // '') } 0..$#{$cat->{items}};
   if (defined $at) { splice @{$cat->{items}}, $at+1, 0, $row } else { push @{$cat->{items}}, $row }
 }
-my %hide = map { $_ => 1 } @{$OV{hideItems} || []};
+my %hide = map { $_ => 1 } @{$OV{hideItems} || []}, @{$OV{publicHide} || []};   # publicHide (CANON-2026-10-27): off the public sheets, still in canon and the SOC
 my %ren  = %{$OV{renameItems} || {}};
 for my $mo (@$models){
   for my $c (@{$mo->{cats}}){
