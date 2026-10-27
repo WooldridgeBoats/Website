@@ -9,8 +9,11 @@ window.RR = window.RR || {};
 //   RIVER   left thumb  : a floating stick -- touch anywhere on the left side
 //                          and slide; the further you slide the harder the bow
 //                          turns (analog, fed straight into boat.js)
-//           throttle    : ON by itself (arcade style); BRAKE holds it off
-//           right thumb : JUMP and BRAKE buttons, PAUSE up top
+//           throttle    : ON by itself (arcade style); REVERSE holds it off
+//           right thumb : JUMP and REVERSE buttons, PAUSE up top
+//           a STEER pad with a thumb sits bottom-left so people see where
+//           to put the left thumb; it rocks side to side until they steer
+//           (Tyler, 2026-10-27: boats don't have brakes -- it's REVERSE)
 //   MENUS   every tap is a click at that spot (the menus already take clicks)
 //   NAMES   tapping a name box opens the phone's own keyboard (a hidden
 //           <input>, focused inside the tap itself -- iPhones only allow that)
@@ -28,9 +31,9 @@ RR.Touch = {
     active: false,          // a touch has happened on this page
     steering: false,        // a thumb is on the stick right now
     steer: 0,               // -1 .. 1
-    brake: false,
+    reverse: false,
     _steerId: null, _steerX0: 0, _steerY0: 0, _steerX: 0, _steerY: 0,
-    _brakeId: null, _jumpId: null,
+    _reverseId: null, _jumpId: null,
     _taps: {},
     _drove: false,
     _input: null,
@@ -38,7 +41,9 @@ RR.Touch = {
 
     // Canvas-space layout of the river buttons (the game draws at 1280x720).
     JUMP:  { x: 1148, y: 560, r: 78 },
-    BRAKE: { x: 978,  y: 618, r: 58 },
+    REVERSE: { x: 978, y: 618, r: 58 },
+    STEER_PAD: { x: 240, y: 570 },
+    _steeredThisRun: false, _hintT: 0,
     PAUSE: { x: 1224, y: 124, r: 34 },
     STICK_RANGE: 110,
 
@@ -56,6 +61,30 @@ RR.Touch = {
         document.addEventListener('touchmove', function (e) { self._move(e); }, opts);
         document.addEventListener('touchend', function (e) { self._end(e); }, opts);
         document.addEventListener('touchcancel', function (e) { self._end(e); }, opts);
+        // Turning the phone sideways with the game on screen takes it full
+        // screen by itself (Tyler, 2026-10-27). EXIT opts out until the phone
+        // goes upright again. (Browsers only allow the REAL full-screen call
+        // inside a tap, so Android finishes the job on the first tap.)
+        if (this.phoneClass()) {
+            var check = function () { setTimeout(function () { self._autoSideways(); }, 250); };
+            window.addEventListener('orientationchange', check);
+            window.addEventListener('resize', check);
+            check();
+        }
+    },
+
+    _optedOut: false,
+    _autoSideways: function () {
+        var sideways = window.innerWidth > window.innerHeight;
+        if (!sideways) { this._optedOut = false; return; }
+        if (this._optedOut || document.documentElement.classList.contains('rr-playing')) return;
+        var box = this._container();
+        if (!box) return;
+        var r = box.getBoundingClientRect();
+        var shown = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0);
+        if (shown < r.height * 0.4) return;     // game scrolled away: leave the page alone
+        if (!this.active) { this.active = true; this._setupDom(); }
+        this._enterPlaying();
     },
 
     // Page -> canvas coordinates WITHOUT the bounds check, so a thumb that
@@ -101,7 +130,7 @@ RR.Touch = {
                 if (this._hit(p, this.PAUSE)) { RR.Input.latch.Escape = true; continue; }
                 if (RR.SoundButton && RR.SoundButton.hit(p.x, p.y)) { RR.Audio.toggleMute(); continue; }
                 if (this._hit(p, this.JUMP)) { RR.Input.latch.Space = true; this._jumpId = t.identifier; continue; }
-                if (this._hit(p, this.BRAKE)) { this.brake = true; this._brakeId = t.identifier; continue; }
+                if (this._hit(p, this.REVERSE)) { this.reverse = true; this._reverseId = t.identifier; continue; }
                 if (p.x < 760 && this._steerId === null) {
                     this._steerId = t.identifier;
                     this._steerX0 = this._steerX = p.x;
@@ -143,7 +172,7 @@ RR.Touch = {
             if (t.identifier === this._steerId) {
                 this._steerId = null; this.steering = false; this.steer = 0;
             }
-            if (t.identifier === this._brakeId) { this._brakeId = null; this.brake = false; }
+            if (t.identifier === this._reverseId) { this._reverseId = null; this.reverse = false; }
             if (t.identifier === this._jumpId) this._jumpId = null;
             tap = this._taps[t.identifier];
             if (!tap) continue;
@@ -174,14 +203,17 @@ RR.Touch = {
             return;
         }
         if (this._riverLive()) {
-            RR.Input.keys.KeyW = !this.brake;
-            RR.Input.keys.KeyS = this.brake;
+            RR.Input.keys.KeyW = !this.reverse;
+            RR.Input.keys.KeyS = this.reverse;
+            if (this.steering && this.steer !== 0) this._steeredThisRun = true;
+            this._hintT += dt || 0;
             this._drove = true;
         } else if (this._drove) {
             RR.Input.keys.KeyW = false;
             RR.Input.keys.KeyS = false;
             this._drove = false;
-            this.brake = false; this._brakeId = null;
+            this.reverse = false; this._reverseId = null;
+            this._steeredThisRun = false; this._hintT = 0;
             this.steering = false; this.steer = 0; this._steerId = null;
         }
         if (RR.Engine.scene !== RR.NameEntryScene && this._input && document.activeElement === this._input) {
@@ -252,8 +284,10 @@ RR.Touch = {
             '  width: 100vw !important; height: 100vh !important; height: 100dvh !important; max-width: none !important;',
             '  margin: 0 !important; border-radius: 0 !important; aspect-ratio: auto !important; z-index: 10000; background: #05080b; }',
             'html.rr-playing .rr-touchbox canvas { width: 100% !important; height: 100% !important; object-fit: contain; }',
-            '.rr-x { display: none; position: absolute; left: 10px; top: 10px; z-index: 10002; width: 44px; height: 44px;',
-            '  border-radius: 22px; border: 0; background: rgba(8,14,20,0.6); color: #fff; font: 600 22px/44px Inter, Arial, sans-serif; }',
+            '.rr-x { display: none; position: absolute; left: max(8px, env(safe-area-inset-left)); top: 8px; z-index: 10002;',
+            '  width: 58px; height: 58px; padding: 0; border-radius: 12px; border: 2px solid rgba(255,255,255,0.75);',
+            '  background: rgba(8,14,20,0.7); color: #fff; font: 600 22px/1 Inter, Arial, sans-serif; }',
+            '.rr-x small { display: block; margin-top: 3px; font: 700 11px/1 Inter, Arial, sans-serif; letter-spacing: .08em; }',
             'html.rr-playing .rr-x { display: block; }',
             '.rr-rotate { display: none; position: absolute; inset: 0; z-index: 10001; background: #05080b; color: #fff;',
             '  align-items: center; justify-content: center; flex-direction: column; gap: 14px; text-align: center;',
@@ -267,7 +301,7 @@ RR.Touch = {
         x.className = 'rr-x';
         x.setAttribute('aria-label', 'Leave full screen');
         x.setAttribute('data-rr-ui', '1');
-        x.textContent = '✕';
+        x.innerHTML = '✕<small>EXIT</small>';
         var self = this;
         x.addEventListener('click', function (e) { e.stopPropagation(); self._exitPlaying(); });
         x.addEventListener('touchend', function (e) { e.preventDefault(); e.stopPropagation(); self._exitPlaying(); });
@@ -301,6 +335,7 @@ RR.Touch = {
     },
 
     _exitPlaying: function () {
+        this._optedOut = true;
         document.documentElement.classList.remove('rr-playing');
         // Back on the website page: the game's sound waits until they return.
         if (RR.Audio && RR.Audio.setAway) RR.Audio.setAway(true);
@@ -311,6 +346,29 @@ RR.Touch = {
         if (this._riverLive()) RR.Engine.pushOverlay(RR.PauseScene);
     },
 
+    // A left thumb seen from above, pressing the knob: tip up, nail on top.
+    _drawThumb: function (ctx, x, y) {
+        ctx.save();
+        ctx.translate(x + 4, y + 6);
+        ctx.rotate(0.35);              // a left thumb leans in from the left
+        ctx.fillStyle = '#f1c7a3';
+        ctx.strokeStyle = 'rgba(60,35,20,0.75)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-15, 34);
+        ctx.lineTo(-15, -12);
+        ctx.arc(0, -12, 15, Math.PI, 0);
+        ctx.lineTo(15, 34);
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#fbe3d1';     // nail
+        ctx.beginPath();
+        ctx.ellipse(0, -14, 8.5, 10, 0, 0, Math.PI * 2);
+        ctx.fill(); ctx.stroke();
+        ctx.strokeStyle = 'rgba(60,35,20,0.45)';  // knuckle crease
+        ctx.beginPath(); ctx.moveTo(-10, 12); ctx.quadraticCurveTo(0, 16, 10, 12); ctx.stroke();
+        ctx.restore();
+    },
+
     // ---- the river HUD -----------------------------------------------------
     drawHUD: function (ctx) {
         if (!this.active || !this._riverLive()) return;
@@ -319,20 +377,44 @@ RR.Touch = {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
-        // Stick
+        // Steering. While a thumb is down the stick follows it; otherwise a
+        // STEER pad with a thumb sits bottom-left so a first-timer sees where
+        // the left thumb goes. Until they've steered this run the thumb rocks
+        // side to side as a little how-to.
+        var S = this.STEER_PAD, R = this.STICK_RANGE;
+        var cx, cy, knobX;
         if (this.steering) {
-            ctx.strokeStyle = 'rgba(223,227,230,0.45)';
-            ctx.lineWidth = 3;
-            ctx.beginPath(); ctx.arc(this._steerX0, this._steerY0, this.STICK_RANGE, 0, Math.PI * 2); ctx.stroke();
-            ctx.fillStyle = 'rgba(27,117,187,0.55)';
-            ctx.beginPath();
-            ctx.arc(this._steerX0 + this.steer * this.STICK_RANGE, this._steerY0, 40, 0, Math.PI * 2);
-            ctx.fill();
+            cx = this._steerX0; cy = this._steerY0;
+            knobX = cx + this.steer * R;
         } else {
-            ctx.fillStyle = 'rgba(223,227,230,0.30)';
-            ctx.font = '600 15px ' + RR.Config.FONT_UI;
-            ctx.fillText('◀  SLIDE TO STEER  ▶', 250, 600);
+            cx = S.x; cy = S.y;
+            knobX = this._steeredThisRun ? cx : cx + Math.sin(this._hintT * 3.2) * R * 0.55;
         }
+        // track
+        ctx.fillStyle = 'rgba(8,14,20,0.40)';
+        ctx.strokeStyle = 'rgba(223,227,230,0.70)';
+        ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        // left / right arrows
+        ctx.fillStyle = 'rgba(255,255,255,0.80)';
+        [-1, 1].forEach(function (d) {
+            var ax = cx + d * (R - 22);
+            ctx.beginPath();
+            ctx.moveTo(ax + d * 12, cy);
+            ctx.lineTo(ax - d * 6, cy - 14);
+            ctx.lineTo(ax - d * 6, cy + 14);
+            ctx.closePath(); ctx.fill();
+        });
+        // knob
+        ctx.fillStyle = this.steering ? 'rgba(27,117,187,0.85)' : 'rgba(27,117,187,0.60)';
+        ctx.beginPath(); ctx.arc(knobX, cy, 42, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 3; ctx.stroke();
+        if (!this.steering) this._drawThumb(ctx, knobX, cy);
+        // label
+        ctx.fillStyle = '#fff';
+        ctx.font = '700 17px ' + RR.Config.FONT_UI;
+        ctx.fillText(this._steeredThisRun || this.steering ? 'STEER' : 'LEFT THUMB · SLIDE TO STEER',
+            cx, cy - R - 16);
 
         function btn(b, label, on, dim) {
             ctx.fillStyle = on ? 'rgba(27,117,187,0.75)' : (dim ? 'rgba(8,14,20,0.30)' : 'rgba(8,14,20,0.50)');
@@ -344,7 +426,7 @@ RR.Touch = {
             ctx.fillText(label, b.x, b.y + 1);
         }
         btn(this.JUMP, 'JUMP', this._jumpId !== null, boat && boat.jumpCooldown > 0);
-        btn(this.BRAKE, 'BRAKE', this.brake, false);
+        btn(this.REVERSE, 'REVERSE', this.reverse, false);
 
         // Pause
         var P = this.PAUSE;

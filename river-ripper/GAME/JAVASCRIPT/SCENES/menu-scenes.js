@@ -1126,16 +1126,16 @@ RR.HowToPlayScene = {
         // the alternative. Phones get their own list.
         var touch = RR.Touch && RR.Touch.active;
         var controls = touch ? [
-            ['LEFT THUMB', 'Touch the left side and slide — the boat steers where you slide'],
+            ['LEFT THUMB', 'Put your thumb on the STEER pad (bottom left) and slide'],
             ['THROTTLE', 'Runs by itself — you just steer'],
-            ['BRAKE', 'Hold to slow down'],
+            ['REVERSE', 'Hold to back off and slow down'],
             ['JUMP', 'Jump logs and rocks'],
             ['II', 'Pause the game'],
             ['✕', 'Leave full screen and go back to the website']
         ] : [
             ['↑   (or W)', 'Throttle — more speed gives you more steering'],
             ['← →   (or A D)', 'Steer the boat'],
-            ['↓   (or S)', 'Slow down / brake'],
+            ['↓   (or S)', 'Reverse — back off and slow down'],
             ['SPACE', 'Jump logs and rocks'],
             ['ESC', 'Pause the game'],
             ['M', 'Sound on / off']
