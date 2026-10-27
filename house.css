@@ -311,7 +311,7 @@ html:not(.wb-instock) .nav a.nav-instock{ display:none !important; }   /* !impor
      The 761-880 hamburger menu had the same overflow inside the open nav.
      The model columns now share whatever width the panel has (144px at 920,
      121px at 901); long names already wrap (white-space:normal). */
-  display:grid; grid-template-columns:repeat(4,minmax(0,1fr)) 170px;
+  display:grid; grid-template-columns:repeat(4,minmax(0,1fr));   /* 5th (170px) Tools column moved to its own dropdown, 2026-10-27 */
   gap:8px 28px; padding:26px 30px; width:min(920px,92vw);
 }
 .mega h5{
@@ -330,6 +330,26 @@ html:not(.wb-instock) .nav a.nav-instock{ display:none !important; }   /* !impor
   text-transform:uppercase; color:var(--ink); padding:7px 0; white-space:normal;
 }
 .mega .megaside a:hover{ color:var(--blue); }
+/* BUILD & PRICE dropdown (Tyler, 2026-10-27): the Tools column from the Our Boats
+   panel, now its own menu item right after Our Boats (it replaced the blue Build &
+   Price button). Same .hasmega/.mega machinery, so hover, close-delay and the phone
+   tap-accordion all work the same. On desktop the narrow panel hangs under its own
+   link instead of the nav's left edge: the trigger ends at .wrap's content box, so
+   +8px (.wrap's padding-bottom) lands it on the nav's bottom border like Our Boats. */
+@media (min-width:901px){
+  .hasmega-tools{ position:relative; }
+  .mega-tools{ top:calc(100% + 8px); left:-30px; }
+  .mega-tools .mega-in{ width:270px; }
+}
+.mega-tools .mega-in{ grid-template-columns:1fr; }
+/* With two dropdowns, the close-delay left the one you just left fading out on top
+   of the one you moved to for ~.65s (Tools sat over Our Boats' Custom Builds column).
+   While one trigger is hovered, any other panel shuts at once. */
+@media (min-width:901px){
+  .nav .wrap:has(> .hasmega:hover) > .hasmega:not(:hover) .mega{
+    visibility:hidden; opacity:0; transition:none;
+  }
+}
 /* Desktop column order (Tyler, 2026-10-07): Offshore far left, then Inboard,
    Outboard, Custom Builds, Tools. The hamburger menu (900px and down) keeps the
    header.html order, Inboard first: phones read it top to bottom, and Tyler wants
