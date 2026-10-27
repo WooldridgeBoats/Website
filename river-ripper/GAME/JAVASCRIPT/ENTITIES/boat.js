@@ -140,7 +140,7 @@ RR.Boat = {
         var steerInput = 0;
         if (Input.isDown('KeyA') || Input.isDown('ArrowLeft')) steerInput -= 1;
         if (Input.isDown('KeyD') || Input.isDown('ArrowRight')) steerInput += 1;
-        if (RR.Touch && RR.Touch.steering) steerInput = RR.Touch.steer;
+        if (RR.Touch && (RR.Touch.steering || RR.Touch.tilting)) steerInput = RR.Touch.steer;
         this.helm += (steerInput - this.helm) * (1 - Math.exp(-12 * dt));
 
         var steerAuthority = (0.12 + 0.88 * Math.sqrt(speedRatio)) *

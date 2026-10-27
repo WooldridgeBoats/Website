@@ -11,6 +11,9 @@ window.RR = window.RR || {};
 //                          turns (analog, fed straight into boat.js)
 //           throttle    : ON by itself (arcade style); REVERSE holds it off
 //           right thumb : JUMP and REVERSE buttons, PAUSE up top
+//           TILT (default on phones, Tyler 2026-10-27): turn the phone
+//           like a steering wheel. A thumb on the left side still steers
+//           and wins while it's down; the TILT button swaps to THUMB mode.
 //           a STEER pad with a thumb sits bottom-left so people see where
 //           to put the left thumb; it rocks side to side until they steer
 //           (Tyler, 2026-10-27: boats don't have brakes -- it's REVERSE)
@@ -45,6 +48,13 @@ RR.Touch = {
     STEER_PAD: { x: 240, y: 570 },
     _steeredThisRun: false, _hintT: 0,
     PAUSE: { x: 1224, y: 124, r: 34 },
+    TILT_BTN: { x: 1224, y: 276, r: 34 },
+    TILT_LOCK_DEG: 24,      // phone turned this far = full lock
+    TILT_DEAD_DEG: 2.5,
+    tiltOn: true,           // the player's choice (remembered)
+    tilting: false,         // tilt is steering right now
+    _tiltOk: false,         // the phone is sending motion readings
+    _tiltAsked: false, _tiltRaw: 0, _tiltFlip: 0, _tiltAt: 0,
     STICK_RANGE: 110,
 
     phoneClass: function () {
@@ -65,12 +75,73 @@ RR.Touch = {
         // screen by itself (Tyler, 2026-10-27). EXIT opts out until the phone
         // goes upright again. (Browsers only allow the REAL full-screen call
         // inside a tap, so Android finishes the job on the first tap.)
+        try { if (localStorage.getItem('rr_tilt') === 'off') this.tiltOn = false; } catch (e) {}
+        // Listen from the start: Android sends motion without asking; iPhones
+        // stay silent until the yes from _askTilt() on the first tap.
+        this._listenTilt();
         if (this.phoneClass()) {
             var check = function () { setTimeout(function () { self._autoSideways(); }, 250); };
             window.addEventListener('orientationchange', check);
             window.addEventListener('resize', check);
             check();
         }
+    },
+
+    // ---- tilt steering -----------------------------------------------------
+    // iPhones only allow motion readings after a yes inside a tap.
+    _askTilt: function () {
+        if (this._tiltAsked) return;
+        this._tiltAsked = true;
+        var self = this;
+        if (window.DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === 'function') {
+            try {
+                DeviceMotionEvent.requestPermission().then(function (r) {
+                    if (r === 'granted') self._listenTilt();
+                }).catch(function () {});
+            } catch (e) {}
+        }
+    },
+
+    _listenTilt: function () {
+        if (this._tiltListening) return;
+        this._tiltListening = true;
+        var self = this;
+        window.addEventListener('devicemotion', function (e) { self._onMotion(e); });
+    },
+
+    // Gravity along the phone's long edge = how far it's turned like a wheel,
+    // however far back it's leaned. Which way is "right" depends on which way
+    // round it's held, and some browsers report gravity upside down -- so the
+    // screen-facing reading (z) on the first samples settles the sign.
+    _onMotion: function (e) {
+        var g = e.accelerationIncludingGravity;
+        if (!g || g.y == null || g.z == null) return;
+        if (!this._tiltFlip) {
+            if (Math.abs(g.z) < 1.5) return;          // held edge-on: wait
+            this._tiltFlip = g.z > 0 ? 1 : -1;
+        }
+        var ang = 0;
+        try { ang = (screen.orientation && screen.orientation.angle) || window.orientation || 0; } catch (x) {}
+        if (ang < 0) ang += 360;
+        var side = ang === 90 ? 1 : (ang === 270 ? -1 : 0);
+        if (!side) { this._tiltRaw = 0; return; }     // upright: no tilt steering
+        var gy = Math.max(-9.81, Math.min(9.81, g.y * this._tiltFlip * side));
+        this._tiltRaw = Math.asin(gy / 9.81) * 180 / Math.PI;
+        this._tiltOk = true;
+        this._tiltAt = Date.now();
+    },
+
+    _tiltSteer: function () {
+        var d = this._tiltRaw, dz = this.TILT_DEAD_DEG;
+        if (Math.abs(d) < dz) return 0;
+        var v = (Math.abs(d) - dz) / (this.TILT_LOCK_DEG - dz);
+        return Math.max(-1, Math.min(1, v)) * (d < 0 ? -1 : 1);
+    },
+
+    _setTilt: function (on) {
+        this.tiltOn = on;
+        try { localStorage.setItem('rr_tilt', on ? 'on' : 'off'); } catch (e) {}
+        if (on) this._askTilt();
     },
 
     _optedOut: false,
@@ -128,6 +199,7 @@ RR.Touch = {
 
             if (this._riverLive()) {
                 if (this._hit(p, this.PAUSE)) { RR.Input.latch.Escape = true; continue; }
+                if (this._hit(p, this.TILT_BTN)) { this._setTilt(!this.tiltOn); continue; }
                 if (RR.SoundButton && RR.SoundButton.hit(p.x, p.y)) { RR.Audio.toggleMute(); continue; }
                 if (this._hit(p, this.JUMP)) { RR.Input.latch.Space = true; this._jumpId = t.identifier; continue; }
                 if (this._hit(p, this.REVERSE)) { this.reverse = true; this._reverseId = t.identifier; continue; }
@@ -167,6 +239,7 @@ RR.Touch = {
 
     _end: function (e) {
         var i, t, tap, p;
+        if (!this._tiltAsked && this.tiltOn && this._inGame(e.changedTouches[0] || {})) this._askTilt();
         for (i = 0; i < e.changedTouches.length; i++) {
             t = e.changedTouches[i];
             if (t.identifier === this._steerId) {
@@ -205,6 +278,13 @@ RR.Touch = {
         if (this._riverLive()) {
             RR.Input.keys.KeyW = !this.reverse;
             RR.Input.keys.KeyS = this.reverse;
+            var live = this.tiltOn && this._tiltOk && Date.now() - this._tiltAt < 500;
+            this.tilting = live && !this.steering;
+            if (this.tilting) {
+                // a light smoothing so a shaky hand doesn't twitch the bow
+                this.steer += (this._tiltSteer() - this.steer) * Math.min(1, 14 * (dt || 0.016));
+                if (Math.abs(this.steer) > 0.25) this._steeredThisRun = true;
+            }
             if (this.steering && this.steer !== 0) this._steeredThisRun = true;
             this._hintT += dt || 0;
             this._drove = true;
@@ -215,6 +295,7 @@ RR.Touch = {
             this.reverse = false; this._reverseId = null;
             this._steeredThisRun = false; this._hintT = 0;
             this.steering = false; this.steer = 0; this._steerId = null;
+            this.tilting = false;
         }
         if (RR.Engine.scene !== RR.NameEntryScene && this._input && document.activeElement === this._input) {
             this._input.blur();
@@ -369,6 +450,33 @@ RR.Touch = {
         ctx.restore();
     },
 
+    // Tilt mode: a little phone that turns with the boat's steering, so the
+    // player sees the game reading the tilt. Says how until they've steered.
+    _drawTiltHint: function (ctx) {
+        var x = this.STEER_PAD.x, y = this.STEER_PAD.y + 20;
+        var demo = !this._steeredThisRun;
+        var a = demo ? Math.sin(this._hintT * 2.4) * 0.38 : this.steer * 0.42;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(a);
+        ctx.fillStyle = 'rgba(8,14,20,0.60)';
+        ctx.strokeStyle = 'rgba(255,255,255,0.90)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(-62, -32, 124, 64, 12); else ctx.rect(-62, -32, 124, 64);
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle = 'rgba(27,117,187,0.70)';
+        ctx.fillRect(-50, -22, 100, 44);
+        ctx.restore();
+        // curved arrows either side
+        ctx.strokeStyle = 'rgba(255,255,255,0.75)'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(x, y, 92, Math.PI * 1.08, Math.PI * 1.32); ctx.stroke();
+        ctx.beginPath(); ctx.arc(x, y, 92, Math.PI * 1.68, Math.PI * 1.92); ctx.stroke();
+        ctx.fillStyle = '#fff';
+        ctx.font = '700 17px ' + RR.Config.FONT_UI;
+        if (demo) ctx.fillText('TILT THE PHONE TO STEER', x, y - 112);
+    },
+
     // ---- the river HUD -----------------------------------------------------
     drawHUD: function (ctx) {
         if (!this.active || !this._riverLive()) return;
@@ -382,6 +490,8 @@ RR.Touch = {
         // the left thumb goes. Until they've steered this run the thumb rocks
         // side to side as a little how-to.
         var S = this.STEER_PAD, R = this.STICK_RANGE;
+        if (this.tilting) this._drawTiltHint(ctx);
+        else {
         var cx, cy, knobX;
         if (this.steering) {
             cx = this._steerX0; cy = this._steerY0;
@@ -415,6 +525,7 @@ RR.Touch = {
         ctx.font = '700 17px ' + RR.Config.FONT_UI;
         ctx.fillText(this._steeredThisRun || this.steering ? 'STEER' : 'LEFT THUMB · SLIDE TO STEER',
             cx, cy - R - 16);
+        }
 
         function btn(b, label, on, dim) {
             ctx.fillStyle = on ? 'rgba(27,117,187,0.75)' : (dim ? 'rgba(8,14,20,0.30)' : 'rgba(8,14,20,0.50)');
@@ -427,6 +538,15 @@ RR.Touch = {
         }
         btn(this.JUMP, 'JUMP', this._jumpId !== null, boat && boat.jumpCooldown > 0);
         btn(this.REVERSE, 'REVERSE', this.reverse, false);
+
+        // Tilt / thumb switch
+        var T = this.TILT_BTN;
+        ctx.fillStyle = this.tiltOn ? 'rgba(27,117,187,0.75)' : 'rgba(8,14,20,0.50)';
+        ctx.beginPath(); ctx.arc(T.x, T.y, T.r, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = 'rgba(223,227,230,0.70)'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = '#fff';
+        ctx.font = '700 12px ' + RR.Config.FONT_UI;
+        ctx.fillText(this.tiltOn ? 'TILT' : 'THUMB', T.x, T.y + 1);
 
         // Pause
         var P = this.PAUSE;
