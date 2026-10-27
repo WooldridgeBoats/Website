@@ -21,7 +21,7 @@
 #              --why goes into the log and names the price-sheet archive folder.
 #   Rarely needed: --repo <Website folder>, --out <WB CANON DATA.json>, --soc-out <WB CANON SOC.json>,
 #              --pipeline <PRICE SHEETS/_PIPELINE>, --qb-import <Desktop/QB IMPORT>, --sales-tools <SALES TOOLS>
-#              (all found by themselves), --sheets run|dry|skip (the branded price sheets; default run).
+#              (all found by themselves), --sheets run|dry|skip|force (the branded price sheets; default run; force rebuilds them with no price moved).
 #
 # HOW A RUN GOES (nothing outside git is written unless every check passes):
 #   0. The website repo must have no uncommitted changes to tracked files (git is
@@ -106,7 +106,7 @@ my $sheets = 'run';
 GetOptions('canon=s' => \$canon_dir, 'xlsx=s' => \$xlsx, 'repo=s' => \$repo, 'dry-run' => \$dry, 'out=s' => \$out,
            'soc-out=s' => \$soc_out, 'pipeline=s' => \$pipeline, 'qb-import=s' => \$qb_import, 'sales-tools=s' => \$sales_opt,
            'sheets=s' => \$sheets, 'by=s' => \$by, 'with=s' => \$with, 'why=s' => \$why) or die "see the header of $0 for usage\n";
-die "--sheets must be run, dry or skip\n" unless $sheets =~ /^(run|dry|skip)$/;
+die "--sheets must be run, dry, skip or force\n" unless $sheets =~ /^(run|dry|skip|force)$/;
 die "--canon <folder> is required (the CSV mirrors live there)\n" unless defined $canon_dir;
 $repo = dirname(dirname(abs_path(__FILE__))) unless defined $repo;
 # 2026-10-21: a Windows-style path (backslashes) from PowerShell made dirname() return '.', so the outputs aimed at the
@@ -610,7 +610,7 @@ if ($mode eq 'xlsx' && !$dry) {
   #    (WBPriceCanon::keep_unchanged_sheets - Tyler's rule, adopted by Stephen 2026-10-19), the changed ones are
   #    placed with the old ones archived, and SALES TOOLS/PRICE SHEETS (found once, the "sales:" line) is brought into
   #    step. SALES TOOLS not found: the sheets are still placed and its copy is OWED; the run carries on.
-  my $need = $price_changes || $content_changes || $packages_changed || $addons_changed;
+  my $need = $price_changes || $content_changes || $packages_changed || $addons_changed || $rows_changed || $sheets eq q(force);   # 2026-10-27: removed rows change a sheet too; force = rebuild regardless
   if (!$need) { printf "  %-28s no price, package or standard feature moved - not regenerated\n", 'branded price sheets' }
   elsif ($sheets eq 'skip') { push @owed, 'branded price sheets + SALES TOOLS publish (skipped by --sheets skip)' }
   elsif (!-d $pipeline) { push @owed, 'branded price sheets + SALES TOOLS publish: PRICE SHEETS/_PIPELINE not reachable (P3, or a Mac that syncs it)' }
