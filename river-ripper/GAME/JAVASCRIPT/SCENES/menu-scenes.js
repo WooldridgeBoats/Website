@@ -136,7 +136,7 @@ RR.UI = {
         var img = this._boatPhotos[id];
         if (!img) {
             img = new Image();
-            img.src = 'GAME/ASSETS/UI/BOATS/BOAT-' + id.toUpperCase() + '.jpg';
+            img.src = 'GAME/ASSETS/UI/BOATS/BOAT-' + id.toUpperCase() + '.jpg?v=20261028b';   // bump when a photo changes
             this._boatPhotos[id] = img;
         }
         return img;
