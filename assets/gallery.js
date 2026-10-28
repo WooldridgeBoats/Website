@@ -228,10 +228,18 @@
   }
   window.addEventListener('resize', fitLb);
 
+  /* A photo's own address: its path under assets/ (minus "photos/" and any ?v=), e.g.
+     #p=rogue/5320-20-cc-01.jpg, #p=rogue/mobile/…jpg (phone set), #p=newinv/5400/01.jpg,
+     #p=preowned/<slug>/01.jpg. Before 2026-10-28 only a desktop model photo got one;
+     phone sets, In Stock and Pre-Owned all read "#photo". */
+  function hashKey(href) {
+    var m = /assets\/(?:photos\/)?([^?#]+\.jpe?g)/i.exec(href || '');
+    return m ? m[1] : '';
+  }
   function photoHash(a) {
     if (a.dataset.hash) return a.dataset.hash;   /* page-supplied link (agency-gallery.js) */
-    var loc = parseHref(a);
-    return loc ? '#p=' + loc.slug + '/' + loc.file : '#photo';
+    var k = hashKey(a.getAttribute('href'));
+    return k ? '#p=' + k : '#photo';
   }
 
   function showLb(n) {
@@ -282,7 +290,7 @@
     lb.classList.add('on');
     document.body.classList.add('wblb-open');   /* hide the corner nudge while viewing */
     document.body.style.overflow = 'hidden';
-    if (!viaHistory) {
+    if (!viaHistory && !deepLink) {
       history.pushState({ wblb: 1 }, '', photoHash(anchor));
       pushed = true;
     } else {
@@ -317,16 +325,33 @@
     openLb(a, false, row ? [].slice.call(row.querySelectorAll('.pcartrack a')) : undefined);
   });
 
-  function openFromHash() {
-    var m = /^#p=([^\/]+)\/(.+)$/.exec(location.hash);
-    if (!m) return false;
-    var file = decodeURIComponent(m[2]);
+  /* Open the photo a #p= link names. It "taps" the matching photo (or, for an In Stock
+     boat whose photos aren't on the page, its gallery card) so the page's own handler picks
+     the right set — the phone set for a phone photo — then steps to that photo. deepLink
+     keeps that tap from adding a history entry. Pages that build their photos after load
+     get a few retries. */
+  var deepLink = false;
+  function openFromHash(tries) {
+    if (!/^#p=/.test(location.hash)) return false;
+    var key = decodeURIComponent(location.hash.slice(3)), el = null;
     var els = document.querySelectorAll('.pcartrack a, .gallery a');
-    for (var i = 0; i < els.length; i++) {
-      var loc = parseHref(els[i]);
-      if (loc && loc.slug === m[1] && loc.file === file) { openLb(els[i], true); return true; }
+    for (var i = 0; i < els.length && !el; i++) if (hashKey(els[i].getAttribute('href')) === key) el = els[i];
+    var inv = /^newinv\/([^\/]+)\//.exec(key);
+    if (!el && inv) el = document.querySelector('a.mcard[data-hull="' + inv[1] + '"]');
+    if (!el) {
+      if ((tries || 0) < 8) setTimeout(function () { openFromHash((tries || 0) + 1); }, 250);
+      return false;
     }
-    return false;
+    deepLink = true;
+    try { el.click(); } finally { deepLink = false; }
+    if (!lb || !lb.classList.contains('on')) { openLb(el, true); }
+    /* exact photo; else the same-numbered one (a phone link opened on a desktop, or back) */
+    var base = key.replace(/^.*\//, ''), hit = -1;
+    for (var j = 0; j < seq.length && hit < 0; j++) if (hashKey(seq[j].getAttribute('href')) === key) hit = j;
+    for (j = 0; j < seq.length && hit < 0; j++) if (hashKey(seq[j].getAttribute('href')).replace(/^.*\//, '') === base) hit = j;
+    if (hit >= 0 && hit !== cur) showLb(hit);
+    pushed = false;
+    return true;
   }
 
   /* ══════════════════════════════════════════════════════════════════════
