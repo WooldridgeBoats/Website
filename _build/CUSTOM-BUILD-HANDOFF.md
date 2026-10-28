@@ -9,7 +9,7 @@ file is the log the new chat reads: status, Tyler's rules, the toolbox, and how 
 
 Continuing the Wooldridge dev site (dev.wooldridgeboats.com) in ~/Desktop/LOCAL-WEBSITE: the
 CUSTOM BUILD pages. Canyon, Deepwater, River Rat, Landing Craft, Pybus Point Lodge and SSO Angler are done.
-Still to do: SSO Pilothouse (models/supersportoffshorepilothouse/). FIRST read
+Still to do: SSO Pilothouse (models/super-sport-offshore-pilothouse/). FIRST read
 `_build/CUSTOM-BUILD-HANDOFF.md` and my memory notes `wooldridge-model-lineup`,
 `website-photo-replacement-workflow`, `model-ready-check-first`, `no-image-recompression`,
 `tyler-pushes-to-github`, `desktop-tcc-eperm` and `no-headless-chrome-app-management`.
@@ -35,7 +35,7 @@ hand-written `.hslider` (Landing Craft style): slide 1 = 26′ #4084, slide 2 = 
 Master = OneDrive `MASTER-WEBSITE PHOTOS/CUSTOM BOAT MODELS/SSO PILOTHOUSE-WEB` (Tyler, 10-19; the X Drive copy matched byte for byte).
 29′ phone set built 2026-10-20 (18 photos). 31′ desktop built 2026-10-20 (hull 4441, 23 photos) + hero slide 3. 31′ phone set built 2026-10-20 (23 photos). **Page DONE.** Then re-run the build and
 add a 3rd `.hs-slide` by hand (the builder copies the hero but leaves the slider alone). Steps:
-1. Check, then re-run `_build/apply_model_photos.sh supersportoffshorepilothouse "Super Sport Offshore" "<…/SSO PILOTHOUSE-WEB>"`.
+1. Check, then re-run `_build/apply_model_photos.sh super-sport-offshore-pilothouse "Super Sport Offshore" "<…/SSO PILOTHOUSE-WEB>"`.
 2. 3 heroes = turn the single hero into a hand-written `.hslider` (copy Landing Craft's), slide captions
    "Super Sport Offshore — LEN′ Pilothouse" + HULL #.
 3. Check 1440 + 390, commit. Optional: Tyler's own thumbnails for the 29′ and 24′ videos (YouTube has only 480x360).
@@ -50,10 +50,10 @@ to come: when Tyler fills `PYBUS-WEB/33-DEEPWATER-CHARTER-MOBILE`, re-run Model 
 |---|---|---|
 | Canyon `models/canyon/` | DONE, live | Specs fold + standard features, Legacy label, 3 galleries (23/24/26, all LM), hull # on cards |
 | Deepwater `models/deepwater/` | DONE, live | Hero slider, one card per boat (33′ Angler + 33′ Explorer), mixed bottom grid, 2 videos. **No spec table and no standard features (Tyler, 2026-10-08)** |
-| River Rat DIY Kit `models/riverrat-diy-kit/` | DONE, live | Minimal: one gallery, no length / hull / config, no video |
+| River Rat DIY Kit `models/river-rat-diy-kit/` | DONE, live | Minimal: one gallery, no length / hull / config, no video |
 | SSO Angler `models/super-sport-offshore-angler/` | DONE 2026-10-15 | One 24′ gallery (hull 4660, 21 desktop / 22 phone; was built as a 20′ 10-15, Tyler corrected it to 24′ on 10-19), single hero, Start a Quote only (Build & Price removed), video section removed, no Legacy tag, no specs. Captions "20′ Super Sport Offshore · Angler · Hull #4660" |
-| SSO Pilothouse `models/supersportoffshorepilothouse/` | DONE 2026-10-20 (26′ / 29′ / 31′ desktop + phone, 3-slide hero) | See "NEXT UP" above. Three videos stacked (`.vid2.vidstack`), Start a Quote only, WB_CARDS_VIDEO cards |
-| Pybus Point Lodge `models/pybus-offshore/` | DONE 2026-10-15 (33′ phone set to come) | Bare page, "video coming soon" block. Renamed from Pybus Offshore 2026-10-08: ONLY the h1, `<title>` and menu label changed; the URL and homepage card were left as-is on purpose. **It's a FLEET page** (Tyler): the boats Wooldridge built for Pybus Point Lodge (Admiralty Island, SE Alaska) = five 33′ Deepwaters, two 21′ Sport Offshores, three 20′ Sport center consoles. Intro rewritten to say so. Kick line "LODGE FLEET · ADMIRALTY ISLAND, ALASKA" (tag line under it not changed yet). Two videos side by side (`.vid2`, 2026-10-08), both on the LODGE's YouTube channel, so the caption ref says "PYBUS POINT LODGE ON YOUTUBE": `RvhoaaWAktg` "33′ Deepwater Charter Walkthrough" (11:19) + `Sx_vdR7VTmI` "Pybus Point Lodge Skiffs" (2:49) |
+| SSO Pilothouse `models/super-sport-offshore-pilothouse/` | DONE 2026-10-20 (26′ / 29′ / 31′ desktop + phone, 3-slide hero) | See "NEXT UP" above. Three videos stacked (`.vid2.vidstack`), Start a Quote only, WB_CARDS_VIDEO cards |
+| Pybus Point Lodge `models/pybus-lodge-fleet/` | DONE 2026-10-15 (33′ phone set to come) | Bare page, "video coming soon" block. Renamed from Pybus Offshore 2026-10-08: ONLY the h1, `<title>` and menu label changed; the URL and homepage card were left as-is on purpose. **It's a FLEET page** (Tyler): the boats Wooldridge built for Pybus Point Lodge (Admiralty Island, SE Alaska) = five 33′ Deepwaters, two 21′ Sport Offshores, three 20′ Sport center consoles. Intro rewritten to say so. Kick line "LODGE FLEET · ADMIRALTY ISLAND, ALASKA" (tag line under it not changed yet). Two videos side by side (`.vid2`, 2026-10-08), both on the LODGE's YouTube channel, so the caption ref says "PYBUS POINT LODGE ON YOUTUBE": `RvhoaaWAktg` "33′ Deepwater Charter Walkthrough" (11:19) + `Sx_vdR7VTmI` "Pybus Point Lodge Skiffs" (2:49) |
 | Landing Craft `models/landing-craft/` | DONE 2026-10-08 | Hero slider (24′ Cabin, 21′ CC), one card per length, per-length model names (LC-1292 / LC-1892) via `WB_LEN_NAME`. No video, no specs, no standard features |
 
 Master folders: every custom page's photos are in `MASTER-WEBSITE PHOTOS/CUSTOM BOAT MODELS/<NAME>-WEB` since
@@ -205,7 +205,7 @@ don't load and screenshots come out blank; check the DOM, or use `_build/snap.sw
   desktop, 31 + 25 phone. The slider is hand-written; a re-run leaves it and `WB_LEN_NAME` alone.
 
 ### Pybus Point Lodge (2026-10-14)
-- A FLEET page (URL stays /models/pybus-offshore/): 33′ Deepwater Charter, 20′ Sport CC, 21′ Cabin Sport Offshore.
+- A FLEET page (URL /models/pybus-lodge-fleet/ since 2026-10-28, Tyler; was /models/pybus-offshore/, now a redirect stub): 33′ Deepwater Charter, 20′ Sport CC, 21′ Cabin Sport Offshore.
   `@MODELS` entry `pybus-offshore` / "Pybus Point Lodge", empty lens. Page switches: `WB_LEN_NAME` {20 Sport,
   21 Sport Offshore, 33 Deepwater}, `WB_CARD_ORDER` [33,20,21], `WB_CARDS_VIDEO`. Captions: "20′ Sport · Center
   Console · Hull #4544", "33′ Deepwater · Charter", "21′ Sport Offshore · Cabin".
@@ -222,7 +222,7 @@ don't load and screenshots come out blank; check the DOM, or use `_build/snap.sw
 - Master `SSOFF-ANGLER-WEB`. Tyler's desktop files came named `4660-20-SSOFF-ANGLER-001.jpg` (number at the END);
   I moved each number to the front (`01-4660-20-SSOFF-ANGLER.jpg`). He then swapped in new photos numbered 01-21
   in his order (same day); the gallery follows that order. Phone files were right.
-- Build: `PHOTOSLUG=angler _build/apply_model_photos.sh super-sport-offshore-angler "Super Sport Offshore" "<…/SSOFF-ANGLER-WEB>"` (the page moved from models/angler/ to models/super-sport-offshore-angler/ on 2026-10-28, launch day; the photos stay in assets/photos/angler/ and models/angler/ is now a redirect stub, so never build into it). The trim `angler` is
+- Build: `_build/apply_model_photos.sh super-sport-offshore-angler "Super Sport Offshore" "<…/SSOFF-ANGLER-WEB>"` (the page moved from models/angler/ to models/super-sport-offshore-angler/ on 2026-10-28, launch day; the photos stay in assets/photos/angler/ and models/angler/ is now a redirect stub, so never build into it). The trim `angler` is
   found after the model name, so captions read "24′ Super Sport Offshore · Angler" (24′, not 20′: Tyler 2026-10-19). `@MODELS` entry `angler`, empty lens.
 - Bare page: hero placeholder + modelcards-slot + gallery block + scripts inserted by hand, then the builder filled them.
 - 2nd intro paragraph reworded (Build & Price gone): "Every Angler is configured and quoted with our team on the Super Sport Offshore platform. Ready to build one? Contact the factory to start a quote and talk through your layout."

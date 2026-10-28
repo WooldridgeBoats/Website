@@ -1,6 +1,6 @@
 #!/bin/bash
 # ------------------------------------------------------------------------------
-# build_riverrat.sh: photos for the River Rat DIY Kit page (models/riverrat-diy-kit/).
+# build_riverrat.sh: photos for the River Rat DIY Kit page (models/river-rat-diy-kit/).
 #
 # The kit has no length, no hull # and no configuration (Tyler, 2026-10-07: "just a
 # few photos to show kits customers have built"), so the standard Model Ready
@@ -17,10 +17,10 @@
 # ------------------------------------------------------------------------------
 set -uo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
-SLUG=riverrat-diy-kit
+SLUG=riverrat-diy-kit          # the PHOTO folder (and gallery key); the page moved to models/river-rat-diy-kit/ on 2026-10-28
 SRC="${1:-/Users/tylerlee/Library/CloudStorage/OneDrive-WooldridgeBoatsInc/Wooldridge Boats Inc_ - SQUIRREL HOLE/70 MARKETING AND BRAND/WEBSITE/MASTER-WEBSITE PHOTOS/CUSTOM BOAT MODELS/RIVER RAT-WEB}"
 DEST="$REPO/assets/photos/$SLUG"
-PAGE="$REPO/models/$SLUG/index.html"
+PAGE="$REPO/models/river-rat-diy-kit/index.html"
 [ -d "$SRC" ] || { echo "ERROR: source not found: $SRC"; exit 2; }
 
 DESK=""; MOB=""

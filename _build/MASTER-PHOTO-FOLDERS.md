@@ -59,10 +59,10 @@ carry no trim (see BOAT-MODEL-IMAGE-UPDATES-HANDOFF.md).
 | `CANYON-WEB` | `models/canyon/` | `NOCFG=1 apply_model_photos.sh canyon "Canyon" …` |
 | `DEEPWATER-WEB` | `models/deepwater/` | `BYCFG=1 apply_model_photos.sh deepwater "Deepwater" …` |
 | `LANDING CRAFT-WEB` | `models/landing-craft/` | `apply_model_photos.sh landing-craft "Landing Craft" …` (hand-written hero slider) |
-| `PYBUS-WEB` | `models/pybus-offshore/` | `apply_model_photos.sh pybus-offshore "Pybus Point Lodge" …` |
-| `RIVER RAT-WEB` | `models/riverrat-diy-kit/` | `_build/build_riverrat.sh`. Default path already points here |
-| `SSO PILOTHOUSE-WEB` | `models/supersportoffshorepilothouse/` | `apply_model_photos.sh supersportoffshorepilothouse "Super Sport Offshore" …` |
-| `SSOFF-ANGLER-WEB` | `models/super-sport-offshore-angler/` | `PHOTOSLUG=angler apply_model_photos.sh super-sport-offshore-angler "Super Sport Offshore" …` (page moved 2026-10-28; photos stay in assets/photos/angler/) (a 24-footer, hull 4660) |
+| `PYBUS-WEB` | `models/pybus-lodge-fleet/` | `apply_model_photos.sh pybus-lodge-fleet "Pybus Point Lodge" …` |
+| `RIVER RAT-WEB` | `models/river-rat-diy-kit/` | `_build/build_riverrat.sh`. Default path already points here |
+| `SSO PILOTHOUSE-WEB` | `models/super-sport-offshore-pilothouse/` | `apply_model_photos.sh super-sport-offshore-pilothouse "Super Sport Offshore" …` |
+| `SSOFF-ANGLER-WEB` | `models/super-sport-offshore-angler/` | `apply_model_photos.sh super-sport-offshore-angler "Super Sport Offshore" …` (a 24-footer, hull 4660) |
 
 ## Rules
 

@@ -27,9 +27,10 @@ SLUG="${1:-}"; SRC="${2:-}"; shift 2 2>/dev/null || true
 DRY=0; for a in "$@"; do case "$a" in --dry-run) DRY=1;; esac; done
 [ -n "$SLUG" ] && [ -n "$SRC" ] || { echo "usage: $0 <slug> \"/path/to/<MODEL>-WEB\" [--dry-run]"; exit 2; }
 [ -d "$SRC" ] || { echo "ERROR: source not found: $SRC"; exit 2; }
-PSLUG="${PHOTOSLUG:-$SLUG}"
 PAGE="$REPO/models/$SLUG/index.html"
 [ -f "$PAGE" ] || { echo "ERROR: model page not found: $PAGE"; exit 2; }
+# same rule as apply_model_photos.sh: PHOTOSLUG, else the photo folder the page already uses, else the slug
+PSLUG="${PHOTOSLUG:-$(grep -o 'assets/photos/[a-z0-9-]*/' "$PAGE" | head -1 | cut -d/ -f3)}"; PSLUG="${PSLUG:-$SLUG}"
 DEST="$REPO/assets/photos/$PSLUG/mobile"
 MOBQ="${MOBQ:-75}"   # mozjpeg quality for the full portraits (keep-smaller: never enlarges, no visible loss on a phone)
 HAVE_MOZ=0; command -v cjpeg >/dev/null 2>&1 && command -v djpeg >/dev/null 2>&1 && HAVE_MOZ=1

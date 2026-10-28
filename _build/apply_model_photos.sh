@@ -12,7 +12,7 @@
 #   _build/apply_model_photos.sh alaskanxl "Alaskan XL" "/Users/.../MASTER-WEBSITE PHOTOS/BOAT MODELS/ALASKAN XL-WEB"
 #
 # <slug> is the PAGE dir (models/<slug>/). Photos go in assets/photos/<slug>/ by default.
-# When the photo dir differs from the page dir, set PHOTOSLUG, e.g. Alaskan XLT:
+# The photo dir is found from the page itself (see PSLUG below); PHOTOSLUG still overrides it, e.g.:
 #   PHOTOSLUG=alaskan-xlt _build/apply_model_photos.sh xlt "Alaskan XLT" "/Users/.../ALASKAN XLT-WEB"
 #
 # Does: wipe old assets/photos/<slug> fulls+thumbs -> copy fulls (remapped to
@@ -39,7 +39,11 @@ for a in "$@"; do case "$a" in --dry-run) DRY=1;; --force) FORCE=1;; esac; done
 [ -d "$SRC" ] || { echo "ERROR: source not found: $SRC"; exit 2; }
 PAGE="$REPO/models/$SLUG/index.html"
 [ -f "$PAGE" ] || { echo "ERROR: model page not found: $PAGE"; exit 2; }
-PSLUG="${PHOTOSLUG:-$SLUG}"   # photo dir under assets/photos/; set PHOTOSLUG when it differs from the page slug (e.g. page 'xlt' / photos 'alaskan-xlt')
+# photo dir under assets/photos/. Several pages moved to full-name URLs on 2026-10-28 while their
+# photos stayed put (page super-sport-offshore-angler / photos angler), so when PHOTOSLUG is not set
+# the folder the page already uses wins; a brand-new page with no photos yet falls back to its slug.
+PSLUG="${PHOTOSLUG:-$(grep -o 'assets/photos/[a-z0-9-]*/' "$PAGE" | head -1 | cut -d/ -f3)}"; PSLUG="${PSLUG:-$SLUG}"
+echo "photos folder: assets/photos/$PSLUG/"
 DEST="$REPO/assets/photos/$PSLUG"
 say(){ echo "$*"; }
 run(){ if [ "$DRY" = 1 ]; then echo "  [dry] $*"; else eval "$*"; fi; }

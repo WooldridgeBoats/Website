@@ -43,11 +43,11 @@
     /* Custom Builds (Tyler's order, 2026-10-08; Agency & Work Boats leads the menu but isn't a model page) */
     ['landing-craft',               'Landing Craft'],
     ['super-sport-offshore-angler', 'SSO Angler'],
-    ['pybus-offshore',              'Pybus Point Lodge'],
+    ['pybus-lodge-fleet', 'Pybus Point Lodge'],
     ['deepwater',                   'Deepwater Series'],
     ['canyon',                      'Canyon'],
-    ['supersportoffshorepilothouse','SSO Pilothouse'],
-    ['riverrat-diy-kit',            'River Rat DIY Kit']
+    ['super-sport-offshore-pilothouse', 'SSO Pilothouse'],
+    ['river-rat-diy-kit', 'River Rat DIY Kit']
   ]];
 
   function el(html){
