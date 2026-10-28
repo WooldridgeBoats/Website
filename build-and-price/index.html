@@ -2543,22 +2543,58 @@ function wbInquiryBlock(type){
   return L.join('\n') + '\n';
 }
 
+/* 2026-10-28 (Christian 749DFH7): the customer email must read like the "Your build" panel -
+   one item per line, price attached, total easy to find. What may and may not change here:
+   the Build Hub and the Sales Order Creator BOTH re-read this body as a backstop for the
+   WB-INQUIRY block, and they depend on (1) the 'Prepared for:' line, (2) the YOUR BUILD ... TOTALS
+   section markers, (3) every item line being 'Name \u2014 $price' with the price LAST, a blank line
+   between items, and sub-notes indented on their own lines, (4) a line that does not end in a price
+   being folded onto the one after it (that is how both parsers already survive Gmail's 72-column
+   wrap). So the item text and order are untouched; long lines are wrapped here, by us, the same
+   way Gmail would, with a hanging indent and the price glued to the last word so it always ends
+   the last line. Never put a bullet or a leading price on an item line, and never put a line that
+   starts with a middle dot or an asterisk inside a wrapped item (the parsers read those as the
+   start of a new PRICED ON REQUEST bullet). */
+const EMAIL_WRAP = 72;
+function emailWrap(text, indent, hang){
+  /* word-wrap at EMAIL_WRAP columns; first line starts at `indent`, continuations at `hang` */
+  const words = String(text).split(' ');
+  const lines = [];
+  let cur = '';
+  for (const w of words){
+    const lead = lines.length ? hang : indent;
+    const cand = cur ? cur + ' ' + w : w;
+    if (cur && (lead + cand).length > EMAIL_WRAP && !/^[\u00b7*]/.test(w)){ lines.push(lead + cur); cur = w; }
+    else cur = cand;
+  }
+  if (cur) lines.push((lines.length ? hang : indent) + cur);
+  return lines;
+}
+function emailItemLines(name, price){
+  const words = String(name).split(' ');
+  const last = words.pop();
+  words.push(last + '\u0001\u2014\u0001' + price);   /* price stays glued to the final word: character code 1 stands in for a no-break space while wrapping */
+  return emailWrap(words.join(' '), '', '  ').map(l => l.split('\u0001').join(' '));
+}
 function emailBodyText(){
   const s = sheetSummary();
   const NL = '\n';
   const RULE = '================================================';
+  const THIN = '------------------------------------------------';
   const eff = curModel() ? curModel().eff : 'July 2026';
   let t = '';
   t += 'WOOLDRIDGE BOATS \u2014 BUILD SHEET' + NL;
   t += '2026 prices \u00b7 subject to change \u2014 contact Wooldridge Boats directly for an official quote' + NL;
   t += 'Prepared for: ' + s.name + (s.meta ? ' (' + s.meta + ')' : '') + NL;
-  t += 'Date: ' + s.date + NL + NL;
+  t += 'Date: ' + s.date + NL;
+  if (s.total) t += 'Build total: ' + fmt(s.total) + ' (itemized below)' + NL;
+  t += NL;
   t += 'YOUR BUILD' + NL + RULE + NL;
   if (!s.rows.length && !s.inqs.length) t += '(no items configured)' + NL + NL;
   for (const r of s.rows){
-    t += r.l1 + ' \u2014 ' + (r.ptext ? r.ptext : fmt(r.p)) + NL;
-    if (r.l2) t += '    ' + r.l2 + NL;
-    if (r.caution) t += '    ' + r.caution + NL;
+    t += emailItemLines(r.l1, r.ptext ? r.ptext : fmt(r.p)).join(NL) + NL;
+    if (r.l2) t += emailWrap(r.l2, '    ', '    ').join(NL) + NL;
+    if (r.caution) t += emailWrap(r.caution, '    ', '    ').join(NL) + NL;
     t += NL;
   }
   if (s.inqs.length){
@@ -2570,6 +2606,7 @@ function emailBodyText(){
   if (s.hasTrailer){
     t += 'Boat & options \u2014 ' + fmt(s.boatTotal) + NL;
     t += 'Trailer \u2014 ' + fmt(s.trailerTotal) + NL;
+    t += THIN + NL;
   }
   t += 'TOTAL BUILD \u2014 ' + fmt(s.total) + NL + NL;
   if (state.notesText.trim()){
@@ -2741,7 +2778,7 @@ function emailBuildSheet(){
   const mailto = 'mailto:' + encodeURIComponent(c.email.trim())
     + '?cc=' + encodeURIComponent(CC_EMAIL) /* CC_EMAIL already contains data@ - concatenating the old DEALER_EMAIL constant (deleted 26 Aug 2026) doubled it in the customer's CC line (audit 2026-08-03) */
     + '&subject=' + encodeURIComponent(subject)
-    + '&body=' + encodeURIComponent(emailBodyText());
+    + '&body=' + encodeURIComponent(emailBodyText().replace(/\n/g, '\r\n'));   /* RFC 6068: a body line break is %0D%0A (the parsers already strip the CR, mail in transit is CRLF anyway) */
   toast('Build sheet PDF downloaded \u2014 attach it to the email that opens.');
   setTimeout(() => { window.location.href = mailto; }, 450);
 }
