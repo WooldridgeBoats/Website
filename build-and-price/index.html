@@ -2870,6 +2870,31 @@ const norm = s => String(s).toLowerCase()
   .replace(/[\u2014\u2013]/g,'-')
   .replace(/\s+/g,' ').trim();
 
+/* 2026-10-28 (Christian BHQ4T2V / 9NTS89D): plain-English wording for the customer. DISPLAY ONLY - the
+   canon item names in DATA (EZ Loader's abbreviations) are untouched and still drive search, prices, the
+   Sales Order Creator and the price sheets. Only the exact names below are re-labelled; anything not
+   listed shows as before. The two chine rows keep an inboard/outboard tag because they are priced
+   differently and a customer could not tell them apart if both just said "Chine Load Guides". */
+function plain(name){
+  let m;
+  if ((m = /^TNG SWING (\d+)'$/.exec(name))) return 'Swing tongue, ' + m[1] + ' ft';
+  if ((m = /^TNG (\d+)'$/.exec(name))) return 'Tongue, ' + m[1] + ' ft';
+  if ((m = /^JACK TNG \((\d+)# W\/HDWR (\S+)\)$/.exec(name))) return 'Tongue jack, ' + (+m[1]).toLocaleString('en-US') + ' lb, with hardware (' + m[2].toLowerCase() + ')';
+  if (name === 'WELDED CHINE (IB OR OB)') return 'Chine Load Guides';
+  if (name === 'WELDED CHINE (IB)') return 'Chine Load Guides (for inboard boats)';
+  if (name === 'WELDED CHINE (OB)') return 'Chine Load Guides (for outboard boats)';
+  return name;
+}
+/* quick notes for the card, built ONLY from facts already in the data: the axle group, the suspension
+   word in the description, and whether a hydraulic disc brake item (HYD DISC) is in the standard list. */
+function quickNotes(t){
+  const n = [t.axle === 'Tandem Axle' ? 'Tandem axle' : 'Single axle'];
+  const d = String(t.m.desc);
+  if (/torsion/i.test(d)) n.push('Torsion suspension'); else if (/spring/i.test(d)) n.push('Spring suspension');
+  if (t.m.std.some(i => /^HYD DISC/.test(i.item))) n.push('Hydraulic disc brakes');
+  return n;
+}
+
 const TRAILERS = [];
 let idc = 0;
 Object.entries(DATA).forEach(([axle, seriesArr])=>{
@@ -2890,7 +2915,7 @@ Object.entries(DATA).forEach(([axle, seriesArr])=>{
       const fields = {
         'trailer': axle + ' ' + series.series + ' ' + m.name + ' ' + m.desc + ' ' + (m.basePart||'') + ' ' + (m.note||''),
         'boats': m.boats,
-        'part #': [m.basePart||'', ...m.std.map(i=>i.item+' '+(i.part||'')), ...m.opt.map(i=>i.item+' '+(i.part||''))].join(' ')
+        'part #': [m.basePart||'', ...m.std.map(i=>i.item+' '+plain(i.item)+' '+(i.part||'')), ...m.opt.map(i=>i.item+' '+plain(i.item)+' '+(i.part||''))].join(' ')
       };
       const hay = {};
       Object.entries(fields).forEach(([k,v])=>{
@@ -2937,8 +2962,8 @@ function totals(t){
   const st = getState(t);
   const base = (t.m.base != null) ? t.m.base : (st.baseOverride || 0);
   const lines = [{n:'Base trailer' + (t.m.basePart?' ('+t.m.basePart+')':''), v:base}];
-  t.m.std.forEach((it,i)=>{ if(st.std[i]) lines.push({n:it.item, v:it.cost, c:it.caution||null}); });
-  t.m.opt.forEach((it,i)=>{ if(st.opt[i]) lines.push({n:it.item + ' (opt)', v:it.cost, c:it.caution||null}); });
+  t.m.std.forEach((it,i)=>{ if(st.std[i]) lines.push({n:plain(it.item), v:it.cost, c:it.caution||null}); });
+  t.m.opt.forEach((it,i)=>{ if(st.opt[i]) lines.push({n:plain(it.item) + ' (opt)', v:it.cost, c:it.caution||null}); });
   const subtotal = lines.reduce((s,l)=>s+l.v,0);
   return {lines, subtotal, retail: subtotal * markup, baseKnown: t.m.base != null || st.baseOverride != null,
           cautions: [...new Set(lines.map(l=>l.c).filter(Boolean))]};   /* Grant 2026-09-17: a canon item's caution (swing tongue) rides with the item */
@@ -3085,7 +3110,7 @@ function buildCard(t, tag, fit){
   row.setAttribute('aria-expanded', openId===t.id ? 'true':'false');
   row.innerHTML = `
     <div class="nm">${m.name}<small>${m.desc}${m.note?' · '+m.note:''}</small></div>
-    <div class="boats">${m.boats}</div>
+    <div class="boats">${quickNotes(t).join(' &middot; ')}</div>
     <div class="from">
       <span class="fl">Retail from</span>
       ${from!=null ? `<span class="fv">${fmt(from)}</span>` : `<span class="tbd">Base TBD</span>`}
@@ -3114,7 +3139,7 @@ function liHTML(t, item, kind, idx, checked, locked){
       <input type="checkbox" ${checked||locked?'checked':''} ${locked?'disabled':''}
         onchange="TR.toggleItem('${t.id}','${kind}',${idx},this.checked,this)">
       <div class="li-body">
-        <div class="li-name">${item.item}</div>
+        <div class="li-name">${plain(item.item)}</div>
         ${item.part?`<div class="li-part">${item.part}</div>`:''}
         ${item.caution?`<div class="li-caution">Caution: ${item.caution}</div>`:''}
       </div>
@@ -3128,6 +3153,12 @@ function buildDetail(t){
   const inbuild = buildTrailerId===t.id;
   const d = document.createElement('div');
   d.className = 'dbody';
+
+  const fitsLine = document.createElement('div');
+  fitsLine.className = 'li-caution';
+  fitsLine.style.cssText = 'margin:2px 0 12px';
+  fitsLine.textContent = 'Fits: ' + m.boats;
+  d.appendChild(fitsLine);
 
   const grid = document.createElement('div');
   grid.className = 'build';
