@@ -1133,6 +1133,10 @@ html.blueprint .tooltab .tool-ico{ color:#e8b64c; }   /* Night Run theme: gold, 
   color:var(--muted);
 }
 #fleetFine{ font-size:10.5px; }   /* homepage "Boat + power" pricing note under Boat Models: a touch smaller (Tyler, 2026-10-20) */
+/* small or zoomed-in phones (Android "large font" settings, e.g. Sonim XP Pro): the warranty / price
+   fine print in caps with letter-spacing reads as a loud block once the phone scales text up, so on
+   narrow screens it drops to sentence case. iPhones (375px+ wide) keep the caps look Tyler signed off. */
+@media (max-width:360px){ .fineprint{ text-transform:none; letter-spacing:.01em; font-size:11px; line-height:1.55; } }
 
 /* net grid (inventory / dealers / ownership) */
 .netgrid{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
@@ -1155,6 +1159,9 @@ footer .fcontact{ font-weight:400; font-size:15px; color:var(--body); }
 footer .fcontact a{ color:var(--body); font-weight:400; }
 footer .fcontact a:hover{ color:var(--blue); }
 footer .fcontact .sep{ color:var(--rule); padding:0 10px; }
+/* small or zoomed-in phones (Tyler 2026-10-28, a Sonim XP Pro report): the phone|email line has no
+   place to wrap, so at ~280-360px CSS width it pushed the whole page wider than the screen. Stack it. */
+@media (max-width:380px){ footer .fcontact a{ display:block; } footer .fcontact .sep{ display:none; } }
 footer .faddr{ font-weight:400; font-size:14px; color:var(--body); margin-top:18px; line-height:1.7; }
 footer .fhours{ font-weight:400; font-size:14px; color:var(--body); margin-top:14px; }
 footer .fsoc{ display:flex; gap:14px; justify-content:center; margin:24px 0 8px; }
