@@ -514,6 +514,24 @@
     box-shadow:0 0 0 4px var(--paper), 0 0 0 5px rgba(27,117,187,.5); position:sticky; top:20px;
   }
   @media(max-width:900px){ #trailerStep .ticket{position:static;} }
+  /* Phone portrait (2026-10-28, Christian's report): the trailer rows' four-column
+     grid (150px name + boats + price + chips, nowrap) has a ~445px minimum width, so
+     every phone narrower than that got a 472px layout and the whole configurator
+     ran off the right edge as if it wanted landscape. Below 640px the row reflows to
+     two columns (name/price on top, boats/chips below) and the step and panel
+     headers are allowed to wrap. */
+  @media (max-width:640px){
+    #trailerStep .mrow{grid-template-columns:minmax(0,1fr) auto; gap:6px 12px; padding:13px 14px;}
+    #trailerStep .mrow .nm{grid-column:1; grid-row:1; min-width:0; overflow-wrap:anywhere;}
+    #trailerStep .mrow .from{grid-column:2; grid-row:1;}
+    #trailerStep .mrow .boats{grid-column:1; grid-row:2; min-width:0;}
+    #trailerStep .mrow .caret{grid-column:2; grid-row:2; justify-content:flex-end; flex-wrap:wrap; gap:6px;}
+    #trailerStep .dbody{padding:6px 14px 16px;}
+    #trailerStep .cfg-chiprow{flex-wrap:wrap; row-gap:6px;}
+    #trailerStep .tcount{flex-basis:100%; padding-left:0; margin-left:0;}
+    .stephead, .custpanel .cph{flex-wrap:wrap; row-gap:4px;}
+    .cfg-flourish .fl-line{min-width:0;}
+  }
   #trailerStep .ticket .th{padding:14px 18px 12px; border-bottom:1px solid var(--rule);}
   #trailerStep .ticket .t1{font-family:var(--sans); font-size:10.5px; letter-spacing:.3em; text-transform:uppercase; color:var(--slate);}
   #trailerStep .ticket .t2{font-family:var(--mono); font-size:17px; font-weight:800; color:var(--brass); margin-top:3px;}
