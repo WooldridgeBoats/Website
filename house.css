@@ -1168,6 +1168,7 @@ footer .frow a{
 }
 footer .frow a:hover{ color:var(--blue); }
 footer .frow.frow2 a{ font-weight:400; color:var(--muted); }
+footer .frow.frow2 a:hover{ color:var(--blue); }   /* the grey rule above outranked the shared hover, so this row never lit up (Tyler, 2026-10-28) */
 footer .legal{
   margin-top:34px; border-top:1px solid var(--line); padding:18px 0 22px;
 }
