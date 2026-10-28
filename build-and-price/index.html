@@ -2887,6 +2887,7 @@ Object.entries(DATA).forEach(([axle, seriesArr])=>{
 
 let axleFilter = 'All';
 let query = '';
+let otherOpen = false;   /* the customer's own open/closed choice for the "Other trailers" section */
 let openId = null;
 let autoOpen = false;
 let buildTrailerId = null;
@@ -3008,17 +3009,47 @@ function refresh(){
     fitResults.forEach(({t, tag})=> wrap.appendChild(buildCard(t, tag, true)));
   }
 
+  /* 2026-10-28 (Christian 7DGL6KT): once a boat and length are chosen and some trailers fit,
+     everything that does NOT fit goes into a collapsed "Other trailers" section (same look as
+     the option sections above) - sixteen cards was a very long scroll on a phone in portrait.
+     Nothing is removed or re-ruled: the same trailers, same order, same fit test. The section
+     opens by itself when the customer is searching or filtering, or when a trailer inside it is
+     the open card or the one already in their build, so nothing they asked for is hidden.
+     With no boat chosen (or nothing fitting) there is no "fits" group, so the full list shows. */
+  const collapseOthers = !!(c && fitResults.length);
+  const rest = collapseOthers ? results.filter(r => !r.fit) : results;
+  let host = listEl;
+  if (collapseOthers && rest.length){
+    const forced = !!query || axleFilter !== 'All'
+      || rest.some(r => r.t.id === openId || r.t.id === buildTrailerId);
+    const d = document.createElement('details');
+    d.className = 'optcat othertr';
+    d.dataset.forced = forced ? '1' : '';
+    d.open = forced || otherOpen;
+    d.addEventListener('toggle', () => { if (!(d.dataset.forced === '1' && d.open)) otherOpen = d.open; });
+    const sum = document.createElement('summary');
+    sum.innerHTML = '<span class="caret">&#9654;</span><span class="cn">Other trailers</span>'
+      + '<span class="count on">' + rest.length + '</span>';
+    d.appendChild(sum);
+    const body = document.createElement('div');
+    body.className = 'optbody';
+    body.style.padding = '2px 12px 12px';
+    d.appendChild(body);
+    listEl.appendChild(d);
+    host = body;
+  }
+
   let lastGroup = null, wrap = null;
-  results.forEach(({t, tag, fit})=>{
+  rest.forEach(({t, tag, fit})=>{
     const g = t.axle + ' · ' + t.series;
     if(g !== lastGroup){
       const lbl = document.createElement('div');
       lbl.className = 'grouplbl';
       lbl.textContent = g;
-      listEl.appendChild(lbl);
+      host.appendChild(lbl);
       wrap = document.createElement('div');
       wrap.className = 'trailers';
-      listEl.appendChild(wrap);
+      host.appendChild(wrap);
       lastGroup = g;
     }
     wrap.appendChild(buildCard(t, tag, fit));
