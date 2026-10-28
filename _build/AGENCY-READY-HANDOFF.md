@@ -177,7 +177,7 @@ Still to come: more 20-CC-SKAGIT/<mission> sub-folders. Ready — I'll drop the 
 |---|---|---|---|
 | FIRE & RESCUE | 18′ Skagit | 13 / 14 | 4572 |
 | FIRST RESPONDER | 20′ Alaskan XL Inboard | 27 / 24 | 5320 |
-| U.S. COAST GUARD | 20′ BSR SW | 27 / 27 | 5335 + 5336 (card shows 5335) |
+| U.S. COAST GUARD | 20′ BSR SW | 27 / 26 | 5335 + 5336 (card shows 5335; phone 23 removed + renumbered 2026-10-28) |
 | FIRE & RESCUE | 20′ Skagit | 14 / 14 | 4552 |
 | NORTHWESTERN ENERGY | 20′ Skagit | 9 / 11 | 4669 + 5063 (card shows 4669) |
 | RESEARCH | 20′ Skagit | 7 / 7 | 5046 (desktop numbers skip 07-08; harmless) |
