@@ -229,6 +229,7 @@
   window.addEventListener('resize', fitLb);
 
   function photoHash(a) {
+    if (a.dataset.hash) return a.dataset.hash;   /* page-supplied link (agency-gallery.js) */
     var loc = parseHref(a);
     return loc ? '#p=' + loc.slug + '/' + loc.file : '#photo';
   }
@@ -298,7 +299,8 @@
     document.body.style.overflow = '';
     if (viaUi) {
       if (pushed) { pushed = false; history.back(); }
-      else if (/^#p=/.test(location.hash)) history.replaceState(null, '', location.pathname + location.search);
+      else if (/^#p=/.test(location.hash) || (seq[cur] && seq[cur].dataset.hash === location.hash))
+        history.replaceState(null, '', location.pathname + location.search);
     }
   }
 
@@ -908,7 +910,7 @@
      <a href="full.jpg"><img src="thumb.jpg"></a> anchors, captioned from data-m /
      data-len / data-cfg / data-hull (same fields mobileAnchors sets). Used by
      agency-gallery.js on the Agency & Work Boats page. */
-  window.WBGallery = { open: function (list, i) { if (list && list.length) openLb(list[i || 0], false, list); } };
+  window.WBGallery = { open: function (list, i, viaHistory) { if (list && list.length) openLb(list[i || 0], !!viaHistory, list); } };
 
   /* deep-linked photo on a model page */
   if (!gal && /^#p=/.test(location.hash)) openFromHash();

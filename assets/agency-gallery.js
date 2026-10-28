@@ -14,11 +14,24 @@
   if (!DATA) return;
   var mq = window.matchMedia ? window.matchMedia('(max-width:700px)') : { matches: false };
 
+  /* Each photo gets its own address, e.g. #20-cc-bsr-sw-uscg/05 (boat key + photo
+     number), so a shared link opens that boat at that photo (Tyler 2026-10-28: every
+     photo used to read just #photo). */
+  function hashFor(k, file) {
+    var n = /-(\d+)\.jpe?g/i.exec(file || '');
+    return '#' + k + '/' + (n ? n[1] : '01');
+  }
+  function keyOf(g) {
+    for (var k in DATA) if (DATA[k] === g) return k;
+    return '';
+  }
+
   function anchors(g, mobile) {
-    var dir = g.dir + (mobile ? 'mobile/' : '');
+    var dir = g.dir + (mobile ? 'mobile/' : ''), k = keyOf(g);
     return (mobile ? g.mob : g.d).map(function (p) {
       var a = document.createElement('a');
       a.setAttribute('href', dir + p.f);
+      a.dataset.hash = hashFor(k, p.f);
       a.dataset.m = g.m; a.dataset.len = g.len; a.dataset.cfg = g.cfg; a.dataset.slug = 'agency-work';
       if (p.hull) a.dataset.hull = p.hull;
       var img = document.createElement('img');
@@ -37,6 +50,17 @@
     window.WBGallery.open(anchors(g, mq.matches && g.mob && g.mob.length > 0), 0);
   });
 
+  /* a #boat/NN link (shared, bookmarked, or Back/Forward) opens that boat at that photo */
+  function openFromHash() {
+    var m = /^#([a-z0-9-]+)\/(\d+)$/.exec(location.hash), g = m && DATA[m[1]];
+    if (!g || !window.WBGallery) return;
+    var list = anchors(g, mq.matches && g.mob && g.mob.length > 0), i = 0;
+    for (var j = 0; j < list.length; j++) if (list[j].dataset.hash === location.hash) { i = j; break; }
+    window.WBGallery.open(list, i, true);
+  }
+  window.addEventListener('popstate', function () { setTimeout(openFromHash, 0); });
+  openFromHash();
+
   /* Bottom "Photo gallery" (Tyler, 2026-10-06): the model pages' flat photo grid, made for
      many boats. The builder writes every boat's landscape thumbs into .agrid in
      round-robin order (each boat's 1st photo, then each 2nd, ...). Here: one filter chip
@@ -53,6 +77,7 @@
     var k = a.dataset.agp, g = DATA[k];
     if (!g) return;
     a.dataset.m = g.m; a.dataset.len = g.len; a.dataset.cfg = g.cfg; a.dataset.slug = 'agency-work';
+    a.dataset.hash = hashFor(k, a.getAttribute('href'));
     if (!groups[k]) { groups[k] = []; order.push(k); }
     groups[k].push(a);
   });
