@@ -45,6 +45,7 @@ my @SKIP = (
   [ qr{^tools/},                   'internal/dealer tools and JS data files, not public content' ],
   [ qr{^store/},                   '301s to store.wooldridgeboats.com' ],
   [ qr{^models/xp/},               'carries noindex and canonicalises to /models/skagit/' ],
+  [ qr{^models/angler/},           'old address of the SSO Angler (moved to /models/super-sport-offshore-angler/ 2026-10-28, launch day) — noindex redirect stub; keep it, links and search results still point here' ],
   [ qr{^login/},                   'redirect stub for the retired WordPress /login/ URL — noindex, forwards to /dealer-resources/' ],
   [ qr{^custom-agency-builds/},   'old address of Agency & Work Boats (moved to /agency-work-boats/ 2026-10-05) — noindex redirect stub; the live WordPress page lives here until cutover' ],
   [ qr{^_build/},                  'build scripts' ],

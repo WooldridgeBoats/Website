@@ -62,7 +62,7 @@ carry no trim (see BOAT-MODEL-IMAGE-UPDATES-HANDOFF.md).
 | `PYBUS-WEB` | `models/pybus-offshore/` | `apply_model_photos.sh pybus-offshore "Pybus Point Lodge" …` |
 | `RIVER RAT-WEB` | `models/riverrat-diy-kit/` | `_build/build_riverrat.sh`. Default path already points here |
 | `SSO PILOTHOUSE-WEB` | `models/supersportoffshorepilothouse/` | `apply_model_photos.sh supersportoffshorepilothouse "Super Sport Offshore" …` |
-| `SSOFF-ANGLER-WEB` | `models/angler/` | `apply_model_photos.sh angler "Super Sport Offshore" …` (a 24-footer, hull 4660) |
+| `SSOFF-ANGLER-WEB` | `models/super-sport-offshore-angler/` | `PHOTOSLUG=angler apply_model_photos.sh super-sport-offshore-angler "Super Sport Offshore" …` (page moved 2026-10-28; photos stay in assets/photos/angler/) (a 24-footer, hull 4660) |
 
 ## Rules
 

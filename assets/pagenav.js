@@ -42,7 +42,7 @@
   ], [
     /* Custom Builds (Tyler's order, 2026-10-08; Agency & Work Boats leads the menu but isn't a model page) */
     ['landing-craft',               'Landing Craft'],
-    ['angler',                      'SSO Angler'],
+    ['super-sport-offshore-angler', 'SSO Angler'],
     ['pybus-offshore',              'Pybus Point Lodge'],
     ['deepwater',                   'Deepwater Series'],
     ['canyon',                      'Canyon'],
