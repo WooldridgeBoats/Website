@@ -863,6 +863,24 @@ $('#qiForm').addEventListener('submit', e => {
   }
 });
 
+/* customerCopy: what the customer sees on screen. The email the shop receives is
+   the full summary; the screen copy drops the sales-floor parts (Stephen's call
+   2026-10-27, after Christian's "does a customer know what's high?"): the
+   follow-up priority, the auto-scored model fit, the flags, the recommended next
+   action, and the Model / RunnerUp lines of the records footer. Section = from a
+   '== HEADING ==' line to the next heading or the footer. */
+function customerCopy(summary){
+  const HIDE = /^== (LIKELY MODEL FIT|FLAGS|RECOMMENDED NEXT ACTION)/;
+  const out = []; let skipping = false;
+  summary.split('\n').forEach(l => {
+    if (/^== /.test(l) || /^--- WB-INQUIRY/.test(l)) skipping = HIDE.test(l);
+    if (skipping) return;
+    if (/^(Follow-up priority|Priority|Model|RunnerUp): /.test(l)) return;
+    out.push(l);
+  });
+  return out.join('\n').replace(/\n{3,}/g, '\n\n');
+}
+
 function showSummary(a, summary, subject, mode){
   $('#qiForm').style.display = 'none';
   const box = $('#summary');
@@ -901,7 +919,7 @@ function showSummary(a, summary, subject, mode){
     '(cc <b>' + CC_EMAIL + '</b>)</p>' +
     '<p class="formnote" style="margin-top:8px;">Or just call us: <a href="tel:+12067228998">(206) 722-8998</a> — Mon–Thu, 6:00am–4:30pm Pacific.</p></div>';
   box.innerHTML = h;
-  $('#sumText').textContent = summary.split('\n').filter(l => !/^(Follow-up priority|Priority): /.test(l)).join('\n');
+  $('#sumText').textContent = customerCopy(summary);
   box.style.display = '';
   window.scrollTo({top:0, behavior:'auto'});
   $('#btnCopy').addEventListener('click', () => {
