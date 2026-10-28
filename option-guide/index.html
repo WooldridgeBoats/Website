@@ -50,6 +50,10 @@ button:focus-visible, a:focus-visible, input:focus-visible{outline:2px solid var
 .wrap{max-width:1180px; margin:0 auto; padding:0 20px;}
 .ox-accent{display:none;}
 .ox-mast{padding:34px 0 0; background:none; border:none;}
+/* "Back" link above the masthead (Christian 2026-10-27: no easy way back to the
+   main site from here on a phone). Label/target set by the script below. */
+.ox-back{display:inline-flex; align-items:center; gap:6px; margin:0 0 14px; font-family:var(--mono); font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--buoy); text-decoration:none; border:1px solid var(--rule); background:var(--paper); padding:8px 12px;}
+.ox-back:hover{border-color:var(--buoy);}
 .ox-eyebrow{font-family:var(--mono); font-size:11.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--steel);}
 .ox-mast h1{font-size:clamp(30px,5vw,44px); font-weight:700; letter-spacing:-.01em; margin:6px 0 4px; line-height:1.05; color:var(--ink);}
 .ox-kick{font-family:var(--mono); font-size:12px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--buoy);}
@@ -248,6 +252,22 @@ button:focus-visible, a:focus-visible, input:focus-visible{outline:2px solid var
 
 <!-- ===================== BEGIN WIDGET MARKUP ===================== -->
 <header class="ox-mast"><div class="wrap">
+  <a class="ox-back" id="oxBack" href="/">&#8592; Back to Wooldridge Boats</a>
+  <script>
+  /* Came here from another page on this site (usually Build & Price)? Send
+     "Back" there and name it; otherwise it goes to the homepage. */
+  (function () {
+    var a = document.getElementById('oxBack'), r = document.referrer;
+    if (!r || r.indexOf(location.origin + '/') !== 0 || /\/option-guide\//.test(r)) return;
+    a.href = r;
+    if (/\/build-and-price\//.test(r)) a.innerHTML = '&#8592; Back to Build &amp; Price';
+    else a.innerHTML = '&#8592; Back';
+    /* a real Back keeps the boat they were building (the referrer drops the #state) */
+    a.addEventListener('click', function (e) {
+      if (history.length > 1) { e.preventDefault(); history.back(); }
+    });
+  })();
+  </script>
   <div class="ox-eyebrow">WOOLDRIDGE BOATS &middot; SEATTLE, WASHINGTON &middot; SINCE 1915</div>
   <h1>Jet boating, explained.</h1>
   <div class="ox-kick">The plain-English guide to the build sheet &mdash; and the water</div>
