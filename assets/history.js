@@ -1,4 +1,4 @@
-/* history.js: the /our-history/ timeline (2026-10-12).
+/* history.js: the /about-history/ timeline (2026-10-12).
    1. the rope between dates draws itself in blue as you scroll; each date's
       compass star lights when the rope reaches it; the big ghost year drifts
    2. each date's carousel: arrows, "3 / 10" counter, edge fades

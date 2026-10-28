@@ -1,6 +1,6 @@
 # OUR HISTORY PAGE: HANDOFF
 
-**Page:** dev.wooldridgeboats.com/our-history/ (repo `~/Desktop/LOCAL-WEBSITE`, file `our-history/index.html`)
+**Page:** dev.wooldridgeboats.com/about-history/ (repo `~/Desktop/LOCAL-WEBSITE`, file `about-history/index.html`)
 **Status:** finished and checked on desktop + phone, 2026-10-14. Built 2026-10-12 to 10-14 with Tyler.
 Tyler: "Wooldridge Boats is an American Legacy brand, so this page is very important to get right."
 
@@ -9,7 +9,7 @@ Tyler: "Wooldridge Boats is an American Legacy brand, so this page is very impor
 ## PASTE THIS INTO A NEW CHAT
 
 > We're making tweaks to the Our History page on dev.wooldridgeboats.com
-> (LOCAL-WEBSITE repo, our-history/index.html). It has custom pieces no other page has.
+> (LOCAL-WEBSITE repo, about-history/index.html). It has custom pieces no other page has.
 > Read `_build/HISTORY-PAGE-HANDOFF.md` first and follow it, then wait for my changes.
 > Photos come from my OneDrive folder MASTER-WEBSITE PHOTOS/ABOUT | HISTORY.
 
@@ -70,7 +70,7 @@ Tyler: "Wooldridge Boats is an American Legacy brand, so this page is very impor
 - **Year rail** on the right: big on wide screens (1380px+), small and faded until hover on
   laptops (901–1379px; the timeline gets 64px side padding there so it never covers photos),
   hidden on tablets/phones. Shows only while you're in the timeline.
-- **No "Not sure which boat?" pill** on this page (tool-nudge.js skips `/our-history/`).
+- **No "Not sure which boat?" pill** on this page (tool-nudge.js skips `/about-history/`).
 
 ## 2. Where things live
 
@@ -86,10 +86,10 @@ Tyler: "Wooldridge Boats is an American Legacy brand, so this page is very impor
 **Repo side (`~/Desktop/LOCAL-WEBSITE`):**
 | What | Where |
 |---|---|
-| Page | `our-history/index.html`. Generated between markers, DON'T hand-edit inside: `<!-- HIST:archives -->`, `<!-- HIST:timeline -->`, `<!-- HIST:videos -->`. The map section is hand-placed (outside markers). |
+| Page | `about-history/index.html`. Generated between markers, DON'T hand-edit inside: `<!-- HIST:archives -->`, `<!-- HIST:timeline -->`, `<!-- HIST:videos -->`. The map section is hand-placed (outside markers). |
 | Dates, date text, timeline videos, links | `_build/history_timeline.txt` |
 | Heritage Videos list | `_build/history_videos.txt` (ID \| page title \| length \| thumbnail size \| crop) |
-| Video thumb crop tool | `_build/history_vidcrop.js`: paste into the browser pane on /our-history/; prints each video's crop (`wide` or `x,y,w,h`) |
+| Video thumb crop tool | `_build/history_vidcrop.js`: paste into the browser pane on /about-history/; prints each video's crop (`wide` or `x,y,w,h`) |
 | Builder | `_build/build_history.pl` |
 | Face-aware thumbnail cropper | `_build/history_focus.swift` (macOS Vision; the builder compiles it once to `$TMPDIR/wb-history-focus`) |
 | Map cleaner + river tracer | `_build/history_map.swift` (only re-run if the map scan changes; paste its new path into the `.hmap` SVG) |
@@ -132,9 +132,9 @@ perl _build/stamp_assets.pl               # REQUIRED after any house.css / histo
   that photo; stays attached if photos are reordered; warns + goes first if the photo is gone),
   optional `link: URL | Label` (button). Page order is sorted automatically.
 - **Preview:** the in-app preview server can't read ~/Desktop (macOS privacy block). Mirror and serve:
-  `rsync` `our-history/`, `house.css`, `favicon.ico`, `assets/*.js`, `assets/brand/`, `assets/fonts/`,
+  `rsync` `about-history/`, `house.css`, `favicon.ico`, `assets/*.js`, `assets/brand/`, `assets/fonts/`,
   `assets/history/` into `<scratchpad>/site/`, run `python3 -m http.server 8813 --bind 127.0.0.1`
-  there (background), open `http://127.0.0.1:8813/our-history/` with preview_start. Re-sync after
+  there (background), open `http://127.0.0.1:8813/about-history/` with preview_start. Re-sync after
   every change. The site uses smooth scrolling, so in scripted checks use `behavior:'instant'`.
 - **Git:** Claude commits finished, checked work. **Tyler pushes** (GitHub Desktop). `git push`
   from the shell fails (no credentials); don't go looking for them. `git fetch` first; if the

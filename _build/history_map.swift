@@ -1,4 +1,4 @@
-// history_map.swift: the Rogue River map that closes the /our-history/ timeline (2026-10-13).
+// history_map.swift: the Rogue River map that closes the /about-history/ timeline (2026-10-13).
 //
 //   swiftc -O _build/history_map.swift -o <scratchpad>/history_map
 //   <scratchpad>/history_map "<…/ABOUT | HISTORY/GENERAL HISTORICAL-UNKOWN DATES/ROGUE RIVER BASIN.JPG>" \

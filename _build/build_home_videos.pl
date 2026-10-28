@@ -6,7 +6,7 @@
 #   perl _build/build_home_videos.pl --sync   # first re-read Tyler's "HOME PAGE" YouTube
 #                                             # playlist into home_videos.txt, then rebuild
 #
-# It's the Heritage Videos strip from /our-history/ (same .hcar markup, so
+# It's the Heritage Videos strip from /about-history/ (same .hcar markup, so
 # assets/history.js gives it the arrows, counter, scroll bar and the viewer that plays
 # the video), except every tile is a 16:9 rectangle like YouTube's own (.wide).
 #

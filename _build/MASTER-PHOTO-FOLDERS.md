@@ -17,7 +17,7 @@ history, video thumbs) each have their own home as he adds more.
 |---|---|---|
 | `BOAT MODELS/` | The 18 configurator models, one `<MODEL>-WEB` folder each (table below) | Model Ready: `apply_model_photos.sh` |
 | `CUSTOM BOAT MODELS/` | The custom-build pages + the Agency page (table below) | Model Ready / Agency Model Ready |
-| `ABOUT \| HISTORY/` | Year and decade folders (`1915`, `1920s` … `2026`), `HERITAGE BROCHURES-ADS`, `GENERAL HISTORICAL-UNKOWN DATES`, plus loose hero/end-cap/rope files. **Did not move.** | /our-history/: `build_history.pl` (see HISTORY-PAGE-HANDOFF.md) |
+| `ABOUT \| HISTORY/` | Year and decade folders (`1915`, `1920s` … `2026`), `HERITAGE BROCHURES-ADS`, `GENERAL HISTORICAL-UNKOWN DATES`, plus loose hero/end-cap/rope files. **Did not move.** | /about-history/: `build_history.pl` (see HISTORY-PAGE-HANDOFF.md) |
 | `YOUTUBE-THUMBS/` | Tyler's own video thumbnails. **Renamed from `YT-VIDEO-THUMBS`.** Always copy byte for byte, never re-compress. | History heritage video (`01-HERITAGE VIDEO-THUMB.jpg`); also holds a 20′ Skagit USGS electroshock thumb |
 | `IN THE SHOP-WEB/` | Empty on 10-20. Planned: one `<HULL>-<LEN>-<MODEL>/` folder per boat in production | /in-the-shop/ |
 | `NEW INVENTORY/` | One folder per boat for sale, named by HULL so it's the exact boat from the shop: `5334-18-WS-ALASKAN/` (HERO + GALLERY-THUMB + NN photos, all `…-5334-18-WS-AK.jpg`) and its phone folder `…-MOBILE/` | /new-inventory/: `_build/build_new_inventory.sh` (checks names, fills `assets/newinv/<HULL>/`). Price, words, SOLD: the NEWINV list in new-inventory/index.html. Homepage New Boats thumb is hand-edited in index.html. Full how-to: `_build/IN-STOCK-PAGE-HANDOFF.md` |

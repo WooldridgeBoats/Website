@@ -302,7 +302,7 @@ html:not(.wb-instock) .nav a.nav-instock{ display:none !important; }   /* !impor
   /* minmax(0,1fr), not minmax(150px,1fr) (2026-10-13, Tyler): the 150px floors
      never fit. 4x150 + 170 + 4x28 gap + 60 padding + 2 border = 944px of
      minimum grid inside a panel that is at most 920px (92vw below 1000px), so
-     the grid always overflowed. Measured on /our-history/: at 1440 the Tools
+     the grid always overflowed. Measured on /about-history/: at 1440 the Tools
      column ended 7px from the panel edge instead of 31; from 901 to ~1000 it
      hung outside the white panel; and from 901 to 927 (classic 15px scrollbar)
      its right edge sat at 913px, past the viewport. The panel is
@@ -646,7 +646,7 @@ section{ padding:36px 0; }
   max-width:960px; margin:20px auto 0; font-weight:400;
   font-size:17.5px; line-height:1.7; color:var(--body);
 }
-/* "Learn More ->" under the blurb, links to /our-history/ (Tyler, 2026-10-19): Inter Medium in the brand blue;
+/* "Learn More ->" under the blurb, links to /about-history/ (Tyler, 2026-10-19): Inter Medium in the brand blue;
    hover underlines it and nudges the arrow */
 .tagband .tb-more{ margin:16px 0 0; }
 .tagband .tb-more a{ font-family:var(--sans); font-weight:500; font-size:16px; letter-spacing:.02em; color:var(--blue);
@@ -2753,7 +2753,7 @@ html.blueprint body{ background:transparent; }
 .emptystate p{ font-size:14.5px; color:var(--muted); max-width:520px; margin:0 auto; }
 .emptystate .modelctas{ margin-top:18px; }
 
-/* ══ OUR HISTORY (/our-history/) ═════════════════════════════════════════════
+/* ══ OUR HISTORY (/about-history/) ═════════════════════════════════════════════
    Built 2026-10-12 from Tyler's mockup (EXAMPLE-HERO-TITLE IMAGE.jpg). Its own
    layout on purpose: a hero with the title + first line ON the photo, the rest
    of the about copy under it, then the timeline. The timeline markup is

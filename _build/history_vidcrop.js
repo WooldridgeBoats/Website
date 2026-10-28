@@ -2,7 +2,7 @@
 // box for _build/history_videos.txt (5th field). Old 4:3 footage comes back from YouTube
 // padded to widescreen with black side bars (sd/hq thumbnails also get top/bottom bars).
 //
-// HOW: open /our-history/ in the browser pane, then paste this whole file into
+// HOW: open /about-history/ in the browser pane, then paste this whole file into
 // javascript_tool. It prints one line per video: "ID | wide" (a true 16:9 video, no bars)
 // or "ID | x,y,w,h" (the picture with the bars cut off, trimmed 2% so no bar edge shows,
 // cut to exactly 4:3). Paste the value after the thumbnail column, then rebuild.

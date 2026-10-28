@@ -1,4 +1,4 @@
-# Our History timeline: the source for the /our-history/ page timeline.
+# Our History timeline: the source for the /about-history/ page timeline.
 # Approved by Glen Wooldridge Jr. (2026-10). Rebuild after any edit:
 #
 #   perl _build/build_history.pl

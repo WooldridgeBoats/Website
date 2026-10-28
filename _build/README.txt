@@ -25,7 +25,7 @@ removed) has its page folder deleted; photos stay in assets/preowned/<slug>/.
                                     from _build/home_videos.txt; --sync first re-reads
                                     Tyler's "HOME PAGE" YouTube playlist into that list.
 Run it when Tyler says "update homepage videos". The strip + viewer are the
-Heritage Videos code from /our-history/ (assets/history.js, .hvidcar in house.css).
+Heritage Videos code from /about-history/ (assets/history.js, .hvidcar in house.css).
 
   perl _build/stamp_assets.pl      — cache-bust every local .css/.js reference
   perl _build/stamp_assets.pl --check   — report only, change nothing

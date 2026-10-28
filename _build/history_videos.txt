@@ -1,4 +1,4 @@
-# Heritage Videos: the strip between the Rogue River map and the closing photo on /our-history/.
+# Heritage Videos: the strip between the Rogue River map and the closing photo on /about-history/.
 # Source: the "Heritage" playlist on the Wooldridge Boats YouTube channel (19 videos, 2026-10-14)
 #   https://youtube.com/playlist?list=PLsmduxnezQpiuW-Q7alDpB5_vQ473uZN1
 # One video per line, in playlist order:
