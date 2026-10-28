@@ -28,28 +28,25 @@ RR.Ramps = {
                 for (k=index-28;k<=index+45;k++) {
                     river.segments[k].obstacles= k <= index+6 ? [] : river.segments[k].obstacles.filter(function(o){return Math.abs(o.x-x)>0.5;});
                 }
-                // Optional jump targets sit AFTER the lip, never on the approach.
-                // A low floating log is forgiving if the player bypasses the ramp.
-                if (n !== 1) river.segments[index+7].obstacles.push({type:'log',x:x,size:0.8,rampTarget:true});
+                // Open water after every ramp: no forced obstacle or penalty for a miss.
                 break;
             }
         }
     },
     reset: function () { this.items.forEach(function(r){r.used=false;}); },
     update: function (boat) {
-        if (boat.crashed || boat.grounded) return;
         var C=RR.Config, before=boat.previousZ === undefined ? boat.z : boat.previousZ;
-        var length=this.length/C.WORLD_SCALE;
+        var length=this.length/C.WORLD_SCALE, oldHeight=boat.rampHeight || 0;
         boat.rampHeight=0; boat.rampPitch=0;
+        if (boat.crashed || boat.grounded) {boat._ridingRamp=null;return;}
         for(var i=0;i<this.items.length;i++) {
             var ramp=this.items[i], end=ramp.z+length;
             if(ramp.used || boat.z<ramp.z || before>end) continue;
             var seg=RR.River.getSegmentAtZ(ramp.z), half=seg.width*C.BASE_RIVER_HALF_WIDTH*C.WORLD_SCALE;
-            var hullBeam=6.2*boat.getModel().beamScale;
-            var centered=Math.abs(boat.lateral-ramp.x)*half < this.halfWidth-hullBeam;
-            if(!centered || boat.jumpHeight>0) { boat._ridingRamp=null; continue; }
-            if(before<=ramp.z && boat.speed>boat.getMaxSpeed()*0.25) boat._ridingRamp=ramp;
-            if(boat._ridingRamp!==ramp) continue;
+            // Any hull overlap counts. Entering partway up the deck works too.
+            var centered=Math.abs(boat.lateral-ramp.x)*half < this.halfWidth+3*boat.getModel().beamScale;
+            if(!centered || boat.jumpHeight>0) continue;
+            boat._ridingRamp=ramp;
             var progress=Math.max(0,Math.min(1,(boat.z-ramp.z)/length));
             boat.rampHeight=progress*this.height;
             boat.rampPitch=-Math.atan2(this.height,this.length);
@@ -57,14 +54,20 @@ RR.Ramps = {
                 ramp.used=true;boat._ridingRamp=null;
                 boat.rampHeight=0;boat.rampPitch=0;
                 boat.jumpHeight=this.height/C.WORLD_SCALE;
-                boat.jumpVelocity=1050;
-                boat.jumpCooldown=C.JUMP_COOLDOWN;
-                boat.jumpCount++;
+                boat.jumpVelocity=1050;boat.jumpBuffered=0;
+                boat.jumpCooldown=C.JUMP_COOLDOWN;boat.jumpCount++;
                 boat.boostTimer=C.RAMP_BOOST_SECONDS;
                 boat.speed=Math.max(boat.speed,boat.getMaxSpeed()*0.94);
                 RR.Audio.play('splash',0.65);
             }
+            return;
         }
+        // Sliding off an edge settles into the water; never drops instantly
+        // through the deck or charges a hull strike for imperfect alignment.
+        if(boat._ridingRamp && oldHeight>0 && boat.jumpHeight<=0) {
+            boat.jumpHeight=oldHeight/C.WORLD_SCALE;boat.jumpVelocity=0;
+        }
+        boat._ridingRamp=null;
     },
     animate: function (time) {
         if (this.arrowMaterial) this.arrowMaterial.opacity = 0.72 + 0.28 * Math.sin(time * Math.PI * 3);

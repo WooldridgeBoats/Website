@@ -14,7 +14,7 @@ RR.Collision = {
         }
 
         if (River.hitsShortcutDivider && River.hitsShortcutDivider(boat.z, boat.lateral)) {
-            boat.crash('Hit the canyon wall!');
+            boat.crash(River.shortcut && River.shortcut.open ? 'Ran aground on the side-channel island!' : 'Hit the canyon wall!');
             return;
         }
 
@@ -24,7 +24,7 @@ RR.Collision = {
         }
 
         var segIdx = Math.floor(boat.z / C.SEGMENT_LENGTH);
-        var checkRange = 2;
+        var checkRange = 4;
         var i, seg, j, obs, dx, hitDist, obsReach, hitLen;
         var previousZ = boat.previousZ === undefined ? boat.z : boat.previousZ;
         for (i = Math.floor(previousZ / C.SEGMENT_LENGTH) - checkRange; i <= segIdx + checkRange; i++) {
@@ -38,7 +38,11 @@ RR.Collision = {
                 var crossX = crossed ? (boat.previousLateral === undefined ? boat.lateral : boat.previousLateral) +
                     (boat.lateral - (boat.previousLateral === undefined ? boat.lateral : boat.previousLateral)) * fraction : boat.lateral;
                 dx = Math.abs(crossX - obs.x);
-                hitDist = Math.max(0.08, obs.size * 0.2 + (model.beamScale - 1) * 0.09);
+                // Match contact to visible size in world units, including hull beam.
+                var halfWidth=seg.width*C.BASE_RIVER_HALF_WIDTH*C.WORLD_SCALE;
+                var radius=obs.type==='rock' ? obs.size*C.ROCK_SCALE :
+                    (obs.type==='tree' ? obs.size*C.TREE_OBSTACLE_SCALE*(obs.cluster?0.9:0.38) : obs.size*C.LOG_SCALE*2.025);
+                hitDist=(radius+5.4*(model.beamScale||1))/Math.max(1,halfWidth);
 
                 // Longitudinal reach: the hull's own half length plus the
                 // obstacle's DRAWN radius -- what you can see, not most of a
@@ -46,8 +50,8 @@ RR.Collision = {
                 // size * 2, the same numbers renderer3d.js scales the meshes
                 // by, so the hit box matches the mesh instead of being 6x
                 // longer than it.
-                obsReach = obs.size * (obs.type === 'rock' ? C.ROCK_SCALE : 2);
-                hitLen = C.HULL_HALF_LENGTH * (model.lengthScale || 1) + obsReach;
+                obsReach = obs.type === 'rock' ? radius : obs.size*2;
+                hitLen = (C.HULL_HALF_LENGTH * (model.lengthScale || 1)*0.72 + obsReach) / C.WORLD_SCALE;
 
                 if (dx < hitDist) {
                     var dz = Math.abs(boat.z - i * C.SEGMENT_LENGTH);
@@ -84,7 +88,8 @@ RR.Collision = {
                         // Clearing low branch piles is possible with the
                         // stronger jump; standing snags need extra clearance.
                         var clearance = obs.type === 'tree' ? (obs.cluster ? 110 : 280) : obs.size * C.ROCK_SCALE / C.WORLD_SCALE;
-                        if (boat.jumpHeight > clearance) continue;
+                        var heightAtContact=crossed ? (boat.previousJumpHeight||0)+(boat.jumpHeight-(boat.previousJumpHeight||0))*fraction : boat.jumpHeight;
+                        if (heightAtContact + (boat.rampHeight||0)/C.WORLD_SCALE > clearance) continue;
                         // Rocks and trees go through takeHit, so an armoured
                         // hull can survive them. _struck stops one obstacle
                         // costing more than one life as the boat rides past.
@@ -156,7 +161,7 @@ RR.Collision = {
         var t = (RR.Engine && RR.Engine.totalTime) || 0;
         var fish = RR.River.salmon || [];
         var model = boat.getModel ? boat.getModel() : { lengthScale: 1 };
-        var halfLen = C.HULL_HALF_LENGTH * (model.lengthScale || 1);
+        var halfLen = C.HULL_HALF_LENGTH * (model.lengthScale || 1) / C.WORLD_SCALE;
         var i, f, cycle, p, fz;
 
         for (i = 0; i < fish.length; i++) {
@@ -168,10 +173,11 @@ RR.Collision = {
             // Only count the airborne middle of the arc. At the very start and
             // end the fish is at the surface, and a fish clipping the waterline
             // beside the hull is not a fish in the boat.
-            if (p < 0.20 || p > 0.90) continue;
+            if (p < 0.12 || p > 0.95) continue;
             if (Math.abs(f.x - boat.lateral) > C.SALMON_CATCH_LATERAL) continue;
             fz = (f.segment + (p - 0.5) * 0.62) * C.SEGMENT_LENGTH;
-            if (Math.abs(fz - boat.z) > halfLen) continue;
+            var z0=boat.previousZ === undefined ? boat.z : boat.previousZ;
+            if (fz < Math.min(z0,boat.z)-halfLen || fz > Math.max(z0,boat.z)+halfLen) continue;
 
             f._caught = true;
             RR.Scoring.addSalmonBonus();

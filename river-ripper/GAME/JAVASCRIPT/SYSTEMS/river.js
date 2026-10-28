@@ -619,9 +619,9 @@ RR.River = {
         //   1.08 - 1.60   the tunnel lane
         // Mouths are MOUTH segments long at each end, open to the river.
         this.shortcut = null;
-        if (LV.profile.canyon) {
+        if (true) {
             var scS = Math.round(this.finishSegment * 0.46);
-            this.shortcut = { start: scS, end: scS + 120, mouth: 40, exit: 34, outer: 1.60, divIn: 0.84, divOut: 1.06 };
+            this.shortcut = { open: !LV.profile.canyon, start: scS, end: scS + 120, mouth: 40, exit: 34, outer: 1.60, divIn: 0.84, divOut: 1.06 };
             for (var scI = scS - 10; scI <= scS + 120 + 40; scI++) {
                 var scSeg = this.segments[scI];
                 if (!scSeg) continue;
@@ -635,8 +635,19 @@ RR.River = {
             this.bears = this.bears.filter(function (b) {
                 return !(b.segment > scLo && b.segment < scHi && b.side > 0);
             });
+            // The former right bank is now navigable water. Its crocodiles
+            // must move out with the bears, or they attack from inside the lane.
+            this.crocs = this.crocs.filter(function (c) {
+                return !(c.segment >= scLo && c.segment <= scHi && c.side > 0);
+            });
         }
 
+        if (LV.profile.id==='rogue' || LV.profile.id==='colorado') {
+            this.segments.forEach(function(seg,i){
+                var reach=0.5-0.5*Math.cos(i*0.012);
+                seg.width*=1.15+0.35*reach;
+            });
+        }
         this._settleCurrents(LV);
 
         this.totalLength = this.segments.length * RR.Config.SEGMENT_LENGTH;
@@ -872,10 +883,18 @@ RR.River = {
     },
 
     // The rock between the river and the tunnel lane.
+    shortcutDividerHalf: function (s) {
+        var sc=this.shortcut;
+        if (!sc) return 0;
+        var a=sc.start+sc.mouth,b=sc.end-sc.mouth;
+        if(s<=a || s>=b)return 0;
+        var taper=sc.open ? Math.pow(Math.sin(Math.PI*(s-a)/(b-a)),0.55) : 1;
+        return (sc.divOut-sc.divIn)*0.5*taper;
+    },
     hitsShortcutDivider: function (worldZ, lateralPos) {
         var s = this._scPos(worldZ), sc = this.shortcut;
         if (s < 0 || s < sc.start + sc.mouth || s > sc.end - sc.mouth) return false;
-        return lateralPos > sc.divIn && lateralPos < sc.divOut;
+        return Math.abs(lateralPos-(sc.divIn+sc.divOut)*0.5) < this.shortcutDividerHalf(s);
     },
 
     inShortcutLane: function (worldZ, lateralPos) {

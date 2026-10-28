@@ -871,6 +871,7 @@ RR.NameEntryScene = {
         this.next = next || RR.CrashScene;
         this.score = Math.floor(score);
         this.distance = distance || 0;
+        this.qualifies = RR.Scores.qualifies(this.score);
         this.rank = RR.Scores.rankFor(this.score);
         this.first = '';
         this.initial = '';
@@ -901,8 +902,10 @@ RR.NameEntryScene = {
 
     finish: function (save) {
         if (save && RR.Scores.cleanName(this.first)) {
-            var run = 'r' + Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36);
-            RR.Scores.add(this.first, this.initial, this.score, this.distance, run);
+            var run = (RR.Progress.runName && RR.Progress.runName.run) || ('r' + Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36));
+            // Keep the named personal result even when the shared top ten is full.
+            try { localStorage.setItem('rr_last_named_run',JSON.stringify({first:this.first,last:this.initial,score:this.score,river:RR.River.profile.name,run:run})); } catch(e) {}
+            if (this.qualifies) RR.Scores.add(this.first, this.initial, this.score, this.distance, run);
             if (this.next === RR.LevelCompleteScene) {
                 RR.Progress.runName = { first: this.first, initial: this.initial, run: run };
             }
@@ -913,6 +916,7 @@ RR.NameEntryScene = {
     update: function (dt) {
         this.time += dt;
 
+        if (this.time < 0.25) return; // Ignore a key carried across the finish.
         // ESC always skips, from either field.
         if (RR.Input.justPressed('Escape')) { this.finish(false); return; }
 
@@ -939,7 +943,7 @@ RR.NameEntryScene = {
         if (RR.Input.justPressed('Enter')) {
             if (this.field === 0) {
                 // Nothing typed yet? ENTER on an empty name skips too.
-                if (!RR.Scores.cleanName(this.first)) { this.finish(false); return; }
+                if (!RR.Scores.cleanName(this.first)) return;
                 this.field = 1;
             } else {
                 this.finish(true);
@@ -955,8 +959,8 @@ RR.NameEntryScene = {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
-        UI.headline(ctx, 'TOP TEN RUN', W / 2, H * 0.13, 44, C.UI_GOLD, C.WB_BLUE);
-        UI.label(ctx, 'YOU PLACED #' + this.rank + ' WITH ' + this.score.toLocaleString(),
+        UI.headline(ctx, this.qualifies ? 'TOP TEN RUN' : 'RIVER COMPLETE', W / 2, H * 0.13, 44, C.UI_GOLD, C.WB_BLUE);
+        UI.label(ctx, this.qualifies ? 'YOU PLACED #' + this.rank + ' WITH ' + this.score.toLocaleString() : 'NAME YOUR RUN · '+this.score.toLocaleString()+' POINTS · SAVED ON THIS DEVICE',
             W / 2, H * 0.205, 15, C.WB_WHITE, 600);
         UI.label(ctx, RR.BoatCatalog.getSelected().model + ' · ' +
             (RR.River.profile ? RR.River.profile.name : '') + ' · ' +

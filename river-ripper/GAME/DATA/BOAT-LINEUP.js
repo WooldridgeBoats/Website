@@ -136,7 +136,7 @@ RR.BoatCatalog = {
             sourceUrl: 'https://www.wooldridgeboats.com/models/skagit/'
         },
         {
-            id: 'sportster-21', model: "21' SPORTSTER", variant: 'HARDTOP',
+            id: 'sportster-21', model: "21' SPORTSTER", variant: 'WINDSHIELD',
             spec: ['sportster', '21', 'weightWindshield'],
             length: "21'8\"", beam: '106\"', bottom: '88\"', weight: 1905, maxJetHp: 250,
             character: 'Big, planted and powerful—with real momentum and the widest footprint.',
@@ -146,12 +146,15 @@ RR.BoatCatalog = {
             beamScale: 1.20, lengthScale: 1.08, shallowDragMult: 1.18,
             groundTimeMult: 0.78, accent: 0x4D5359,
             // Black/alloy two-tone hull, tall almond enclosed cabin, dark roof.
-            layout: 'cabin', logo: 'white', heightScale: 1.06,
+            layout: 'walkthrough', logo: 'white', heightScale: 1.06,
             // The REAL 21'6" hull from Wooldridge engineering
             // (COMMON/ENGINEERING/Wooldridge Boats/21' Sportster/21-6 Sporster Hull.3dm,
             // converted to STL with a transom and an inside face). It is a
             // bare hull, so the 'cabin' rig stays on top of it (keepRig).
+            // rigFit: the walkthrough consoles are built for the 1.20-beam
+            // stretched hull; the CAD hull isn't stretched, so squeeze them in.
             cad: { url: 'GAME/ASSETS/BOAT/MODELS/SPORTSTER-21.stl', keepRig: true,
+                   rigFit: { x: 0.80, z: -0.65 },
                    paint: { side: 0x141518, bottom: 0xC9CCD1, deck: 0x9AA0A6,
                             cap: 0xE3E6EA, upper: 0x34373C, interior: 0xC4C8CD,
                             band: 0.72, bandColor: 0xDCDFE3, chine: 0.12 } },

@@ -18,7 +18,13 @@ RR.Progress = {
     // Record this run's score on the board. Returns the scene to show next:
     // the name entry screen when the run qualifies and has no name yet,
     // otherwise `next` (the run is updated silently if it is already on).
-    boardThen: function (score, distance, next) {
+    boardThen: function (score, distance, next, completed) {
+        if (completed) {
+            RR.NameEntryScene.prime(score,distance,next);
+            RR.NameEntryScene.first=this.runName ? this.runName.first : '';
+            RR.NameEntryScene.initial=this.runName ? this.runName.initial : '';
+            return RR.NameEntryScene;
+        }
         if (this.runName) {
             if (RR.Scores.qualifies(score) || this._onBoard()) {
                 RR.Scores.add(this.runName.first, this.runName.initial, score, distance, this.runName.run);
@@ -286,11 +292,11 @@ RR.LaunchScene = {
             var nextAt = this.SHOTS[this.shotIndex() + 1];
             if (nextAt) fade = Math.min(1, (nextAt.at - t) / 0.45);
             ctx.globalAlpha = Math.max(0, Math.min(appear, fade));
-            RR.UI.headline(ctx, shot.title, W / 2, H * 0.13, 50, C.WB_WHITE, C.WB_BLUE);
+            RR.UI.headline(ctx, (RR.River.profile.id==='skyqualmie' ? shot.title : 'THE LAUNCH'), W / 2, H * 0.13, 50, C.WB_WHITE, C.WB_BLUE);
             ctx.save();
             ctx.shadowColor = 'rgba(0,0,0,0.7)';
             ctx.shadowBlur = 5;
-            RR.UI.label(ctx, shot.sub, W / 2, H * 0.205, 13, 'rgba(255,255,255,0.92)', 600);
+            RR.UI.label(ctx, (RR.River.profile.id==='skyqualmie' ? shot.sub : RR.River.profile.name), W / 2, H * 0.205, 13, 'rgba(255,255,255,0.92)', 600);
             ctx.restore();
             ctx.globalAlpha = 1;
         }
@@ -630,7 +636,7 @@ RR.RiverScene = {
             // top-ten board too (Tyler, 2026-10-26: "if you make it to the
             // finish line you don't get to type in top score").
             RR.Engine.changeScene(RR.Progress.boardThen(
-                RR.Scoring.getScore(), boat.distanceTraveled, RR.LevelCompleteScene));
+                RR.Scoring.getScore(), boat.distanceTraveled, RR.LevelCompleteScene, true));
             return;
         }
     },
@@ -879,23 +885,14 @@ RR.RiverScene = {
         if (!(RR.Touch && RR.Touch.active)) this.drawMiniMap(ctx, W, H, boat);
         if (RR.Touch) RR.Touch.drawHUD(ctx);
 
-        if (boat.jumpCooldown > 0) {
-            var cdPct = boat.jumpCooldown / C.JUMP_COOLDOWN;
-            ctx.fillStyle = 'rgba(0,0,0,0.6)';
-            ctx.fillRect(W / 2 - 50, H - 30, 100, 14);
-            ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(W / 2 - 50, H - 30, 100, 14);
-            ctx.fillStyle = C.WB_BLUE;
-            ctx.fillRect(W / 2 - 49, H - 29, 98 * (1 - cdPct), 12);
-            ctx.fillStyle = '#999';
-            ctx.font = '600 10px ' + C.FONT_UI;
-            ctx.fillText('JUMP', W / 2, H - 17);
-        } else {
-            ctx.fillStyle = C.UI_GREEN;
-            ctx.font = '600 11px ' + C.FONT_UI;
-            ctx.fillText('JUMP READY', W / 2, H - 17);
-        }
+        var airborne=boat.jumpHeight>0 || !!boat._ridingRamp;
+        var jumpReady=!airborne && boat.jumpCooldown<=0;
+        var recharge=airborne ? 0 : Math.max(0,1-boat.jumpCooldown/C.JUMP_COOLDOWN);
+        ctx.fillStyle='rgba(5,15,22,0.85)';ctx.fillRect(W/2-140,H-52,280,36);
+        ctx.strokeStyle=jumpReady?C.UI_GREEN:'rgba(255,255,255,0.5)';ctx.lineWidth=2;ctx.strokeRect(W/2-140,H-52,280,36);
+        ctx.fillStyle=jumpReady?'rgba(40,190,90,0.45)':C.WB_BLUE;ctx.fillRect(W/2-137,H-49,274*recharge,30);
+        ctx.fillStyle='#fff';ctx.font='700 17px '+C.FONT_UI;
+        ctx.fillText(jumpReady?'JUMP READY':(boat.jumpBuffered>0?'JUMP QUEUED':airborne?'AIRBORNE · LAND TO JUMP':'JUMP RECHARGING'),W/2,H-33);
 
         if (boat.inShallow > 0) {
             var groundLimit = C.SHALLOW_GROUND_TIME * model.groundTimeMult;
@@ -1121,7 +1118,7 @@ RR.RiverScene.drawMiniMap = function (ctx, W, H, boat) {
     // and the cross-river wander is scaled up separately -- it is a progress
     // map, not a survey.
     //
-    // START AT THE TOP, FINISH AT THE BOTTOM: the boat marker runs DOWN the box
+    // START AT THE BOTTOM, FINISH AT THE TOP: the boat marker runs DOWN the box
     // and the gold finish dot sits at the bottom. Tyler's call, and it matches
     // the way you read a river running away from you down the screen.
     var spanX = Math.max(1, m.maxX - m.minX), spanZ = Math.max(1, m.maxZ - m.minZ);

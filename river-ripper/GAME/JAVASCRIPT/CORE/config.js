@@ -39,7 +39,7 @@ RR.Config = {
     LOG_CLEAR_HEIGHT: 90,
     JUMP_VELOCITY: 1150,
     GRAVITY: 2800,
-    JUMP_COOLDOWN: 1.5,
+    JUMP_COOLDOWN: 0.22,
 
     // --- River shape. Real rivers never run straight, so a slow meander
     // rides under the whole course and each authored bend sits on top of it.
@@ -172,7 +172,7 @@ RR.Config = {
     SALMON_POINTS: 1000,
     // How close, in normalised lateral units, a fish has to land to count as
     // being IN the boat. The hull is about 0.062 lateral units half-beam.
-    SALMON_CATCH_LATERAL: 0.06,
+    SALMON_CATCH_LATERAL: 0.11,
 
     DISTANCE_POINTS: 10,
     JUMP_POINTS: 500,

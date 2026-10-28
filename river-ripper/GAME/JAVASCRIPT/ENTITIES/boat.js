@@ -7,6 +7,7 @@ RR.Boat = {
     jumpVelocity: 0,
     jumpHeight: 0,
     jumpCooldown: 0,
+    jumpBuffered: 0,
     inShallow: 0,
     shallowTimer: 0,
     grounded: false,
@@ -45,6 +46,7 @@ RR.Boat = {
         this.jumpVelocity = 0;
         this.jumpHeight = 0;
         this.jumpCooldown = 0;
+        this.jumpBuffered = 0;
         this.inShallow = 0;
         this.shallowTimer = 0;
         this.grounded = false;
@@ -247,29 +249,9 @@ RR.Boat = {
             onEdge = true;
         }
 
-        // On a canyon river the bank IS rock, so grinding it costs half a hull
-        // strike -- the same as a floating log. takeHit's own 1.1 s cooldown
-        // does the rate limiting, so holding the boat against the wall bleeds
-        // you steadily rather than draining the hull in a single frame.
-        //
-        // Only on canyon profiles: scraping a Skyqualmie gravel bar should not
-        // cost the same as putting the hull into basalt.
-        // jumpHeight <= 0: airborne steering is cut to 30% (see steerMult
-        // above), so a wall strike taken mid-jump is one you had no way to
-        // avoid. Every other hazard already exempts a jumping boat.
-        //
-        // The speed gate uses the UNDAMAGED top speed on purpose. getMaxSpeed()
-        // drops 18% once the Rogue is damaged, so gating on it meant a crippled
-        // boat started grinding at speeds a healthy one was immune at.
-        //
-        // And the return matters: without it update() carries on running on a
-        // boat that just died, which let the crash reason be overwritten by a
-        // grounding and let a jump launch on the fatal frame.
-        if (onEdge && this.jumpHeight <= 0 &&
-                RR.River.profile && RR.River.profile.canyon &&
-                this.speed > C.MAX_SPEED * model.speedMult * 0.16) {
-            if (this.takeHit('Ground the hull on the canyon wall!', C.LOG_STRIKE)) return;
-        }
+        // The soft bank limit is inside the rendered bank. Clamping there
+        // cannot cost hull damage; visible rocks remain collision hazards.
+
 
         // Start washing outward course angle away before the hard stop. This
         // prevents a boat from remaining pinned against the same bank after
@@ -299,7 +281,10 @@ RR.Boat = {
         if (this.hitCooldown > 0) this.hitCooldown -= dt;
         if (this.hitFlash > 0) this.hitFlash -= dt;
 
-        if (Input.justPressed('Space') && this.jumpHeight === 0 && this.jumpCooldown <= 0 && !this.nearMarker()) {
+        if (Input.justPressed('Space')) this.jumpBuffered = 0.24;
+        else this.jumpBuffered = Math.max(0, this.jumpBuffered - dt);
+        if (this.jumpBuffered > 0 && this.jumpHeight === 0 && this.jumpCooldown <= 0 && !this._ridingRamp) {
+            this.jumpBuffered = 0;
             this.jumpVelocity = C.JUMP_VELOCITY;
             this.jumpCooldown = C.JUMP_COOLDOWN;
             this.jumpCount++;
@@ -312,10 +297,7 @@ RR.Boat = {
             if (this.jumpHeight <= 0) {
                 this.jumpHeight = 0;
                 this.jumpVelocity = 0;
-                if (shallowAmount > 0.5) {
-                    this.crash('Bad landing in shallow water!');
-                    return;
-                }
+                this.jumpCooldown = 0;
             }
         }
 

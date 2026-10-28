@@ -812,7 +812,16 @@ RR.Renderer3D = {
             this.canyonWalls = null;
         }
         var prof = RR.River.profile;
-        if (!prof || !prof.canyon) return;
+        if (!prof) return;
+        if (!prof.canyon) {
+            if (RR.River.shortcut) {
+                var branch=new THREE.Group();
+                var gravel=new THREE.MeshStandardMaterial({color:prof.colors.bank,roughness:0.95});
+                this._buildShortcut(branch,[gravel,gravel,gravel,gravel],RR.River.shortcut);
+                this.scene.add(branch);this.canyonWalls=branch;
+            }
+            return;
+        }
 
         var g = new THREE.Group();
         var SEG = this.SEG_LEN;
@@ -965,14 +974,16 @@ RR.Renderer3D = {
         var s0, k = 0, STEP = 4;
         var hw = function (sf) { return self.getWorldPos(sf * SEG, 0).halfW; };
 
+        if (sc.open) this._buildOpenShortcutBanks(g,sc);
+        else {
         // Outer wall, start -> end of exit ramp, stacked like the canyon.
         for (s0 = sc.start - 2; s0 < sc.end + sc.exit + 2; s0 += STEP, k++) {
             var l0 = this._shortcutWallLat(s0, sc), l1 = this._shortcutWallLat(s0 + STEP, sc);
             var w = 34 + (k % 3) * 8;
             // Push the slab out by half its width so its FACE sits on lat.
             var off = (w * 0.5) / Math.max(1, hw(s0));
-            add(slab(s0, s0 + STEP, l0 + off, l1 + off, -10, 150 + (k % 4) * 18, k), w);
-            add(slab(s0, s0 + STEP, l0 + off * 2.2, l1 + off * 2.2, 110, 120, k + 2), w * 1.3);
+            add(slab(s0, s0 + STEP, l0 + off, l1 + off, -10, sc.open ? 12 : 150 + (k % 4) * 18, k), w);
+            if (!sc.open) add(slab(s0, s0 + STEP, l0 + off * 2.2, l1 + off * 2.2, 110, 120, k + 2), w * 1.3);
         }
 
         // Closing wall across the lane's downstream end (lane runs 1.0-1.74).
@@ -986,20 +997,22 @@ RR.Renderer3D = {
         var hd = cA.heading;
         cl.position.x -= Math.sin(hd) * 8;
         cl.position.z -= Math.cos(hd) * 8;
-        g.add(cl);
+        if (!sc.open) g.add(cl);
+        else {cl.geometry.dispose();}
 
         // Divider between the mouths, and the roof over the lane.
         for (s0 = sc.start + sc.mouth, k = 0; s0 < sc.end - sc.mouth; s0 += STEP, k++) {
             var s1 = Math.min(s0 + STEP, sc.end - sc.mouth);
             var mid = (sc.divIn + sc.divOut) / 2;
             var dw = (sc.divOut - sc.divIn) * hw(s0);
-            add(slab(s0, s1, mid, mid, -10, 130 + (k % 3) * 20, k + 1), dw);
+            add(slab(s0, s1, mid, mid, -10, sc.open ? 12 : 130 + (k % 3) * 20, k + 1), dw);
             // Roof: from the divider's crest out past the outer wall.
             var rw = (1.86 - sc.divIn) * hw(s0);
-            var rm = add(slab(s0, s1, (sc.divIn + 1.86) / 2, (sc.divIn + 1.86) / 2, 34, 14 + (k % 2) * 4, k + 3), rw);
-            rm.userData.roof = true;
+            if (!sc.open) { var rm = add(slab(s0, s1, (sc.divIn + 1.86) / 2, (sc.divIn + 1.86) / 2, 34, 14 + (k % 2) * 4, k + 3), rw);
+            rm.userData.roof = true; }
         }
 
+        }
         // Water for the lane: lateral 0.95 -> the outer wall.
         var rows = [];
         for (s0 = sc.start - 1; s0 <= sc.end + sc.exit + 1; s0 += 1) rows.push(s0);
@@ -1027,6 +1040,36 @@ RR.Renderer3D = {
             var lane = new THREE.Mesh(wg, this.waterMesh.material);
             lane.name = 'shortcutWater';
             g.add(lane);
+        }
+    },
+
+    _buildOpenShortcutBanks: function(group,sc) {
+        var self=this,SEG=this.SEG_LEN;
+        function ribbon(start,end,rowsFn) {
+            var pos=[],colors=[],indices=[];
+            for(var i=start;i<=end;i++) {
+                var row=rowsFn(i);
+                for(var k=0;k<row.length;k++) {
+                    var wp=self.getWorldPos(i*SEG,row[k][0]);pos.push(wp.x,row[k][1],wp.z);
+                    var col=new THREE.Color(row[k][2]);colors.push(col.r,col.g,col.b);
+                }
+                if(i>start){var base=(i-start)*row.length;
+                    for(var j=0;j<row.length-1;j++){var a=base+j,b=a-row.length;indices.push(a,b,a+1,b,b+1,a+1);}}
+            }
+            var geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));geo.setIndex(indices);geo.computeVertexNormals();
+            group.add(new THREE.Mesh(geo,new THREE.MeshStandardMaterial({vertexColors:true,roughness:0.95,side:THREE.DoubleSide})));
+        }
+        var mid=(sc.divIn+sc.divOut)/2;
+        ribbon(sc.start+sc.mouth,sc.end-sc.mouth,function(i){var h=RR.River.shortcutDividerHalf(i);return [[mid-h,-0.4,0x777568],[mid-h*.6,1.2,0x8c8976],[mid,1.9,0x667151],[mid+h*.6,1.2,0x8c8976],[mid+h,-0.4,0x777568]];});
+        ribbon(sc.start-2,sc.end+sc.exit+2,function(i){var edge=self._shortcutWallLat(i,sc);return [[edge,-.4,0x777568],[edge+.12,1.4,0x8b8976],[edge+.4,3.2,0x667151],[edge+1.2,2.8,0x586a46]];});
+        var bark=new THREE.MeshStandardMaterial({color:0x4b4134,roughness:1});
+        var leaf=new THREE.MeshStandardMaterial({color:0x3e663c,roughness:1});
+        for(var i=sc.start;i<sc.end+sc.exit;i+=9){
+            var wp=this.getWorldPos(i*SEG,this._shortcutWallLat(i,sc)+.48);
+            var tree=new THREE.Group();tree.position.set(wp.x,2.7,wp.z);
+            var trunk=new THREE.Mesh(new THREE.CylinderGeometry(.65,1,16,6),bark);trunk.position.y=8;tree.add(trunk);
+            for(var j=0;j<3;j++){var crown=new THREE.Mesh(new THREE.ConeGeometry(6-j,13,8),leaf);crown.position.y=15+j*6;tree.add(crown);}
+            group.add(tree);
         }
     },
 
@@ -3278,6 +3321,13 @@ RR.Renderer3D = {
             for (var rk2 in this._boatRigs) {
                 var rg = this._boatRigs[rk2];
                 rg.visible = !!keep && rk2 === layout;
+                // cad.rigFit: the deck rig is built for the stretched hand
+                // hull, but the CAD hull is not stretched and narrows to its
+                // own bow -- the Sportster's consoles poked out through the
+                // sides (2026-10-28). Squeeze/shift that model's rig to fit.
+                var fit = rg.visible && model.cad.rigFit;
+                rg.scale.x = fit && fit.x ? fit.x : 1;
+                rg.position.z = fit && fit.z ? fit.z : 0;
                 rg.children.forEach(function (o) {
                     if (o.userData.band) o.visible = false;          // hand-hull paint
                     else o.visible = (typeof keep === 'string') ? !!o.userData[keep] : true;
@@ -3285,6 +3335,7 @@ RR.Renderer3D = {
             }
         } else if (this._boatRigs) {
             for (var rk3 in this._boatRigs) {
+                this._boatRigs[rk3].scale.x = 1; this._boatRigs[rk3].position.z = 0;
                 this._boatRigs[rk3].children.forEach(function (o) { o.visible = true; });
             }
         }
@@ -3462,6 +3513,61 @@ RR.Renderer3D = {
             }
         }
 
+        // RAISED LETTERING (2026-10-28). The XL export carries faint raised
+        // "wooldridgeboats.com Est. 1915" lettering on its topsides. Paint is
+        // decided per triangle, and the hull's big triangles sit their centre
+        // below a sheer band's line while the letters' tiny ones sit above
+        // it -- so on the black Skagit the letters came out white and read as
+        // a second, broken logo. Tiny triangles on the skin now copy the paint
+        // of the big skin triangle they sit on (a 1-inch grid per side).
+        if (cBand) {
+            var grid = {}, triA = new Float32Array(n);
+            var cell = function (sx, y, z) { return sx + ':' + Math.floor(y) + ':' + Math.floor(z); };
+            for (i = 0; i < n; i++) {
+                var ax = src[i*9+3]-src[i*9], ay = src[i*9+4]-src[i*9+1], az = src[i*9+5]-src[i*9+2];
+                var bx = src[i*9+6]-src[i*9], by = src[i*9+7]-src[i*9+1], bz = src[i*9+8]-src[i*9+2];
+                var crx = ay*bz-az*by, cry = az*bx-ax*bz, crz = ax*by-ay*bx;
+                triA[i] = 0.5 * Math.sqrt(crx*crx + cry*cry + crz*crz);
+            }
+            for (i = 0; i < n; i++) {
+                if (triA[i] < 6) continue;
+                var gx = (src[i*9] + src[i*9+3] + src[i*9+6]) / 3;
+                if (!(nrm[i*3] * gx > 0 && Math.abs(nrm[i*3]) > 0.3)) continue;
+                var sx = gx > 0 ? 1 : -1;
+                // fill every 1" cell the triangle covers in the (y, z) plane
+                var y0 = Math.min(src[i*9+1], src[i*9+4], src[i*9+7]), y1g = Math.max(src[i*9+1], src[i*9+4], src[i*9+7]);
+                var z0 = Math.min(src[i*9+2], src[i*9+5], src[i*9+8]), z1 = Math.max(src[i*9+2], src[i*9+5], src[i*9+8]);
+                if ((y1g - y0) * (z1 - z0) > 4000) continue;
+                var Ay = src[i*9+1], Az = src[i*9+2], By = src[i*9+4], Bz = src[i*9+5], Cy = src[i*9+7], Cz = src[i*9+8];
+                var den = (By - Ay) * (Cz - Az) - (Cy - Ay) * (Bz - Az);
+                if (Math.abs(den) < 1e-6) continue;
+                for (var yy = Math.floor(y0); yy <= y1g; yy++) {
+                    for (var zz = Math.floor(z0); zz <= z1; zz++) {
+                        var py = yy + 0.5, pz = zz + 0.5;
+                        var w1 = ((py - Ay) * (Cz - Az) - (Cy - Ay) * (pz - Az)) / den;
+                        var w2 = ((By - Ay) * (pz - Az) - (py - Ay) * (Bz - Az)) / den;
+                        if (w1 < -0.05 || w2 < -0.05 || w1 + w2 > 1.05) continue;
+                        // each vertex may carry its own paint: blend like the GPU would
+                        var w0 = 1 - w1 - w2, o = i * 9;
+                        grid[cell(sx, yy, zz)] = [
+                            col[o]*w0 + col[o+3]*w1 + col[o+6]*w2,
+                            col[o+1]*w0 + col[o+4]*w1 + col[o+7]*w2,
+                            col[o+2]*w0 + col[o+5]*w1 + col[o+8]*w2];
+                    }
+                }
+            }
+            for (i = 0; i < n; i++) {
+                if (triA[i] >= 6) continue;
+                var tx = (src[i*9] + src[i*9+3] + src[i*9+6]) / 3,
+                    ty = (src[i*9+1] + src[i*9+4] + src[i*9+7]) / 3,
+                    tz = (src[i*9+2] + src[i*9+5] + src[i*9+8]) / 3;
+                if (Math.abs(tx) < hwAt(ty) * 0.78 || tz < chineZ) continue;
+                var gc = grid[cell(tx > 0 ? 1 : -1, ty, tz)];
+                if (!gc) continue;
+                for (k = 0; k < 3; k++) { col[i*9+k*3] = gc[0]; col[i*9+k*3+1] = gc[1]; col[i*9+k*3+2] = gc[2]; }
+            }
+        }
+
         // CAD (x, y, z) inches -> boat (x, y, z): y up, +z forward, transom at
         // -5, bottom at 0. Starboard is local -x in this game, CAD +x is
         // starboard in Inventor's default -- mirror x.
@@ -3509,16 +3615,39 @@ RR.Renderer3D = {
         // measured 19-27%), hung just under the sheer.
         var dec = this._decals && this._decals.white;
         if (dec && dec.port) {
-            var dW = 2.1, dH = dW / dec.arPort;
+            var dW = 2.8, dH = dW / dec.arPort;
             var za = -4.6, zf = za + dW;
             var shA = (sheer[Math.min(nb - 1, Math.floor(((za + 5) / u) / BIN))] - mn[2]) * u;
             var y1 = shA - 0.2, y0d = y1 - dH;
+            // Short topsides (the Sportster): the lower line used to run off
+            // the chine onto the bottom. Shrink to fit 88% of the paintable
+            // side, keeping the aft end where it is (2026-10-28).
+            // The paintable side ends where the skin turns under (the logo
+            // only paints faces whose normal points well outboard), so find
+            // the lowest such face under the logo's span on this hull.
+            var yA = (za + 5) / u + mn[1], yF = (za + 5 + dW) / u + mn[1], lowZ = 1e9;
+            for (i = 0; i < n; i++) {
+                var fx = nrm[i * 3], fzN = nrm[i * 3 + 2];
+                var qx = (src[i * 9] + src[i * 9 + 3] + src[i * 9 + 6]) / 3,
+                    qy = (src[i * 9 + 1] + src[i * 9 + 4] + src[i * 9 + 7]) / 3;
+                if (qy < yA || qy > yF || fx * qx <= 0 || Math.abs(fx) < 0.55 || fzN < -0.35) continue;
+                if (Math.abs(qx) < hwAt(qy) * 0.78) continue;
+                for (k = 0; k < 3; k++) lowZ = Math.min(lowZ, src[i * 9 + k * 3 + 2]);
+            }
+            var chineY = lowZ < 1e8 ? (lowZ - mn[2]) * u : (chineZ - mn[2]) * u;
+            var room = (y1 - chineY) * 0.9;
+            if (room > 0.2 && dH > room) {
+                dW *= room / dH; dH = room;
+                zf = za + dW; y0d = y1 - dH;
+            }
             var logoU = {
                 uLogo: { value: dec.port },
+                uLogoStbd: { value: dec.stbd || dec.port },
                 uLogoRect: { value: new THREE.Vector4(za, zf, y0d, y1) }
             };
             mat.onBeforeCompile = function (sh) {
                 sh.uniforms.uLogo = logoU.uLogo;
+                sh.uniforms.uLogoStbd=logoU.uLogoStbd;
                 sh.uniforms.uLogoRect = logoU.uLogoRect;
                 sh.vertexShader = sh.vertexShader
                     .replace('#include <common>',
@@ -3527,7 +3656,7 @@ RR.Renderer3D = {
                         '#include <begin_vertex>\nvLogoPos = position;\nvLogoNrm = normal;');
                 sh.fragmentShader = sh.fragmentShader
                     .replace('#include <common>',
-                        '#include <common>\nuniform sampler2D uLogo;\nuniform vec4 uLogoRect;\n' +
+                        '#include <common>\nuniform sampler2D uLogo;\nuniform sampler2D uLogoStbd;\nuniform vec4 uLogoRect;\n' +
                         'varying vec3 vLogoPos;\nvarying vec3 vLogoNrm;')
                     .replace('#include <color_fragment>', [
                         '#include <color_fragment>',
@@ -3541,7 +3670,7 @@ RR.Renderer3D = {
                         '    if (lgSide > 0.0) lgU = 1.0 - lgU;',
                         '    float lgV = (vLogoPos.y - uLogoRect.z) / (uLogoRect.w - uLogoRect.z);',
                         '    if (lgU > 0.0 && lgU < 1.0 && lgV > 0.0 && lgV < 1.0) {',
-                        '      vec4 lg = texture2D(uLogo, vec2(lgU, lgV));',
+                        '      vec4 lg = lgSide > 0.0 ? texture2D(uLogo,vec2(lgU,lgV)) : texture2D(uLogoStbd,vec2(lgU,lgV));',
                         '      diffuseColor.rgb = mix(diffuseColor.rgb, lg.rgb, lg.a);',
                         '    }',
                         '  }',
@@ -4229,7 +4358,7 @@ RR.Renderer3D = {
         // profile and metadata) and uploaded from there without mipmaps
         // (no sRGB mip generation, the other Safari suspect). The decal is
         // seen at one size from the chase camera, so mips buy nothing.
-        function loadDecal(file) {
+        function loadDecal(file, lightText) {
             var cv = document.createElement('canvas');
             cv.width = 4; cv.height = 4;
             var t = new THREE.CanvasTexture(cv);
@@ -4244,6 +4373,12 @@ RR.Renderer3D = {
                 var x = cv.getContext('2d');
                 x.clearRect(0, 0, cv.width, cv.height);
                 x.drawImage(img, 0, 0);
+                // Preserve the supplied wing shapes and blue. Only the dark
+                // wordmark changes to white on dark painted hulls.
+                if(lightText){var pixels=x.getImageData(0,0,cv.width,cv.height),d=pixels.data;
+                    for(var pi=0;pi<d.length;pi+=4){if(d[pi+3] && Math.max(d[pi],d[pi+1],d[pi+2])<100)d[pi]=d[pi+1]=d[pi+2]=245;}
+                    x.putImageData(pixels,0,0);
+                }
                 t.needsUpdate = true;
             };
             img.src = file;
@@ -4257,11 +4392,11 @@ RR.Renderer3D = {
             rogue: { port: loadDecal('GAME/ASSETS/BOAT/WB-ROGUE-PORT.png' + V),
                      stbd: loadDecal('GAME/ASSETS/BOAT/WB-ROGUE-STBD.png' + V),
                      arPort: 1598 / 274, arStbd: 1556 / 273 },
-            // White lockup for the dark and blue hulls (LT, XL, Skagit,
-            // Sportster), where the blue-and-black one disappears. A single
-            // lockup, so both sides read it left to right.
-            white: { port: loadDecal('GAME/ASSETS/BOAT/WB-LOGO-WHITE.png' + V),
-                     arPort: 1600 / 490 }
+            // Blue wing with white lettering for dark and blue hulls.
+            // Separate port/starboard artwork keeps the text readable.
+            white: { port: loadDecal('GAME/ASSETS/BOAT/WB-LOGO-PORT.png' + V, true),
+                     stbd: loadDecal('GAME/ASSETS/BOAT/WB-LOGO-STBD.png' + V, true),
+                     arPort: 1600 / 409, arStbd: 1600 / 406 }
         };
         this._boatMats = {
             hull: hullMat, cap: capMat, deck: deckMat, sole: soleMat
@@ -4308,14 +4443,16 @@ RR.Renderer3D = {
         // Starboard is local -x, verified by projecting a boat-local point
         // through the chase camera.
         function decalSide(group, tex, aspect, sign, width) {
-            var h = width / aspect;
-            var za = -4.74, zf = za + width;
-            var y1 = 0.99, y0 = y1 - h;              // hung just under the rubrail
-            var xa = (hwAt(za) + 0.03) * sign;
-            var xf = (hwAt(zf) + 0.03) * sign;
-            logoQuad(group, tex, sign < 0
-                ? [[xa, y0, za], [xf, y0, zf], [xf, y1, zf], [xa, y1, za]]
-                : [[xf, y0, zf], [xa, y0, za], [xa, y1, za], [xf, y1, zf]]);
+            var za=-4.74,zf=za+width,h=width/aspect,y1=0.99,y0=y1-h;
+            tex.anisotropy=self.renderer.capabilities.getMaxAnisotropy();
+            var cuts=[za];S.forEach(function(st){if(st[0]>za&&st[0]<zf)cuts.push(st[0]);});cuts.push(zf);
+            for(var j=0;j<cuts.length-1;j++) {
+                var a=cuts[j],b=cuts[j+1],xa=(hwAt(a)+0.012)*sign,xb=(hwAt(b)+0.012)*sign;
+                var mesh=logoQuad(group,tex,sign<0?[[xa,y0,a],[xb,y0,b],[xb,y1,b],[xa,y1,a]]:[[xb,y0,b],[xa,y0,a],[xa,y1,a],[xb,y1,b]]);
+                var u0=(a-za)/width,u1=(b-za)/width;
+                if(sign>0){var temp=u0;u0=1-u1;u1=1-temp;}
+                mesh.geometry.setAttribute('uv',new THREE.Float32BufferAttribute([u0,0,u1,0,u1,1,u0,0,u1,1,u0,1],2));
+            }
         }
 
         var logoStdRig   = new THREE.Group(); logoStdRig.name   = 'logoStdRig';
@@ -4337,13 +4474,13 @@ RR.Renderer3D = {
         // Height is NOT set here -- it falls out of each variant's own aspect
         // ratio in decalSide(), so the standard 3.91:1 lockup and the Rogue's
         // much longer 5.83:1 WIZARCO lockup both stay unstretched.
-        var DW = 2.70;                                // 27% of a 10-unit hull
+        var DW = 2.90;                                // 27% of a 10-unit hull
         decalSide(logoStdRig,   this._decals.std.port,   this._decals.std.arPort,   1, DW);
         decalSide(logoStdRig,   this._decals.std.stbd,   this._decals.std.arStbd,  -1, DW);
         decalSide(logoRogueRig, this._decals.rogue.port, this._decals.rogue.arPort, 1, DW);
         decalSide(logoRogueRig, this._decals.rogue.stbd, this._decals.rogue.arStbd,-1, DW);
         decalSide(logoWhiteRig, this._decals.white.port, this._decals.white.arPort, 1, DW * 0.92);
-        decalSide(logoWhiteRig, this._decals.white.port, this._decals.white.arPort,-1, DW * 0.92);
+        decalSide(logoWhiteRig, this._decals.white.stbd, this._decals.white.arStbd,-1, DW * 0.92);
 
         // NOTHING GOES ON THE TRANSOM OR THE OUTBOARD. Tyler's call, and the
         // reference photos back it: the transom is bare aluminium and the cowl
@@ -4506,7 +4643,8 @@ RR.Renderer3D = {
             var planing = Math.min(1, boat.speed / boat.getMaxSpeed());
             this.boatGroup.rotation.x = pitchTarget + (boat.rampPitch || 0) + Math.sin(time * 5.2) * 0.006 * planing;
             this.boatGroup.position.y += Math.sin(time * 4.3) * 0.055 * planing;
-            if (this._motorRig) this._motorRig.rotation.y = -(boat.helm || 0) * 0.32;
+            // The jet pushes the stern opposite the bow turn.
+            if (this._motorRig) this._motorRig.rotation.y = (boat.helm || 0) * 0.32;
         }
 
         var lookAhead = this.getWorldPos(boat.z + this.CAM_LOOK_AHEAD * this.SEG_LEN * S, boat.lateral * 0.3);
@@ -4836,7 +4974,11 @@ RR.Renderer3D = {
             this.obstacleMeshPool[i].userData.active = false;
         }
 
-        for (var si = startSeg; si <= endSeg; si++) {
+        var segmentOrder=[];
+        for(var scan=startSeg;scan<=endSeg;scan++)segmentOrder.push(scan);
+        segmentOrder.sort(function(a,b){return Math.abs(a-baseIdx)-Math.abs(b-baseIdx);});
+        for (var order=0;order<segmentOrder.length;order++) {
+            var si=segmentOrder[order];
             var seg = RR.River.segments[si];
             if (!seg) continue;
 
@@ -4847,6 +4989,7 @@ RR.Renderer3D = {
                 var pool = this.obstacleMeshPool[obsIdx];
 
                 pool.position.set(wp.x, 0.3, wp.z);
+                pool.rotation.y=wp.heading;
                 pool.visible = true;
                 pool.userData.active = true;
 
