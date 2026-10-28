@@ -872,10 +872,12 @@ function showSummary(a, summary, subject, mode){
     '<div class="k">' + (mode === 'posted' ? 'Request sent — here’s your copy' : 'One more step — send it') + '</div>' +
     '<h2>' + (mode === 'posted' ? 'Got it. A real person calls you next.' : 'Your request is ready to send.') + '</h2>' +
     '<p>' + (mode === 'posted'
-      ? 'Your request went straight to the sales floor in Seattle. Below is exactly what we received.'
+      ? 'Your request went straight to the sales floor in Seattle. Below is a copy of what we received.'
       : 'Hit the blue button and your email app opens with everything below addressed to the shop — just press send.') + '</p>' +
-    '<span class="prio ' + a.prio + '">' + a.prioLabel + '</span>' +
   '</div>';
+  /* The follow-up priority (HIGH / STANDARD / NURTURE) is sales-floor triage. It
+     stays in the email the shop receives; the customer's on-screen copy does not
+     show it (Christian, 2026-10-27: "does a customer know what's high?"). */
   h += '<div class="card"><div class="sumbox" id="sumText"></div>';
   if (files.length && mode !== 'posted'){
     h += '<div class="attachwarn"><b>Your ' + files.length + ' photo' + (files.length>1?'s':'') + ':</b> email links can’t carry attachments — after your mail app opens, attach the photo' + (files.length>1?'s':'') + ' you selected (' + files.map(f=>f.name).join(', ') + ') before sending.</div>';
@@ -899,7 +901,7 @@ function showSummary(a, summary, subject, mode){
     '(cc <b>' + CC_EMAIL + '</b>)</p>' +
     '<p class="formnote" style="margin-top:8px;">Or just call us: <a href="tel:+12067228998">(206) 722-8998</a> — Mon–Thu, 6:00am–4:30pm Pacific.</p></div>';
   box.innerHTML = h;
-  $('#sumText').textContent = summary;
+  $('#sumText').textContent = summary.split('\n').filter(l => !/^(Follow-up priority|Priority): /.test(l)).join('\n');
   box.style.display = '';
   window.scrollTo({top:0, behavior:'auto'});
   $('#btnCopy').addEventListener('click', () => {

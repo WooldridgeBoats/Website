@@ -130,7 +130,10 @@ button:focus-visible, a:focus-visible, input:focus-visible{outline:2px solid var
 .oxnone b{display:block; color:var(--ink); font-size:17px; margin-bottom:4px;}
 .oxintro{max-width:760px; font-size:14px; font-style:italic; line-height:1.65; color:var(--steel);}
 .oxintro b{color:var(--ink); font-style:normal;}
-@media (max-width:720px){ .oxbar{top:0;} }
+/* Phones: the bar scrolls off with the page. Header + bar pinned together left
+   very little screen (Christian, 2026-10-27). The --wb-chrome measurement below
+   skips the bar when it is not sticky. */
+@media (max-width:720px){ .oxbar{position:static;} }
 </style>
 <link rel="canonical" href="https://www.wooldridgeboats.com/option-guide/">
 <link rel="icon" href="/favicon.ico?v=b2a8a002" sizes="any">
@@ -765,7 +768,7 @@ body{
          (2026-08-31). Consumed by .oxcard's scroll-margin-top. */
       var bar = document.querySelector(".oxbar");
       document.documentElement.style.setProperty("--wb-chrome",
-        (h + (bar ? bar.offsetHeight : 0) + 12) + "px");
+        (h + (bar && getComputedStyle(bar).position === "sticky" ? bar.offsetHeight : 0) + 12) + "px");
     };
     wbSetNavTop();
     window.addEventListener("resize", wbSetNavTop);
@@ -861,5 +864,10 @@ body{
 <script defer src="/assets/media-provenance.js?v=c5a22020"></script><script defer src="/assets/media-fade.js?v=a48a467c"></script><script defer src="/assets/tool-nudge.js?v=ce186112"></script>
 </footer>
 <!-- /PARTIAL:footer --></div>
+<!-- shop.js builds the phone menu (.navtoggle); house.css hides every nav link
+     below 900px on the assumption it exists. Without it this page rendered as a
+     bare logo on a phone with no way back (Christian, 2026-10-27). The ?v= hash
+     is re-stamped by _build/stamp_assets.pl. -->
+<script src="/assets/shop.js?v=14ae84c5"></script>
 </body>
 </html>
