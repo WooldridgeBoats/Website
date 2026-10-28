@@ -27,6 +27,7 @@ my %APPROVED = map { $_ => 1 } qw(
   CANON-2026-10-10-A
   CANON-2026-10-10-B
   CANON-2026-10-27
+  CANON-2026-10-28-E
 );
 # ───────────────────────────────────────────────────────
 
@@ -344,6 +345,24 @@ for my $m (@$models){
   die "CANON-2026-10-27: bench-seat publicHide set drifted\n  got  $got\n  want $want\n" unless $got eq $want;
 }
 
+# ── CANON-2026-10-28-E: "Rescue gunnel - government use only" ($3,499, 12 models) leaves the PUBLIC configurator and the
+#    public price sheets and stays in canon, QuickBooks and the Sales Order Creator (Stephen, 2026-10-28, on Christian's
+#    request 8VWNOEP: "Yes, same item; hide publicly, keep in canon, QB and the Sales Order Creator"). publicHide, NOT
+#    hideItems (hideItems would remove it from the SOC too). Derived by NAME and ASSERTED, like the blocks above.
+my @rescueHide;
+for my $m (@$models){
+  for my $c (@{$m->{cats}}){ for my $it (@{$c->{items}}){
+    push @rescueHide, $it->{id} if $it->{nm} =~ /^Rescue gunnel/i;
+  } }
+}
+{
+  my $got  = join(',', sort @rescueHide);
+  my $want = join(',', sort qw(xl_fabricatio_4_50 skagit_fabricatio_4_51 sport_fabricatio_4_54 ssd_fabricatio_4_55
+    xlib_fabricatio_5_44 skagitib_fabricatio_5_47 sportster_fabricatio_5_47 sportib_fabricatio_5_47
+    ssdib_fabricatio_5_47 skagitx_fabricatio_5_47 so_fabricatio_4_48 sso_fabricatio_4_47));
+  die "CANON-2026-10-28-E: rescue-gunnel publicHide set drifted\n  got  $got\n  want $want\n" unless $got eq $want;
+}
+
 # ── blocks, each keyed to its question ──
 my @BLOCKS = (
   { q => 'AUD-TYPO-01', t => 'de-double "helm-seat seat" -> "helm-seat" (the clean spelling the other price sheets use for the same product)',
@@ -394,6 +413,8 @@ my @BLOCKS = (
     live => { hideItems => \@sportsterHide } },
   { q => 'CANON-2026-10-27', t => q{"Add 6" to width of bench-seat box" ($49) stays in QuickBooks and the Sales Order Creator but leaves the public configurator and price sheets (Stephen, 2026-10-27); canon rows untouched},
     live => { publicHide => \@publicHide } },
+  { q => 'CANON-2026-10-28-E', t => q{"Rescue gunnel - government use only" ($3,499, 12 models) stays in canon, QuickBooks and the Sales Order Creator but leaves the public configurator and price sheets (Stephen, 2026-10-28, Christian request 8VWNOEP); canon rows untouched},
+    live => { publicHide => \@rescueHide } },
 );
 
 # ── merge approved blocks into the live keys ──
