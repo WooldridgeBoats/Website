@@ -88,6 +88,13 @@
   } else if (path === '/dealers/' || path === '/pre-owned/'){
     top    = el(backLink() + link('/', 'pn-home', '&#8962; Home'));
     bottom = el(link('/', 'pn-home', '&#8962; Return to Home'));
+  } else if (/^\/pre-owned\/[a-z0-9-]+\/$/.test(path)){
+    /* one pre-owned boat's page (gen_preowned.pl, 2026-10-28): back to the rest of the
+       pre-owned boats - real history back when the visitor came from them, the list otherwise */
+    var sameSite = document.referrer && document.referrer.indexOf(location.origin) === 0;
+    var back = sameSite ? '<a class="pn-prev" href="#" data-back="1">&lsaquo; Back</a>' : link('/pre-owned/', 'pn-prev', '&lsaquo; All Pre-Owned');
+    top    = el(back + link('/pre-owned/', 'pn-home', 'All Pre-Owned Boats'));
+    bottom = el(link('/pre-owned/', 'pn-prev', '&lsaquo; All Pre-Owned Boats') + link('/', 'pn-home', '&#8962; Home'));
   } else {
     return;
   }

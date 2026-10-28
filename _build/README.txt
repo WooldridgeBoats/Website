@@ -13,6 +13,14 @@ header.html/footer.html are the single source of truth for editing, but the
 deployed pages must contain the real, static content — this script keeps
 them in sync. It's idempotent, safe to re-run any time.
 
+  perl _build/gen_preowned.pl     - the pre-owned listings: one page per boat under
+                                    pre-owned/<slug>/ plus the cards on /pre-owned/, from
+                                    _build/preowned.json (THE data - edit that, never the pages).
+  perl _build/gen_preowned.pl --check   - report only
+Run it after adding, changing or selling a pre-owned boat in preowned.json. It chains
+stamp_assets, gen_canonicals and gen_sitemap itself. A boat marked sold:true (or
+removed) has its page folder deleted; photos stay in assets/preowned/<slug>/.
+
   perl _build/build_home_videos.pl [--sync] — the homepage's Featured Videos strip
                                     from _build/home_videos.txt; --sync first re-reads
                                     Tyler's "HOME PAGE" YouTube playlist into that list.
