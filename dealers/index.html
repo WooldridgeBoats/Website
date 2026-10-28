@@ -356,6 +356,20 @@ var ZIP = [
   [7000,8999,'nj'],[6000,6999,'ct'],[2800,2999,'ri'],[1000,2799,'ma'],[5000,5999,'vt'],
   [3000,3899,'nh'],[3900,4999,'me'],[20000,20599,'dc']
 ];
+/* first three ZIP digits → nearest big town, for the states the dealer network serves (a whole-state
+   centroid put ZIP 98108, the factory's own, ~85 mi from the factory) */
+var ZIP3 = {
+  980:[47.62,-122.20],981:[47.61,-122.33],982:[48.10,-122.20],983:[47.25,-122.44],984:[47.25,-122.44],
+  985:[47.04,-122.90],986:[45.63,-122.66],988:[47.42,-120.31],989:[46.60,-120.51],990:[47.66,-117.43],
+  991:[47.66,-117.43],992:[47.66,-117.43],993:[46.23,-119.22],994:[46.42,-117.05],
+  970:[45.52,-122.68],971:[45.52,-122.68],972:[45.52,-122.68],973:[44.94,-123.04],974:[44.05,-123.09],
+  975:[42.33,-122.88],976:[42.22,-121.78],977:[44.06,-121.32],978:[45.67,-118.79],979:[44.03,-116.96],
+  832:[42.87,-112.44],833:[42.56,-114.46],834:[43.49,-112.04],835:[46.42,-117.02],836:[43.62,-116.21],
+  837:[43.62,-116.21],838:[47.68,-116.78],
+  995:[61.19,-149.87],997:[64.84,-147.72],998:[58.30,-134.42],999:[55.34,-131.65],
+  590:[45.78,-108.50],591:[45.78,-108.50],592:[48.09,-105.64],593:[46.41,-105.84],594:[47.51,-111.30],
+  595:[48.55,-109.68],596:[46.59,-112.04],597:[46.00,-112.53],598:[46.87,-113.99],599:[48.20,-114.31]
+};
 var POSTAL = {v:'bc',t:'ab',s:'sk',r:'mb',k:'on',l:'on',m:'on',n:'on',p:'on',g:'qc',h:'qc',j:'qc',y:'yt',x:'nt',a:'nl',b:'ns',c:'pe',e:'nb'};
 
 function resolve(raw){
@@ -365,20 +379,21 @@ function resolve(raw){
   var zm = q.match(/\b(\d{5})\b/);
   if (zm){
     var z = parseInt(zm[1],10);
-    for (var i=0;i<ZIP.length;i++) if (z>=ZIP[i][0] && z<=ZIP[i][1]) return {ll:REGION[ZIP[i][2]], label:'ZIP '+zm[1]};
+    if (ZIP3[Math.floor(z/100)]) return {ll:ZIP3[Math.floor(z/100)], label:'ZIP '+zm[1]};
+    for (var i=0;i<ZIP.length;i++) if (z>=ZIP[i][0] && z<=ZIP[i][1]) return {ll:REGION[ZIP[i][2]], label:'ZIP '+zm[1], coarse:true};
   }
   /* Canadian postal code (first letter is the province) */
   var pm = q.match(/\b([a-z])\d[a-z]/);
-  if (pm && POSTAL[pm[1]]) return {ll:REGION[POSTAL[pm[1]]], label:'postal code'};
+  if (pm && POSTAL[pm[1]]) return {ll:REGION[POSTAL[pm[1]]], label:'postal code', coarse:true};
   /* known city (check two-word combos too) — most specific first */
   var hit = null, hitKey = '';
   for (var c in CITY) if (q.indexOf(c) !== -1 && c.length > hitKey.length){ hit = CITY[c]; hitKey = c; }
   if (hit) return {ll:hit, label:hitKey.replace(/\b\w/g, function(ch){return ch.toUpperCase();})};
   /* full state / province name */
-  for (var n in REGION_NAME) if (q.indexOf(n) !== -1) return {ll:REGION[REGION_NAME[n]], label:n.replace(/\b\w/g, function(ch){return ch.toUpperCase();})};
+  for (var n in REGION_NAME) if (q.indexOf(n) !== -1) return {ll:REGION[REGION_NAME[n]], label:n.replace(/\b\w/g, function(ch){return ch.toUpperCase();}), coarse:true};
   /* two-letter code as its own word */
   var toks = q.split(' ');
-  for (var t=0;t<toks.length;t++) if (REGION[toks[t]]) return {ll:REGION[toks[t]], label:toks[t].toUpperCase()};
+  for (var t=0;t<toks.length;t++) if (REGION[toks[t]]) return {ll:REGION[toks[t]], label:toks[t].toUpperCase(), coarse:true};
   return null;
 }
 function dist(a,b,c,d){
@@ -389,12 +404,13 @@ function dist(a,b,c,d){
 var out=document.getElementById('dfOut'), grid=document.getElementById('dfGrid'),
     note=document.getElementById('dfNote'), head=document.getElementById('dfHead'), inp=document.getElementById('dfIn');
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
-function show(ll, label){
+function show(ll, label, coarse){
   var ranked = DEALERS.map(function(d){ return {d:d, mi:dist(ll[0],ll[1],d.lat,d.lon)}; })
     .sort(function(a,b){ return a.mi-b.mi; }).slice(0,3);
   grid.innerHTML = ranked.map(function(r){
     var d=r.d, mi=Math.round(r.mi);
-    return '<div class="dealer"><div class="city">'+esc(d.city)+'<span class="dist">~'+mi.toLocaleString()+' MI</span></div>'+
+    /* a state-wide guess ranks fine but its mileage would mislead, so it shows none */
+    return '<div class="dealer"><div class="city">'+esc(d.city)+(coarse ? '' : '<span class="dist">~'+mi.toLocaleString()+' MI</span>')+'</div>'+
       '<b>'+esc(d.nm)+'</b>'+
       '<div class="row"><a href="tel:+1'+d.tel.replace(/\D/g,'')+'">'+d.tel+'</a>'+
       (d.web ? '<a href="'+d.web+'" target="_blank" rel="noopener">WEBSITE ↗</a>' : '')+'</div></div>';
@@ -403,12 +419,14 @@ function show(ll, label){
   out.style.display = 'block';
   note.textContent = ranked[0].mi > 700
     ? 'A long way from the network? No problem — we sell factory-direct and ship boats all over North America. Call the factory: (206) 722-8998.'
+    : coarse
+    ? 'Closest dealers in the region. For distances, type your town or use your location — or just call the factory: (206) 722-8998.'
     : 'Distances are straight-line estimates. When in doubt, call ahead — or call the factory: (206) 722-8998.';
   out.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
 function go(){
   var r = resolve(inp.value);
-  if (r){ show(r.ll, r.label); }
+  if (r){ show(r.ll, r.label, r.coarse); }
   else {
     out.style.display='none';
     note.textContent = 'Couldn’t place that — try a city and state (“Lewiston, ID”), a state name, or a 5-digit ZIP. Or just call the factory: (206) 722-8998.';
