@@ -1094,13 +1094,13 @@
       </svg>
       <span class="fl-line"></span>
     </div>
-    <!-- STEP: vinyl colour (CFG-U-03 — placeholder swatches until Stephen supplies the real range, OQ-11) -->
+    <!-- STEP: vinyl color (CFG-U-03 — placeholder swatches until Stephen supplies the real range, OQ-11) -->
     <section class="step" id="stepVinyl">
       <div class="stephead">
-        <span class="stepnum">07</span><h2>Vinyl colour</h2>
+        <span class="stepnum">07</span><h2>Vinyl color</h2>
         <span class="hint">interior upholstery · optional</span>
       </div>
-      <div class="custnote" style="margin:-4px 0 14px"><b>Preview swatches only.</b> These placeholder colours are for design reference and are <b>not the actual vinyl offering</b> — our team confirms the real colour range with you when the order is written.</div>
+      <div class="custnote" style="margin:-4px 0 14px"><b>Preview swatches only.</b> These placeholder colors are for design reference and are <b>not the actual vinyl offering</b> — our team confirms the real color range with you when the order is written.</div>
       <div id="vinylRow" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
     </section>
 
@@ -2255,8 +2255,8 @@ function addCustom(){
   toast('Added: ' + nm);
 }
 
-/* ════════ VINYL COLOUR PICKER (CFG-U-03) ════════
-   Placeholder swatches only — clearly labelled; the real colour range comes
+/* ════════ VINYL COLOR PICKER (CFG-U-03) ════════
+   Placeholder swatches only — clearly labelled; the real color range comes
    from Stephen (OQ-11) and is a one-list swap below. The pick rides the
    custom-line-item mechanism, so it appears on the build sheet,
    email, PDF, and share links with no extra plumbing. */
@@ -2270,9 +2270,10 @@ const VINYL_COLORS = [
   {nm:'Forest',       hex:'#2f4a3a'},
   {nm:'Signal Red',   hex:'#8e2f2f'}
 ];
-const VINYL_PREFIX = 'Vinyl colour (placeholder swatch): ';
+const VINYL_PREFIX = 'Vinyl color (placeholder swatch): ';
+const VINYL_PREFIX_OLD = 'Vinyl colour (placeholder swatch): ';   /* pre-2026-10-28 spelling: still recognised so an old share link does not double-count */
 const VINYL_PNOTE  = 'Price determined by complexity';
-function vinylCurrent(){ return state.custom.find(c => String(c.name).indexOf(VINYL_PREFIX) === 0); }
+function vinylCurrent(){ return state.custom.find(c => String(c.name).indexOf(VINYL_PREFIX) === 0 || String(c.name).indexOf(VINYL_PREFIX_OLD) === 0); }
 function renderVinyl(){
   const host = $('#vinylRow');
   if (!host) return;
