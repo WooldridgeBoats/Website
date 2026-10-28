@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # ─────────────────────────────────────────────────────────────────────────────
-# build_history.pl: builds the /our-history/ timeline (2026-10-12).
+# build_history.pl: builds the /about-history/ timeline (2026-10-12).
 #
 #   perl _build/build_history.pl                 # default photo sources
 #   perl _build/build_history.pl --src <dir> ... # override (repeatable, in order)
@@ -21,7 +21,7 @@
 #   assets/history/hero.jpg, assets/history/endcap.jpg   (from 01-HERO... / 01-END CAP...)
 #   assets/history/<date>/NN.jpg + thumbs/NN.jpg   (rebuilt from scratch each run)
 #   assets/history/archives/NN.jpg + clip/NN.jpg   (From the Archives: brochures & ads)
-#   our-history/index.html, between <!-- HIST:timeline --> and <!-- /HIST:timeline -->
+#   about-history/index.html, between <!-- HIST:timeline --> and <!-- /HIST:timeline -->
 #                           and between <!-- HIST:archives --> and <!-- /HIST:archives -->
 #
 # Then run perl _build/stamp_assets.pl if house.css or history.js changed.
@@ -460,7 +460,7 @@ printf "videos    %2d heritage video(s)\n", scalar @hvids;
 }
 
 # ── write into the page ──
-my $page = "$root/our-history/index.html";
+my $page = "$root/about-history/index.html";
 open my $pf, '<:encoding(UTF-8)', $page or die; local $/; my $src = <$pf>; close $pf;
 $src =~ s{(<!-- HIST:timeline -->).*?(<!-- /HIST:timeline -->)}{$1$html$2}s or die "markers missing in $page\n";
 $src =~ s{(<!-- HIST:archives -->).*?(<!-- /HIST:archives -->)}{$1$arch_html$2}s or die "archives markers missing in $page\n";

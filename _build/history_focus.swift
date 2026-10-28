@@ -1,4 +1,4 @@
-// history_focus.swift: where each /our-history/ thumbnail should crop (2026-10-13).
+// history_focus.swift: where each /about-history/ thumbnail should crop (2026-10-13).
 //
 // The carousel tiles are square, so a tall photo loses its top and bottom and a wide
 // one its sides. Tyler: "if the head of a person is cut off, have the thumb show the

@@ -49,6 +49,7 @@ my @SKIP = (
   [ qr{^models/pybus-offshore/},   'old address of the Pybus Point Lodge (moved to /models/pybus-lodge-fleet/ 2026-10-28, launch day) — noindex redirect stub; keep it, links and search results still point here' ],
   [ qr{^models/riverrat-diy-kit/}, 'old address of the River Rat DIY Kit (moved to /models/river-rat-diy-kit/ 2026-10-28, launch day) — noindex redirect stub; keep it, links and search results still point here' ],
   [ qr{^models/supersportoffshorepilothouse/}, 'old address of the Super Sport Offshore Pilothouse (moved to /models/super-sport-offshore-pilothouse/ 2026-10-28, launch day) — noindex redirect stub; keep it, links and search results still point here' ],
+  [ qr{^our-history/},              'old address of Our History (moved to /about-history/ 2026-10-28, launch day; Tyler had already sent the old link out) — noindex redirect stub; keep it' ],
   [ qr{^login/},                   'redirect stub for the retired WordPress /login/ URL — noindex, forwards to /dealer-resources/' ],
   [ qr{^custom-agency-builds/},   'old address of Agency & Work Boats (moved to /agency-work-boats/ 2026-10-05) — noindex redirect stub; the live WordPress page lives here until cutover' ],
   [ qr{^_build/},                  'build scripts' ],
