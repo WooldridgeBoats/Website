@@ -1341,7 +1341,7 @@
 </script>
 <div class="toast" id="toast"></div>
 
-<script src="/tools/RULES_OVERLAY.js?v=c2fc33a1"></script>
+<script src="/tools/RULES_OVERLAY.js?v=152f1f14"></script>
 <script>
 'use strict';
 const CUSTOMER_MODE = true;  /* customer-facing build: no custom pricing, softer copy */
@@ -1590,7 +1590,7 @@ function itemStatus(it){
   }
   if (it.req){
     /* '@adder' (2026-10-28): the model's windshield / aft-helm addition is ticked (it includes the Explorer Package) */
-    const met = it.req.some(r => r === '@pods' ? hasPods() : r === '@swim' ? hasSwim() : r === '@adder' ? !!state.adder : !!state.opts[r]);
+    const met = it.req.some(r => r === '@pods' ? hasPods() : r === '@swim' ? hasSwim() : r === '@adder' ? !!state.adder : (!!state.opts[r] || Object.values(state.radios).indexOf(r) >= 0));   /* a pick-one (radio) choice such as a kicker motor counts too - 2026-10-28 */
     if (!met) return {ok:false, why:'SEE NOTE', reqNote:it.reqLabel};
   }
   /* group selection limit (overlay): e.g. at most 3 Garmin displays. Already-

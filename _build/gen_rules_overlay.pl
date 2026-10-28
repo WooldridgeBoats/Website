@@ -30,6 +30,7 @@ my %APPROVED = map { $_ => 1 } qw(
   CANON-2026-10-28-E
   CANON-2026-10-28-B
   CANON-2026-10-28-A
+  CANON-2026-10-28-C
 );
 # ───────────────────────────────────────────────────────
 
@@ -347,6 +348,27 @@ for my $m (@$models){
   die "CANON-2026-10-27: bench-seat publicHide set drifted\n  got  $got\n  want $want\n" unless $got eq $want;
 }
 
+# ── CANON-2026-10-28-C: "Bay kit, installed" ($1,199) needs a kicker motor (Stephen, 2026-10-28, Christian 8FQWVVH: "Bay kit:
+#    Yes, needs a kicker picked"). On every model that has a Kicker Installation category and a bay kit it is greyed
+#    ("Requires a kicker motor") until one of that category's kicker motors is chosen. The kicker motors are pick-one (radio)
+#    choices, which the page's requires rule could not see before 2026-10-28; itemStatus() now also counts a radio choice
+#    by item id. ONLY the bay kit: the tie-bar and the Garmin autopilot are not touched. Derived by NAME and ASSERTED.
+my %bayReq;
+{
+  my @bay;
+  for my $m (@$models) {
+    my ($kc) = grep { $_->{name} eq 'Kicker Installation' } @{$m->{cats}};
+    next unless $kc;
+    my @motors = map { $_->{id} } grep { $_->{nm} !~ /bracket|tie-bar|bay kit|autopilot/i && $_->{nm} !~ /^None$/ } @{$kc->{items}};
+    for my $it (grep { $_->{nm} =~ /^Bay kit, installed/ } @{$kc->{items}}) {
+      push @bay, $it->{id};
+      die "CANON-2026-10-28-C: $m->{id} has a bay kit but no kicker motor to require\n" unless @motors;
+      $bayReq{ $it->{id} } = { req => [@motors], reqLabel => 'Requires a kicker motor' };
+    }
+  }
+  die "CANON-2026-10-28-C: expected 15 bay kits, found " . scalar(@bay) . ": @bay\n" unless @bay == 15;
+}
+
 # ── CANON-2026-10-28-A: Explorer requirement (Stephen, 2026-10-28, Christian 7KV7C9R: "Explorer rule: 8-switch, auto bilge
 #    switch, 2nd bilge pump ... also usb and 12v and 2nd bilge and washdown"). On the Alaskan LT, Alaskan XLT and Rogue HDPE
 #    these options are greyed ("Requires ...") until the Explorer Package OR the windshield/aft-helm addition (which includes
@@ -467,6 +489,8 @@ my @BLOCKS = (
     live => { hideItems => \@sportsterHide } },
   { q => 'CANON-2026-10-27', t => q{"Add 6" to width of bench-seat box" ($49) stays in QuickBooks and the Sales Order Creator but leaves the public configurator and price sheets (Stephen, 2026-10-27); canon rows untouched},
     live => { publicHide => \@publicHide } },
+  { q => 'CANON-2026-10-28-C', t => q{Bay kit, installed ($1,199) needs a kicker motor on the 15 models that have Kicker Installation (Stephen, 2026-10-28, Christian 8FQWVVH); bay kit only, not the tie-bar or the autopilot},
+    live => { reqAdd => \%bayReq } },
   { q => 'CANON-2026-10-28-A', t => q{Explorer requirement on the Alaskan LT, Alaskan XLT and Rogue HDPE: 8-position switch, auto bilge switch, 2nd bilge pump, extra 12V/USB/plugs and the washdown kit need the Explorer Package or the windshield/aft-helm addition (Stephen, 2026-10-28, Christian 7KV7C9R)},
     live => { reqAdd => \%explorerReq } },
   { q => 'CANON-2026-10-28-B', t => q{Only one fuel tank at a time on the Rogue and the Alaskan XLT (Stephen, 2026-10-28, Christian 8IQHBTL); pairwise excludes, not a category pick-one},
