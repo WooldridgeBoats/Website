@@ -27,6 +27,10 @@ my %APPROVED = map { $_ => 1 } qw(
   CANON-2026-10-10-A
   CANON-2026-10-10-B
   CANON-2026-10-27
+  CANON-2026-10-28-E
+  CANON-2026-10-28-B
+  CANON-2026-10-28-A
+  CANON-2026-10-28-C
 );
 # ───────────────────────────────────────────────────────
 
@@ -130,6 +134,9 @@ for my $m (@$models) {
       next unless $it->{qty};
       $caps{$it->{id}} = 8 if $it->{nm} =~ /^Additional 12V plug|^Additional dual USB/i;
       $caps{$it->{id}} = 6 if $it->{nm} =~ /cup holder/i;
+      # 2026-10-28 (Christian 94LU5WA, relayed by Stephen): the per-FOOT sliding accessory track is sold by the
+      # run, so 12 was far too low - 60. Only the per-foot item: the rod-holder base mount beside it is per piece.
+      $caps{$it->{id}} = 60 if $it->{nm} =~ /^Rubber-coated aluminum sliding rod and accessory track installed \(price per foot\)/i;
     }
   }
 }
@@ -341,6 +348,97 @@ for my $m (@$models){
   die "CANON-2026-10-27: bench-seat publicHide set drifted\n  got  $got\n  want $want\n" unless $got eq $want;
 }
 
+# ── CANON-2026-10-28-C: "Bay kit, installed" ($1,199) needs a kicker motor (Stephen, 2026-10-28, Christian 8FQWVVH: "Bay kit:
+#    Yes, needs a kicker picked"). On every model that has a Kicker Installation category and a bay kit it is greyed
+#    ("Requires a kicker motor") until one of that category's kicker motors is chosen. The kicker motors are pick-one (radio)
+#    choices, which the page's requires rule could not see before 2026-10-28; itemStatus() now also counts a radio choice
+#    by item id. ONLY the bay kit: the tie-bar and the Garmin autopilot are not touched. Derived by NAME and ASSERTED.
+my %bayReq;
+{
+  my @bay;
+  for my $m (@$models) {
+    my ($kc) = grep { $_->{name} eq 'Kicker Installation' } @{$m->{cats}};
+    next unless $kc;
+    my @motors = map { $_->{id} } grep { $_->{nm} !~ /bracket|tie-bar|bay kit|autopilot/i && $_->{nm} !~ /^None$/ } @{$kc->{items}};
+    for my $it (grep { $_->{nm} =~ /^Bay kit, installed/ } @{$kc->{items}}) {
+      push @bay, $it->{id};
+      die "CANON-2026-10-28-C: $m->{id} has a bay kit but no kicker motor to require\n" unless @motors;
+      $bayReq{ $it->{id} } = { req => [@motors], reqLabel => 'Requires a kicker motor' };
+    }
+  }
+  die "CANON-2026-10-28-C: expected 15 bay kits, found " . scalar(@bay) . ": @bay\n" unless @bay == 15;
+}
+
+# ── CANON-2026-10-28-A: Explorer requirement (Stephen, 2026-10-28, Christian 7KV7C9R: "Explorer rule: 8-switch, auto bilge
+#    switch, 2nd bilge pump ... also usb and 12v and 2nd bilge and washdown"). On the Alaskan LT, Alaskan XLT and Rogue HDPE
+#    these options are greyed ("Requires ...") until the Explorer Package OR the windshield/aft-helm addition (which includes
+#    the Explorer Package) is in the build: the 8-position switch upgrade, auto switch for the standard bilge pump, the second
+#    1250 GPH bilge pump (LT, XLT - the Rogue has no such option), additional 12V plug, additional dual USB, "2 additional plugs"
+#    and the washdown pump kit. Uses reqAdd with the page token '@adder' (state.adder). Derived by NAME and ASSERTED.
+my %explorerReq;
+{
+  my %want = (
+    lt    => [qw(lt_rigging_5_39 lt_rigging_5_40 lt_rigging_5_41 lt_rigging_5_42 lt_rigging_5_48 lt_rigging_5_51 lt_rigging_5_52)],
+    xlt   => [qw(xlt_rigging_5_42 xlt_rigging_5_43 xlt_rigging_5_44 xlt_rigging_5_45 xlt_rigging_5_51 xlt_rigging_5_54 xlt_rigging_5_55)],
+    rogue => [qw(rogue_general_3_16 rogue_general_3_17 rogue_general_3_18 rogue_general_3_19 rogue_general_3_22 rogue_general_3_25)],
+  );
+  my $pat = qr/^(Upgrade to 8[- ]position switch panel|Auto switch for standard bilge pump|Add (second|2nd) 1250 GPH bilge pump|Additional 12V plug|Additional dual USB|2 additional plugs of customers choosing|Washdown pump kit)/i;
+  for my $mid (sort keys %want) {
+    my ($m) = grep { $_->{id} eq $mid } @$models;
+    die "CANON-2026-10-28-A: no $mid model\n" unless $m;
+    my ($explorer, @hit);
+    for my $c (@{$m->{cats}}) { for my $it (@{$c->{items}}) {
+      $explorer = $it->{id} if $it->{nm} =~ /^Explorer Package/;
+      push @hit, $it->{id} if $it->{nm} =~ $pat;
+    } }
+    die "CANON-2026-10-28-A: $mid has no Explorer Package\n" unless $explorer;
+    my $got = join(',', sort @hit); my $exp = join(',', sort @{$want{$mid}});
+    die "CANON-2026-10-28-A: $mid explorer-gated option set drifted\n  got  $got\n  want $exp\n" unless $got eq $exp;
+    my $label = 'Requires the Explorer Package or the ' . $m->{adder}{nm};
+    $explorerReq{$_} = { req => [ $explorer, '@adder' ], reqLabel => $label } for @hit;
+  }
+}
+
+# ── CANON-2026-10-28-B: one fuel tank at a time (Stephen, 2026-10-28, Christian 8IQHBTL: "Yes, one tank at a time").
+#    A pairwise `excludes` entry per tank, the same mechanism as the one urethane jet foot per boat - NOT a category-wide
+#    pick-one (the category also holds jet feet, impellers, etc.). Rogue: the 15/29/50-gallon tanks; Alaskan XLT: the 24/28/40-gallon
+#    tanks. Derived by NAME and ASSERTED.
+my %fuelExcl;
+{
+  my %want = (
+    rogue => [qw(rogue_motorinsta_8_70 rogue_motorinsta_8_71 rogue_motorinsta_8_72)],
+    xlt   => [qw(xlt_motorinsta_12_108 xlt_motorinsta_12_109 xlt_motorinsta_12_110)],
+  );
+  for my $mid (sort keys %want) {
+    my ($m) = grep { $_->{id} eq $mid } @$models;
+    die "CANON-2026-10-28-B: no $mid model\n" unless $m;
+    my @tanks;
+    for my $c (@{$m->{cats}}) { next unless $c->{name} eq 'Motor Installation & Rigging';
+      for my $it (@{$c->{items}}) { push @tanks, $it->{id} if $it->{nm} =~ /^\d+-gallon .*fuel tank/i } }
+    my $got = join(',', @tanks); my $exp = join(',', @{$want{$mid}});
+    die "CANON-2026-10-28-B: $mid fuel tank set drifted\n  got  $got\n  want $exp\n" unless $got eq $exp;
+    for my $i (0 .. $#tanks - 1) { $fuelExcl{ $tanks[$i] } = [ @tanks[ $i + 1 .. $#tanks ] ] }   # triangular, the page makes it two-way
+  }
+}
+
+# ── CANON-2026-10-28-E: "Rescue gunnel - government use only" ($3,499, 12 models) leaves the PUBLIC configurator and the
+#    public price sheets and stays in canon, QuickBooks and the Sales Order Creator (Stephen, 2026-10-28, on Christian's
+#    request 8VWNOEP: "Yes, same item; hide publicly, keep in canon, QB and the Sales Order Creator"). publicHide, NOT
+#    hideItems (hideItems would remove it from the SOC too). Derived by NAME and ASSERTED, like the blocks above.
+my @rescueHide;
+for my $m (@$models){
+  for my $c (@{$m->{cats}}){ for my $it (@{$c->{items}}){
+    push @rescueHide, $it->{id} if $it->{nm} =~ /^Rescue gunnel/i;
+  } }
+}
+{
+  my $got  = join(',', sort @rescueHide);
+  my $want = join(',', sort qw(xl_fabricatio_4_50 skagit_fabricatio_4_51 sport_fabricatio_4_54 ssd_fabricatio_4_55
+    xlib_fabricatio_5_44 skagitib_fabricatio_5_47 sportster_fabricatio_5_47 sportib_fabricatio_5_47
+    ssdib_fabricatio_5_47 skagitx_fabricatio_5_47 so_fabricatio_4_48 sso_fabricatio_4_47));
+  die "CANON-2026-10-28-E: rescue-gunnel publicHide set drifted\n  got  $got\n  want $want\n" unless $got eq $want;
+}
+
 # ── blocks, each keyed to its question ──
 my @BLOCKS = (
   { q => 'AUD-TYPO-01', t => 'de-double "helm-seat seat" -> "helm-seat" (the clean spelling the other price sheets use for the same product)',
@@ -353,7 +451,7 @@ my @BLOCKS = (
     live => { excludes => \%exclBoth } },
   { q => 'Q-CFG-03', t => 'retire all Bentley seating, extend the Airwave line to Sport/SSD/SO/SSO, seats steppable to 6 (Stephen)',
     live => { hideItems => \@hide, addItems => \@add, qtyEnable => ($seatQty{list} || []) } },
-  { q => 'Q-CFG-04', t => 'generous quantity caps: global default 12, 12V/USB 8, cup holders 6, Airwave seats 6 (Stephen)',
+  { q => 'Q-CFG-04', t => 'generous quantity caps: global default 12, 12V/USB 8, cup holders 6, Airwave seats 6, per-foot accessory track 60 (Stephen)',
     live => { qtyMax => \%caps } },
   { q => 'Q-CFG-05', t => 'welded rigid frame requires a canvas top (CFG-R-17, Grant)',
     live => { reqAdd => \%reqAdd } },
@@ -391,6 +489,14 @@ my @BLOCKS = (
     live => { hideItems => \@sportsterHide } },
   { q => 'CANON-2026-10-27', t => q{"Add 6" to width of bench-seat box" ($49) stays in QuickBooks and the Sales Order Creator but leaves the public configurator and price sheets (Stephen, 2026-10-27); canon rows untouched},
     live => { publicHide => \@publicHide } },
+  { q => 'CANON-2026-10-28-C', t => q{Bay kit, installed ($1,199) needs a kicker motor on the 15 models that have Kicker Installation (Stephen, 2026-10-28, Christian 8FQWVVH); bay kit only, not the tie-bar or the autopilot},
+    live => { reqAdd => \%bayReq } },
+  { q => 'CANON-2026-10-28-A', t => q{Explorer requirement on the Alaskan LT, Alaskan XLT and Rogue HDPE: 8-position switch, auto bilge switch, 2nd bilge pump, extra 12V/USB/plugs and the washdown kit need the Explorer Package or the windshield/aft-helm addition (Stephen, 2026-10-28, Christian 7KV7C9R)},
+    live => { reqAdd => \%explorerReq } },
+  { q => 'CANON-2026-10-28-B', t => q{Only one fuel tank at a time on the Rogue and the Alaskan XLT (Stephen, 2026-10-28, Christian 8IQHBTL); pairwise excludes, not a category pick-one},
+    live => { excludes => \%fuelExcl } },
+  { q => 'CANON-2026-10-28-E', t => q{"Rescue gunnel - government use only" ($3,499, 12 models) stays in canon, QuickBooks and the Sales Order Creator but leaves the public configurator and price sheets (Stephen, 2026-10-28, Christian request 8VWNOEP); canon rows untouched},
+    live => { publicHide => \@rescueHide } },
 );
 
 # ── merge approved blocks into the live keys ──
