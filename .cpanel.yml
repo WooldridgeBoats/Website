@@ -15,7 +15,7 @@
 # in the same place, and a folder-level delete would race the copy step.
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/hx01pil7u5iy/public_html/dev
+    - export DEPLOYPATH=/home/hx01pil7u5iy/public_html
     # Photos, scripts and the stylesheet go up FIRST, then everything (pages
     # included). `cp -R *` copies alphabetically, so a page folder like
     # agency-work-boats/ used to land minutes before the assets/ it points at;
