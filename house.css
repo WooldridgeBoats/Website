@@ -1971,7 +1971,9 @@ html.blueprint .pcarbtn{ background:rgba(21,31,40,.94); border-color:#22303b; co
      (letterboxed) but the layout stays put. */
   .wblbstage{ flex:0 0 auto; }
   .wblbstage img{ width:100%; height:auto; aspect-ratio:4/5; object-fit:contain;
-    max-width:100%; max-height:calc(100dvh - 200px); }
+    max-width:100%; max-height:calc(100dvh - 200px); max-height:var(--wblb-room, calc(100dvh - 200px)); }
+  /* phones that draw the page under the Android nav bar keep the thumbs clear of it */
+  .wblbstrip{ padding-bottom:calc(16px + env(safe-area-inset-bottom, 0px)); }
 }
 
 /* ══════════════════════════════════════════════════════════════════════════

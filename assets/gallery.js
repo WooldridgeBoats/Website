@@ -215,6 +215,19 @@
     });
   }
 
+  /* Phone photo height = whatever's left after the header, caption and thumb
+     strip (measured, not guessed). A long caption that wraps to two lines on a
+     short screen (Agency page, small Android in-app browsers) was pushing the
+     thumbs off the bottom under the old fixed 200px allowance (2026-10-28). */
+  function fitLb() {
+    if (!lb || !lb.classList.contains('on')) return;
+    var st = lb.querySelector('.wblbstage'), cs = getComputedStyle(st);
+    var used = lb.querySelector('.wblbhead').offsetHeight + lbCap.offsetHeight + lbStrip.offsetHeight +
+      parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+    lb.style.setProperty('--wblb-room', Math.max(160, lb.clientHeight - used) + 'px');
+  }
+  window.addEventListener('resize', fitLb);
+
   function photoHash(a) {
     var loc = parseHref(a);
     return loc ? '#p=' + loc.slug + '/' + loc.file : '#photo';
@@ -244,6 +257,7 @@
     if (m.hull) bits.push('Hull #' + m.hull);
     if (isLegacyLen(m.slug, m.len) || m.legacy) bits.push('<span class="lgcy">Legacy Model</span>');  /* per-length legacy OR per-photo LM tag; after the hull */
     lbCap.innerHTML = lenBadge + '<span class="wblbcaptext">' + bits.join(' &#183; ') + '</span>';
+    fitLb();
 
     var imgs = lbStrip.children;
     for (var i = 0; i < imgs.length; i++) imgs[i].classList.toggle('on', i === cur);
