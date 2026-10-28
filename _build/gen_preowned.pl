@@ -170,7 +170,13 @@ sub boat_page {
     : '<div class="infocard poseller"><h3>Seller contact</h3><p class="pofine">This listing did not include contact details. '
       . '<a href="/contact/">Contact the factory</a> and we will put you in touch.</p></div>';
 
-  my $desc = join '', map { '<p>' . esc($_) . '</p>' } @paras;
+  # the write-up: a paragraph beginning "- " is a list item, and a run of them is one list
+  my ($desc, $in_list) = ('', 0);
+  for my $p (@paras) {
+    if ($p =~ /^-\s+(.*)$/s) { $desc .= '<ul>' unless $in_list; $in_list = 1; $desc .= '<li>' . esc($1) . '</li>' }
+    else { $desc .= '</ul>' if $in_list; $in_list = 0; $desc .= '<p>' . esc($p) . '</p>' }
+  }
+  $desc .= '</ul>' if $in_list;
 
   my $hero = '<div class="gallery pohero"><a href="' . photo($b, 1) . '" data-m="' . $lab . '" aria-label="' . esc(plain($b)) . ' - photo 1 of ' . $b->{n} . '">'
            . '<img src="' . photo($b, 1) . '" alt="' . esc(plain($b)) . ' - photo 1" fetchpriority="high"></a></div>';
@@ -205,6 +211,8 @@ $MARK
   .pohero img{ aspect-ratio:16/10; }
   .invdesc{ max-width:840px; margin:0 auto 6px; }
   .invdesc p{ font-size:16px; line-height:1.75; margin-bottom:14px; }
+  .invdesc ul{ margin:0 0 16px 22px; padding:0; }
+  .invdesc li{ font-size:15.5px; line-height:1.6; margin-bottom:5px; }
   .poseller{ max-width:720px; margin:26px auto 0; text-align:center; }
   .poseller p{ font-size:15px; margin:8px 0 0; }
   .poseller .pofine{ font-size:13px; color:var(--muted); margin-top:12px; }
