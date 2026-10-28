@@ -1341,7 +1341,7 @@
 </script>
 <div class="toast" id="toast"></div>
 
-<script src="/tools/RULES_OVERLAY.js?v=59c9b379"></script>
+<script src="/tools/RULES_OVERLAY.js?v=c2fc33a1"></script>
 <script>
 'use strict';
 const CUSTOMER_MODE = true;  /* customer-facing build: no custom pricing, softer copy */
@@ -1589,7 +1589,8 @@ function itemStatus(it){
     if (e && e.incl241) return {ok:false, why:'INCLUDED W/ ENGINE'};
   }
   if (it.req){
-    const met = it.req.some(r => r === '@pods' ? hasPods() : r === '@swim' ? hasSwim() : !!state.opts[r]);
+    /* '@adder' (2026-10-28): the model's windshield / aft-helm addition is ticked (it includes the Explorer Package) */
+    const met = it.req.some(r => r === '@pods' ? hasPods() : r === '@swim' ? hasSwim() : r === '@adder' ? !!state.adder : !!state.opts[r]);
     if (!met) return {ok:false, why:'SEE NOTE', reqNote:it.reqLabel};
   }
   /* group selection limit (overlay): e.g. at most 3 Garmin displays. Already-

@@ -29,6 +29,7 @@ my %APPROVED = map { $_ => 1 } qw(
   CANON-2026-10-27
   CANON-2026-10-28-E
   CANON-2026-10-28-B
+  CANON-2026-10-28-A
 );
 # ───────────────────────────────────────────────────────
 
@@ -346,6 +347,36 @@ for my $m (@$models){
   die "CANON-2026-10-27: bench-seat publicHide set drifted\n  got  $got\n  want $want\n" unless $got eq $want;
 }
 
+# ── CANON-2026-10-28-A: Explorer requirement (Stephen, 2026-10-28, Christian 7KV7C9R: "Explorer rule: 8-switch, auto bilge
+#    switch, 2nd bilge pump ... also usb and 12v and 2nd bilge and washdown"). On the Alaskan LT, Alaskan XLT and Rogue HDPE
+#    these options are greyed ("Requires ...") until the Explorer Package OR the windshield/aft-helm addition (which includes
+#    the Explorer Package) is in the build: the 8-position switch upgrade, auto switch for the standard bilge pump, the second
+#    1250 GPH bilge pump (LT, XLT - the Rogue has no such option), additional 12V plug, additional dual USB, "2 additional plugs"
+#    and the washdown pump kit. Uses reqAdd with the page token '@adder' (state.adder). Derived by NAME and ASSERTED.
+my %explorerReq;
+{
+  my %want = (
+    lt    => [qw(lt_rigging_5_39 lt_rigging_5_40 lt_rigging_5_41 lt_rigging_5_42 lt_rigging_5_48 lt_rigging_5_51 lt_rigging_5_52)],
+    xlt   => [qw(xlt_rigging_5_42 xlt_rigging_5_43 xlt_rigging_5_44 xlt_rigging_5_45 xlt_rigging_5_51 xlt_rigging_5_54 xlt_rigging_5_55)],
+    rogue => [qw(rogue_general_3_16 rogue_general_3_17 rogue_general_3_18 rogue_general_3_19 rogue_general_3_22 rogue_general_3_25)],
+  );
+  my $pat = qr/^(Upgrade to 8[- ]position switch panel|Auto switch for standard bilge pump|Add (second|2nd) 1250 GPH bilge pump|Additional 12V plug|Additional dual USB|2 additional plugs of customers choosing|Washdown pump kit)/i;
+  for my $mid (sort keys %want) {
+    my ($m) = grep { $_->{id} eq $mid } @$models;
+    die "CANON-2026-10-28-A: no $mid model\n" unless $m;
+    my ($explorer, @hit);
+    for my $c (@{$m->{cats}}) { for my $it (@{$c->{items}}) {
+      $explorer = $it->{id} if $it->{nm} =~ /^Explorer Package/;
+      push @hit, $it->{id} if $it->{nm} =~ $pat;
+    } }
+    die "CANON-2026-10-28-A: $mid has no Explorer Package\n" unless $explorer;
+    my $got = join(',', sort @hit); my $exp = join(',', sort @{$want{$mid}});
+    die "CANON-2026-10-28-A: $mid explorer-gated option set drifted\n  got  $got\n  want $exp\n" unless $got eq $exp;
+    my $label = 'Requires the Explorer Package or the ' . $m->{adder}{nm};
+    $explorerReq{$_} = { req => [ $explorer, '@adder' ], reqLabel => $label } for @hit;
+  }
+}
+
 # ── CANON-2026-10-28-B: one fuel tank at a time (Stephen, 2026-10-28, Christian 8IQHBTL: "Yes, one tank at a time").
 #    A pairwise `excludes` entry per tank, the same mechanism as the one urethane jet foot per boat - NOT a category-wide
 #    pick-one (the category also holds jet feet, impellers, etc.). Rogue: the 15/29/50-gallon tanks; Alaskan XLT: the 24/28/40-gallon
@@ -436,6 +467,8 @@ my @BLOCKS = (
     live => { hideItems => \@sportsterHide } },
   { q => 'CANON-2026-10-27', t => q{"Add 6" to width of bench-seat box" ($49) stays in QuickBooks and the Sales Order Creator but leaves the public configurator and price sheets (Stephen, 2026-10-27); canon rows untouched},
     live => { publicHide => \@publicHide } },
+  { q => 'CANON-2026-10-28-A', t => q{Explorer requirement on the Alaskan LT, Alaskan XLT and Rogue HDPE: 8-position switch, auto bilge switch, 2nd bilge pump, extra 12V/USB/plugs and the washdown kit need the Explorer Package or the windshield/aft-helm addition (Stephen, 2026-10-28, Christian 7KV7C9R)},
+    live => { reqAdd => \%explorerReq } },
   { q => 'CANON-2026-10-28-B', t => q{Only one fuel tank at a time on the Rogue and the Alaskan XLT (Stephen, 2026-10-28, Christian 8IQHBTL); pairwise excludes, not a category pick-one},
     live => { excludes => \%fuelExcl } },
   { q => 'CANON-2026-10-28-E', t => q{"Rescue gunnel - government use only" ($3,499, 12 models) stays in canon, QuickBooks and the Sales Order Creator but leaves the public configurator and price sheets (Stephen, 2026-10-28, Christian request 8VWNOEP); canon rows untouched},
