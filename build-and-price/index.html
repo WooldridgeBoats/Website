@@ -241,6 +241,9 @@
   }
   .qty button:hover{background:var(--linen);}
   .qty .n{font-family:var(--mono); font-size:12px; font-weight:700; min-width:22px; text-align:center;}
+  .qty input.n{width:46px; padding:5px 2px; border:0; border-left:1px solid var(--rule); border-right:1px solid var(--rule); border-radius:0; background:var(--card); color:inherit; -moz-appearance:textfield;}
+  .qty input.n:focus{outline:2px solid var(--buoy); outline-offset:-2px;}
+  @media(max-width:700px){ .qty input.n{font-size:16px; width:56px;} }   /* 16px keeps iOS from zooming the page when the box is tapped */
 
   /* ── build sheet rail ── */
   .cfg-rail{position:sticky; top:20px; display:block; overflow:visible;}
@@ -1338,7 +1341,7 @@
 </script>
 <div class="toast" id="toast"></div>
 
-<script src="/tools/RULES_OVERLAY.js?v=122c5a3c"></script>
+<script src="/tools/RULES_OVERLAY.js?v=270dfffa"></script>
 <script>
 'use strict';
 const CUSTOMER_MODE = true;  /* customer-facing build: no custom pricing, softer copy */
@@ -1933,8 +1936,22 @@ function renderOptions(){
         const on  = isRadio ? input.checked : !!state.opts[it.id];
         const q = document.createElement('span');
         q.className = 'qty' + (on ? ' on' : '');
-        q.innerHTML = `<button type="button" aria-label="Fewer">&minus;</button><span class="n">${cur}</span><button type="button" aria-label="More">+</button>`;
-        const [minus, , plus] = q.children;
+        /* 2026-10-28 (Christian 94LU5WA): the count is a box you can click and type in (the old span
+           made a customer press + a few dozen times for a long run of accessory track). It commits on
+           Enter or when the box loses focus, never per keystroke - every commit re-draws this list. */
+        q.innerHTML = `<button type="button" aria-label="Fewer">&minus;</button><input class="n" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="Quantity (type a number)" value="${cur}"><button type="button" aria-label="More">+</button>`;
+        const [minus, numBox, plus] = q.children;
+        numBox.addEventListener('focus', () => numBox.select());
+        numBox.addEventListener('keydown', ev => { if (ev.key === 'Enter'){ ev.preventDefault(); numBox.blur(); } });
+        numBox.addEventListener('change', () => {
+          let v = parseInt(String(numBox.value).replace(/[^0-9]/g, ''), 10);
+          if (!(v >= 1)) v = 1;
+          const mx = qtyMaxOf(it);
+          if (v > mx){ v = mx; toast('The most you can add here is ' + mx + ' - call us for more.'); }
+          if (isRadio){ state.radios[cat.id] = it.id; state.radioQty[cat.id] = v; }
+          else state.opts[it.id] = v;
+          sync();
+        });
         minus.addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation();
           if (isRadio){
             if (!input.checked) return;

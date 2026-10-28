@@ -130,6 +130,9 @@ for my $m (@$models) {
       next unless $it->{qty};
       $caps{$it->{id}} = 8 if $it->{nm} =~ /^Additional 12V plug|^Additional dual USB/i;
       $caps{$it->{id}} = 6 if $it->{nm} =~ /cup holder/i;
+      # 2026-10-28 (Christian 94LU5WA, relayed by Stephen): the per-FOOT sliding accessory track is sold by the
+      # run, so 12 was far too low - 60. Only the per-foot item: the rod-holder base mount beside it is per piece.
+      $caps{$it->{id}} = 60 if $it->{nm} =~ /^Rubber-coated aluminum sliding rod and accessory track installed \(price per foot\)/i;
     }
   }
 }
@@ -353,7 +356,7 @@ my @BLOCKS = (
     live => { excludes => \%exclBoth } },
   { q => 'Q-CFG-03', t => 'retire all Bentley seating, extend the Airwave line to Sport/SSD/SO/SSO, seats steppable to 6 (Stephen)',
     live => { hideItems => \@hide, addItems => \@add, qtyEnable => ($seatQty{list} || []) } },
-  { q => 'Q-CFG-04', t => 'generous quantity caps: global default 12, 12V/USB 8, cup holders 6, Airwave seats 6 (Stephen)',
+  { q => 'Q-CFG-04', t => 'generous quantity caps: global default 12, 12V/USB 8, cup holders 6, Airwave seats 6, per-foot accessory track 60 (Stephen)',
     live => { qtyMax => \%caps } },
   { q => 'Q-CFG-05', t => 'welded rigid frame requires a canvas top (CFG-R-17, Grant)',
     live => { reqAdd => \%reqAdd } },
