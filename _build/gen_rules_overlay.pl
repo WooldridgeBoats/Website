@@ -28,6 +28,7 @@ my %APPROVED = map { $_ => 1 } qw(
   CANON-2026-10-10-B
   CANON-2026-10-27
   CANON-2026-10-28-E
+  CANON-2026-10-28-B
 );
 # ───────────────────────────────────────────────────────
 
@@ -345,6 +346,28 @@ for my $m (@$models){
   die "CANON-2026-10-27: bench-seat publicHide set drifted\n  got  $got\n  want $want\n" unless $got eq $want;
 }
 
+# ── CANON-2026-10-28-B: one fuel tank at a time (Stephen, 2026-10-28, Christian 8IQHBTL: "Yes, one tank at a time").
+#    A pairwise `excludes` entry per tank, the same mechanism as the one urethane jet foot per boat - NOT a category-wide
+#    pick-one (the category also holds jet feet, impellers, etc.). Rogue: the 15/29/50-gallon tanks; Alaskan XLT: the 24/28/40-gallon
+#    tanks. Derived by NAME and ASSERTED.
+my %fuelExcl;
+{
+  my %want = (
+    rogue => [qw(rogue_motorinsta_8_70 rogue_motorinsta_8_71 rogue_motorinsta_8_72)],
+    xlt   => [qw(xlt_motorinsta_12_108 xlt_motorinsta_12_109 xlt_motorinsta_12_110)],
+  );
+  for my $mid (sort keys %want) {
+    my ($m) = grep { $_->{id} eq $mid } @$models;
+    die "CANON-2026-10-28-B: no $mid model\n" unless $m;
+    my @tanks;
+    for my $c (@{$m->{cats}}) { next unless $c->{name} eq 'Motor Installation & Rigging';
+      for my $it (@{$c->{items}}) { push @tanks, $it->{id} if $it->{nm} =~ /^\d+-gallon .*fuel tank/i } }
+    my $got = join(',', @tanks); my $exp = join(',', @{$want{$mid}});
+    die "CANON-2026-10-28-B: $mid fuel tank set drifted\n  got  $got\n  want $exp\n" unless $got eq $exp;
+    for my $i (0 .. $#tanks - 1) { $fuelExcl{ $tanks[$i] } = [ @tanks[ $i + 1 .. $#tanks ] ] }   # triangular, the page makes it two-way
+  }
+}
+
 # ── CANON-2026-10-28-E: "Rescue gunnel - government use only" ($3,499, 12 models) leaves the PUBLIC configurator and the
 #    public price sheets and stays in canon, QuickBooks and the Sales Order Creator (Stephen, 2026-10-28, on Christian's
 #    request 8VWNOEP: "Yes, same item; hide publicly, keep in canon, QB and the Sales Order Creator"). publicHide, NOT
@@ -413,6 +436,8 @@ my @BLOCKS = (
     live => { hideItems => \@sportsterHide } },
   { q => 'CANON-2026-10-27', t => q{"Add 6" to width of bench-seat box" ($49) stays in QuickBooks and the Sales Order Creator but leaves the public configurator and price sheets (Stephen, 2026-10-27); canon rows untouched},
     live => { publicHide => \@publicHide } },
+  { q => 'CANON-2026-10-28-B', t => q{Only one fuel tank at a time on the Rogue and the Alaskan XLT (Stephen, 2026-10-28, Christian 8IQHBTL); pairwise excludes, not a category pick-one},
+    live => { excludes => \%fuelExcl } },
   { q => 'CANON-2026-10-28-E', t => q{"Rescue gunnel - government use only" ($3,499, 12 models) stays in canon, QuickBooks and the Sales Order Creator but leaves the public configurator and price sheets (Stephen, 2026-10-28, Christian request 8VWNOEP); canon rows untouched},
     live => { publicHide => \@rescueHide } },
 );
