@@ -159,6 +159,18 @@ RR.BoatCatalog = {
                             cap: 0xE3E6EA, upper: 0x34373C, interior: 0xC4C8CD,
                             band: 0.72, bandColor: 0xDCDFE3, chine: 0.12 } },
             sourceUrl: 'https://www.wooldridgeboats.com/models/sportster/'
+        },
+        {
+            id: 'sportster-tiller-21', model: "21' SPORTSTER TILLER", variant: 'GRANT AT THE TILLER',
+            spec: ['sportster','21','weightOpen'],
+            length: "21 ft. 8 in.", beam:'106 in.',bottom:'88 in.',weight:1805,maxJetHp:250,
+            character:'Open black-and-silver Sportster, with Grant driving from the stern.',
+            power:5,size:5,maneuver:3,speedMult:1.05,accelerationMult:0.94,brakingMult:0.86,
+            steerMult:0.84,steerResponseMult:0.82,massMult:1.42,beamScale:1.20,lengthScale:1.08,
+            shallowDragMult:1.15,groundTimeMult:0.82,accent:0x83c43a,layout:'tiller',logo:'white',heightScale:1.06,
+            cad:{url:'GAME/ASSETS/BOAT/MODELS/SPORTSTER-21.stl',keepRig:true,
+                 paint:{side:0x17191d,bottom:0xC9CCD1,deck:0x9AA0A6,cap:0xE3E6EA,upper:0x34373C,interior:0xC4C8CD,band:0.72,bandColor:0xDCDFE3,chine:0.12}},
+            sourceUrl:'https://www.wooldridgeboats.com/models/sportster/'
         }
     ],
 

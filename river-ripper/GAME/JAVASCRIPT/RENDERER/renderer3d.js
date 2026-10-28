@@ -4272,6 +4272,51 @@ RR.Renderer3D = {
         box(2.6, 0.38, 0.50, 0, soleY + 0.19, -3.40, vinylMat);
         sternRails(cabRig, -2.20);
 
+        // ---- 21' SPORTSTER TILLER: open cockpit, Grant at the stern tiller --
+        // Ported from Codex's Grant prototype (2026-10-28). Red plaid flannel,
+        // black Wooldridge cap, brown pants; a stylized stand-in, not a likeness.
+        var tillerRig=new THREE.Group();tillerRig.name='tillerRig';tillerRig.visible=false;this.boatGroup.add(tillerRig);
+        band(tillerRig,paint(0x16191d,0.30,0.35),0.08,0.88);
+        addTo=tillerRig;
+        [1.6,0.1].forEach(function(z){seat(-0.85,z);seat(0.85,z);});
+        var driver=new THREE.Group();driver.name='GrantDriver';driver.position.set(0.65,soleY,-3.65);tillerRig.add(driver);
+        var hoodie=paint(0xffffff,0.92,0),pants=paint(0x594b42,0.95,0),skin=paint(0xc89476,0.78,0),hair=paint(0x30271f,0.95,0);
+        // Red plaid flannel from Grant's river references; no sports jersey.
+        var plaid=document.createElement('canvas');plaid.width=256;plaid.height=256;
+        var pc=plaid.getContext('2d');pc.fillStyle='#b92736';pc.fillRect(0,0,256,256);
+        for(var ps=0;ps<256;ps+=64){
+            pc.fillStyle='rgba(22,36,63,0.68)';pc.fillRect(ps,0,23,256);pc.fillRect(0,ps,256,23);
+            pc.fillStyle='rgba(32,132,122,0.60)';pc.fillRect(ps+34,0,12,256);pc.fillRect(0,ps+34,256,12);
+            pc.fillStyle='rgba(231,192,167,0.35)';pc.fillRect(ps+28,0,2,256);pc.fillRect(0,ps+28,256,2);
+        }
+        var plaidTex=new THREE.CanvasTexture(plaid);plaidTex.encoding=THREE.sRGBEncoding;
+        hoodie.map=plaidTex;
+        addTo=driver;
+        softBox(0.62,0.84,0.36,0,1.38,0,0.12,hoodie);
+        softBox(0.5,0.23,0.33,0,0.91,0,0.07,pants);
+        [-1,1].forEach(function(side){tube(side*0.17,0.91,0,side*0.2,0.46,0.06,0.105,pants);tube(side*0.2,0.46,0.06,side*0.24,0.08,0.03,0.085,pants);softBox(0.19,0.14,0.32,side*0.24,0.06,0.15,0.04,frameMat);});
+        var head=new THREE.Mesh(new THREE.SphereGeometry(0.23,16,12),skin);head.position.set(0,1.99,0);head.scale.set(0.82,1.12,0.9);driver.add(head);
+        var beard=new THREE.Mesh(new THREE.SphereGeometry(0.21,12,8),hair);beard.position.set(0,1.85,0.07);beard.scale.set(0.82,0.7,0.82);driver.add(beard);
+        var hairTop=new THREE.Mesh(new THREE.SphereGeometry(0.235,16,8,0,Math.PI*2,0,Math.PI/2),hair);hairTop.position.set(0,2.08,-0.02);hairTop.scale.y=0.65;driver.add(hairTop);
+        tube(-0.30,1.65,0,-0.45,1.26,-0.16,0.085,hoodie);tube(-0.45,1.26,-0.16,-0.58,1.08,-0.58,0.065,hoodie);
+        tube(0.30,1.65,0,0.36,1.26,0.08,0.085,hoodie);tube(0.36,1.26,0.08,0.35,1.04,0.15,0.065,skin);
+        var grantCapMat=paint(0x101114,0.94,0);
+        var cap=new THREE.Mesh(new THREE.SphereGeometry(0.25,20,12,0,Math.PI*2,0,Math.PI/2),grantCapMat);
+        cap.position.set(0,2.08,-0.015);cap.scale.set(1,0.78,1);driver.add(cap);
+        var brim=new THREE.Mesh(new THREE.SphereGeometry(1,20,8),grantCapMat);
+        brim.position.set(0,2.085,0.20);brim.scale.set(0.27,0.025,0.23);driver.add(brim);
+        var patch=document.createElement('canvas');patch.width=512;patch.height=192;
+        var hc=patch.getContext('2d');hc.fillStyle='#111216';hc.fillRect(0,0,512,192);
+        hc.strokeStyle='#eeeeee';hc.lineWidth=8;hc.strokeRect(10,10,492,172);
+        hc.fillStyle='#f5f5f5';hc.textAlign='center';hc.font='bold 66px Arial';hc.fillText('Wooldridge',256,86);
+        hc.font='bold 43px Arial';hc.fillText('BOATS · 1915',256,145);
+        var patchTex=new THREE.CanvasTexture(patch);patchTex.encoding=THREE.sRGBEncoding;
+        var capPatch=new THREE.Mesh(new THREE.PlaneGeometry(0.30,0.115),new THREE.MeshStandardMaterial({map:patchTex,roughness:0.9}));
+        capPatch.position.set(0,2.17,0.218);driver.add(capPatch);
+        addTo=tillerRig;
+        tube(0,0.95,-5.2,0.08,1.38,-4.20,0.055,frameMat);tube(0.08,1.38,-4.20,0.08,1.38,-4.0,0.065,vinylMat);
+        this._tillerDriver=driver;
+
         // Everything built straight onto boatGroup so far is the hand-built
         // HULL (plating, cap, sole, bow deck). Gather it into one group so a
         // boat with a real CAD hull can hide it in one go. The rigs are
@@ -4402,7 +4447,7 @@ RR.Renderer3D = {
             hull: hullMat, cap: capMat, deck: deckMat, sole: soleMat
         };
         this._boatRigs = { windshield: windshieldRig, console: consoleRig,
-                           lt: ltRig, walkthrough: xlRig, skagit: skRig, cabin: cabRig };
+                           lt: ltRig, walkthrough: xlRig, skagit: skRig, cabin: cabRig, tiller: tillerRig };
         this._motorMat = motorMat;
 
         function logoQuad(group, tex, pts) {
