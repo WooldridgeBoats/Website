@@ -2341,8 +2341,12 @@ main > .pagenav:last-child{ border-bottom:0; border-top:1px solid var(--line); m
 .pagenav .pn-home{ color:var(--ink); }
 .pagenav .pn-next{ margin-left:auto; text-align:right; }
 @media (max-width:560px){
-  .pagenav{ padding:10px 14px; gap:10px; }
-  .pagenav a{ font-size:11.5px; }
+  /* 2026-10-28 (Christian): on phones the prev / next model names were ellipsed
+     to "SUPER SPORT DRIFTER IN...". Let them wrap instead of truncating. */
+  .pagenav{ padding:10px 14px; gap:10px; align-items:flex-start; }
+  .pagenav a{ font-size:11px; white-space:normal; overflow:visible; text-overflow:clip; line-height:1.35; }
+  .pagenav .pn-prev, .pagenav .pn-next{ flex:1 1 0; min-width:0; }
+  .pagenav .pn-home{ flex:0 0 auto; padding-top:0; }
 }
 
 /* ==========================================================================
