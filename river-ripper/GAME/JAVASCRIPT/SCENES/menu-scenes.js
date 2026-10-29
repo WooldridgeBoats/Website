@@ -906,9 +906,9 @@ RR.NameEntryScene = {
             // Keep the named personal result even when the shared top ten is full.
             try { localStorage.setItem('rr_last_named_run',JSON.stringify({first:this.first,last:this.initial,score:this.score,river:RR.River.profile.name,run:run})); } catch(e) {}
             if (this.qualifies) RR.Scores.add(this.first, this.initial, this.score, this.distance, run);
-            if (this.next === RR.LevelCompleteScene) {
-                RR.Progress.runName = { first: this.first, initial: this.initial, run: run };
-            }
+            // Remember who's driving for the rest of this tour -- after a
+            // crash too, since RETRY continues the same run (one board row).
+            RR.Progress.runName = { first: this.first, initial: this.initial, run: run };
         }
         RR.Engine.changeScene(this.next || RR.CrashScene);
     },

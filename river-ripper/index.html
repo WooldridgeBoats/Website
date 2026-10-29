@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="robots" content="noindex, nofollow">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>River Ripper Game — Wooldridge Boats</title>
+<link rel="canonical" href="https://www.wooldridgeboats.com/river-ripper/">
 <meta name="description" content="River Ripper: run real Wooldridge jet boats up eight of the world's rivers.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,7 +13,16 @@
 <link rel="stylesheet" href="/house.css?v=ea4eaf23">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/assets/brand/favicon-180.png">
+<!-- HOME-SCREEN APP (Tyler, 2026-10-28): Safari keeps its address bar over any
+     web page, so the only true full screen on an iPhone is the game added to
+     the home screen. Opened from that icon it runs with no browser bars. -->
+<link rel="manifest" href="/river-ripper/GAME/ASSETS/UI/APP/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="River Ripper">
+<meta name="theme-color" content="#05080b">
+<link rel="apple-touch-icon" sizes="180x180" href="/river-ripper/GAME/ASSETS/UI/APP/app-icon-180.png">
 <style>
   /* The game draws at a fixed 1280x720 and scales to whatever box holds it,
      so the frame only has to be 16:9 and fit under the menu. --rr-top is the
@@ -33,6 +43,8 @@
   .rr-touch { display: none; color: #F2C14E; text-align: center; font: 600 14px Inter, -apple-system, Segoe UI, Arial, sans-serif;
               margin: 0 0 12px; }
   .rr-touchhelp { display: none; }
+  .rr-hometip { display: none; color: #F2C14E; opacity: 1; }
+  html.rr-ios-browser .rr-hometip { display: block; }
   @media (hover: none) and (pointer: coarse) {
     .rr-touch, .rr-touchhelp { display: block; }
     .rr-keyhelp { display: none; }
@@ -46,7 +58,6 @@
     backdrop-filter: blur(7px) saturate(1.15);
   }
 </style>
-<link rel="canonical" href="https://www.wooldridgeboats.com/river-ripper/">
 </head>
 <body class="rr-page">
 <!-- PARTIAL:header -->
@@ -158,6 +169,7 @@
     <canvas id="gameCanvas" width="1280" height="720"></canvas>
   </div>
   <p class="rr-help rr-touchhelp"><b>TILT</b> the phone to steer (tap <b>TILT</b> for thumb steering) &nbsp;·&nbsp; <b>JUMP</b> &amp; <b>REVERSE</b> right thumb &nbsp;·&nbsp; the throttle runs itself</p>
+  <p class="rr-help rr-hometip"><b>FULL SCREEN ON iPHONE:</b> tap Share <b>&#x2191;</b>, then <b>Add to Home Screen</b>, and play from the River Ripper icon.</p>
   <p class="rr-help rr-keyhelp"><b>ENTER</b> start &nbsp;·&nbsp; <b>&uarr;</b> throttle &nbsp;·&nbsp; <b>&larr; &rarr;</b> steer &nbsp;·&nbsp; <b>&darr;</b> reverse &nbsp;·&nbsp; <b>SPACE</b> jump &nbsp;·&nbsp; <b>ESC</b> pause &nbsp;·&nbsp; <b>M</b> sound &nbsp;·&nbsp; <span style="opacity:.7">W A S D work too</span></p>
 </main>
 <script>
@@ -167,6 +179,10 @@
       if (nav) document.documentElement.style.setProperty('--rr-top', Math.ceil(nav.getBoundingClientRect().bottom + window.scrollY) + 'px');
     }
     fit(); window.addEventListener('resize', fit); window.addEventListener('load', fit);
+    // iPhone in Safari (not already opened from the home-screen icon):
+    // show the Add to Home Screen tip.
+    var app = window.navigator.standalone || (window.matchMedia && matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches);
+    if (/iPhone|iPod/.test(navigator.userAgent) && !app) document.documentElement.classList.add('rr-ios-browser');
   })();
 </script>
 <!-- PARTIAL:footer -->
@@ -221,15 +237,15 @@
 <!-- /PARTIAL:footer -->
     <script src="GAME/JAVASCRIPT/LIB/three.min.js?v=9c8017f8"></script>
     <script src="GAME/JAVASCRIPT/CORE/config.js?v=49098bc4"></script>
-    <script src="GAME/JAVASCRIPT/CORE/touch.js?v=7a225c15"></script>
+    <script src="GAME/JAVASCRIPT/CORE/touch.js?v=a663ce46"></script>
     <script src="GAME/DATA/BOAT-LINEUP.js?v=10a3d1b7"></script>
     <script src="GAME/DATA/DIFFICULTY.js?v=e89869e9"></script>
     <script src="GAME/DATA/RIVER-LEVELS.js?v=0e2a6350"></script>
     <script src="GAME/JAVASCRIPT/CORE/engine.js?v=4dfca1c5"></script>
     <script src="GAME/JAVASCRIPT/CORE/audio.js?v=8c2469cb"></script>
-    <script src="GAME/JAVASCRIPT/RENDERER/renderer3d.js?v=29b851a6"></script>
+    <script src="GAME/JAVASCRIPT/RENDERER/renderer3d.js?v=a233dbc4"></script>
 
-    <script src="GAME/JAVASCRIPT/RENDERER/water-reflections.js?v=1c3b9949"></script>
+    <script src="GAME/JAVASCRIPT/RENDERER/water-reflections.js?v=e75844dd"></script>
 
     <script src="GAME/JAVASCRIPT/RENDERER/foliage.js?v=34793abb"></script>
 
@@ -244,8 +260,8 @@
 
     <script src="GAME/JAVASCRIPT/SYSTEMS/ramps.js?v=c233e23f"></script>
     <script src="GAME/JAVASCRIPT/ENTITIES/boat.js?v=424dd61f"></script>
-    <script src="GAME/JAVASCRIPT/SCENES/menu-scenes.js?v=0da73264"></script>
-    <script src="GAME/JAVASCRIPT/SCENES/game-scenes.js?v=26766164"></script>
+    <script src="GAME/JAVASCRIPT/SCENES/menu-scenes.js?v=dcfbc6d6"></script>
+    <script src="GAME/JAVASCRIPT/SCENES/game-scenes.js?v=ddf868b1"></script>
     <script src="GAME/JAVASCRIPT/main.js?v=c759e8c6"></script>
 <script src="/assets/shop.js?v=14ae84c5"></script>
 </body>

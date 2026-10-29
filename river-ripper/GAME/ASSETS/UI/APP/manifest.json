@@ -1,0 +1,15 @@
+{
+  "name": "River Ripper — Wooldridge Boats",
+  "short_name": "River Ripper",
+  "description": "Run real Wooldridge jet boats up eight of the world's rivers.",
+  "start_url": "/river-ripper/",
+  "scope": "/river-ripper/",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#05080b",
+  "theme_color": "#05080b",
+  "icons": [
+    { "src": "/river-ripper/GAME/ASSETS/UI/APP/app-icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/river-ripper/GAME/ASSETS/UI/APP/app-icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

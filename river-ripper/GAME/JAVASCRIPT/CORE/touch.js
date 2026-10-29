@@ -27,8 +27,8 @@ window.RR = window.RR || {};
 // (Space, Escape, Enter), the click fields, and RR.Input.typed for letters.
 //
 // LITE GRAPHICS: a phone-class device (no hover, coarse pointer) is flagged
-// RR.Config.LITE before the renderer starts, and renderer3d.js plants fewer
-// trees, uses simpler crowns, and skips shadows and antialiasing.
+// RR.Config.MOBILE controls render budgets. Desktop artwork remains enabled;
+// the explicit ?quality=low fallback alone selects simplified graphics.
 // ---------------------------------------------------------------------------
 RR.Touch = {
     active: false,          // a touch has happened on this page
@@ -65,7 +65,9 @@ RR.Touch = {
 
     init: function () {
         var self = this;
-        if (this.phoneClass()) RR.Config.LITE = true;
+        // Touch input is not a request for the old simplified artwork.
+        RR.Config.MOBILE = this.phoneClass();
+        RR.Config.LITE = /[?&]quality=low\b/.test(window.location.search);
         var opts = { passive: false };
         document.addEventListener('touchstart', function (e) { self._start(e); }, opts);
         document.addEventListener('touchmove', function (e) { self._move(e); }, opts);
@@ -83,6 +85,8 @@ RR.Touch = {
             var check = function () { setTimeout(function () { self._autoSideways(); }, 250); };
             window.addEventListener('orientationchange', check);
             window.addEventListener('resize', check);
+            if (window.visualViewport) window.visualViewport.addEventListener('resize', check);
+            if (screen.orientation && screen.orientation.addEventListener) screen.orientation.addEventListener('change', check);
             check();
         }
     },
@@ -152,9 +156,8 @@ RR.Touch = {
         if (this._optedOut || document.documentElement.classList.contains('rr-playing')) return;
         var box = this._container();
         if (!box) return;
-        var r = box.getBoundingClientRect();
-        var shown = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0);
-        if (shown < r.height * 0.4) return;     // game scrolled away: leave the page alone
+        // Rotation can move the game below a tall site header. Visibility
+        // at that instant must not block landscape mode on the game page.
         if (!this.active) { this.active = true; this._setupDom(); }
         this._enterPlaying();
     },
@@ -401,9 +404,10 @@ RR.Touch = {
 
     _enterPlaying: function () {
         var root = document.documentElement;
-        if (root.classList.contains('rr-playing')) return;
-        root.classList.add('rr-playing');
-        window.scrollTo(0, 0);
+        if (!root.classList.contains('rr-playing')) {
+            root.classList.add('rr-playing');
+            window.scrollTo(0, 0);
+        }
         if (RR.Audio && RR.Audio.setAway) RR.Audio.setAway(false);
         // Real full screen where the browser allows it (Android); the CSS above
         // already fills the screen everywhere else (iPhone Safari has no
@@ -411,7 +415,8 @@ RR.Touch = {
         var box = this._container();
         try {
             var req = box && (box.requestFullscreen || box.webkitRequestFullscreen);
-            if (req) {
+            if (req && !document.fullscreenElement && !document.webkitFullscreenElement &&
+                    (!navigator.userActivation || navigator.userActivation.isActive)) {
                 var pr = req.call(box);
                 if (pr && pr.then) pr.then(function () {
                     try { screen.orientation.lock('landscape').catch(function () {}); } catch (e) {}
