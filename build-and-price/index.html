@@ -754,6 +754,25 @@
   .sheet .acts button.primary:hover:not(:disabled){ background:var(--buoy); color:#fff; }
   .sheet .acts button.reserve{ background:var(--card); border-color:var(--kelp); color:var(--kelp); }
   .sheet .acts button.reserve:hover:not(:disabled){ background:var(--kelp); color:#fff; }
+  /* four full-width bands, top to bottom (2026-10-29): PDF + email, reserve,
+     quote, start over. The PDF/email band is the filled one so it reads as
+     the main next step; the other three stay outlined. */
+  .sheet .acts{ flex-direction:column; gap:10px; }
+  .sheet .acts button.band{ flex:none; width:100%; padding:12px 14px; line-height:1.3; text-align:center; }
+  .sheet .acts button.pdfmail{
+    background:var(--buoy); color:#fff; border-color:var(--buoy);
+    padding:14px 16px; box-shadow:0 2px 0 var(--buoy-deep);
+  }
+  .sheet .acts button.pdfmail:hover:not(:disabled){ background:var(--buoy-deep); border-color:var(--buoy-deep); color:#fff; }
+  .sheet .acts button.pdfmail .bt{ display:block; font-size:13px; letter-spacing:.02em; }
+  .sheet .acts button.pdfmail .bs{
+    display:block; margin-top:5px; font-size:11px; font-weight:400; letter-spacing:0;
+    opacity:.9; font-family:var(--sans);
+  }
+  .sheet .acts button.quote{ border-color:var(--buoy); color:var(--buoy); }
+  .sheet .acts button.quote:hover:not(:disabled){ background:var(--buoy); color:#fff; }
+  .sheet .acts button.reset{ color:var(--slate); }
+  .sheet .acts button.reset:hover:not(:disabled){ background:var(--ink); color:#fff; }
   .rbtn{ background:var(--card); color:var(--ink); border:2px solid #000; }
   .rbtn:hover{ background:var(--ink); color:#fff; opacity:1; }
   .rbtn.ghost{ background:none; }
@@ -1218,12 +1237,13 @@
         <div class="tsub" id="totalSub">Select a boat to begin.</div>
       </div>
       <div class="acts">
-        <button type="button" id="btnPrint" class="primary">Print build sheet</button>
-        <button type="button" id="btnEmail" class="primary">Email + PDF</button>
-        <button type="button" id="btnQuote" class="primary">Request a quote</button>
-        <button type="button" id="btnReserve" class="reserve">Reserve build slot</button>
-        <button type="button" id="btnShareLink">Copy build link</button>
-        <button type="button" id="btnReset" style="flex-basis:100%">Start over</button>
+        <button type="button" id="btnEmail" class="band pdfmail">
+          <span class="bt">Download a PDF copy of this build sheet &amp; email copies to yourself &amp; the Wooldridge team</span>
+          <span class="bs">Saves the PDF to your computer, then opens your email app with the message ready to go &mdash; attach the PDF and press Send.</span>
+        </button>
+        <button type="button" id="btnReserve" class="band reserve">Reserve a build slot with a down payment</button>
+        <button type="button" id="btnQuote" class="band quote">Request a quote from our sales team</button>
+        <button type="button" id="btnReset" class="band reset">Clear build sheet and start over</button>
       </div>
     </div>
     <div class="finefoot">
@@ -2218,21 +2238,20 @@ function renderCustomer(){
   } else prep.style.display = 'none';
 
   const ready = customerReady();
-  for (const b of [$('#btnPrint'), $('#btnEmail')]){
-    b.disabled = !ready;
-    b.style.opacity = ready ? '' : '.5';
-    b.style.cursor = ready ? '' : 'not-allowed';
-  }
+  const eb = $('#btnEmail');
+  eb.disabled = !ready;
+  eb.style.opacity = ready ? '' : '.5';
+  eb.style.cursor = ready ? '' : 'not-allowed';
 
   const note = $('#custNote');
-  if (ready){ note.classList.remove('warn'); note.textContent = 'Ready to print or email. Phone is optional.'; }
+  if (ready){ note.classList.remove('warn'); note.textContent = 'Ready to download and email your build sheet. Phone is optional.'; }
   else {
     note.classList.add('warn');
     const missing = [];
     if (c.first.trim() === '' || c.last.trim() === '') missing.push('customer name');
     if (!emailOK(c.email)) missing.push('a valid email');
     if (!zipOK(c.zip)) missing.push(c.country === 'USA' ? 'a 5-digit zip code' : 'a postal code');
-    note.textContent = 'Still needed to print or email: ' + missing.join(', ').replace(/, ([^,]*)$/, ' and $1') + '.';
+    note.textContent = 'Still needed to download and email your build sheet: ' + missing.join(', ').replace(/, ([^,]*)$/, ' and $1') + '.';
   }
 
   $('#cFirst').classList.toggle('missing', custTouched && c.first.trim() === '');
@@ -2391,13 +2410,6 @@ function copyText(txt, okMsg){
 }
 window.WB.packState = packState;
 window.WB.applyPacked = applyPacked;
-$('#btnShareLink').addEventListener('click', () => {
-  const enc = b64enc(JSON.stringify(packState()));
-  try { history.replaceState(null, '', '#b=' + enc); } catch(e){}
-  copyText(location.href.split('#')[0] + '#b=' + enc,
-    'Build link copied — opening it restores this exact build. Customer contact info is never included in the link.');
-});
-
 /* Request a quote - hands the packed build to /request-a-quote/ using the
    same #b= encoding the share link uses; the quote page decodes it, selects
    the model, and drops a build summary + link into the notes. */
@@ -2482,10 +2494,6 @@ function sync(){
 }
 
 $('#adderChk').addEventListener('change', e => { state.adder = e.target.checked; sync(); });
-$('#btnPrint').addEventListener('click', () => {
-  if (!customerReady()){ toast('Complete your name, email, and zip code before printing.'); $('#cFirst').focus(); return; }
-  window.print();
-});
 
 /* ════════ EMAIL + PDF BUILD SHEET ════════ */
 const CC_EMAIL = 'data@wooldridgeboats.com';   /* ONE address, deliberately: no mailto cc separator works everywhere. Commas are RFC 6068 but classic Outlook treats the pair as one bad address and drops the cc outright (proved 2026-08-25 - a real build sheet reached stephen@ with no data@ recipient at all, so the inquiry never reached the Hub); semicolons invert the same breakage onto Gmail and Apple Mail. A single address cannot be mis-split. Adopted site-wide as policy by Stephen on 26 Aug 2026: ONE cc per mailto anywhere on the site, and where several people need a copy the fan-out happens behind a single Exchange distribution list, never as extra mailto cc addresses. Nothing is lost: data@ is an alias on stephen@, so this still lands in the same inbox, and it is what the inquiries flow's addressed-to-data@ trigger condition requires. */
