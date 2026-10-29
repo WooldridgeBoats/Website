@@ -2324,18 +2324,23 @@ function dealerZips(d){
   return [d.zip].concat(key ? DEALER_EXTRA_ZIPS[key] : []).map(normZip);
 }
 let dealerSeq = 0;
+let dealerHits = [];   /* the current matches - also printed into the PDF and email (Stephen, 2026-10-29) */
+const DEALER_HEAD = n => n > 1 ? 'There are Wooldridge dealers in your area' : 'There’s a Wooldridge dealer in your area';
+const DEALER_BODY = n => 'We encourage you to work with ' + (n > 1 ? 'one of them' : 'them') + ' on your build.';
+const dealerLine = d => [d.nm, d.place, d.tel, d.web.replace(/^https?:\/\/(www\.)?/, '')].filter(Boolean).join(' · ');
 function updateDealerNote(){
   const box = $('#dealerNote');
   const zip = state.customer.zip;
   const seq = ++dealerSeq;
-  if (!zipOK(zip)){ box.hidden = true; return; }
+  if (!zipOK(zip)){ dealerHits = []; box.hidden = true; return; }
   const nz = normZip(zip);
   loadDealers().then(list => {
     if (seq !== dealerSeq) return;   /* the customer kept typing */
     const hits = list.filter(d => dealerZips(d).includes(nz));
+    dealerHits = hits;
     if (!hits.length){ box.hidden = true; return; }
-    box.innerHTML = '<span class="dh">' + (hits.length > 1 ? 'There are Wooldridge dealers in your area' : 'There’s a Wooldridge dealer in your area') + '</span>'
-      + 'We encourage you to work with ' + (hits.length > 1 ? 'one of them' : 'them') + ' on your build.'
+    box.innerHTML = '<span class="dh">' + DEALER_HEAD(hits.length) + '</span>'
+      + DEALER_BODY(hits.length)
       + hits.map(d => '<span class="dd"><b>' + esc(d.nm) + '</b> · ' + esc(d.place)
           + (d.tel ? ' · <a href="' + esc(d.telHref) + '">' + esc(d.tel) + '</a>' : '')
           + (d.web ? ' · <a href="' + esc(d.web) + '" target="_blank" rel="noopener">Website</a>' : '')
@@ -2764,6 +2769,12 @@ function emailBodyText(){
     t += 'NOTES' + NL + RULE + NL;
     t += state.notesText.trim() + NL + NL;
   }
+  if (dealerHits.length){
+    t += DEALER_HEAD(dealerHits.length).toUpperCase() + NL + RULE + NL;
+    t += DEALER_BODY(dealerHits.length) + NL;
+    for (const d of dealerHits) t += '  · ' + dealerLine(d) + NL;
+    t += NL;
+  }
   t += 'RESERVE THIS BUILD' + NL + RULE + NL;
   t += 'A ' + depositInfo(s.total).pct + ' deposit (' + fmt(depositInfo(s.total).amt) + ') holds your build slot.' + NL;
   t += 'Contact Carrie@wooldridgeboats.com or (206) 722-8998.' + NL + NL;
@@ -2880,6 +2891,13 @@ function makeBuildPDF(){
     for (const para of state.notesText.trim().split(/\n+/)){
       for (const tl of wrap(para, 95)){ need(12); text(L, tl, 'F1', 9, {gray:0.15}); y -= 12; }
     }
+    y -= 6;
+  }
+  if (dealerHits.length){
+    need(30 + 13 * dealerHits.length);
+    text(L, DEALER_HEAD(dealerHits.length).toUpperCase(), 'F2', 11); y -= 13;
+    text(L, DEALER_BODY(dealerHits.length), 'F1', 10); y -= 13;
+    for (const d of dealerHits){ text(L + 10, dealerLine(d), 'F1', 10); y -= 13; }
     y -= 6;
   }
   if (s.total > 0){
