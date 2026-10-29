@@ -41,11 +41,20 @@ if [ -z "$DRY" ]; then
     # master so their ?v= keys stay in step. Header/footer are stamped in by
     # inject_partials.pl at the end.
     /usr/bin/python3 - "$SRC/index.html" "$DST/index.html" "$REPO/faq/index.html" <<'PY'
-import re, sys
+import re, sys, hashlib
+from pathlib import Path
 master, out, ref = sys.argv[1], sys.argv[2], sys.argv[3]
 m = open(master, encoding='utf-8').read()
 r = open(ref, encoding='utf-8').read()
 scripts = '\n'.join(re.findall(r'^\s*<script src="GAME/[^"]+"></script>', m, re.M))
+# Fingerprint every game script from its actual contents, so phone caches and
+# desktop caches always receive the same rebuilt release.
+def script_version(match):
+    rel = match.group(1)
+    digest = hashlib.md5((Path(master).parent / rel).read_bytes()).hexdigest()[:8]
+    return 'src="' + rel + '?v=' + digest + '"'
+scripts = re.sub(r'src="(GAME/[^?"\s]+)(?:\?[^"\s]*)?"', script_version, scripts)
+
 house = re.search(r'house\.css\?v=([0-9a-z]+)', r).group(1)
 shop = re.search(r'shop\.js\?v=([0-9a-z]+)', r).group(1)
 page = """<!DOCTYPE html>
@@ -53,8 +62,9 @@ page = """<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="robots" content="noindex, nofollow">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>River Ripper Game — Wooldridge Boats</title>
+<link rel="canonical" href="https://www.wooldridgeboats.com/river-ripper/">
 <meta name="description" content="River Ripper: run real Wooldridge jet boats up eight of the world's rivers.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

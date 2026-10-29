@@ -8,7 +8,7 @@
     R._prepareReflections = function () {
         var enabled = !RR.Config.LITE && !/[?&]reflections=0\b/.test(location.search);
         if (enabled && !this._reflectionTarget) {
-            this._reflectionTarget = new THREE.WebGLRenderTarget(640, 360, {
+            this._reflectionTarget = new THREE.WebGLRenderTarget(RR.Config.MOBILE ? 320 : 640, RR.Config.MOBILE ? 180 : 360, {
                 minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter,
                 type: THREE.HalfFloatType, depthBuffer: true
             });

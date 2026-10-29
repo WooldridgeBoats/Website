@@ -106,7 +106,7 @@ RR.Renderer3D = {
         // below every menu and overlay.
         this.renderer.setSize(RR.Config.CANVAS_WIDTH, RR.Config.CANVAS_HEIGHT, false);
         // Sharper 3D on modern displays without doubling the GPU cost.
-        this.renderer.setPixelRatio(LITE ? 1 : Math.min(window.devicePixelRatio || 1, 1.5));
+        this.renderer.setPixelRatio((LITE || RR.Config.MOBILE) ? 1 : Math.min(window.devicePixelRatio || 1, 1.5));
         // ---- SHADOWS ------------------------------------------------------
         // There were NONE in this renderer -- castShadow, receiveShadow and
         // shadowMap did not appear once in 3,954 lines. A Godot spike on
@@ -1570,7 +1570,7 @@ RR.Renderer3D = {
         if (RR.Config.SHADOWS) {
             this.sunLight.castShadow = true;
             var sh = this.sunLight.shadow;
-            sh.mapSize.set(2048, 2048);
+            sh.mapSize.set(RR.Config.MOBILE ? 1024 : 2048, RR.Config.MOBILE ? 1024 : 2048);
             var E = this.SHADOW_EXTENT;
             sh.camera.left = -E;
             sh.camera.right = E;

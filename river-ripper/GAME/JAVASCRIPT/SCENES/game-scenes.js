@@ -6,6 +6,9 @@ window.RR = window.RR || {};
 RR.Progress = {
     level: 1,
     carriedScore: 0,
+    // Distance from the rivers already cleared this tour, so the board's
+    // distance matches its score (both run the whole tour). 2026-10-28.
+    carriedDistance: 0,
     // Who is driving this run, once they have signed the board. Set by
     // NameEntryScene, so a run that clears a river and keeps going is not
     // asked for its name twice.
@@ -13,6 +16,7 @@ RR.Progress = {
     reset: function () {
         this.level = RR.RiverLevels ? RR.RiverLevels.selectedIndex + 1 : 1;
         this.carriedScore = 0;
+        this.carriedDistance = 0;
         this.runName = null;
     },
     // Record this run's score on the board. Returns the scene to show next:
@@ -609,7 +613,7 @@ RR.RiverScene = {
                 // name entry only if the score actually makes the top ten;
                 // prompting after every crash would just be nagging.
                 var finalScore = RR.Scoring.getScore();
-                var finalDist = boat.distanceTraveled;
+                var finalDist = RR.Progress.carriedDistance + boat.distanceTraveled;
                 this._crashTimer = setTimeout(function () {
                     // The player can leave RiverScene inside this 1.2 s -- ESC
                     // is checked before the crash branch, so you can pause a
@@ -618,8 +622,11 @@ RR.RiverScene = {
                     // crash screen a second later.
                     if (RR.Engine.scene !== RR.RiverScene) return;
                     var nextScene = RR.Progress.boardThen(finalScore, finalDist, RR.CrashScene);
-                    // A crash ends the run; the next one signs in fresh.
-                    RR.Progress.runName = null;
+                    // RETRY carries the tour score on, so it is the SAME run:
+                    // keep its name and board row (2026-10-28). Clearing it
+                    // here made every retry sign a new row -- one player's
+                    // tour filled the whole top ten. Progress.reset() (menu,
+                    // new river, new boat) is what starts a fresh run.
                     RR.Engine.changeScene(nextScene);
                 }, 1200);
             }
@@ -632,11 +639,12 @@ RR.RiverScene = {
             RR.Scoring.addRouteBonus();   // ROUTE_BONUS, for running the gate
             RR.Scoring.saveHighScore();
             RR.Progress.carriedScore = RR.Scoring.score;
+            RR.Progress.carriedDistance += boat.distanceTraveled;
             // Making the finish line is the best run there is -- it gets the
             // top-ten board too (Tyler, 2026-10-26: "if you make it to the
             // finish line you don't get to type in top score").
             RR.Engine.changeScene(RR.Progress.boardThen(
-                RR.Scoring.getScore(), boat.distanceTraveled, RR.LevelCompleteScene, true));
+                RR.Scoring.getScore(), RR.Progress.carriedDistance, RR.LevelCompleteScene, true));
             return;
         }
     },
