@@ -264,7 +264,7 @@
     var bits = [nm];
     if (m.cfg) bits.push(m.cfg);
     if (m.hull) bits.push('Hull #' + m.hull);
-    if (isLegacyLen(m.slug, m.len) || m.legacy) bits.push('<span class="lgcy">Legacy Model</span>');  /* per-length legacy OR per-photo LM tag; after the hull */
+    if (window.WB_LEGACY || isLegacyLen(m.slug, m.len) || m.legacy) bits.push('<span class="lgcy">Legacy Model</span>');  /* whole-page legacy OR per-length legacy OR per-photo LM tag; after the hull */
     lbCap.innerHTML = lenBadge + '<span class="wblbcaptext">' + bits.join(' &#183; ') + '</span>';
     fitLb();
 
@@ -886,9 +886,11 @@
             : '<span class="mcbadge">' + list.length + ' photo' + (list.length === 1 ? '' : 's') + '</span>';
           /* legacy tag: a length we still show but no longer build (not in MODEL.lens),
              or a gallery whose EVERY photo is an "LM" shot, i.e. a whole Legacy Model
-             like the Canyon (Tyler, 2026-10-06). A mixed gallery (some LM) stays untagged. */
+             like the Canyon (Tyler, 2026-10-06). A mixed gallery (some LM) stays untagged.
+             A whole custom Legacy page can also opt in with window.WB_LEGACY=true, which
+             tags every card (any WB_CARDS_BY) and every caption (Tyler, 2026-10-29). */
           var allLM = list.every(function (a) { return metaFor(a).legacy; });
-          var legacyTag = (by === 'length' && k !== 'x' && (isLegacyLen(slug, k) || allLM))
+          var legacyTag = window.WB_LEGACY || (by === 'length' && k !== 'x' && (isLegacyLen(slug, k) || allLM))
             ? '<span class="mclegacy">Legacy Model</span>' : '';
           card.innerHTML =
             '<img src="' + coverSrc + '" alt="" loading="lazy">' + badge + legacyTag +
