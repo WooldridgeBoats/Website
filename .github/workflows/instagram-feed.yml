@@ -8,12 +8,13 @@ name: Instagram feed
 
 on:
   schedule:
-    # Once a day (Tyler, 2026-10-08: "We don't update our instagram that much"). 10:23 UTC =
-    # 3:23 AM PDT, but GitHub often starts it hours late; since the feed moved to its own repo
-    # (2026-10-20) the timing no longer matters: nothing here triggers a site deploy. Daily is plenty
-    # for the token renewal below (the token lasts ~60 days). After posting, use the Actions tab's
-    # "Run workflow" button to update the homepage right away.
-    - cron: '23 10 * * *'
+    # Every 2 hours (Tyler, 2026-10-29: wants a new post to appear on its own within a couple hours,
+    # not the next day). GitHub often starts scheduled jobs late and can skip some, so a frequent
+    # cron is also more reliable than a single daily one. Since the feed moved to its own repo
+    # (2026-10-20) frequency is free: nothing here triggers a site deploy, and the token still
+    # renews on every run. For an instant update right after posting, use the Actions tab's
+    # "Run workflow" button.
+    - cron: '23 */2 * * *'
   workflow_dispatch:            # a "Run workflow" button in the Actions tab
 
 # READ-ONLY on the website repo, on purpose (Tyler 2026-10-20, option A): the robot

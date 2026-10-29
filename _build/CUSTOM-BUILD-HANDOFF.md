@@ -49,10 +49,10 @@ to come: when Tyler fills `PYBUS-WEB/33-DEEPWATER-CHARTER-MOBILE`, re-run Model 
 | Page | Status | Notes |
 |---|---|---|
 | Canyon `models/canyon/` | DONE, live | Specs fold + standard features, Legacy label, 3 galleries (23/24/26, all LM), hull # on cards |
-| Deepwater `models/deepwater/` | DONE, live | Hero slider, one card per boat (33′ Angler + 33′ Explorer), mixed bottom grid, 2 videos. **No spec table and no standard features (Tyler, 2026-10-08)** |
+| Deepwater `models/deepwater/` | DONE, live | Hero slider, one card per boat (33′ Angler + 33′ Explorer), mixed bottom grid, 2 videos. **No spec table and no standard features (Tyler, 2026-10-08)**. Gold Legacy pills on both cards + "Legacy Model" in every caption via `WB_LEGACY` (2026-10-29) |
 | River Rat DIY Kit `models/river-rat-diy-kit/` | DONE, live | Minimal: one gallery, no length / hull / config, no video |
 | SSO Angler `models/super-sport-offshore-angler/` | DONE 2026-10-15 | One 24′ gallery (hull 4660, 21 desktop / 22 phone; was built as a 20′ 10-15, Tyler corrected it to 24′ on 10-19), single hero, Start a Quote only (Build & Price removed), video section removed, no Legacy tag, no specs. Captions "20′ Super Sport Offshore · Angler · Hull #4660" |
-| SSO Pilothouse `models/super-sport-offshore-pilothouse/` | DONE 2026-10-20 (26′ / 29′ / 31′ desktop + phone, 3-slide hero) | See "NEXT UP" above. Three videos stacked (`.vid2.vidstack`), Start a Quote only, WB_CARDS_VIDEO cards |
+| SSO Pilothouse `models/super-sport-offshore-pilothouse/` | DONE 2026-10-20 (26′ / 29′ / 31′ desktop + phone, 3-slide hero) | See "NEXT UP" above. Three videos stacked (`.vid2.vidstack`), Start a Quote only, WB_CARDS_VIDEO cards. **Legacy Model (2026-10-29):** kick `OFFSHORE · SSO HULL · LEGACY MODEL` + `WB_LEGACY` (pills on all 3 cards, captions tagged) |
 | Pybus Point Lodge `models/pybus-lodge-fleet/` | DONE 2026-10-15 (33′ phone set to come) | Bare page, "video coming soon" block. Renamed from Pybus Offshore 2026-10-08: ONLY the h1, `<title>` and menu label changed; the URL and homepage card were left as-is on purpose. **It's a FLEET page** (Tyler): the boats Wooldridge built for Pybus Point Lodge (Admiralty Island, SE Alaska) = five 33′ Deepwaters, two 21′ Sport Offshores, three 20′ Sport center consoles. Intro rewritten to say so. Kick line "LODGE FLEET · ADMIRALTY ISLAND, ALASKA" (tag line under it not changed yet). Two videos side by side (`.vid2`, 2026-10-08), both on the LODGE's YouTube channel, so the caption ref says "PYBUS POINT LODGE ON YOUTUBE": `RvhoaaWAktg` "33′ Deepwater Charter Walkthrough" (11:19) + `Sx_vdR7VTmI` "Pybus Point Lodge Skiffs" (2:49) |
 | Landing Craft `models/landing-craft/` | DONE 2026-10-08 | Hero slider (24′ Cabin, 21′ CC), one card per length, per-length model names (LC-1292 / LC-1892) via `WB_LEN_NAME`. No video, no specs, no standard features |
 
@@ -121,6 +121,10 @@ length, per boat, or one gallery? Hero or hero slider?
 
 **gallery.js page switches** (inline `<script>` before the photo-data.js tag; pages without them are unchanged)
 - `window.WB_CARD_HULL=true`: a no-trim card says "Hull #NNNN" (Canyon).
+- `window.WB_LEGACY=true` (Tyler, 2026-10-29): the WHOLE page is a Legacy Model. Every gallery card gets the gold
+  "Legacy Model" pill (any WB_CARDS_BY) and every lightbox caption ends "· Legacy Model", desktop + phone,
+  with no `LM` in the file names. Part of a custom Model Ready run for any Legacy custom: add it with the gold
+  `klgcy` LEGACY MODEL on the kick line. On: Deepwater, SSO Pilothouse. (Canyon gets the same tags from `LM` files.)
 - `window.WB_CARDS_BY='cfg'`: one card per trim, Agency-style with a blue `.agtitle` above each
   (`.agcards` layout); chips + taps split by trim; bottom grid mixed by trim (Deepwater).
 - `window.WB_GRID_PREVIEW=16`: with WB_CARDS_BY, the desktop grid opens at 16 + "View all N photos".
