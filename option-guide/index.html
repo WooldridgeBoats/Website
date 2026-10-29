@@ -662,7 +662,10 @@ if (location.hash){
    WOOLDRIDGE INDUSTRIAL SKIN (added 2026-07)
    Shared design language with the WEBSITE: Rockwell display
    type, 4x4 graph-paper ground, drawing-sheet frame with zone
-   labels, and a gridded title block. ref: ANSI drafting sheets.
+   labels. ref: ANSI drafting sheets.
+   The gridded title block that used to render BELOW the site footer was removed
+   2026-10-29 (Stephen: "the website footer is the website footer, everywhere.
+   not the fake drafting thing"). Frame, zone labels and graph paper stay.
    ============================================================ */
 /* THE HEADER OWNS THE TOP OF THE VIEWPORT - 2026-08-31, Stephen's feedback:
    "see how the drafting paper is peeking through at the header? i dont want
@@ -682,7 +685,16 @@ if (location.hash){
    reserved band is correct at every scroll position, not just at the top, and
    no scroll listener is needed, so the sheet's top edge never animates under
    the reader. */
-html{ --wb-navtop:0px; }   /* fallback until the injector measures the real nav */
+html{ --wb-navtop:0px; --wb-footvis:0px; }   /* fallbacks until the injector measures the real nav and footer */
+/* AND THE FOOTER OWNS THE BOTTOM - 2026-10-29, Stephen: "the website footer is
+   the website footer, everywhere." --wb-footvis is how many pixels of the site
+   footer (#siteFooterWrap) are inside the viewport right now, published by the
+   injector below on scroll and resize. The frame's bottom edge, the bottom row
+   of zone numbers and the A/B side labels all sit above that band, so the
+   drawing sheet ends where the footer begins instead of drawing over it. Unlike
+   the header band this one HAS to follow scroll: the footer is not sticky, it
+   arrives from below. When the footer leaves less than 40px of sheet, the frame
+   and labels hide rather than collapse into a line (html.wb-sheet-off). */
 
 /* AND THE HEADER NOW STAYS THERE - 2026-08-31, Stephen: "yeah go ahead and fix
    the sticky header thing too."
@@ -728,7 +740,7 @@ body{
   background-size:108px 108px,108px 108px,27px 27px,27px 27px;
 }
 /* frame + top zone labels clear the header - see the note above (2026-08-31) */
-.wb-sheetframe{position:fixed; inset:calc(var(--wb-navtop) + 7px) 7px 7px; border:1.6px solid var(--ink); pointer-events:none; z-index:60;}
+.wb-sheetframe{position:fixed; inset:calc(var(--wb-navtop) + 7px) 7px calc(var(--wb-footvis) + 7px); border:1.6px solid var(--ink); pointer-events:none; z-index:60;}
 .wb-sheetframe::before{content:""; position:absolute; inset:4px; border:1px solid var(--ink); opacity:.45;}
 .wb-zonelab{
   position:fixed; z-index:61; pointer-events:none;
@@ -736,40 +748,16 @@ body{
   color:var(--ink); opacity:.75; background:var(--paper); padding:0 5px; line-height:1.4;
 }
 .wb-zl-top{position:absolute; top:calc(var(--wb-navtop) + 11px); transform:translateX(-50%);}
-.wb-zl-bottom{bottom:12px; transform:translateX(-50%);}
+.wb-zl-bottom{bottom:calc(var(--wb-footvis) + 12px); transform:translateX(-50%);}
 .wb-zl-left{left:13px; transform:translateY(-50%);}
 .wb-zl-right{right:13px; transform:translateY(-50%);}
-.wb-tbwrap{max-width:1180px; margin:34px auto 0; padding:0 26px 26px;}
-.wb-titleblock{
-  display:grid; grid-template-columns:1.5fr 1fr 1fr .55fr 1.25fr .6fr;
-  border:1.6px solid var(--ink); background:var(--card);
-  font-family:'Courier New',ui-monospace,monospace; box-shadow:3px 3px 0 rgba(27,117,187,.35);
-}
-.wb-tb-cell{border-left:1px solid var(--ink); padding:6px 10px 7px; min-width:0;}
-.wb-tb-row2{border-top:1px solid var(--ink);}
-.wb-tb-title{grid-column:span 2;}
-.wb-tb-notes{
-  grid-row:1/3; border-left:none; padding:8px 10px;
-  font-size:8.5px; line-height:1.7; letter-spacing:.1em; text-transform:uppercase; color:var(--steel);
-}
-.wb-tb-notes b{color:var(--ink);}
-.wb-tb-k{display:block; font-size:8.5px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:#3a6ea5;}
-.wb-tb-v{display:block; font-size:12px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--ink); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-.wb-tb-v.big{font-size:16px;}
-@media (max-width:860px){
-  .wb-titleblock{grid-template-columns:repeat(2,1fr);}
-  .wb-tb-notes{display:none;}
-  .wb-tb-cell{border-top:1px solid var(--ink); border-left:1px solid var(--ink);}
-  .wb-tb-cell:nth-child(even){border-left:none;}
-  .wb-tb-cell:nth-child(2), .wb-tb-cell:nth-child(3){border-top:none;}
-}
 @media (max-width:720px){ .wb-sheetframe, .wb-zonelab{display:none;} }
-@media print{ .wb-sheetframe, .wb-zonelab, .wb-tbwrap{display:none !important;} body{background-image:none !important; padding-top:0 !important;} }
+html.wb-sheet-off .wb-sheetframe, html.wb-sheet-off .wb-zonelab{display:none;}
+@media print{ .wb-sheetframe, .wb-zonelab{display:none !important;} body{background-image:none !important; padding-top:0 !important;} }
 .ox-mast h1, .oxname{font-family:'Rockwell',Georgia,Palatino,'Palatino Linotype','Times New Roman',Times,serif;}</style>
 <script id="wb-industrial-skin-js">
 (function () {
   "use strict";
-  var CFG = { dwg: "WB-2026-OPT-1", title: "OPTIONS EXPLAINED", notes: "ALL HULLS 5052 & 5086 MARINE-GRADE ALUMINUM, WELDED BY HAND IN SEATTLE, WA.<br>EVERY BOAT SEA-TRIALED BEFORE DELIVERY.<br>DO NOT SCALE DRAWING." };
   function init() {
     if (document.querySelector(".wb-sheetframe")) return;
     /* Publish the real header height as --wb-navtop so the sheet frame and the
@@ -794,6 +782,33 @@ body{
     wbSetNavTop();
     window.addEventListener("resize", wbSetNavTop);
     window.addEventListener("load", wbSetNavTop);
+    /* Footer band - see the CSS note above (2026-10-29). Measured on scroll
+       because the footer scrolls into view; rAF-throttled so it is one write
+       per frame. */
+    var wbFoot = document.getElementById("siteFooterWrap");
+    var wbFootTick = false;
+    var wbSetFootVis = function () {
+      wbFootTick = false;
+      var vis = 0;
+      /* a display:none footer (build-and-price hides it when iframed) measures 0x0 at
+         the origin, which would read as a full-height footer - so only a footer that
+         actually has height counts */
+      var wbFootBox = wbFoot ? wbFoot.getBoundingClientRect() : null;
+      if (wbFootBox && wbFootBox.height > 0) { vis = Math.max(0, Math.round(window.innerHeight - wbFootBox.top)); }
+      var navH = wbNav ? Math.round(wbNav.getBoundingClientRect().height) : 0;
+      var room = window.innerHeight - navH - 14 - vis;
+      document.documentElement.style.setProperty("--wb-footvis", vis + "px");
+      document.documentElement.classList.toggle("wb-sheet-off", room < 40);
+    };
+    var wbQueueFootVis = function () {
+      if (wbFootTick) return;
+      wbFootTick = true;
+      window.requestAnimationFrame(wbSetFootVis);
+    };
+    wbSetFootVis();
+    window.addEventListener("scroll", wbQueueFootVis, { passive: true });
+    window.addEventListener("resize", wbQueueFootVis);
+    window.addEventListener("load", wbQueueFootVis);
     var f = document.createElement("div");
     f.className = "wb-sheetframe"; f.setAttribute("aria-hidden", "true");
     document.body.appendChild(f);
@@ -813,23 +828,9 @@ body{
        edge moved down by the header height, so a flat 25%/75% of the viewport
        would ride high - and on a short window the "B" pair would land on the
        header we just cleared (2026-08-31). */
-    var wbSideY = function (p) { return "calc(var(--wb-navtop) + 7px + (100vh - var(--wb-navtop) - 14px) * " + p + ")"; };
+    var wbSideY = function (p) { return "calc(var(--wb-navtop) + 7px + (100vh - var(--wb-navtop) - var(--wb-footvis) - 14px) * " + p + ")"; };
     zone("wb-zl-left", "top", wbSideY(0.25), "B"); zone("wb-zl-right", "top", wbSideY(0.25), "B");
     zone("wb-zl-left", "top", wbSideY(0.75), "A"); zone("wb-zl-right", "top", wbSideY(0.75), "A");
-    function cell(k, v, cls) {
-      return '<div class="wb-tb-cell ' + (cls || "") + '"><span class="wb-tb-k">' + k +
-             '</span><span class="wb-tb-v' + (k === "SIZE" ? " big" : "") + '">' + v + "</span></div>";
-    }
-    var w = document.createElement("div");
-    w.className = "wb-tbwrap"; w.setAttribute("aria-hidden", "true");
-    w.innerHTML = '<div class="wb-titleblock">' +
-      '<div class="wb-tb-cell wb-tb-notes"><b>UNLESS OTHERWISE SPECIFIED:</b><br>' + CFG.notes + "</div>" +
-      cell("DRAWN", "WOOLDRIDGE FAMILY") + cell("CHECKED", "SEA-TRIALED") + cell("SIZE", "B") +
-      cell("DWG. NO.", CFG.dwg) + cell("REV", "2026") +
-      cell("TITLE", CFG.title, "wb-tb-row2 wb-tb-title") + cell("SCALE", "1:1", "wb-tb-row2") +
-      cell("WEIGHT", "SEE SPECS", "wb-tb-row2") + cell("SHEET", "1 OF 1", "wb-tb-row2") +
-      "</div>";
-    document.body.appendChild(w);
   }
   if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", init); }
   else { init(); }
