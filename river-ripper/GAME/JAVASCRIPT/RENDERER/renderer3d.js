@@ -46,6 +46,9 @@ RR.Renderer3D = {
     CAM_DIST: 64,
     CAM_SHOULDER: 0,
     CAM_LOOK_AHEAD: 15,
+    // Picture slid up this many px (of 720) so the hull sits clear of the
+    // JUMP pill. A lens shift: framing angle unchanged. See setViewOffset.
+    CAM_SHIFT_UP: 40,
     // How much the aim point leads into a bend. 0 = dead along the chase axis
     // (hull perfectly upright on screen), 0.3 = the old behaviour that made it
     // look permanently crabbed. See the note at the lookAt call.
@@ -201,6 +204,12 @@ RR.Renderer3D = {
         this.scene.fog = new THREE.FogExp2(0x9ABBA8, 0.0015);
 
         this.camera = new THREE.PerspectiveCamera(58, 1280 / 720, 1, 4000);
+        // LENS SHIFT, not a re-aim (Tyler, 2026-10-28: "move the boat a touch
+        // higher" so the JUMP pill clears the stern). Slides the picture up
+        // CAM_SHIFT_UP px of the 720 frame; the chase angle, the 2:1 framing
+        // and the upright-hull aim below are all untouched. The water
+        // reflections copy this projection, so they shift with it.
+        this.camera.setViewOffset(1280, 720, 0, this.CAM_SHIFT_UP, 1280, 720);
         this.camera.position.set(0, this.CAM_HEIGHT, -this.CAM_DIST);
         this.camera.lookAt(0, 5, this.CAM_LOOK_AHEAD);
 
@@ -4279,7 +4288,9 @@ RR.Renderer3D = {
         band(tillerRig,paint(0x16191d,0.30,0.35),0.08,0.88);
         addTo=tillerRig;
         [1.6,0.1].forEach(function(z){seat(-0.85,z);seat(0.85,z);});
-        var driver=new THREE.Group();driver.name='GrantDriver';driver.position.set(0.65,soleY,-3.65);tillerRig.add(driver);
+        // Grant stands on the STARBOARD side and steers with his LEFT hand --
+        // how he really runs a tiller (Tyler, 2026-10-28). Boat's right is -x.
+        var driver=new THREE.Group();driver.name='GrantDriver';driver.position.set(-0.65,soleY,-3.65);tillerRig.add(driver);
         var hoodie=paint(0xffffff,0.92,0),pants=paint(0x594b42,0.95,0),skin=paint(0xc89476,0.78,0),hair=paint(0x30271f,0.95,0);
         // Red plaid flannel from Grant's river references; no sports jersey.
         var plaid=document.createElement('canvas');plaid.width=256;plaid.height=256;
@@ -4298,8 +4309,9 @@ RR.Renderer3D = {
         var head=new THREE.Mesh(new THREE.SphereGeometry(0.23,16,12),skin);head.position.set(0,1.99,0);head.scale.set(0.82,1.12,0.9);driver.add(head);
         var beard=new THREE.Mesh(new THREE.SphereGeometry(0.21,12,8),hair);beard.position.set(0,1.85,0.07);beard.scale.set(0.82,0.7,0.82);driver.add(beard);
         var hairTop=new THREE.Mesh(new THREE.SphereGeometry(0.235,16,8,0,Math.PI*2,0,Math.PI/2),hair);hairTop.position.set(0,2.08,-0.02);hairTop.scale.y=0.65;driver.add(hairTop);
-        tube(-0.30,1.65,0,-0.45,1.26,-0.16,0.085,hoodie);tube(-0.45,1.26,-0.16,-0.58,1.08,-0.58,0.065,hoodie);
-        tube(0.30,1.65,0,0.36,1.26,0.08,0.085,hoodie);tube(0.36,1.26,0.08,0.35,1.04,0.15,0.065,skin);
+        // Left arm (+x) reaches back to the tiller; right arm hangs relaxed.
+        tube(0.30,1.65,0,0.45,1.26,-0.16,0.085,hoodie);tube(0.45,1.26,-0.16,0.58,1.08,-0.58,0.065,hoodie);
+        tube(-0.30,1.65,0,-0.36,1.26,0.08,0.085,hoodie);tube(-0.36,1.26,0.08,-0.35,1.04,0.15,0.065,skin);
         var grantCapMat=paint(0x101114,0.94,0);
         var cap=new THREE.Mesh(new THREE.SphereGeometry(0.25,20,12,0,Math.PI*2,0,Math.PI/2),grantCapMat);
         cap.position.set(0,2.08,-0.015);cap.scale.set(1,0.78,1);driver.add(cap);
@@ -4314,7 +4326,7 @@ RR.Renderer3D = {
         var capPatch=new THREE.Mesh(new THREE.PlaneGeometry(0.30,0.115),new THREE.MeshStandardMaterial({map:patchTex,roughness:0.9}));
         capPatch.position.set(0,2.17,0.218);driver.add(capPatch);
         addTo=tillerRig;
-        tube(0,0.95,-5.2,0.08,1.38,-4.20,0.055,frameMat);tube(0.08,1.38,-4.20,0.08,1.38,-4.0,0.065,vinylMat);
+        tube(0,0.95,-5.2,-0.08,1.38,-4.20,0.055,frameMat);tube(-0.08,1.38,-4.20,-0.08,1.38,-4.0,0.065,vinylMat);
         this._tillerDriver=driver;
 
         // Everything built straight onto boatGroup so far is the hand-built

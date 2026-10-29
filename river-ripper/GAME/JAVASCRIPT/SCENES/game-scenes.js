@@ -896,11 +896,13 @@ RR.RiverScene = {
         var airborne=boat.jumpHeight>0 || !!boat._ridingRamp;
         var jumpReady=!airborne && boat.jumpCooldown<=0;
         var recharge=airborne ? 0 : Math.max(0,1-boat.jumpCooldown/C.JUMP_COOLDOWN);
-        ctx.fillStyle='rgba(5,15,22,0.85)';ctx.fillRect(W/2-140,H-52,280,36);
-        ctx.strokeStyle=jumpReady?C.UI_GREEN:'rgba(255,255,255,0.5)';ctx.lineWidth=2;ctx.strokeRect(W/2-140,H-52,280,36);
-        ctx.fillStyle=jumpReady?'rgba(40,190,90,0.45)':C.WB_BLUE;ctx.fillRect(W/2-137,H-49,274*recharge,30);
-        ctx.fillStyle='#fff';ctx.font='700 17px '+C.FONT_UI;
-        ctx.fillText(jumpReady?'JUMP READY':(boat.jumpBuffered>0?'JUMP QUEUED':airborne?'AIRBORNE · LAND TO JUMP':'JUMP RECHARGING'),W/2,H-33);
+        // Slim pill tucked against the bottom edge so it clears the stern and
+        // wake (Tyler, 2026-10-28: the old 36px pill sat on the motor).
+        ctx.fillStyle='rgba(5,15,22,0.85)';ctx.fillRect(W/2-120,H-34,240,22);
+        ctx.strokeStyle=jumpReady?C.UI_GREEN:'rgba(255,255,255,0.5)';ctx.lineWidth=2;ctx.strokeRect(W/2-120,H-34,240,22);
+        ctx.fillStyle=jumpReady?'rgba(40,190,90,0.45)':C.WB_BLUE;ctx.fillRect(W/2-118,H-32,236*recharge,18);
+        ctx.fillStyle='#fff';ctx.font='700 13px '+C.FONT_UI;
+        ctx.fillText(jumpReady?'JUMP READY':(boat.jumpBuffered>0?'JUMP QUEUED':airborne?'AIRBORNE · LAND TO JUMP':'JUMP RECHARGING'),W/2,H-23);
 
         if (boat.inShallow > 0) {
             var groundLimit = C.SHALLOW_GROUND_TIME * model.groundTimeMult;
