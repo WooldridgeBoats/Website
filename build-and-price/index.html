@@ -996,7 +996,7 @@
       <div class="cph">
         <span class="lbl">Prepared for</span>
         <h2>Your information</h2>
-        <span class="req">name, email &amp; zip required</span>
+        <span class="req">name, email, phone &amp; zip required</span>
       </div>
       <div class="custgrid">
         <div class="custfield">
@@ -1016,7 +1016,7 @@
           <input type="text" id="cZip" autocomplete="postal-code" inputmode="numeric" maxlength="10" placeholder="98101">
         </div>
         <div class="custfield">
-          <label for="cPhone">Phone</label>
+          <label for="cPhone">Phone<span class="star">*</span></label>
           <input type="tel" id="cPhone" autocomplete="tel" placeholder="(000) 000-0000">
         </div>
         <!-- Canada location capture (Stephen, go-live week 2026-08): country + state/province,
@@ -1036,7 +1036,7 @@
           <input type="text" id="cRegionText" autocomplete="address-level1" placeholder="Your region or country" style="display:none">
         </div>
       </div>
-      <div class="custnote" id="custNote">Enter your name, email, and zip code to enable printing and emailing your build sheet. Phone is requested but optional.</div>
+      <div class="custnote" id="custNote">Enter your name, email, phone, and zip code to download and email your build sheet.</div>
     </section>
 
     <!-- STEP 1: category -->
@@ -2228,9 +2228,17 @@ const zipOK = z => {
   if (ctry === 'Other') return z.trim().length >= 2;
   return /^\d{5}(-\d{4})?$/.test(z.trim());
 };
+/* phone required since 2026-10-29 (Stephen). Digits only are counted, so any
+   punctuation passes: USA/Canada need a full 10-digit number (a leading 1 is
+   allowed), Other accepts 7+ digits since international formats vary. */
+const phoneOK = p => {
+  const d = p.replace(/\D/g, '');
+  if (state.customer.country === 'Other') return d.length >= 7;
+  return d.length === 10 || (d.length === 11 && d[0] === '1');
+};
 function customerReady(){
   const c = state.customer;
-  return c.first.trim() !== '' && c.last.trim() !== '' && emailOK(c.email) && zipOK(c.zip);
+  return c.first.trim() !== '' && c.last.trim() !== '' && emailOK(c.email) && phoneOK(c.phone) && zipOK(c.zip);
 }
 function renderCustomer(){
   const c = state.customer;
@@ -2249,12 +2257,13 @@ function renderCustomer(){
   eb.style.cursor = ready ? '' : 'not-allowed';
 
   const note = $('#custNote');
-  if (ready){ note.classList.remove('warn'); note.textContent = 'Ready to download and email your build sheet. Phone is optional.'; }
+  if (ready){ note.classList.remove('warn'); note.textContent = 'Ready to download and email your build sheet.'; }
   else {
     note.classList.add('warn');
     const missing = [];
     if (c.first.trim() === '' || c.last.trim() === '') missing.push('customer name');
     if (!emailOK(c.email)) missing.push('a valid email');
+    if (!phoneOK(c.phone)) missing.push(c.country === 'Other' ? 'a phone number' : 'a 10-digit phone number');
     if (!zipOK(c.zip)) missing.push(c.country === 'USA' ? 'a 5-digit zip code' : 'a postal code');
     note.textContent = 'Still needed to download and email your build sheet: ' + missing.join(', ').replace(/, ([^,]*)$/, ' and $1') + '.';
   }
@@ -2262,6 +2271,7 @@ function renderCustomer(){
   $('#cFirst').classList.toggle('missing', custTouched && c.first.trim() === '');
   $('#cLast').classList.toggle('missing', custTouched && c.last.trim() === '');
   $('#cEmail').classList.toggle('missing', custTouched && !emailOK(c.email));
+  $('#cPhone').classList.toggle('missing', custTouched && !phoneOK(c.phone));
   $('#cZip').classList.toggle('missing', custTouched && !zipOK(c.zip));
 }
 function renderCustomList(){
@@ -2791,7 +2801,7 @@ function makeBuildPDF(){
 }
 
 function emailBuildSheet(){
-  if (!customerReady()){ toast('Complete your name, email, and zip code before emailing.'); $('#cFirst').focus(); return; }
+  if (!customerReady()){ toast('Complete your name, email, phone, and zip code before emailing.'); $('#cFirst').focus(); return; }
   const c = state.customer;
   const name = [c.first.trim(), c.last.trim()].filter(Boolean).join(' ');
   /* 1. download the PDF for attaching */
