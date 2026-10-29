@@ -13,7 +13,16 @@
 <link rel="stylesheet" href="/house.css?v=ea4eaf23">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/assets/brand/favicon-180.png">
+<!-- HOME-SCREEN APP (Tyler, 2026-10-28): Safari keeps its address bar over any
+     web page, so the only true full screen on an iPhone is the game added to
+     the home screen. Opened from that icon it runs with no browser bars. -->
+<link rel="manifest" href="/river-ripper/GAME/ASSETS/UI/APP/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="River Ripper">
+<meta name="theme-color" content="#05080b">
+<link rel="apple-touch-icon" sizes="180x180" href="/river-ripper/GAME/ASSETS/UI/APP/app-icon-180.png">
 <style>
   /* The game draws at a fixed 1280x720 and scales to whatever box holds it,
      so the frame only has to be 16:9 and fit under the menu. --rr-top is the
@@ -34,6 +43,8 @@
   .rr-touch { display: none; color: #F2C14E; text-align: center; font: 600 14px Inter, -apple-system, Segoe UI, Arial, sans-serif;
               margin: 0 0 12px; }
   .rr-touchhelp { display: none; }
+  .rr-hometip { display: none; color: #F2C14E; opacity: 1; }
+  html.rr-ios-browser .rr-hometip { display: block; }
   @media (hover: none) and (pointer: coarse) {
     .rr-touch, .rr-touchhelp { display: block; }
     .rr-keyhelp { display: none; }
@@ -158,6 +169,7 @@
     <canvas id="gameCanvas" width="1280" height="720"></canvas>
   </div>
   <p class="rr-help rr-touchhelp"><b>TILT</b> the phone to steer (tap <b>TILT</b> for thumb steering) &nbsp;·&nbsp; <b>JUMP</b> &amp; <b>REVERSE</b> right thumb &nbsp;·&nbsp; the throttle runs itself</p>
+  <p class="rr-help rr-hometip"><b>FULL SCREEN ON iPHONE:</b> tap Share <b>&#x2191;</b>, then <b>Add to Home Screen</b>, and play from the River Ripper icon.</p>
   <p class="rr-help rr-keyhelp"><b>ENTER</b> start &nbsp;·&nbsp; <b>&uarr;</b> throttle &nbsp;·&nbsp; <b>&larr; &rarr;</b> steer &nbsp;·&nbsp; <b>&darr;</b> reverse &nbsp;·&nbsp; <b>SPACE</b> jump &nbsp;·&nbsp; <b>ESC</b> pause &nbsp;·&nbsp; <b>M</b> sound &nbsp;·&nbsp; <span style="opacity:.7">W A S D work too</span></p>
 </main>
 <script>
@@ -167,6 +179,10 @@
       if (nav) document.documentElement.style.setProperty('--rr-top', Math.ceil(nav.getBoundingClientRect().bottom + window.scrollY) + 'px');
     }
     fit(); window.addEventListener('resize', fit); window.addEventListener('load', fit);
+    // iPhone in Safari (not already opened from the home-screen icon):
+    // show the Add to Home Screen tip.
+    var app = window.navigator.standalone || (window.matchMedia && matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches);
+    if (/iPhone|iPod/.test(navigator.userAgent) && !app) document.documentElement.classList.add('rr-ios-browser');
   })();
 </script>
 <!-- PARTIAL:footer -->
