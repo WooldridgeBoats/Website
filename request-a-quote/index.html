@@ -842,23 +842,38 @@ $('#qiForm').addEventListener('submit', e => {
   const subject = 'Quote request — ' + name + ' — ' + FACTS[a.w.id].nm;
 
   if (FORM_ENDPOINT){
-    const fd = new FormData();
-    fd.append('form', 'quote');
-    fd.append('website', $('#fHoneypot').value);   /* honeypot - see the input's note above */
-    fd.append('subject', subject);
-    fd.append('summary', summary);
-    fd.append('name', name);
-    fd.append('email', $('#fEmail').value.trim());
-    fd.append('phone', $('#fPhone').value.trim());
-    files.forEach((f,i) => fd.append('photo' + (i+1), f, f.name));
-    /* FORM-01 (3 Aug 2026): trust the payload, not just the status code. The
-       handler sends by authenticated M365 SMTP now, so ok:true is a real
-       confirmation that the message was accepted for delivery — anything else
-       is a genuine failure and must show the 'post-failed' screen. */
-    fetch(FORM_ENDPOINT, {method:'POST', body:fd})
-      .then(r => r.json().then(d => r.ok && d && d.ok === true, () => false))
-      .then(sent => showSummary(a, summary, subject, sent ? 'posted' : 'post-failed'))
-      .catch(() => showSummary(a, summary, subject, 'post-failed'));
+    const btn = $('#qiForm button[type="submit"]');
+    const btnText = btn ? btn.textContent : '';
+    if (btn){ btn.disabled = true; btn.textContent = files.length ? 'Preparing your photos…' : 'Sending…'; }
+    const done = (mode, why) => {
+      if (btn){ btn.disabled = false; btn.textContent = btnText; }
+      showSummary(a, summary, subject, mode, why);
+    };
+    shrinkPhotos(files).then(photos => {
+      if (btn) btn.textContent = 'Sending…';
+      const fd = new FormData();
+      fd.append('form', 'quote');
+      fd.append('website', $('#fHoneypot').value);   /* honeypot - see the input's note above */
+      fd.append('subject', subject);
+      fd.append('summary', summary);
+      fd.append('name', name);
+      fd.append('email', $('#fEmail').value.trim());
+      fd.append('phone', $('#fPhone').value.trim());
+      photos.forEach((p,i) => fd.append('photo' + (i+1), p.blob, p.name));
+      /* FORM-01 (3 Aug 2026): trust the payload, not just the status code. The
+         handler sends by Microsoft Graph now, so ok:true is a real confirmation
+         that the message was accepted for delivery — anything else is a genuine
+         failure and must show the 'post-failed' screen.
+         2026-10-29: the handler's own 'message' (plain words for the visitor)
+         rides along to the post-failed screen, so it says WHY when it knows. A
+         413 with no JSON (the host refusing the body before PHP runs) gets the
+         same too-large wording. */
+      return fetch(FORM_ENDPOINT, {method:'POST', body:fd})
+        .then(r => r.json().then(
+          d => ({sent: r.ok && !!d && d.ok === true, why: (d && typeof d.message === 'string') ? d.message : ''}),
+          () => ({sent: false, why: r.status === 413 ? 'Those photos were too large for us to receive.' : ''})))
+        .then(res => done(res.sent ? 'posted' : 'post-failed', res.sent ? '' : res.why));
+    }).catch(() => done('post-failed', ''));
   } else {
     showSummary(a, summary, subject, 'mailto');
   }
@@ -882,11 +897,80 @@ function customerCopy(summary){
   return out.join('\n').replace(/\n{3,}/g, '\n\n');
 }
 
-function showSummary(a, summary, subject, mode){
+/* ─────────────────────────────────────────────
+   PHOTO DOWNSCALE (2026-10-29)
+   A phone photo goes up at full size otherwise, and one or two of them can
+   exceed what the handler (8 MB total) or the host accepts - the POST then
+   fails and the customer lands on the mailto fallback with no photos. Each
+   photo is redrawn to at most 2000 px on its long edge as a JPEG (q 0.82); a
+   second, tighter pass (1400 px, q 0.72) runs only if the set is still over
+   PHOTO_BUDGET. Anything the browser cannot decode (HEIC on most Android and
+   desktop browsers) or that would not get smaller is sent exactly as chosen.
+   Modern browsers apply the photo's EXIF rotation when drawing it.
+   ───────────────────────────────────────────── */
+const PHOTO_BUDGET = 6 * 1024 * 1024;   /* keep well under the handler's 8 MB */
+function loadImage(file){
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); res(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('decode')); };
+    img.src = url;
+  });
+}
+function shrinkOne(file, edge, q){
+  const asIs = {blob:file, name:file.name};
+  if (!/^image\/(jpeg|png|webp|heic|heif)$/i.test(file.type || '') && !/\.(jpe?g|png|webp|heic|heif)$/i.test(file.name)) return Promise.resolve(asIs);
+  return loadImage(file).then(img => {
+    const w = img.naturalWidth, h = img.naturalHeight;
+    if (!w || !h) return asIs;
+    const k = Math.min(1, edge / Math.max(w, h));
+    if (k === 1 && file.size <= 1.5 * 1024 * 1024 && /jpe?g$/i.test(file.type || file.name)) return asIs;
+    const c = document.createElement('canvas');
+    c.width = Math.round(w * k); c.height = Math.round(h * k);
+    const g = c.getContext('2d');
+    g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height);   /* PNG transparency -> white, not black */
+    g.drawImage(img, 0, 0, c.width, c.height);
+    return new Promise(res => c.toBlob(b => {
+      if (!b || b.size >= file.size) return res(asIs);
+      res({blob:b, name:file.name.replace(/\.[^.]*$/, '') + '.jpg'});
+    }, 'image/jpeg', q));
+  }).catch(() => asIs);
+}
+function shrinkPhotos(list){
+  const total = ps => ps.reduce((n, p) => n + p.blob.size, 0);
+  return Promise.all(list.map(f => shrinkOne(f, 2000, 0.82))).then(ps =>
+    total(ps) <= PHOTO_BUDGET ? ps : Promise.all(list.map(f => shrinkOne(f, 1400, 0.72))));
+}
+
+/* mailAscii (2026-10-29): a mailto link is only safe as plain ASCII. Yahoo Mail
+   for Android turned every em dash, bullet, middle dot and warning sign in a real
+   quote into '%2' junk. Used for the mailto subject and body ONLY; the on-screen
+   copy and the POSTed summary keep their typography. Characters are swapped one
+   for one, so every 'Key: value' line of the WB-INQUIRY footer keeps its key and
+   shape; a bullet that STARTS a line becomes '*' (the Build Hub's inquiry reader
+   treats '*' as a bullet), elsewhere '-'. Accents fold to the bare letter (é ->
+   e) and anything still outside ASCII is dropped. The same function lives in
+   build-and-price, which-wooldridge and compare - keep the four alike. */
+function mailAscii(s){
+  const MAP = {'\u2014':'-','\u2013':'-','\u2012':'-','\u2010':'-','\u2011':'-','\u2212':'-','\u2022':'-',
+    '\u00b7':'-','\u2219':'-','\u26a0':'!','\u2018':"'",'\u2019':"'",'\u201a':"'",'\u2032':"'",
+    '\u02b9':"'",'\u201c':'"','\u201d':'"','\u201e':'"','\u2033':'"','\u00ab':'"','\u00bb':'"',
+    '\u2192':'->','\u2190':'<-','\u2194':'<->','\u21d2':'=>','\u00d7':'x','\u2715':'x','\u2026':'...',
+    '\u2713':'v','\u2714':'v','\u00a0':' ','\u2002':' ','\u2003':' ','\u2009':' ','\u202f':' ',
+    '\u00b0':' deg','\u00bd':'1/2','\u00bc':'1/4','\u00be':'3/4','\u2044':'/','\u00ae':'(R)','\u2122':'(TM)',
+    '\u00a9':'(C)','\u20ac':'EUR','\u00a3':'GBP'};
+  let t = String(s).replace(/^([ \t]*)[\u2022\u00b7\u2219]/gm, '$1*');
+  t = t.replace(/[^\x00-\x7f]/g, ch => MAP[ch] !== undefined ? MAP[ch] : ch);
+  if (t.normalize) t = t.normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
+  return t.replace(/[^\x00-\x7f]/g, '');
+}
+
+function showSummary(a, summary, subject, mode, why){
   $('#qiForm').style.display = 'none';
   const box = $('#summary');
   const mailto = 'mailto:' + DEALER_EMAIL + '?cc=' + encodeURIComponent(CC_EMAIL) +
-    '&subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(summary);
+    '&subject=' + encodeURIComponent(mailAscii(subject)) + '&body=' + encodeURIComponent(mailAscii(summary));
   let h = '<div class="sumhead">' +
     '<div class="k">' + (mode === 'posted' ? 'Request sent — here’s your copy' : 'One more step — send it') + '</div>' +
     '<h2>' + (mode === 'posted' ? 'Got it. A real person calls you next.' : 'Your request is ready to send.') + '</h2>' +
@@ -902,7 +986,12 @@ function showSummary(a, summary, subject, mode){
     h += '<div class="attachwarn"><b>Your ' + files.length + ' photo' + (files.length>1?'s':'') + ':</b> email links can’t carry attachments — after your mail app opens, attach the photo' + (files.length>1?'s':'') + ' you selected (' + files.map(f=>f.name).join(', ') + ') before sending.</div>';
   }
   if (mode === 'post-failed'){
-    h += '<div class="attachwarn"><b>We couldn’t send that.</b> Nothing reached us yet — email it to <b>' + DEALER_EMAIL + '</b> using the button below, or call (206) 722-8998.</div>';
+    /* why = the handler's own plain-words reason, when it gave one (escaped: it is
+       server text going into innerHTML). The handler's generic catch-all names
+       info@, so it is left out in favour of the line below, which names sales@. */
+    const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const reason = (why && !/^We couldn.t send that/.test(why)) ? ' ' + esc(why) : '';
+    h += '<div class="attachwarn"><b>We couldn’t send that.</b>' + reason + ' Nothing reached us yet — email it to <b>' + DEALER_EMAIL + '</b> using the button below, or call (206) 722-8998.</div>';
   }
   h += '<div class="submitrow" style="margin-top:16px;">';
   if (mode !== 'posted') h += '<a class="plate" href="' + mailto + '">Open email &amp; send to the shop</a>';

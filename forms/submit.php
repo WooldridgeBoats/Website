@@ -222,6 +222,12 @@ function wb_find_config(){
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') fail(405, 'POST only', 'That page expects a form submission.');
 
+/* 2026-10-29: a body bigger than the host's post_max_size reaches this script with
+   $_POST and $_FILES both EMPTY, so it used to fail as 'name required' and tell a
+   visitor who had typed their name to check the form. Say what really happened. */
+if (empty($_POST) && empty($_FILES) && isset($_SERVER['CONTENT_LENGTH']) && (int)$_SERVER['CONTENT_LENGTH'] > 0)
+  fail(413, 'request body over post_max_size (' . (int)$_SERVER['CONTENT_LENGTH'] . ' bytes)', 'Those files were too large for us to receive - please try fewer or smaller ones.');
+
 /* honeypot: real users never fill this; bots do. Pretend success. */
 if (!empty($_POST['website'])) { echo json_encode(array('ok' => true)); exit; }
 
@@ -261,9 +267,16 @@ $meta = "\n---\nSent by the wooldridgeboats.com " . $form . " form\n"
 /* attachments (photos / resume) */
 $parts = array();
 $total = 0;
+$skipped = array();   /* files the host refused (e.g. over upload_max_filesize) - noted for the shop, 2026-10-29 */
 if (!empty($_FILES)){
   foreach ($_FILES as $f){
-    if (!is_array($f) || $f['error'] !== UPLOAD_ERR_OK) continue;
+    if (!is_array($f)) continue;
+    if ($f['error'] !== UPLOAD_ERR_OK){
+      /* this used to be a silent skip: the mail went out without the photo and nobody knew */
+      if ($f['error'] !== UPLOAD_ERR_NO_FILE)
+        $skipped[] = preg_replace('/[^A-Za-z0-9. _-]/', '_', isset($f['name']) ? (string)$f['name'] : '?') . ' (upload error ' . (int)$f['error'] . ')';
+      continue;
+    }
     $total += $f['size'];
     if ($total > $MAX_UPLOAD) fail(413, 'attachments too large (8 MB total)', 'Those files add up to more than 8 MB — please send fewer or smaller ones.');
     $ext = strtolower(pathinfo($f['name'], PATHINFO_EXTENSION));
@@ -273,6 +286,11 @@ if (!empty($_FILES)){
       'data' => file_get_contents($f['tmp_name']),
     );
   }
+}
+
+if (!empty($skipped)){
+  $meta .= "NOT ATTACHED - the host refused: " . implode(', ', $skipped) . "\n";
+  wb_log('SKIPPED ' . $form . ' attachments: ' . implode(', ', $skipped));
 }
 
 /* ─── credentials ─────────────────────────────────────────────────── */

@@ -577,6 +577,29 @@ function answerSummary(){
   }
   return lines;
 }
+/* mailAscii (2026-10-29): a mailto link is only safe as plain ASCII. Yahoo Mail
+   for Android turned every em dash, bullet, middle dot and warning sign in a real
+   quote into '%2' junk. Used for the mailto subject and body ONLY; the on-screen
+   copy and the POSTed summary keep their typography. Characters are swapped one
+   for one, so every 'Key: value' line of the WB-INQUIRY footer keeps its key and
+   shape; a bullet that STARTS a line becomes '*' (the Build Hub's inquiry reader
+   treats '*' as a bullet), elsewhere '-'. Accents fold to the bare letter (é ->
+   e) and anything still outside ASCII is dropped. The same function lives in
+   request-a-quote, build-and-price, which-wooldridge and compare - keep the four alike. */
+function mailAscii(s){
+  const MAP = {'\u2014':'-','\u2013':'-','\u2012':'-','\u2010':'-','\u2011':'-','\u2212':'-','\u2022':'-',
+    '\u00b7':'-','\u2219':'-','\u26a0':'!','\u2018':"'",'\u2019':"'",'\u201a':"'",'\u2032':"'",
+    '\u02b9':"'",'\u201c':'"','\u201d':'"','\u201e':'"','\u2033':'"','\u00ab':'"','\u00bb':'"',
+    '\u2192':'->','\u2190':'<-','\u2194':'<->','\u21d2':'=>','\u00d7':'x','\u2715':'x','\u2026':'...',
+    '\u2713':'v','\u2714':'v','\u00a0':' ','\u2002':' ','\u2003':' ','\u2009':' ','\u202f':' ',
+    '\u00b0':' deg','\u00bd':'1/2','\u00bc':'1/4','\u00be':'3/4','\u2044':'/','\u00ae':'(R)','\u2122':'(TM)',
+    '\u00a9':'(C)','\u20ac':'EUR','\u00a3':'GBP'};
+  let t = String(s).replace(/^([ \t]*)[\u2022\u00b7\u2219]/gm, '$1*');
+  t = t.replace(/[^\x00-\x7f]/g, ch => MAP[ch] !== undefined ? MAP[ch] : ch);
+  if (t.normalize) t = t.normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
+  return t.replace(/[^\x00-\x7f]/g, '');
+}
+
 document.getElementById('btnAskDanny').addEventListener('click', () => {
   let subject = 'Boat inquiry from the Which Wooldridge quiz';
   let body = 'Hi Danny,\n\nI just went through the \u201cWhich Wooldridge Is Right For You\u201d quiz and I\u2019d like more information.\n';
@@ -590,7 +613,7 @@ document.getElementById('btnAskDanny').addEventListener('click', () => {
   body += '\nPlease send me pricing and availability.\n\nName:\nPhone:\nBest time to reach me:\n';
   body += '\n--- WB-INQUIRY v1 (for our records - please leave this section intact) ---\nSource: Which Wooldridge Quiz\nType: QUIZ RESULT\n';
   if (LAST) body += 'Model: ' + FACTS[LAST.win].nm + '\nRunnerUp: ' + FACTS[LAST.run].nm + '\n';
-  location.href = 'mailto:data@wooldridgeboats.com?cc=danny%40wooldridgeboats.com&subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  location.href = 'mailto:data@wooldridgeboats.com?cc=danny%40wooldridgeboats.com&subject=' + encodeURIComponent(mailAscii(subject)) + '&body=' + encodeURIComponent(mailAscii(body));
 });
 
 render();

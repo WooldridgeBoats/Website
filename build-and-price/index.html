@@ -2724,6 +2724,29 @@ function emailWrap(text, indent, hang){
   if (cur) lines.push((lines.length ? hang : indent) + cur);
   return lines;
 }
+/* mailAscii (2026-10-29): a mailto link is only safe as plain ASCII. Yahoo Mail
+   for Android turned every em dash, bullet, middle dot and warning sign in a real
+   quote into '%2' junk. Used for the mailto subject and body ONLY; the on-screen
+   copy and the POSTed summary keep their typography. Characters are swapped one
+   for one, so every 'Key: value' line of the WB-INQUIRY footer keeps its key and
+   shape; a bullet that STARTS a line becomes '*' (the Build Hub's inquiry reader
+   treats '*' as a bullet), elsewhere '-'. Accents fold to the bare letter (é ->
+   e) and anything still outside ASCII is dropped. The same function lives in
+   request-a-quote, build-and-price, which-wooldridge and compare - keep the four alike. */
+function mailAscii(s){
+  const MAP = {'\u2014':'-','\u2013':'-','\u2012':'-','\u2010':'-','\u2011':'-','\u2212':'-','\u2022':'-',
+    '\u00b7':'-','\u2219':'-','\u26a0':'!','\u2018':"'",'\u2019':"'",'\u201a':"'",'\u2032':"'",
+    '\u02b9':"'",'\u201c':'"','\u201d':'"','\u201e':'"','\u2033':'"','\u00ab':'"','\u00bb':'"',
+    '\u2192':'->','\u2190':'<-','\u2194':'<->','\u21d2':'=>','\u00d7':'x','\u2715':'x','\u2026':'...',
+    '\u2713':'v','\u2714':'v','\u00a0':' ','\u2002':' ','\u2003':' ','\u2009':' ','\u202f':' ',
+    '\u00b0':' deg','\u00bd':'1/2','\u00bc':'1/4','\u00be':'3/4','\u2044':'/','\u00ae':'(R)','\u2122':'(TM)',
+    '\u00a9':'(C)','\u20ac':'EUR','\u00a3':'GBP'};
+  let t = String(s).replace(/^([ \t]*)[\u2022\u00b7\u2219]/gm, '$1*');
+  t = t.replace(/[^\x00-\x7f]/g, ch => MAP[ch] !== undefined ? MAP[ch] : ch);
+  if (t.normalize) t = t.normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
+  return t.replace(/[^\x00-\x7f]/g, '');
+}
+
 function emailItemLines(name, price){
   const words = String(name).split(' ');
   const last = words.pop();
@@ -2959,8 +2982,8 @@ function emailBuildSheet(){
   const subject = 'Wooldridge Boats Build Sheet \u2014 ' + name;
   const mailto = 'mailto:' + encodeURIComponent(c.email.trim())
     + '?cc=' + encodeURIComponent(CC_EMAIL) /* CC_EMAIL already contains data@ - concatenating the old DEALER_EMAIL constant (deleted 26 Aug 2026) doubled it in the customer's CC line (audit 2026-08-03) */
-    + '&subject=' + encodeURIComponent(subject)
-    + '&body=' + encodeURIComponent(emailBodyText().replace(/\n/g, '\r\n'));   /* RFC 6068: a body line break is %0D%0A (the parsers already strip the CR, mail in transit is CRLF anyway) */
+    + '&subject=' + encodeURIComponent(mailAscii(subject))
+    + '&body=' + encodeURIComponent(mailAscii(emailBodyText()).replace(/\n/g, '\r\n'));   /* RFC 6068: a body line break is %0D%0A (the parsers already strip the CR, mail in transit is CRLF anyway) */
   toast('Build sheet PDF downloaded \u2014 attach it to the email that opens.');
   setTimeout(() => { window.location.href = mailto; }, 450);
 }
@@ -2989,8 +3012,8 @@ function openReserve(){
     + (s.name ? NL + NL + 'Name: ' + s.name : '') + (s.meta ? NL + 'Contact: ' + s.meta : '') + NL + NL + wbInquiryBlock('RESERVATION');
   $('#rMail').href = 'mailto:' + RESERVE_EMAIL
     + '?cc=' + encodeURIComponent(CC_EMAIL)
-    + '&subject=' + encodeURIComponent('Build slot reservation — ' + (s.name || first))
-    + '&body=' + encodeURIComponent(body);
+    + '&subject=' + encodeURIComponent(mailAscii('Build slot reservation — ' + (s.name || first)))
+    + '&body=' + encodeURIComponent(mailAscii(body));
   $('#reserveModal').hidden = false;
 }
 $('#btnReserve').addEventListener('click', openReserve);
