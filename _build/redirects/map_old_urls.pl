@@ -259,6 +259,18 @@ for my $r (@rows) {
   row($r, class => 'other', status => 'DECIDE', group => 'leftovers', target => '', source => 'no rule matched');
 }
 
+# ---- Stephen's approvals live in the table: a re-run carries them over, never resets them ----------
+# (they are checked live below like everything else: a page that now exists wins, a dead target is caught)
+my %kept;
+if (-f "$here/old_urls.tsv") {
+  my @h; for my $l (split /\r?\n/, slurp("$here/old_urls.tsv")) {
+    next if $l =~ /^#/ || !length $l; my @f = split /\t/, $l, -1;
+    if (!@h) { @h = @f; next } my %r; @r{@h} = @f;
+    $kept{"$r{host} $r{old_path}"} = \%r if $r{status} eq 'APPROVED' }
+}
+for my $x (@out) { my $k = $kept{"$x->{host} $x->{path}"} or next;
+  @$x{qw(status group target source)} = ('APPROVED', $k->{group}, $k->{target}, $k->{how_it_was_found}) }
+
 # ---- live checks: what does each old path answer today, and does each target answer 200? --------
 sub http_codes {
   my @u = @_; my %c; return %c unless @u;
@@ -270,15 +282,15 @@ sub http_codes {
   unlink $cfg; printf STDERR "  http checks: %d asked, %d answered\n", scalar(@u), scalar(keys %c); %c }
 if ($o{live}) {
   my %now = http_codes(map { ($_->{host} eq 'apex' ? 'https://wooldridgeboats.com' : $SITE) . $_->{path} } grep { $_->{status} ne 'OTHER-HOST' && $_->{group} ne 'spam-pdfs' && $_->{class} ne 'junk' } @out);
-  for my $x (@out) { my $u = ($x->{host} eq 'apex' ? 'https://wooldridgeboats.com' : $SITE) . $x->{path}; $x->{now} = $now{$u} // ''; if (($x->{now} // '') eq '200' && $x->{status} =~ /^(REDIRECT|DECIDE)$/) { $x->{source} = "answers 200 today, no redirect needed (was: $x->{status} - $x->{source})"; $x->{status} = 'LIVE'; $x->{target} = '' } }
+  for my $x (@out) { my $u = ($x->{host} eq 'apex' ? 'https://wooldridgeboats.com' : $SITE) . $x->{path}; $x->{now} = $now{$u} // ''; if (($x->{now} // '') eq '200' && $x->{status} =~ /^(REDIRECT|APPROVED|DECIDE)$/) { $x->{source} = "answers 200 today, no redirect needed (was: $x->{status} - $x->{source})"; $x->{status} = 'LIVE'; $x->{target} = '' } }
   my %t = map { my $u = $_->{target} =~ m{^/} ? "$SITE$_->{target}" : $_->{target}; ($u => 1) } grep { $_->{target} } @out;
   my %tc = http_codes(keys %t);
   for my $x (grep { $_->{target} } @out) { my $u = $x->{target} =~ m{^/} ? "$SITE$x->{target}" : $x->{target}; $x->{target_now} = $tc{$u} // '';
-    if ($x->{status} eq 'REDIRECT' && $x->{target_now} ne '200') { $x->{source} .= " [TARGET ANSWERED $x->{target_now}: demoted to DECIDE]"; $x->{status} = 'DECIDE'; $x->{group} = 'target-broken' } }
+    if ($x->{status} =~ /^(REDIRECT|APPROVED)$/ && $x->{target_now} ne '200') { $x->{source} .= " [TARGET ANSWERED $x->{target_now}: demoted to DECIDE]"; $x->{status} = 'DECIDE'; $x->{group} = 'target-broken' } }
 }
 
 # ---- write ---------------------------------------------------------------------------------------
-my %rank = (REDIRECT => 0, DECIDE => 1, 'KEEP-404' => 2, LIVE => 3, 'OTHER-HOST' => 4);
+my %rank = (REDIRECT => 0, APPROVED => 1, DECIDE => 2, 'KEEP-404' => 3, LIVE => 4, 'OTHER-HOST' => 5);
 open my $T, '>:raw', "$here/old_urls.tsv" or die $!;
 print $T "# old_urls.tsv - every old URL that answered 404 on the new site, 2026-10-28 08:16 PDT to 2026-10-29 21:09 PDT (Cloudflare, sampled hits).\n";
 print $T "# status: REDIRECT = sourced, goes into .htaccess | DECIDE = Stephen's call (target = suggestion) | APPROVED = Stephen said yes, goes into .htaccess\n";

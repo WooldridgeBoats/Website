@@ -25,6 +25,15 @@ product pages, categories, PDFs, listings. This folder turns those old addresses
 2. `perl _build/redirects/gen_redirects.pl` (it refuses to write if any rule would catch the wrong address).
 3. Commit. After Stephen or Tyler pushes and the deploy finishes, run `verify_redirects.ps1`.
 
+Re-running `map_old_urls.pl` (say, on a fresh Cloudflare list) carries every APPROVED row over unchanged and
+live-checks it like the rest: a page that now exists wins, and a target that stops answering 200 drops back to DECIDE.
+
+Stephen's rulings 2026-10-29 (all 216 judgement rows): sold listings -> the list page; brochure and performance PDFs ->
+the model page, or the same 2026 test PDF the site has; old categories and tags -> the store home page; every
+no-exact-match product, old store page, unclear price sheet and unclear model page -> /river-ripper/ ("have them all
+lead to river ripper"); agency case studies, /about and the pre-2019 leftovers -> /river-ripper/; shop.wooldridgeboats.com
+stays as it is (403).
+
 ## The one thing to know about `.htaccess` here
 
 Until 2026-10-29 the root `.htaccess` had never reached the server: `.cpanel.yml` copied the site with

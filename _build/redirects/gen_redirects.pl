@@ -37,11 +37,15 @@ while (my $l = <$T>) {
   push @problems, "$p: target '$t' is neither /path nor https://" and next unless $t =~ m{^(/|https://)};
   push @problems, "$p: target has a space or quote" and next if $t =~ /[\s"']/;
   (my $k = $p) =~ s{^/}{};
+  $k =~ s/%([0-9A-Fa-f]{2})/chr(hex $1)/ge;      # Apache matches the DECODED path (%20 arrives as a space)
   my $pat;
   if ($k =~ m{\.[A-Za-z0-9]{2,4}$}) { $pat = '^' . quotemeta($k) . '$' }
-  else { $k =~ s{/feed/?$}{}i; $k =~ s{/$}{};   # a product's /feed/ tail rides along; other feeds stay 404
-         $pat = '^' . quotemeta($k) . ($k =~ m{^product/} ? '(?:/feed)?' : '') . '/?$' }
+  else { my $prod = $k =~ m{^product/}i;          # a product's /feed/ tail rides along with the product;
+         $k =~ s{/feed/?$}{}i if $prod;            # any other feed is an address of its own
+         $k =~ s{/$}{};
+         $pat = '^' . quotemeta($k) . ($prod ? '(?:/feed)?' : '') . '/?$' }
   $pat =~ s/\\-/-/g; $pat =~ s{\\/}{/}g;     # quotemeta over-escapes; keep the rules readable
+  $pat =~ s/\\ /\\x20/g;                      # never a bare space: Apache would split the rule there
   if (exists $rule{$pat}) { push @problems, "$p: two targets for one address ($rule{$pat}{t} / $t)" if $rule{$pat}{t} ne $t; $rule{$pat}{hits} += $r{hits}; next }
   $rule{$pat} = { t => $t, hits => $r{hits}, how => $r{status} };
   push @order, $pat;
@@ -59,7 +63,7 @@ open $T, '<:raw', $tsv or die $!; my @h2; my $tested = 0;
 while (my $l = <$T>) {
   $l =~ s/[\r\n]+\z//; next if $l =~ /^#/ || !length $l; my @f = split /\t/, $l, -1;
   if (!@h2) { @h2 = @f; next } my %r; @r{@h2} = @f; next if $r{status} eq 'OTHER-HOST';
-  (my $k = $r{old_path}) =~ s{^/}{}; my $hit = first_hit($k); $tested++;
+  (my $k = $r{old_path}) =~ s{^/}{}; $k =~ s/%([0-9A-Fa-f]{2})/chr(hex $1)/ge; my $hit = first_hit($k); $tested++;
   if ($r{status} eq 'REDIRECT' || $r{status} eq 'APPROVED') { push @problems, "$r{old_path}: rules send it to " . ($hit // 'nothing') . ", table says $r{target}" unless defined $hit && $hit eq $r{target} }
   elsif (defined $hit) { push @problems, "$r{old_path} is $r{status} but a rule sends it to $hit" }
 }
