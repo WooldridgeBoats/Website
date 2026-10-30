@@ -646,15 +646,20 @@ section{ padding:36px 0; }
   max-width:960px; margin:20px auto 0; font-weight:400;
   font-size:17.5px; line-height:1.7; color:var(--body);
 }
-/* "Learn More ->" under the blurb, links to /about-history/ (Tyler, 2026-10-19): Inter Medium in the brand blue;
-   hover underlines it and nudges the arrow */
-.tagband .tb-more{ margin:16px 0 0; }
-.tagband .tb-more a{ font-family:var(--sans); font-weight:500; font-size:16px; letter-spacing:.02em; color:var(--blue);
-  text-decoration:none; padding-bottom:2px; border-bottom:1.5px solid transparent; transition:color .2s, border-color .2s; }
-.tagband .tb-more a:hover{ color:var(--blue-dark); border-bottom-color:currentColor; }
-.tagband .tb-more a span{ display:inline-block; transition:transform .2s; }
-.tagband .tb-more a:hover span{ transform:translateX(3px); }
-html.blueprint .tagband .tb-more a{ color:#e8b64c; }   /* Night Run theme: gold, like its titles */
+/* "Configure Your Boat Now ->" under the blurb, a blue button to /build-and-price/ (Stephen, 2026-10-29;
+   it replaced Tyler's 10-19 "Learn More" text link to /about-history/). Inter Medium on the brand blue;
+   hover deepens the blue, lifts it a touch and nudges the arrow */
+.tagband .tb-more{ margin:26px 0 0; }
+.tagband .tb-more a{ display:inline-flex; align-items:center; gap:10px;
+  font-family:var(--sans); font-weight:500; font-size:16px; letter-spacing:.02em; color:#fff; background:var(--blue);
+  text-decoration:none; padding:13px 28px; border-radius:8px; box-shadow:var(--shadow);
+  transition:background .2s, transform .2s, box-shadow .2s; }
+.tagband .tb-more a:hover{ background:var(--blue-dark); color:#fff; transform:translateY(-1px); }
+.tagband .tb-more a:focus-visible{ outline:2px solid var(--blue-dark); outline-offset:3px; }
+.tagband .tb-more a span{ display:inline-block; font-size:18px; line-height:1; transition:transform .2s; }
+.tagband .tb-more a:hover span{ transform:translateX(4px); }
+html.blueprint .tagband .tb-more a{ background:#e8b64c; color:#14202b; }   /* Night Run theme: gold, like its titles */
+html.blueprint .tagband .tb-more a:hover{ background:#f0c868; color:#14202b; }
 
 /* ── explore cards ─────────────────────────────────────────────────────── */
 .explore{
