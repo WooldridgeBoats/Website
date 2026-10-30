@@ -135,6 +135,9 @@ foreach ($t in $targets.Keys) {
   $u = $t; $orig = $false
   if ($t.StartsWith('/')) { $u = $www + $t; $orig = $true }
   if ($orig) { $r = Hit $u -Origin } else { $r = Hit $u }
+  # The store answers 429 (too many requests) to a fast run of checks; it is not a broken target.
+  # Wait and ask once more (2026-10-29: duck-camo-hat 429 in the run, 200 twenty seconds later).
+  if ($r.code -eq '429') { Start-Sleep -Seconds 20; $r = Hit $u }
   if ($r.code -eq '200') { Report 'PASS' ('target 200 ' + $t) } else { Report 'FAIL' ('target ' + $t + ' answered ' + $r.code + ' ' + $r.loc) }
 }
 
