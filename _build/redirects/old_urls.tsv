@@ -1,0 +1,610 @@
+# old_urls.tsv - every old URL that answered 404 on the new site, 2026-10-28 08:16 PDT to 2026-10-29 21:09 PDT (Cloudflare, sampled hits).
+# status: REDIRECT = sourced, goes into .htaccess | DECIDE = Stephen's call (target = suggestion) | APPROVED = Stephen said yes, goes into .htaccess
+#         KEEP-404 = deliberately no redirect | LIVE = answers 200 today | OTHER-HOST = not this site
+# To approve a DECIDE row: set status to APPROVED and the target you want, then run perl _build/redirects/gen_redirects.pl
+status	group	hits	host	old_path	target	how_it_was_found	answered_at_audit	target_answered
+REDIRECT	listings	14	www	/preowned/2003-wooldridge-17-alaskan/	/pre-owned/2003-wooldridge-17-alaskan/	_build/preowned.json records this exact old address as the listing's url	404	200
+REDIRECT	listings	7	www	/preowned/2012-wooldridge-23-super-sport-drifter/	/pre-owned/2012-wooldridge-23-super-sport-drifter/	_build/preowned.json records this exact old address as the listing's url	404	200
+REDIRECT	listings	6	www	/preowned/	/pre-owned/	old pre-owned archive -> the pre-owned page	404	200
+REDIRECT	listings	6	www	/preowned/2014-wooldridge-18-alaskan-xl/	/pre-owned/2014-wooldridge-18-alaskan-xl/	_build/preowned.json records this exact old address as the listing's url	404	200
+REDIRECT	listings	6	www	/preowned/2022-16-wooldridge-alaskan-lt-low-hour-boat/	/pre-owned/2022-16-wooldridge-alaskan-lt-low-hour-boat/	_build/preowned.json records this exact old address as the listing's url	404	200
+REDIRECT	listings	4	www	/preowned/2001-wooldridge-project-boat-25-classic-deeper-v/	/pre-owned/2001-wooldridge-project-boat-25-classic-deeper-v/	_build/preowned.json records this exact old address as the listing's url	404	200
+REDIRECT	listings	4	www	/preowned/2014-wooldridge-24-super-sport-offshore-pilothouse/	/pre-owned/2014-wooldridge-24-super-sport-offshore-pilothouse/	_build/preowned.json records this exact old address as the listing's url	404	200
+REDIRECT	listings	4	www	/preowned/2021-wooldridge-21-super-sport-drifter/	/pre-owned/2021-wooldridge-21-super-sport-drifter/	_build/preowned.json records this exact old address as the listing's url	404	200
+REDIRECT	listings	4	www	/preowned/wooldridge-18-classic-inboard-w-windshield-1987/	/pre-owned/wooldridge-18-classic-inboard-w-windshield-1987/	_build/preowned.json records this exact old address as the listing's url	404	200
+REDIRECT	listings	3	www	/preowned/1990-wooldridge-17-alaskan/	/pre-owned/1990-wooldridge-17-alaskan/	_build/preowned.json records this exact old address as the listing's url	404	200
+REDIRECT	listings	3	www	/preowned/2015-wooldridge-20-sport-offshore/	/pre-owned/2015-wooldridge-20-sport-offshore/	_build/preowned.json records this exact old address as the listing's url	404	200
+REDIRECT	listings	3	www	/preowned/wooldridge-super-sport-drifter/	/pre-owned/wooldridge-super-sport-drifter/	_build/preowned.json records this exact old address as the listing's url	404	200
+REDIRECT	listings	2	www	/newinventory/new-2027-wooldridge-18-alaskan-windshield-model-available-now-choose-your-own-vinyl-color/	/new-inventory/	the same boat (2027 18' Alaskan Windshield) is listed, unsold, on /new-inventory/	404	200
+REDIRECT	listings	2	www	/preowned/2011-wooldridge-21-super-sport-offshore-cuddy/	/pre-owned/2011-wooldridge-21-super-sport-offshore-cuddy/	_build/preowned.json records this exact old address as the listing's url	404	200
+REDIRECT	listings	2	www	/preowned/wooldridge-22-fishing-machine-river-jet-1992/	/pre-owned/wooldridge-22-fishing-machine-river-jet-1992/	_build/preowned.json records this exact old address as the listing's url	404	200
+REDIRECT	listings	1	www	/newinventory/	/new-inventory/	old new-inventory archive -> the new-inventory page	404	200
+REDIRECT	listings	1	www	/preowned/2004-wooldridge-20-sport/	/pre-owned/2004-wooldridge-20-sport/	_build/preowned.json records this exact old address as the listing's url	404	200
+REDIRECT	listings	1	www	/preowned/2012-wooldridge-23-super-sport-drifter	/pre-owned/2012-wooldridge-23-super-sport-drifter/	_build/preowned.json records this exact old address as the listing's url	404	200
+REDIRECT	models	10	apex	/models/introducing-the-alaskan-lt/	/models/alaskan-lt/	WordPress model post 'Introducing the Alaskan LT' -> the Alaskan LT page	404	200
+REDIRECT	models	5	www	/catalog/products/alaskan	/models/alaskan/	pre-2019 catalogue page for the same model name	404	200
+REDIRECT	models	3	www	/catalog/products/super-sport-drifter	/models/supersportdrifter/	pre-2019 catalogue page for the same model name	404	200
+REDIRECT	models	2	www	/catalog/products/alaskan-xl-inboard	/models/alaskan-xl-inboard/	pre-2019 catalogue page for the same model name	404	200
+REDIRECT	models	1	www	/catalog/offshore-deep-v-aluminum-fishing-boats/super-sport-offshore-pilothouse	/models/supersportoffshorepilothouse/	pre-2019 catalogue page for the same model name	404	200
+REDIRECT	models	1	www	/catalog/products/sport-offshore	/models/sportoffshore/	pre-2019 catalogue page for the same model name	404	200
+REDIRECT	models	1	www	/catalog/products/super-sport-drifter-inboard	/models/supersportdrifterinboard/	pre-2019 catalogue page for the same model name	404	200
+REDIRECT	models	1	apex	/catalog/products/super-sport-offshore-pilothouse	/models/supersportoffshorepilothouse/	pre-2019 catalogue page for the same model name	404	200
+REDIRECT	models	1	apex	/catalog/shallow-water-aluminum-jet-boat/sport-inboard	/models/sportinboard/	pre-2019 catalogue page for the same model name	404	200
+REDIRECT	models	1	www	/models/agency/	/agency-work-boats/	WordPress model page 'Agency' -> the Agency & Work Boats page	404	200
+REDIRECT	models	1	www	/models/introducing-the-alaskan-lt/	/models/alaskan-lt/	WordPress model post 'Introducing the Alaskan LT' -> the Alaskan LT page	404	200
+REDIRECT	models	1	www	/models/skagit-inboard-2/	/models/skagit-inboard/	WordPress's duplicate-slug '-2' copy of skagit-inboard	404	200
+REDIRECT	price-sheets	21	www	/wp-content/uploads/2026/04/Rogue-HDPE-OB-Price-Sheet_March-2026.pdf	/pricesheets/rogue/	old price sheet 'Rogue HDPE OB Price Sheet_March 2026' (WordPress media #28338); the name says the model, and /pricesheets/rogue/ is that model's canon-driven sheet (gen_from_canon.pl regenerates it)	404	200
+REDIRECT	price-sheets	8	www	/wp-content/uploads/2025/04/2025-SCOUT-Hull-Options-Trailer-Prices.pdf	/pricesheets/scout/	old price sheet '2025 SCOUT - Hull, Options & Trailer Prices' (WordPress media #26286); the name says the model, and /pricesheets/scout/ is that model's canon-driven sheet (gen_from_canon.pl regenerates it)	404	200
+REDIRECT	price-sheets	7	www	/wp-content/uploads/2025/04/2025-SKAGIT-INBOARD-JET-Hull-Options-Trailer-Prices.pdf	/pricesheets/skagitib/	old price sheet '2025 SKAGIT INBOARD JET - Hull, Options & Trailer Prices' (WordPress media #26294); the name says the model, and /pricesheets/skagitib/ is that model's canon-driven sheet (gen_from_canon.pl regenerates it)	404	200
+REDIRECT	price-sheets	4	www	/wp-content/uploads/2026/05/Alaskan-OB-Price-Sheet.pdf	/pricesheets/ak/	old price sheet 'Alaskan OB Price Sheet' (WordPress media #28852); the name says the model, and /pricesheets/ak/ is that model's canon-driven sheet (gen_from_canon.pl regenerates it)	404	200
+REDIRECT	price-sheets	3	www	/wp-content/uploads/2025/04/2025-ALASKAN-LT-Hull-Options-Trailer-Prices.pdf	/pricesheets/lt/	old price sheet '2025 ALASKAN LT - Hull, Options & Trailer Prices' (WordPress media #26281); the name says the model, and /pricesheets/lt/ is that model's canon-driven sheet (gen_from_canon.pl regenerates it)	404	200
+REDIRECT	price-sheets	3	www	/wp-content/uploads/2025/04/2025-ROGUE-Hull-Options-Trailer-Prices-3.pdf	/pricesheets/rogue/	old price sheet '2025 ROGUE - Hull, Options & Trailer Prices' (WordPress media #26285); the name says the model, and /pricesheets/rogue/ is that model's canon-driven sheet (gen_from_canon.pl regenerates it)	404	200
+REDIRECT	price-sheets	3	www	/wp-content/uploads/2025/04/2025-SCOUT-INBOARD-JET-Hull-Options-Trailer-Prices.pdf	/pricesheets/scout/	old price sheet '2025 SCOUT INBOARD JET - Hull, Options & Trailer Prices' (WordPress media #26293); the name says the model, and /pricesheets/scout/ is that model's canon-driven sheet (gen_from_canon.pl regenerates it)	404	200
+REDIRECT	price-sheets	3	www	/wp-content/uploads/2026/01/2026-Super-Sport-Offshore-Price-Sheet.pdf	/pricesheets/sso/	old price sheet '2026 Super Sport Offshore Price Sheet' (WordPress media #27857); the name says the model, and /pricesheets/sso/ is that model's canon-driven sheet (gen_from_canon.pl regenerates it)	404	200
+REDIRECT	price-sheets	3	www	/wp-content/uploads/2026/05/ALASKAN-LT-OB-Price-Sheet.pdf	/pricesheets/lt/	old price sheet 'ALASKAN LT OB Price Sheet' (WordPress media #28854); the name says the model, and /pricesheets/lt/ is that model's canon-driven sheet (gen_from_canon.pl regenerates it)	404	200
+REDIRECT	price-sheets	3	www	/wp-content/uploads/2026/05/SCOUT-IB.pdf	/pricesheets/scout/	old price sheet 'SCOUT IB' (WordPress media #28660); the name says the model, and /pricesheets/scout/ is that model's canon-driven sheet (gen_from_canon.pl regenerates it)	404	200
+REDIRECT	price-sheets	2	www	/wp-content/uploads/2025/04/2025-ALASKAN-XLT-Hull-Options-Trailer-Prices.pdf	/pricesheets/xlt/	old price sheet '2025 ALASKAN XLT - Hull, Options & Trailer Prices' (WordPress media #26283); the name says the model, and /pricesheets/xlt/ is that model's canon-driven sheet (gen_from_canon.pl regenerates it)	404	200
+REDIRECT	price-sheets	2	www	/wp-content/uploads/2025/04/2025-SPORT-INBOARD-JET-Hull-Options-Trailer-Prices.pdf	/pricesheets/sportib/	old price sheet '2025 SPORT INBOARD JET - Hull, Options & Trailer Prices' (WordPress media #26295); the name says the model, and /pricesheets/sportib/ is that model's canon-driven sheet (gen_from_canon.pl regenerates it)	404	200
+REDIRECT	price-sheets	2	www	/wp-content/uploads/2025/04/2025-SSD-INBOARD-Hull-Options-Trailer-Prices.pdf	/pricesheets/ssdib/	old price sheet '2025 SSD INBOARD- Hull, Options & Trailer Prices' (WordPress media #26297); the name says the model, and /pricesheets/ssdib/ is that model's canon-driven sheet (gen_from_canon.pl regenerates it)	404	200
+REDIRECT	price-sheets	2	www	/wp-content/uploads/2025/04/2025-Super-Sport-Offshore-Hull-Options-Trailer-Prices.pdf	/pricesheets/sso/	old price sheet '2025 Super Sport Offshore - Hull, Options & Trailer Prices' (WordPress media #26292); the name says the model, and /pricesheets/sso/ is that model's canon-driven sheet (gen_from_canon.pl regenerates it)	404	200
+REDIRECT	price-sheets	2	www	/wp-content/uploads/2026/05/ALASKAN-XL-IB-1.pdf	/pricesheets/xlib/	old price sheet 'ALASKAN XL IB' (WordPress media #28860); the name says the model, and /pricesheets/xlib/ is that model's canon-driven sheet (gen_from_canon.pl regenerates it)	404	200
+REDIRECT	price-sheets	2	www	/wp-content/uploads/2026/05/ALASKAN-XL-OB-1.pdf	/pricesheets/xl/	old price sheet 'ALASKAN XL OB' (WordPress media #28856); the name says the model, and /pricesheets/xl/ is that model's canon-driven sheet (gen_from_canon.pl regenerates it)	404	200
+REDIRECT	price-sheets	2	www	/wp-content/uploads/2026/05/SKAGIT-IB.pdf	/pricesheets/skagitib/	old price sheet 'SKAGIT IB' (WordPress media #28744); the name says the model, and /pricesheets/skagitib/ is that model's canon-driven sheet (gen_from_canon.pl regenerates it)	404	200
+REDIRECT	price-sheets	1	www	/wp-content/uploads/2025/04/2025-SPORT-OB-Hull-Options-Trailer-Prices.pdf	/pricesheets/sport/	old price sheet '2025 SPORT OB - Hull, Options & Trailer Prices' (WordPress media #26288); the name says the model, and /pricesheets/sport/ is that model's canon-driven sheet (gen_from_canon.pl regenerates it)	404	200
+REDIRECT	price-sheets	1	www	/wp-content/uploads/2026/04/Alaskan-XLT-OB-Price-Sheet_March-2026.pdf	/pricesheets/xlt/	old price sheet 'Alaskan XLT OB Price Sheet_March 2026' (WordPress media #28335); the name says the model, and /pricesheets/xlt/ is that model's canon-driven sheet (gen_from_canon.pl regenerates it)	404	200
+REDIRECT	price-sheets	1	www	/wp-content/uploads/2026/05/ROGUE-HDPE-OB-Price-Sheet.pdf	/pricesheets/rogue/	old price sheet 'ROGUE HDPE OB Price Sheet' (WordPress media #28870); the name says the model, and /pricesheets/rogue/ is that model's canon-driven sheet (gen_from_canon.pl regenerates it)	404	200
+REDIRECT	products	59	www	/product/wooldridge-urethane-jet-foot/	https://store.wooldridgeboats.com/products/wooldridge-urethane-jet-foot-large	same title 'Wooldridge Urethane Jet Foot - Large'	404	200
+REDIRECT	products	31	www	/product/jet-liner-7-5-8-flanged/	https://store.wooldridgeboats.com/products/jet-liner-7-5-8-flanged-obj-1605	WooCommerce #251 SKU 'OBJ 1605 F LINER' = store SKU 'OBJ-1605'; same title 'Jet Liner 7 5/8 Flanged (OBJ 1605)'	404	200
+REDIRECT	products	30	www	/product/stainless-steel-four-blade-impeller-7-3-8d/	https://store.wooldridgeboats.com/products/wooldridge-7-3-8-d-stainless-4-blade-impeller	same title 'Wooldridge 7 3/8 D Stainless 4-Blade Impeller'	404	200
+REDIRECT	products	19	www	/product/welded-socket-for-standard-halogen-head-lights/	https://store.wooldridgeboats.com/products/vision-x-xpr-lightbar-with-bolt-in-weld-in-socket	same title 'Vision-X XPR Lightbar with Bolt-In/Weld-In socket'	404	200
+REDIRECT	products	18	www	/product/stainless-steel-four-blade-impeller-7-5-8/	https://store.wooldridgeboats.com/products/7-5-8-stainless-steel-4-blade-impeller-obj-1721	WooCommerce #241 SKU 'OBJ 1721' = store SKU 'OBJ-1721'; same title '7 5/8 Stainless Steel 4-blade Impeller (OBJ 1721)'	404	200
+REDIRECT	products	17	www	/product/wooldridge-urethane-power-jet-foot/	https://store.wooldridgeboats.com/products/wooldridge-urethane-jet-foot-extra-large-power-jet	same title 'Wooldridge Urethane Jet Foot - Extra Large (Power Jet)'	404	200
+REDIRECT	products	16	www	/product/wooldridge-urethane-jet-foot-copy/	https://store.wooldridgeboats.com/products/wooldridge-urethane-jet-foot-medium	same title 'Wooldridge Urethane Jet Foot - Medium'	404	200
+REDIRECT	products	14	www	/product/xl-jet-foot-intake-without-fins-powerjetblack-copy/	https://store.wooldridgeboats.com/products/yamaha-blue-xl-jet-foot-intake-without-fins-power-jet	WooCommerce #24700 SKU 'OBJ 1602.01' = store SKU 'OBJ-1602-01'; same title 'Yamaha Blue XL Jet Foot Intake without fins - Power Jet'	404	200
+REDIRECT	products	12	www	/product/jet-liner-6-7-8-flanged/	https://store.wooldridgeboats.com/products/jet-liner-6-7-8-flanged-obj-1833	WooCommerce #245 SKU 'OBJ 1833 F LINER' = store SKU 'OBJ-1833'; same title 'Jet Liner 6 7/8 Flanged (OBJ 1833)'	404	200
+REDIRECT	products	12	www	/product/stainless-steel-four-blade-impeller-7-3-8-v6m/	https://store.wooldridgeboats.com/products/7-3-8-v6m-cutback-stainless-steel-4-blade-impeller-obj-1739	WooCommerce #240 SKU 'OBJ 1739' = store SKU 'OBJ-1739'; same title '7 3/8 V6M Cutback Stainless Steel 4-blade Impeller (OBJ 1739)'	404	200
+REDIRECT	products	12	www	/product/stainless-steel-grill-bar-for-outboard-jets-and-urethane-intakes-x-large/	https://store.wooldridgeboats.com/products/stainless-steel-grill-bar-for-outboard-jets-and-urethane-intakes-x-large	WooCommerce slug = store handle 'stainless-steel-grill-bar-for-outboard-jets-and-urethane-intakes-x-large'; same title 'Stainless Steel Grill Bar for Outboard Jets and Urethane Intakes (X Large)'	404	200
+REDIRECT	products	11	www	/product/hardox-steel-grill-bar-for-outboard-jets-and-urathane-intakes/	https://store.wooldridgeboats.com/products/large-hardox-steel-grill-bar-for-outboard-jets-and-urethane-intakes	same title 'Large HardOx Steel Grill Bar for Outboard Jets and Urethane intakes'	404	200
+REDIRECT	products	11	www	/product/jet-liner-6-1-8-flanged/	https://store.wooldridgeboats.com/products/jet-liner-6-1-8-flanged-obj-1521	WooCommerce #243 SKU 'OBJ 1521 F LINER' = store SKU 'OBJ-1521'; same title 'Jet Liner 6 1/8 Flanged (OBJ 1521)'	404	200
+REDIRECT	products	11	www	/product/outboardjets-stainless-steel-four-blade-impeller-7-3-8-d-not-wooldridge-equipment-7-3-8-d/	https://store.wooldridgeboats.com/products/outboard-jets-stainless-steel-4-blade-impeller-7-3-8-d-obj-1919	WooCommerce #25729 SKU 'OBJ 1919' = store SKU 'OBJ-1919'; same title 'Outboard Jets Stainless Steel 4-Blade Impeller 7 3/8 D (OBJ 1919)'	404	200
+REDIRECT	products	11	www	/product/shaft-sleeve-medium-size/	https://store.wooldridgeboats.com/products/shaft-sleeve-medium-size	WooCommerce #6330 SKU 'OBJ 36 SLEEVE' = store SKU 'OBJ-36'; WooCommerce slug = store handle 'shaft-sleeve-medium-size'; same title 'Shaft Sleeve - Medium size'	404	200
+REDIRECT	products	11	www	/product/the-rogue-a-river-to-run-book/	https://store.wooldridgeboats.com/products/the-rogue-a-river-to-run-book	WooCommerce slug = store handle 'the-rogue-a-river-to-run-book'; same title 'The Rogue | A River to Run (Book)'	404	200
+REDIRECT	products	10	www	/product/square-tee-key-for-wooldridge-impellers-w-size-medium-pumps/	https://store.wooldridgeboats.com/products/square-t-key-size-medium	WooCommerce #6332 SKU 'OBJ 782 WB MED TKEY' = store SKU 'OBJ-782'; same title 'Square T-Key - Size Medium'	404	200
+REDIRECT	products	10	www	/product/stainless-grill-bar-bolt-for-wooldridge-urathane-jetfoot/	https://store.wooldridgeboats.com/products/stainless-grill-bar-bolt-kit-for-wooldridge-large-urethane-jet-foot	same title 'Stainless Grill Bar Bolt kit for Wooldridge Large Urethane Jet Foot'	404	200
+REDIRECT	products	10	www	/product/tee-key-half-round/	https://store.wooldridgeboats.com/products/half-round-t-key-size-large	WooCommerce #254 SKU 'OBJ 1706 LRG TKEY' = store SKU 'OBJ-1706'; same title 'Half-Round T-Key - Size Large'	404	200
+REDIRECT	products	10	www	/product/ultra-winterproof-jacket/	https://store.wooldridgeboats.com/products/ultra-winterproof-jacket	WooCommerce slug = store handle 'ultra-winterproof-jacket'; same title 'Ultra Winterproof Jacket'	404	200
+REDIRECT	products	9	www	/product/crutch-tips/	https://store.wooldridgeboats.com/products/crutch-tips	WooCommerce slug = store handle 'crutch-tips'; same title 'Crutch tips'	404	200
+REDIRECT	products	9	www	/product/jet-liner-7-3-8-non-flanged/	https://store.wooldridgeboats.com/products/jet-liner-7-3-8-non-flanged-obj-494	WooCommerce #250 SKU 'OBJ 494 LINER' = store SKU 'OBJ-494'; same title 'Jet Liner 7 3/8 Non-Flanged (OBJ 494)'	404	200
+REDIRECT	products	8	www	/product/jet-liner-7-7-8-flanged/	https://store.wooldridgeboats.com/products/jet-liner-7-7-8-flanged-obj-2192	WooCommerce #9029 SKU 'OBJ 2192 F LINER' = store SKU 'OBJ-2192'; same title 'Jet Liner 7 7/8 Flanged (OBJ 2192)'	404	200
+REDIRECT	products	8	www	/product/stainless-steel-four-blade-impeller-7-3-8-v6/	https://store.wooldridgeboats.com/products/7-3-8-v6-stainless-steel-4-blade-impeller-obj-1738	WooCommerce #239 SKU 'OBJ 1738' = store SKU 'OBJ-1738'; same title '7 3/8 V6 Stainless Steel 4-blade Impeller (OBJ 1738)'	404	200
+REDIRECT	products	7	www	/product/1941-rogue-river-trip-with-glen-wooldridge-dvd/	https://store.wooldridgeboats.com/products/1941-rogue-river-trip-with-glen-wooldridge-dvd	WooCommerce slug = store handle '1941-rogue-river-trip-with-glen-wooldridge-dvd'; same title '1941 Rogue River Trip with Glen Wooldridge DVD'	404	200
+REDIRECT	products	7	www	/product/jet-liner-6-1-8-non-flanged/	https://store.wooldridgeboats.com/products/jet-liner-6-1-8-non-flanged	WooCommerce #244 SKU 'OBJ 93.22 LINER' = store SKU 'OBJ-93-22'; WooCommerce slug = store handle 'jet-liner-6-1-8-non-flanged'; same title 'Jet Liner 6 1/8 Non-Flanged'	404	200
+REDIRECT	products	7	www	/product/jet-liner-7-3-16-flanged/	https://store.wooldridgeboats.com/products/jet-liner-7-3-16-flanged-obj-1831	WooCommerce #247 SKU 'OBJ 1831 F LINER' = store SKU 'OBJ-1831'; same title 'Jet Liner 7 3/16 Flanged (OBJ 1831)'	404	200
+REDIRECT	products	7	www	/product/jet-liner-7-3-8-flanged/	https://store.wooldridgeboats.com/products/jet-liner-7-3-8-flanged-obj-1431	WooCommerce #249 SKU 'OBJ 1431 F LINER' = store SKU 'OBJ-1431'; same title 'Jet Liner 7 3/8 Flanged (OBJ 1431)'	404	200
+REDIRECT	products	7	www	/product/stainless-steel-four-blade-impeller-7-7-8/	https://store.wooldridgeboats.com/products/7-7-8-stainless-steel-4-blade-impeller-obj-2191	same title '7 7/8 Stainless Steel 4-blade Impeller (OBJ 2191)'	404	200
+REDIRECT	products	6	www	/product/jet-liner-6-7-8-non-flanged/	https://store.wooldridgeboats.com/products/jet-liner-6-7-8-non-flanged	WooCommerce #246 SKU 'OBJ 135 LINER' = store SKU 'OBJ-135'; WooCommerce slug = store handle 'jet-liner-6-7-8-non-flanged'; same title 'Jet Liner 6 7/8 Non-Flanged'	404	200
+REDIRECT	products	6	www	/product/jet-liner-7-3-16-non-flanged/	https://store.wooldridgeboats.com/products/jet-liner-7-3-16-non-flanged-obj-137	WooCommerce #248 SKU 'OBJ 137 LINER' = store SKU 'OBJ-137'; same title 'Jet Liner 7 3/16 Non-Flanged (OBJ 137)'	404	200
+REDIRECT	products	6	www	/product/shaft-sleeve-large-size-copy/	https://store.wooldridgeboats.com/products/shaft-sleeve-large-and-extra-large	WooCommerce #8283 SKU 'OBJ 136 SLEEVE' = store SKU 'OBJ-136'; same title 'Shaft Sleeve - Large and Extra Large'	404	200
+REDIRECT	products	6	www	/product/stainless-grill-bar-bolt-for-wooldridge-extra-large-urathane-jetfoot-powerjet/	https://store.wooldridgeboats.com/products/stainless-grill-bar-bolt-kit-for-wooldridge-extra-large-urethane-jet-foot-power-jet	same title 'Stainless Grill Bar Bolt kit for Wooldridge Extra Large Urethane Jet Foot (Power Jet)'	404	200
+REDIRECT	products	6	www	/product/stainless-steel-grill-bar-for-outboard-jets-and-urethane-intakes-medium/	https://store.wooldridgeboats.com/products/stainless-steel-grill-bar-for-outboard-jets-and-urethane-intakes-medium	WooCommerce slug = store handle 'stainless-steel-grill-bar-for-outboard-jets-and-urethane-intakes-medium'; same title 'Stainless Steel Grill Bar for Outboard Jets and Urethane Intakes (Medium)'	404	200
+REDIRECT	products	6	www	/product/stud-adapter-kit/	https://store.wooldridgeboats.com/products/large-pump-stud-adapter-kit-converting-non-to-flanged-liners-and-intakes	WooCommerce #22633 SKU 'OBJ 1335 LRG STUD' = store SKU 'OBJ-1335'; same title 'Large Pump Stud Adapter Kit - Converting Non to Flanged liners and intakes'	404	200
+REDIRECT	products	6	www	/product/wooldridge-decals/	https://store.wooldridgeboats.com/products/wooldridge-decals	WooCommerce slug = store handle 'wooldridge-decals'; same title 'Wooldridge Decals'	404	200
+REDIRECT	products	5	www	/product/square-tee-key-for-size-large-pumps/	https://store.wooldridgeboats.com/products/square-t-key-size-large	WooCommerce #6331 SKU 'OBJ 434 WB LRG TKEY' = store SKU 'OBJ-434'; same title 'Square T-Key - Size Large'	404	200
+REDIRECT	products	5	www	/product/stainless-steel-grill-bar-for-outboard-jets-and-wooldridge-urathane-large-size-intakes/	https://store.wooldridgeboats.com/products/stainless-steel-grill-bar-for-outboard-jets-and-urethane-intakes-large	same title 'Stainless Steel Grill Bar for Outboard Jets and Urethane Intakes (Large)'	404	200
+REDIRECT	products	5	www	/product/wooldridge-american-flag-hoodie/	https://store.wooldridgeboats.com/products/wooldridge-american-flag-hoodie	WooCommerce slug = store handle 'wooldridge-american-flag-hoodie'	404	200
+REDIRECT	products	4	www	/product/extra-large-hardox-steel-grill-bar-for-outboard-jets-and-urethane-intakes/	https://store.wooldridgeboats.com/products/extra-large-hardox-steel-grill-bar-for-outboard-jets-and-urethane-intakes	WooCommerce slug = store handle 'extra-large-hardox-steel-grill-bar-for-outboard-jets-and-urethane-intakes'; same title 'Extra Large HardOx Steel Grill Bar for Outboard Jets and Urethane intakes'	404	200
+REDIRECT	products	4	www	/product/half-round-tee-key-for-outboardjets-impellers-w-size-medium-pumps/	https://store.wooldridgeboats.com/products/half-round-t-key-size-medium	WooCommerce #6334 SKU 'OBJ 1705 MED TKEY' = store SKU 'OBJ-1705'; same title 'Half-Round T-Key - Size Medium'	404	200
+REDIRECT	products	4	www	/product/medium-pump-stud-adapter-kit-converting-non-to-flanged-liners-and-intakes/	https://store.wooldridgeboats.com/products/medium-pump-stud-adapter-kit-converting-non-to-flanged-liners-and-intakes	WooCommerce #24734 SKU 'OBJ 1329 MED STUD' = store SKU 'OBJ-1329'; WooCommerce slug = store handle 'medium-pump-stud-adapter-kit-converting-non-to-flanged-liners-and-intakes'; same title 'Medium Pump Stud Adapter Kit - Converting Non to Flanged liners and intakes'	404	200
+REDIRECT	products	3	www	/product/stainless-grill-bar-bolt-for-wooldridge-medium-urathane-jetfoot/	https://store.wooldridgeboats.com/products/stainless-grill-bar-bolt-kit-for-wooldridge-medium-urethane-jet-foot	same title 'Stainless Grill Bar Bolt kit for Wooldridge Medium Urethane Jet Foot'	404	200
+REDIRECT	products	2	apex	/product/hardox-steel-grill-bar-for-outboard-jets-and-urathane-intakes/	https://store.wooldridgeboats.com/products/large-hardox-steel-grill-bar-for-outboard-jets-and-urethane-intakes	same title 'Large HardOx Steel Grill Bar for Outboard Jets and Urethane intakes'	404	200
+REDIRECT	products	2	www	/product/jet-liner-7-3-8-non-flanged	https://store.wooldridgeboats.com/products/jet-liner-7-3-8-non-flanged-obj-494	WooCommerce #250 SKU 'OBJ 494 LINER' = store SKU 'OBJ-494'; same title 'Jet Liner 7 3/8 Non-Flanged (OBJ 494)'	404	200
+REDIRECT	products	1	apex	/product/1941-rogue-river-trip-with-glen-wooldridge-dvd/	https://store.wooldridgeboats.com/products/1941-rogue-river-trip-with-glen-wooldridge-dvd	WooCommerce slug = store handle '1941-rogue-river-trip-with-glen-wooldridge-dvd'; same title '1941 Rogue River Trip with Glen Wooldridge DVD'	404	200
+REDIRECT	products	1	apex	/product/crutch-tips	https://store.wooldridgeboats.com/products/crutch-tips	WooCommerce slug = store handle 'crutch-tips'; same title 'Crutch tips'	404	200
+REDIRECT	products	1	www	/product/hardox-steel-grill-bar-for-outboard-jets-and-urathane-intakes/feed/	https://store.wooldridgeboats.com/products/large-hardox-steel-grill-bar-for-outboard-jets-and-urethane-intakes	same title 'Large HardOx Steel Grill Bar for Outboard Jets and Urethane intakes' (feed URL of it)	404	200
+REDIRECT	products	1	www	/product/jet-liner-6-1-8-flanged	https://store.wooldridgeboats.com/products/jet-liner-6-1-8-flanged-obj-1521	WooCommerce #243 SKU 'OBJ 1521 F LINER' = store SKU 'OBJ-1521'; same title 'Jet Liner 6 1/8 Flanged (OBJ 1521)'	404	200
+REDIRECT	products	1	apex	/product/jet-liner-6-7-8-flanged/	https://store.wooldridgeboats.com/products/jet-liner-6-7-8-flanged-obj-1833	WooCommerce #245 SKU 'OBJ 1833 F LINER' = store SKU 'OBJ-1833'; same title 'Jet Liner 6 7/8 Flanged (OBJ 1833)'	404	200
+REDIRECT	products	1	www	/product/jet-liner-6-7-8-non-flanged/feed/	https://store.wooldridgeboats.com/products/jet-liner-6-7-8-non-flanged	WooCommerce #246 SKU 'OBJ 135 LINER' = store SKU 'OBJ-135'; WooCommerce slug = store handle 'jet-liner-6-7-8-non-flanged'; same title 'Jet Liner 6 7/8 Non-Flanged' (feed URL of it)	404	200
+REDIRECT	products	1	www	/product/jet-liner-7-3-16-flanged/feed/	https://store.wooldridgeboats.com/products/jet-liner-7-3-16-flanged-obj-1831	WooCommerce #247 SKU 'OBJ 1831 F LINER' = store SKU 'OBJ-1831'; same title 'Jet Liner 7 3/16 Flanged (OBJ 1831)' (feed URL of it)	404	200
+REDIRECT	products	1	www	/product/jet-liner-7-3-16-non-flanged/feed/	https://store.wooldridgeboats.com/products/jet-liner-7-3-16-non-flanged-obj-137	WooCommerce #248 SKU 'OBJ 137 LINER' = store SKU 'OBJ-137'; same title 'Jet Liner 7 3/16 Non-Flanged (OBJ 137)' (feed URL of it)	404	200
+REDIRECT	products	1	www	/product/jet-liner-7-3-8-flanged	https://store.wooldridgeboats.com/products/jet-liner-7-3-8-flanged-obj-1431	WooCommerce #249 SKU 'OBJ 1431 F LINER' = store SKU 'OBJ-1431'; same title 'Jet Liner 7 3/8 Flanged (OBJ 1431)'	404	200
+REDIRECT	products	1	apex	/product/jet-liner-7-3-8-flanged/	https://store.wooldridgeboats.com/products/jet-liner-7-3-8-flanged-obj-1431	WooCommerce #249 SKU 'OBJ 1431 F LINER' = store SKU 'OBJ-1431'; same title 'Jet Liner 7 3/8 Flanged (OBJ 1431)'	404	200
+REDIRECT	products	1	www	/product/jet-liner-7-5-8-flanged/feed/	https://store.wooldridgeboats.com/products/jet-liner-7-5-8-flanged-obj-1605	WooCommerce #251 SKU 'OBJ 1605 F LINER' = store SKU 'OBJ-1605'; same title 'Jet Liner 7 5/8 Flanged (OBJ 1605)' (feed URL of it)	404	200
+REDIRECT	products	1	www	/product/shaft-sleeve-large-size-copy/feed/	https://store.wooldridgeboats.com/products/shaft-sleeve-large-and-extra-large	WooCommerce #8283 SKU 'OBJ 136 SLEEVE' = store SKU 'OBJ-136'; same title 'Shaft Sleeve - Large and Extra Large' (feed URL of it)	404	200
+REDIRECT	products	1	www	/product/shaft-sleeve-medium-size/feed/	https://store.wooldridgeboats.com/products/shaft-sleeve-medium-size	WooCommerce #6330 SKU 'OBJ 36 SLEEVE' = store SKU 'OBJ-36'; WooCommerce slug = store handle 'shaft-sleeve-medium-size'; same title 'Shaft Sleeve - Medium size' (feed URL of it)	404	200
+REDIRECT	products	1	apex	/product/square-tee-key-for-size-large-pumps/	https://store.wooldridgeboats.com/products/square-t-key-size-large	WooCommerce #6331 SKU 'OBJ 434 WB LRG TKEY' = store SKU 'OBJ-434'; same title 'Square T-Key - Size Large'	404	200
+REDIRECT	products	1	www	/product/square-tee-key-for-wooldridge-impellers-w-size-medium-pumps/feed/	https://store.wooldridgeboats.com/products/square-t-key-size-medium	WooCommerce #6332 SKU 'OBJ 782 WB MED TKEY' = store SKU 'OBJ-782'; same title 'Square T-Key - Size Medium' (feed URL of it)	404	200
+REDIRECT	products	1	www	/product/stainless-grill-bar-bolt-for-wooldridge-extra-large-urathane-jetfoot-powerjet/feed/	https://store.wooldridgeboats.com/products/stainless-grill-bar-bolt-kit-for-wooldridge-extra-large-urethane-jet-foot-power-jet	same title 'Stainless Grill Bar Bolt kit for Wooldridge Extra Large Urethane Jet Foot (Power Jet)' (feed URL of it)	404	200
+REDIRECT	products	1	www	/product/stainless-steel-four-blade-impeller-7-3-8-v6	https://store.wooldridgeboats.com/products/7-3-8-v6-stainless-steel-4-blade-impeller-obj-1738	WooCommerce #239 SKU 'OBJ 1738' = store SKU 'OBJ-1738'; same title '7 3/8 V6 Stainless Steel 4-blade Impeller (OBJ 1738)'	404	200
+REDIRECT	products	1	www	/product/stainless-steel-four-blade-impeller-7-3-8d	https://store.wooldridgeboats.com/products/wooldridge-7-3-8-d-stainless-4-blade-impeller	same title 'Wooldridge 7 3/8 D Stainless 4-Blade Impeller'	404	200
+REDIRECT	products	1	apex	/product/stainless-steel-four-blade-impeller-7-3-8d/	https://store.wooldridgeboats.com/products/wooldridge-7-3-8-d-stainless-4-blade-impeller	same title 'Wooldridge 7 3/8 D Stainless 4-Blade Impeller'	404	200
+REDIRECT	products	1	www	/product/stainless-steel-four-blade-impeller-7-3-8d/feed/	https://store.wooldridgeboats.com/products/wooldridge-7-3-8-d-stainless-4-blade-impeller	same title 'Wooldridge 7 3/8 D Stainless 4-Blade Impeller' (feed URL of it)	404	200
+REDIRECT	products	1	www	/product/stainless-steel-grill-bar-for-outboard-jets-and-urethane-intakes-medium/feed/	https://store.wooldridgeboats.com/products/stainless-steel-grill-bar-for-outboard-jets-and-urethane-intakes-medium	WooCommerce slug = store handle 'stainless-steel-grill-bar-for-outboard-jets-and-urethane-intakes-medium'; same title 'Stainless Steel Grill Bar for Outboard Jets and Urethane Intakes (Medium)' (feed URL of it)	404	200
+REDIRECT	products	1	apex	/product/stainless-steel-grill-bar-for-outboard-jets-and-wooldridge-urathane-large-size-intakes/	https://store.wooldridgeboats.com/products/stainless-steel-grill-bar-for-outboard-jets-and-urethane-intakes-large	same title 'Stainless Steel Grill Bar for Outboard Jets and Urethane Intakes (Large)'	404	200
+REDIRECT	products	1	www	/product/the-rogue-a-river-to-run-book/feed/	https://store.wooldridgeboats.com/products/the-rogue-a-river-to-run-book	WooCommerce slug = store handle 'the-rogue-a-river-to-run-book'; same title 'The Rogue | A River to Run (Book)' (feed URL of it)	404	200
+REDIRECT	products	1	www	/product/ultra-winterproof-jacket/feed/	https://store.wooldridgeboats.com/products/ultra-winterproof-jacket	WooCommerce slug = store handle 'ultra-winterproof-jacket'; same title 'Ultra Winterproof Jacket' (feed URL of it)	404	200
+REDIRECT	products	1	apex	/product/welded-socket-for-standard-halogen-head-lights/	https://store.wooldridgeboats.com/products/vision-x-xpr-lightbar-with-bolt-in-weld-in-socket	same title 'Vision-X XPR Lightbar with Bolt-In/Weld-In socket'	404	200
+REDIRECT	products	1	www	/product/welded-socket-for-standard-halogen-head-lights/feed/	https://store.wooldridgeboats.com/products/vision-x-xpr-lightbar-with-bolt-in-weld-in-socket	same title 'Vision-X XPR Lightbar with Bolt-In/Weld-In socket' (feed URL of it)	404	200
+REDIRECT	products	1	apex	/product/wooldridge-urethane-jet-foot/	https://store.wooldridgeboats.com/products/wooldridge-urethane-jet-foot-large	same title 'Wooldridge Urethane Jet Foot - Large'	404	200
+REDIRECT	sitemaps	14	www	/sitemap_index.xml	/sitemap.xml	the old site's sitemap -> the new /sitemap.xml	404	200
+REDIRECT	sitemaps	5	www	/wp-sitemap.xml	/sitemap.xml	the old site's sitemap -> the new /sitemap.xml	404	200
+REDIRECT	sitemaps	2	www	/wp-sitemap-posts-custom_agency_builds-1.xml	/sitemap.xml	the old site's sitemap -> the new /sitemap.xml	404	200
+REDIRECT	sitemaps	1	www	/wp-sitemap-posts-newinventory-1.xml	/sitemap.xml	the old site's sitemap -> the new /sitemap.xml	404	200
+REDIRECT	sitemaps	1	www	/wp-sitemap-posts-page-1.xml	/sitemap.xml	the old site's sitemap -> the new /sitemap.xml	404	200
+REDIRECT	sitemaps	1	www	/wp-sitemap-posts-product-1.xml	/sitemap.xml	the old site's sitemap -> the new /sitemap.xml	404	200
+REDIRECT	sitemaps	1	www	/wp-sitemap-taxonomies-product_tag-1.xml	/sitemap.xml	the old site's sitemap -> the new /sitemap.xml	404	200
+REDIRECT	store-paths	1	www	/collections/accessories	https://store.wooldridgeboats.com/collections/accessories	the store has this exact collection address ('Accessories')	404	200
+REDIRECT	store-paths	1	www	/collections/all	https://store.wooldridgeboats.com/collections/all	the store has this exact collection address ('All products (Shopify built-in)')	404	200
+REDIRECT	store-paths	1	www	/collections/apparel	https://store.wooldridgeboats.com/collections/apparel	the store has this exact collection address ('Apparel')	404	200
+REDIRECT	store-paths	1	www	/collections/bargain-cave	https://store.wooldridgeboats.com/collections/bargain-cave	the store has this exact collection address ('Bargain Cave')	404	200
+REDIRECT	store-paths	1	www	/collections/grill-bars-intakes	https://store.wooldridgeboats.com/collections/grill-bars-intakes	the store has this exact collection address ('Grill Bars & Bolt Kits')	404	200
+REDIRECT	store-paths	1	www	/collections/impellers	https://store.wooldridgeboats.com/collections/impellers	the store has this exact collection address ('Impellers')	404	200
+REDIRECT	store-paths	1	www	/collections/jet-boating-101	https://store.wooldridgeboats.com/collections/jet-boating-101	the store has this exact collection address ('Jet Boating 101')	404	200
+REDIRECT	store-paths	1	www	/collections/jet-parts	https://store.wooldridgeboats.com/collections/jet-parts	the store has this exact collection address ('Jet Parts')	404	200
+REDIRECT	store-paths	1	www	/collections/shop-all	https://store.wooldridgeboats.com/collections/shop-all	the store has this exact collection address ('Shop All')	404	200
+REDIRECT	store-paths	1	www	/products/1941-rogue-river-trip-with-glen-wooldridge-dvd	https://store.wooldridgeboats.com/products/1941-rogue-river-trip-with-glen-wooldridge-dvd	the store has this exact product address	404	200
+REDIRECT	store-paths	1	www	/products/7-3-8-v6-stainless-steel-4-blade-impeller-obj-1738	https://store.wooldridgeboats.com/products/7-3-8-v6-stainless-steel-4-blade-impeller-obj-1738	the store has this exact product address	404	200
+REDIRECT	store-paths	1	www	/products/7-3-8-v6m-cutback-stainless-steel-4-blade-impeller-obj-1739	https://store.wooldridgeboats.com/products/7-3-8-v6m-cutback-stainless-steel-4-blade-impeller-obj-1739	the store has this exact product address	404	200
+REDIRECT	store-paths	1	www	/products/7-5-8-stainless-steel-4-blade-impeller-obj-1721	https://store.wooldridgeboats.com/products/7-5-8-stainless-steel-4-blade-impeller-obj-1721	the store has this exact product address	404	200
+REDIRECT	store-paths	1	www	/products/duck-camo-hat	https://store.wooldridgeboats.com/products/duck-camo-hat	the store has this exact product address	404	200
+REDIRECT	store-paths	1	www	/products/half-round-t-key-size-large	https://store.wooldridgeboats.com/products/half-round-t-key-size-large	the store has this exact product address	404	200
+REDIRECT	store-paths	1	www	/products/jet-liner-7-3-8-flanged-obj-1431	https://store.wooldridgeboats.com/products/jet-liner-7-3-8-flanged-obj-1431	the store has this exact product address	404	200
+REDIRECT	store-paths	1	www	/products/large-hardox-steel-grill-bar-for-outboard-jets-and-urethane-intakes	https://store.wooldridgeboats.com/products/large-hardox-steel-grill-bar-for-outboard-jets-and-urethane-intakes	the store has this exact product address	404	200
+REDIRECT	store-paths	1	www	/products/shaft-sleeve-large-and-extra-large	https://store.wooldridgeboats.com/products/shaft-sleeve-large-and-extra-large	the store has this exact product address	404	200
+REDIRECT	store-paths	1	www	/products/square-t-key-size-large	https://store.wooldridgeboats.com/products/square-t-key-size-large	the store has this exact product address	404	200
+REDIRECT	store-paths	1	www	/products/the-rogue-a-river-to-run-book	https://store.wooldridgeboats.com/products/the-rogue-a-river-to-run-book	the store has this exact product address	404	200
+REDIRECT	store-paths	1	www	/products/wooldridge-7-3-8-d-stainless-4-blade-impeller	https://store.wooldridgeboats.com/products/wooldridge-7-3-8-d-stainless-4-blade-impeller	the store has this exact product address	404	200
+REDIRECT	store-paths	1	www	/products/wooldridge-urethane-jet-foot-large	https://store.wooldridgeboats.com/products/wooldridge-urethane-jet-foot-large	the store has this exact product address	404	200
+DECIDE	agency-case-studies	4	www	/agency-builds/20-skagit-yacht-tender/	/agency-work-boats/	old WordPress agency case study (no per-build page on the new site)	404	200
+DECIDE	agency-case-studies	4	www	/agency-builds/custom-agency-builds-1/	/agency-work-boats/	old WordPress agency case study (no per-build page on the new site)	404	200
+DECIDE	agency-case-studies	3	www	/agency-builds/25033/	/agency-work-boats/	old WordPress agency case study (no per-build page on the new site)	404	200
+DECIDE	agency-case-studies	2	www	/agency-builds/18-and-20-skagit-outboard-open-center-console-models-set-up-for-fire-search-and-rescue/	/agency-work-boats/	old WordPress agency case study (no per-build page on the new site)	404	200
+DECIDE	agency-case-studies	2	www	/agency-builds/20-skagit-department-of-fish-and-wildlife/	/agency-work-boats/	old WordPress agency case study (no per-build page on the new site)	404	200
+DECIDE	brochure-pdfs	15	www	/wp-content/uploads/2024/04/2024-Alaskan-LT-white.pdf	/models/alaskan-lt/	old PDF '2024 Alaskan LT - white' (media #23709)	404	200
+DECIDE	brochure-pdfs	15	www	/wp-content/uploads/2025/01/2025-Brochure-Super-Sport-Offshore-Angler-black.pdf	/models/super-sport-offshore-angler/	old PDF '2025 Brochure Super Sport Offshore Angler black' (media #25590)	404	200
+DECIDE	brochure-pdfs	8	www	/wp-content/uploads/2020/01/2021-33-DEEPWATER-EXPLORER-TWIN-SUZUKI-350-2.pdf	/models/deepwater/	old PDF '2021-33-DEEPWATER EXPLORER-TWIN SUZUKI 350' (media #28483)	404	200
+DECIDE	brochure-pdfs	7	www	/wp-content/uploads/2024/01/2024-Sportster-White.pdf	/models/sportster/	old PDF '2024 Sportster White' (media #22970)	404	200
+DECIDE	brochure-pdfs	7	www	/wp-content/uploads/2025/01/Rogue-OB-Brochure_April-2026.pdf	/models/rogue/	old PDF 'Rogue OB Brochure_April 2026' (media #28272)	404	200
+DECIDE	brochure-pdfs	5	www	/wp-content/uploads/2024/01/2024-Deepwater-Charter-white-1.pdf	/models/deepwater/	old PDF '2024 Deepwater Charter - white' (media #22978)	404	200
+DECIDE	brochure-pdfs	5	www	/wp-content/uploads/2024/04/2024-Alaskan-XLT-white.pdf	/models/xlt/	old PDF '2024 Alaskan XLT - white' (media #23711)	404	200
+DECIDE	brochure-pdfs	3	apex	/wp-content/uploads/2019/04/Alaskan-OB-Brochure_-March-2026.pdf	/models/alaskan/	old PDF 'Alaskan Brochure' (media #28189)	404	200
+DECIDE	brochure-pdfs	3	www	/wp-content/uploads/2025/01/Rogue-OB-Brochure_March-2026.pdf	/models/rogue/	old PDF 'Rogue OB Brochure 2026' (media #28199)	404	200
+DECIDE	brochure-pdfs	3	www	/wp-content/uploads/2026/01/2026-Alaskan-XL.pdf	/models/alaskanxl/	old PDF '2026 Alaskan XL' (media #27869)	404	200
+DECIDE	brochure-pdfs	3	www	/wp-content/uploads/2026/01/2026-Pybus-Offshore.pdf	/models/pybus-offshore/	old PDF '2026 Pybus Offshore' (media #27889)	404	200
+DECIDE	brochure-pdfs	2	www	/wp-content/uploads/2019/04/Alaskan-OB-Brochure_-March-2026.pdf	/models/alaskan/	old PDF 'Alaskan Brochure' (media #28189)	404	200
+DECIDE	brochure-pdfs	2	www	/wp-content/uploads/2019/04/Alaskan-XL-OB-Brochure_March-2026.pdf	/models/alaskanxl/	old PDF 'Alaskan XL OB Brochure 2026' (media #28193)	404	200
+DECIDE	brochure-pdfs	2	www	/wp-content/uploads/2019/04/Skagit-OB-Brochure_March-2026.pdf	/models/skagit/	old PDF 'Skagit OB Brochure 2026' (media #28201)	404	200
+DECIDE	brochure-pdfs	2	apex	/wp-content/uploads/2019/04/Sport-OB-Brochure_March-2026.pdf	/models/sport/	old PDF 'Sport OB Brochure 2026' (media #28203)	404	200
+DECIDE	brochure-pdfs	2	www	/wp-content/uploads/2019/12/Alaskan-LT-OB-Brochure_March-2026.pdf	/models/alaskan-lt/	old PDF 'Alaskan LT OB Brochure 2026' (media #28195)	404	200
+DECIDE	brochure-pdfs	2	www	/wp-content/uploads/2024/01/2024-Alaskan-LT-white.pdf	/models/alaskan-lt/	old PDF '2024 Alaskan LT - white' (media #22974)	404	200
+DECIDE	brochure-pdfs	2	www	/wp-content/uploads/2024/01/2024-Alaskan-XL-white.pdf	/models/alaskanxl/	old PDF '2024 Alaskan XL - white' (media #22975)	404	200
+DECIDE	brochure-pdfs	2	www	/wp-content/uploads/2024/01/2024-Alaskan-XLT-white.pdf	/models/xlt/	old PDF '2024 Alaskan XLT - white' (media #22963)	404	200
+DECIDE	brochure-pdfs	2	www	/wp-content/uploads/2024/01/2024-Brochure-Canyon-white.pdf	/models/canyon/	old PDF '2024 Brochure Canyon - white' (media #22964)	404	200
+DECIDE	brochure-pdfs	2	www	/wp-content/uploads/2024/01/2024-Skagit-Inboard-white.pdf	/models/skagit-inboard/	old PDF '2024 Skagit Inboard - white' (media #22968)	404	200
+DECIDE	brochure-pdfs	2	www	/wp-content/uploads/2024/01/Alaskan-XLT-OB-Brochure_March-2026.pdf	/models/xlt/	old PDF 'Alaskan XLT OB Brochure 2026' (media #28197)	404	200
+DECIDE	brochure-pdfs	2	www	/wp-content/uploads/2024/04/2024-Alaskan-XL-white.pdf	/models/alaskanxl/	old PDF '2024 Alaskan XL - white' (media #23710)	404	200
+DECIDE	brochure-pdfs	2	www	/wp-content/uploads/2024/04/2024-Sport-white.pdf	/models/sport/	old PDF '2024 Sport - white' (media #23713)	404	200
+DECIDE	brochure-pdfs	2	www	/wp-content/uploads/2026/01/2026-Deepwater-Charter.pdf	/models/deepwater/	old PDF '2026 Deepwater Charter' (media #27875)	404	200
+DECIDE	brochure-pdfs	1	www	/wp-content/uploads/2019/04/Skagit-OB-Brochure_March-2026-1.pdf	/models/skagit/	old PDF 'Skagit OB Brochure_March 2026' (media #28277)	404	200
+DECIDE	brochure-pdfs	1	apex	/wp-content/uploads/2019/12/Alaskan-LT-OB-Brochure_March-2026.pdf	/models/alaskan-lt/	old PDF 'Alaskan LT OB Brochure 2026' (media #28195)	404	200
+DECIDE	brochure-pdfs	1	apex	/wp-content/uploads/2024/01/Alaskan-XLT-OB-Brochure_March-2026.pdf	/models/xlt/	old PDF 'Alaskan XLT OB Brochure 2026' (media #28197)	404	200
+DECIDE	brochure-pdfs	1	www	/wp-content/uploads/2024/03/2025-Rogue.pdf	/models/rogue/	old PDF '2025 Rogue' (media #25270)	404	200
+DECIDE	brochure-pdfs	1	apex	/wp-content/uploads/2025/01/Rogue-OB-Brochure_March-2026.pdf	/models/rogue/	old PDF 'Rogue OB Brochure 2026' (media #28199)	404	200
+DECIDE	brochure-pdfs	1	www	/wp-content/uploads/2025/04/2025-Super-Sport-Drifter-Inboard-black.pdf	/models/supersportdrifterinboard/	old PDF '2025 Super Sport Drifter Inboard - black' (media #26278)	404	200
+DECIDE	brochure-pdfs	1	apex	/wp-content/uploads/2026/01/2026-Canyon.pdf	/models/canyon/	old PDF '2026 Canyon IB' (media #27873)	404	200
+DECIDE	categories	11	www	/category/accessories/	https://store.wooldridgeboats.com/collections/apparel	old WooCommerce category 'accessories'; 3 of its 6 matched products sit in 'Apparel'	404	200
+DECIDE	categories	9	www	/category/clothing/	https://store.wooldridgeboats.com/collections/apparel	old WooCommerce category 'clothing'; 3 of its 3 matched products sit in 'Apparel'	404	200
+DECIDE	categories	8	www	/category/bargain/	https://store.wooldridgeboats.com/collections/bargain-cave	old WooCommerce category 'bargain'; 2 of its 2 matched products sit in 'Bargain Cave'	404	200
+DECIDE	categories	8	www	/category/media/	https://store.wooldridgeboats.com/collections/jet-boating-101	old WooCommerce category 'media'; 2 of its 2 matched products sit in 'Jet Boating 101'	404	200
+DECIDE	categories	7	www	/category/uncategorized/	https://store.wooldridgeboats.com/collections/shop-all	old WooCommerce category 'uncategorized'; all of its 33 matched products sit in 'Shop All'	404	200
+DECIDE	categories	4	www	/product-tag/jet-liner/	https://store.wooldridgeboats.com/collections/jet-parts	old WooCommerce product tag 'jet-liner'	404	200
+DECIDE	categories	4	www	/product-tag/stainless-steel-four-blade-impeller/	https://store.wooldridgeboats.com/collections/impellers	old WooCommerce product tag 'stainless-steel-four-blade-impeller'	404	200
+DECIDE	categories	3	www	/product-tag/please-include-size/	https://store.wooldridgeboats.com/collections/shop-all	old WooCommerce product tag 'please-include-size'	404	200
+DECIDE	categories	3	www	/product-tag/tee-key/	https://store.wooldridgeboats.com/collections/jet-parts	old WooCommerce product tag 'tee-key'	404	200
+DECIDE	categories	2	www	/category/Accessories	https://store.wooldridgeboats.com/collections/apparel	old WooCommerce category 'accessories'; 3 of its 6 matched products sit in 'Apparel'	404	200
+DECIDE	categories	2	www	/product-tag/jet-foot-intake/	https://store.wooldridgeboats.com/collections/jet-feet	old WooCommerce product tag 'jet-foot-intake'	404	200
+DECIDE	categories	1	www	/category/Accessories/	https://store.wooldridgeboats.com/collections/apparel	old WooCommerce category 'accessories'; 3 of its 6 matched products sit in 'Apparel'	404	200
+DECIDE	categories	1	www	/category/Uncategorized/	https://store.wooldridgeboats.com/collections/shop-all	old WooCommerce category 'uncategorized'; all of its 41 matched products sit in 'Shop All'	404	200
+DECIDE	categories	1	www	/category/bargain/feed/	https://store.wooldridgeboats.com/collections/bargain-cave	old WooCommerce category 'bargain'; 2 of its 2 matched products sit in 'Bargain Cave' (feed URL of it)	404	200
+DECIDE	categories	1	www	/category/clothing/feed/	https://store.wooldridgeboats.com/collections/apparel	old WooCommerce category 'clothing'; 3 of its 3 matched products sit in 'Apparel' (feed URL of it)	404	200
+DECIDE	categories	1	apex	/category/media	https://store.wooldridgeboats.com/collections/jet-boating-101	old WooCommerce category 'media'; 2 of its 2 matched products sit in 'Jet Boating 101'	404	200
+DECIDE	categories	1	www	/category/uncategorized/page/3/	https://store.wooldridgeboats.com/collections/shop-all	old WooCommerce category 'uncategorized'; all of its 41 matched products sit in 'Shop All'	404	200
+DECIDE	categories	1	www	/category/uncategorized/page/4/	https://store.wooldridgeboats.com/collections/shop-all	old WooCommerce category 'uncategorized'; all of its 41 matched products sit in 'Shop All'	404	200
+DECIDE	categories	1	apex	/product-tag/jet-foot-intake	https://store.wooldridgeboats.com/collections/jet-feet	old WooCommerce product tag 'jet-foot-intake'	404	200
+DECIDE	categories	1	www	/product-tag/shaft-sleeve/	https://store.wooldridgeboats.com/collections/jet-parts	old WooCommerce product tag 'shaft-sleeve'	404	200
+DECIDE	categories	1	www	/product-tag/stainless-steel-four-blade-impeller/feed/	https://store.wooldridgeboats.com/collections/impellers	old WooCommerce product tag 'stainless-steel-four-blade-impeller' (feed URL of it)	404	200
+DECIDE	leftovers	3	www	/registration/		old WordPress page (account/test/sample); suggest leave 404	404	
+DECIDE	leftovers	2	www	/wp-content/uploads/2026/05/WB-ICON-FLAG-4.pdf		old PDF 'WB-ICON-FLAG' (media #28598); names no model; suggest leave 404	404	
+DECIDE	leftovers	2	www	/wp-content/uploads/2026/05/WB-ICON-LOGO.pdf		old PDF 'WB-ICON-LOGO' (media #28609); names no model; suggest leave 404	404	
+DECIDE	leftovers	1	www	/about	/about-history/	old About address	404	200
+DECIDE	leftovers	1	apex	/about	/about-history/	old About address	404	200
+DECIDE	leftovers	1	apex	/about/	/about-history/	old About address	404	200
+DECIDE	leftovers	1	www	/author/grant/feed/		old WordPress RSS feed; suggest leave 404	404	
+DECIDE	leftovers	1	www	/blog/feed		old WordPress RSS feed; suggest leave 404	404	
+DECIDE	leftovers	1	www	/blog/feed/		old WordPress RSS feed; suggest leave 404	404	
+DECIDE	leftovers	1	apex	/hello-world/		old WordPress page (account/test/sample); suggest leave 404	404	
+DECIDE	leftovers	1	www	/hello-world/		old WordPress page (account/test/sample); suggest leave 404	404	
+DECIDE	leftovers	1	www	/home/feed/		old WordPress RSS feed; suggest leave 404	404	
+DECIDE	leftovers	1	www	/newinventory/feed/		old WordPress RSS feed; suggest leave 404	404	
+DECIDE	leftovers	1	apex	/registration/		old WordPress page (account/test/sample); suggest leave 404	404	
+DECIDE	models-unclear	1	www	/catalog/products/ss-pilothouse	/models/supersportoffshorepilothouse/	pre-2019 catalogue page 'ss-pilothouse'	404	200
+DECIDE	models-unclear	1	apex	/catalog/products/xp-inboard	/models/skagit/	pre-2019 catalogue page 'xp-inboard'	404	200
+DECIDE	models-unclear	1	apex	/models/canyonclassic/	/models/canyon/	old model address '/models/canyonclassic/' has no page and no exact match	404	200
+DECIDE	models-unclear	1	apex	/models/sportoffshorepilothouse/	/models/supersportoffshorepilothouse/	old model address '/models/sportoffshorepilothouse/' has no page and no exact match	404	200
+DECIDE	models-unclear	1	www	/models/xpinboard/	/models/skagit/	old model address '/models/xpinboard/' has no page and no exact match	404	200
+DECIDE	old-store-pages	10	www	/store/page/4/	https://store.wooldridgeboats.com/	old store listing page (WooCommerce pages or the pre-2019 store)	404	200
+DECIDE	old-store-pages	4	www	/store/equipment/stainless-steel-four-blade-impeller/stainless-steel-four-blade-impeller-7-38d	https://store.wooldridgeboats.com/	old store listing page (WooCommerce pages or the pre-2019 store)	404	200
+DECIDE	old-store-pages	4	www	/store/page/2/	https://store.wooldridgeboats.com/	old store listing page (WooCommerce pages or the pre-2019 store)	404	200
+DECIDE	old-store-pages	1	www	/store/accessories-and-gifts/christmas-special-wooldridge-gift-pack	https://store.wooldridgeboats.com/	old store listing page (WooCommerce pages or the pre-2019 store)	404	200
+DECIDE	old-store-pages	1	www	/store/alaskan-adventure/grant-and-glens-alaskan-adventure-dvd	https://store.wooldridgeboats.com/	old store listing page (WooCommerce pages or the pre-2019 store)	404	200
+DECIDE	old-store-pages	1	apex	/store/category/the-rogue-a-river-to-run	https://store.wooldridgeboats.com/	old store listing page (WooCommerce pages or the pre-2019 store)	404	200
+DECIDE	old-store-pages	1	www	/store/equipment/wooldridge-reverse-bucket-for-sport-jets	https://store.wooldridgeboats.com/	old store listing page (WooCommerce pages or the pre-2019 store)	404	200
+DECIDE	old-store-pages	1	www	/store/page/1/	https://store.wooldridgeboats.com/	old store listing page (WooCommerce pages or the pre-2019 store)	404	200
+DECIDE	old-store-pages	1	apex	/store/page/1/	https://store.wooldridgeboats.com/	old store listing page (WooCommerce pages or the pre-2019 store)	404	200
+DECIDE	old-store-pages	1	www	/store/page/3/	https://store.wooldridgeboats.com/	old store listing page (WooCommerce pages or the pre-2019 store)	404	200
+DECIDE	performance-pdfs	6	www	/wp-content/uploads/2019/04/2024-20-Sport-with-Yamaha-F200LB-Performance.pdf	/models/sport/	old performance PDF '2024 20' Sport with Yamaha F200LB Performance' (media #28090)	404	200
+DECIDE	performance-pdfs	5	www	/wp-content/uploads/2026/06/2026-SCOUT-WIDEBODY-PERFORMANCE-TEST.pdf	/assets/docs/SCOUT_WIDEBODY_Performance_Test_2026.pdf	old performance PDF '2026-SCOUT WIDEBODY-PERFORMANCE-TEST' (media #29017); the same model's 2026 test is on the site	404	200
+DECIDE	performance-pdfs	4	www	/wp-content/uploads/2024/05/18-Alaskan-Performance-Data.pdf	/models/alaskan/	old performance PDF '18' Alaskan Performance Data' (media #24028)	404	200
+DECIDE	performance-pdfs	4	www	/wp-content/uploads/2025/01/2025-Performance-Data-24-Super-Sport-Offshore-Angler-Mercury-ProXS-250-1.pdf	/models/super-sport-offshore-angler/	old performance PDF '2025 Performance Data 24' Super Sport Offshore Angler Mercury ProXS 250' (media #27552)	404	200
+DECIDE	performance-pdfs	3	www	/wp-content/uploads/2024/05/21-Super-Sport-Offshore-Performance-Data.pdf	/models/super-sport-offshore/	old performance PDF '21' Super Sport Offshore Performance Data' (media #24031)	404	200
+DECIDE	performance-pdfs	3	www	/wp-content/uploads/2025/01/2026-ROGUE-PERFORMANCE-TEST.pdf	/assets/docs/ROGUE_Performance_Test_2026.pdf	old performance PDF '2026-ROGUE-PERFORMANCE-TEST' (media #28977); the same model's 2026 test is on the site	404	200
+DECIDE	performance-pdfs	2	www	/wp-content/uploads/2019/04/2024-20-Sport-Tiller-Yamaha-F150XP-Performance-Data.pdf	/models/sport/	old performance PDF '2024 20' Sport Tiller Yamaha F150XP Performance Data' (media #28088)	404	200
+DECIDE	performance-pdfs	2	www	/wp-content/uploads/2019/09/2026-SCOUT-PERFORMANCE-TEST.pdf	/assets/docs/SCOUT_Performance_Test_2026.pdf	old performance PDF '2026-SCOUT-PERFORMANCE-TEST' (media #28642); the same model's 2026 test is on the site	404	200
+DECIDE	performance-pdfs	2	www	/wp-content/uploads/2025/01/2025-Performance-Data-24-Super-Sport-Offshore-Angler-Mercury-ProXS-250-4-blade-14.6x15P.pdf	/models/super-sport-offshore-angler/	old performance PDF '2025 Performance Data 24' Super Sport Offshore Angler Mercury ProXS 250 4 blade 14.6x15P' (media #27642)	404	200
+DECIDE	performance-pdfs	1	www	/wp-content/uploads/2019/04/20-Skagit-Performance-Data-Small.pdf	/models/skagit/	old performance PDF '20' Skagit Performance Data Small' (media #24889)	404	200
+DECIDE	performance-pdfs	1	www	/wp-content/uploads/2026/04/2025-21-SKAGIT-X-PREFORMANCE-TEST.pdf	/models/skagit-x/	old performance PDF '2025-21-SKAGIT-X-PREFORMANCE-TEST' (media #28431)	404	200
+DECIDE	pre-2019-site	6	www	/static/2092/1982-25-wooldridge-classic		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	2	www	/static/2125/-1		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	apex	/forms/1/-1		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	apex	/forms/4/contact-us-warranty		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/photos/Acc/images/Bow%20Ladder_jpg_jpg.jpg		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/photos/AlaskanII/index.htm		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/static		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	apex	/static/1968/-1		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	apex	/static/1970/rouge-river-book		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/static/1998/2013-17-alaskan-pre-owned-1578800		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/static/2053/2011-wooldridge-20-super-sport-offshore		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	apex	/static/2075/-1		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/static/2101/-1		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/static/2113/2008-24-wooldridge-super-sport-drifter		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	apex	/static/2115/-1		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/static/2116/-1		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	apex	/static/2117/-1		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/static/2119/-1		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/static/2123/-1		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/static/2130/-1		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/static/2131/-1		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/static/2134/-1		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	apex	/testimonial		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/testimonial/page-10		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/testimonial/page-11		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/testimonial/page-12		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/testimonial/page-13		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/testimonial/page-14		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/testimonial/page-15		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/testimonial/page-16		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/testimonial/page-17		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/testimonial/page-18		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/testimonial/page-19		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/testimonial/page-20		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/testimonial/page-21		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/testimonial/page-22		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/testimonial/page-23		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/testimonial/page-24		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/testimonial/page-25		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/testimonial/page-26		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/testimonial/page-27		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/testimonial/page-28		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/testimonial/page-29		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/testimonials/172/wally-johnson-his-son-donovan-and-his-first-mule-deer		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/testimonials/265/danny-cook		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/testimonials/289/nick-nichols		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/testimonials/293/-1		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	apex	/testimonials/295/-1		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	apex	/testimonials/299/-1		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	www	/testimonials/300/-1		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	apex	/testimonials/301/john-johnson		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	apex	/testimonials/34/eli-rico---hot-shot-guide-service		pre-2019 site page; suggest leave 404	404	
+DECIDE	pre-2019-site	1	apex	/testimonials/36/bonner-daniels---fish-on-guide-service		pre-2019 site page; suggest leave 404	404	
+DECIDE	price-sheets-unclear	3	www	/wp-content/uploads/2025/04/2025-LANDING-CRAFT-Hull-Options-Trailer-Prices-3.pdf	/models/landing-craft/	old price sheet '2025 LANDING CRAFT - Hull Options & Trailer Prices' (media #26284): the name does not pin one current canon sheet	404	200
+DECIDE	price-sheets-unclear	2	www	/wp-content/uploads/2025/04/2025-ALASKAN-XL-Hull-Options-Trailer-Prices.pdf	/models/alaskanxl/	old price sheet '2025 ALASKAN XL - Hull, Options & Trailer Prices' (media #26282): the name does not pin one current canon sheet	404	200
+DECIDE	price-sheets-unclear	2	www	/wp-content/uploads/2025/04/2025-SPORTSTER-INBOARD-Hull-Options-Trailer-Prices_Copied-from-Sportster-Outboard.pdf	/models/sportster/	old price sheet '2025 SPORTSTER INBOARD- Hull, Options & Trailer Prices_Copied from Sportster Outboard' (media #26296): the name does not pin one current canon sheet	404	200
+DECIDE	price-sheets-unclear	1	www	/wp-content/uploads/2026/01/Alaskan-XL-2026-Price-Sheet.pdf	/models/alaskanxl/	old price sheet 'Alaskan XL 2026 Price Sheet' (media #27839): the name does not pin one current canon sheet	404	200
+DECIDE	price-sheets-unclear	1	www	/wp-content/uploads/2026/01/Landing-Craft-OB-2026-Price-Sheet.pdf	/models/landing-craft/	old price sheet 'Landing Craft OB 2026 Price Sheet' (media #27843): the name does not pin one current canon sheet	404	200
+DECIDE	products-unmatched	19	www	/product/river-rat-ts/	https://store.wooldridgeboats.com/products/wooldridge-river-rat-t-shirt	WooCommerce #9529 'Wooldridge River Rat T-Shirt' (SKU '!NK C RF-RR-001 RR T', publish): no SKU, handle or title match on the store; closest by words: 'River Rat T-Shirt' (75% overlap)	404	200
+DECIDE	products-unmatched	10	www	/product/outboard-jets-stainless-steel-3-blade-impeller-6-1-8-obj-1737/	https://store.wooldridgeboats.com/products/outboard-jets-stainless-steel-4-blade-impeller-7-3-8-d-obj-1919	WooCommerce #36897 'Outboard Jets Stainless Steel 3-blade Impeller 6 1/8 (OBJ 1737)' (SKU '', publish): no SKU, handle or title match on the store; closest by words: 'Outboard Jets Stainless Steel 4-Blade Impeller 7 3/8 D (OBJ 1919)' (100% overlap)	404	200
+DECIDE	products-unmatched	6	www	/product/jet-boating-101-with-grant-wooldridge/	https://store.wooldridgeboats.com/	WooCommerce #9287 'Jet Boating With Grant Wooldridge Online Course' (SKU 'APRILV M 005 MEDIA CLASS', publish): no SKU, handle or title match on the store	404	200
+DECIDE	products-unmatched	6	www	/product/jet-boating-with-grant-wooldridge-online-course-copy/	https://store.wooldridgeboats.com/	WooCommerce #24304 'Anchored Outdoors Premium Plus Subscription' (SKU 'APRILV M 005 MEDIA SUB', publish): no SKU, handle or title match on the store	404	200
+DECIDE	products-unmatched	6	www	/product/new-wooldridge-grundens-bulkhead-jacket/	https://store.wooldridgeboats.com/products/wooldridge-grundens-bulkhead-jacket	WooCommerce #25184 'Wooldridge Grund√©ns Bulkhead Jacket' (SKU 'BlueJay Grund√©ns Bulkhead -1', publish): no SKU, handle or title match on the store; closest by words: 'GrundÈns Bulkhead Jacket' (80% overlap)	404	200
+DECIDE	products-unmatched	6	www	/product/wooldridge-camo-hoodie/	https://store.wooldridgeboats.com/products/wooldridge-grundens-camo-hoodie	WooCommerce #29050 'Wooldridge Grund√©ns Camo Hoodie' (SKU 'C 210-1 CAMO HOODIE-2', publish): no SKU, handle or title match on the store; closest by words: 'GrundÈns Camo Hoodie' (80% overlap)	404	200
+DECIDE	products-unmatched	5	www	/product/armada-hoodie-black-w-white-logos-copy/	https://store.wooldridgeboats.com/products/wooldridge-river-rat-hoodie	WooCommerce #9715 'Wooldridge River Rat Hoodie' (SKU '!NK C 210-1 RR HOODIE', publish): no SKU, handle or title match on the store; closest by words: 'River Rat Hoodie' (75% overlap)	404	200
+DECIDE	products-unmatched	5	www	/product/medium-hardox-steel-grill-bar-for-outboard-jets-and-urethane-intakes/	https://store.wooldridgeboats.com/products/medium-hardox-steel-grill-bar-for-outboard-jets-and-urethane-intakes-currently-backordered	WooCommerce #24678 'Medium HardOx Steel Grill Bar for Outboard Jets and Urethane intakes (CURRENTLY BACKORDERED)' (SKU 'WB UJF 003 MED OX GB', publish): no SKU, handle or title match on the store; closest by words: 'Medium HardOx Steel Grill Bar for Outboard Jets and Urethane intakes' (85% overlap)	404	200
+DECIDE	products-unmatched	5	www	/product/wooldridge-flex-fit-cap-copy/	https://store.wooldridgeboats.com/	WooCommerce #9400 'Wooldridge Trucker Hat (Out of stock)' (SKU 'WB C H 200- blk/blk MESH HAT', publish): no SKU, handle or title match on the store	404	200
+DECIDE	products-unmatched	3	www	/product/grant-and-glens-alaskan-adventure/	https://store.wooldridgeboats.com/products/grant-s-and-glen-s-alaskan-adventure	WooCommerce #392 'Grant's and Glen's Alaskan Adventure' (SKU 'M 400 DVD', publish): no SKU, handle or title match on the store; closest by words: 'Grant and Glen's Alaskan Adventure' (100% overlap)	404	200
+DECIDE	products-unmatched	3	www	/product/wooldridge-realtree-camo-hat/	https://store.wooldridgeboats.com/products/duck-camo-hat	WooCommerce #9536 'Wooldridge RealTree Camo hat' (SKU 'WB C H 200 CAMO HAT', private): no SKU, handle or title match on the store; closest by words: 'Duck Camo Hat' (40% overlap)	404	200
+DECIDE	products-unmatched	2	apex	/product/armada-hoodie-black/	https://store.wooldridgeboats.com/	WooCommerce #374 'Armada Hoodie (Black w/white logos)' (SKU 'C 210', private): no SKU, handle or title match on the store	404	200
+DECIDE	products-unmatched	2	www	/product/jet-foot-intake-power-jet-intake-without-fins-black/	https://store.wooldridgeboats.com/products/yamaha-blue-xl-jet-foot-intake-without-fins-power-jet	WooCommerce #257 'Aluminum Power Jet Foot without fins (OBJ 1603.01)' (SKU 'OBJ 1603.01 BLK', private): no SKU, handle or title match on the store; closest by words: 'Yamaha Blue XL Jet Foot Intake without fins - Power Jet' (50% overlap)	404	200
+DECIDE	products-unmatched	2	www	/product/new-wooldridge-grundens-tough-sun-shirt/	https://store.wooldridgeboats.com/products/wooldridge-grundens-tough-sun-shirt	WooCommerce #26765 'Wooldridge Grund√©ns Tough Sun Shirt' (SKU 'BlueJay Grund√©ns Bulkhead -1-1', publish): no SKU, handle or title match on the store; closest by words: 'GrundÈns Tough Sun Shirt' (83% overlap)	404	200
+DECIDE	products-unmatched	2	www	/product/wooldridge-american-flag-ts/	https://store.wooldridgeboats.com/products/army-american-flag-shirt	WooCommerce #27075 'Wooldridge American Flag T-Shirt' (SKU '!NK C RF-RR-001 RR T-1', publish): no SKU, handle or title match on the store; closest by words: 'Army American Flag Shirt' (60% overlap)	404	200
+DECIDE	products-unmatched	1	apex	/product/armada-hoodie-black-w-white-logos-copy	https://store.wooldridgeboats.com/products/wooldridge-river-rat-hoodie	WooCommerce #9715 'Wooldridge River Rat Hoodie' (SKU '!NK C 210-1 RR HOODIE', publish): no SKU, handle or title match on the store; closest by words: 'River Rat Hoodie' (75% overlap)	404	200
+DECIDE	products-unmatched	1	www	/product/armada-hoodie-black-w-white-logos-copy/feed/	https://store.wooldridgeboats.com/products/wooldridge-river-rat-hoodie	WooCommerce #9715 'Wooldridge River Rat Hoodie' (SKU '!NK C 210-1 RR HOODIE', publish): no SKU, handle or title match on the store; closest by words: 'River Rat Hoodie' (75% overlap)	404	200
+DECIDE	products-unmatched	1	apex	/product/christmas-special-wooldridge-gift-pack/	https://store.wooldridgeboats.com/	WooCommerce #394 'CHRISTMAS SPECIAL!! Wooldridge Gift Pack' (SKU 'X 506', private): no SKU, handle or title match on the store	404	200
+DECIDE	products-unmatched	1	www	/product/flow-tec-linkage-only/	https://store.wooldridgeboats.com/	slug 'flow-tec-linkage-only' not in the WooCommerce database	404	200
+DECIDE	products-unmatched	1	apex	/product/grant-and-glens-alaskan-adventure/	https://store.wooldridgeboats.com/products/grant-s-and-glen-s-alaskan-adventure	WooCommerce #392 'Grant's and Glen's Alaskan Adventure' (SKU 'M 400 DVD', publish): no SKU, handle or title match on the store; closest by words: 'Grant and Glen's Alaskan Adventure' (100% overlap)	404	200
+DECIDE	products-unmatched	1	www	/product/jet-foot-intake-large-intake-with-fins-black/	https://store.wooldridgeboats.com/	WooCommerce #256 'Black Large Jet Foot Intake with Welded Fins' (SKU 'OBJ 1332.04 BLK WFIN', private): no SKU, handle or title match on the store	404	200
+DECIDE	products-unmatched	1	www	/product/jet-foot-intake-power-jet-intake-with-fins-black/	https://store.wooldridgeboats.com/products/yamaha-blue-xl-jet-foot-intake-without-fins-power-jet	WooCommerce #258 'Black XL Jet Foot Intake with welded fins - Power Jet' (SKU 'OBJ 1602.04 BLK WFIN', private): no SKU, handle or title match on the store; closest by words: 'Yamaha Blue XL Jet Foot Intake without fins - Power Jet' (50% overlap)	404	200
+DECIDE	products-unmatched	1	www	/product/medium-hardox-steel-grill-bar-for-outboard-jets-and-urethane-intakes/feed/	https://store.wooldridgeboats.com/products/medium-hardox-steel-grill-bar-for-outboard-jets-and-urethane-intakes-currently-backordered	WooCommerce #24678 'Medium HardOx Steel Grill Bar for Outboard Jets and Urethane intakes (CURRENTLY BACKORDERED)' (SKU 'WB UJF 003 MED OX GB', publish): no SKU, handle or title match on the store; closest by words: 'Medium HardOx Steel Grill Bar for Outboard Jets and Urethane intakes' (85% overlap)	404	200
+DECIDE	products-unmatched	1	www	/product/new-wooldridge-grundens-pisces-jacket/	https://store.wooldridgeboats.com/products/wooldridge-grundens-pisces-jacket	WooCommerce #26756 'Wooldridge Grund√©ns Pisces Jacket' (SKU 'BlueJay Grund√©ns Bulkhead -1-1', publish): no SKU, handle or title match on the store; closest by words: 'GrundÈns Pisces Jacket' (80% overlap)	404	200
+DECIDE	products-unmatched	1	www	/product/stainless-steel-four-blade-impeller-6-1-8/	https://store.wooldridgeboats.com/	slug 'stainless-steel-four-blade-impeller-6-1-8' not in the WooCommerce database	404	200
+DECIDE	products-unmatched	1	www	/product/ugly-christmas-sweater/	https://store.wooldridgeboats.com/	WooCommerce #369 'Ugly Christmas Sweater' (SKU 'C 203', publish): no SKU, handle or title match on the store	404	200
+DECIDE	products-unmatched	1	apex	/product/ugly-christmas-sweater/	https://store.wooldridgeboats.com/	WooCommerce #369 'Ugly Christmas Sweater' (SKU 'C 203', publish): no SKU, handle or title match on the store	404	200
+DECIDE	products-unmatched	1	www	/product/ugly-christmas-sweater/feed/	https://store.wooldridgeboats.com/	WooCommerce #369 'Ugly Christmas Sweater' (SKU 'C 203', publish): no SKU, handle or title match on the store	404	200
+DECIDE	products-unmatched	1	www	/product/wooldridge-boats-bullet-casing-pen-30-06-308/feed/	https://store.wooldridgeboats.com/	WooCommerce #390 'Wooldridge Boats Bullet Casing Pen (30-06 & 308)' (SKU 'WB M 398 BULL PEN', private): no SKU, handle or title match on the store	404	200
+DECIDE	products-unmatched	1	www	/product/wooldridge-machined-bottle-opener-bolt-on/	https://store.wooldridgeboats.com/	WooCommerce #4048 'Wooldridge machined bottle opener - Bolt-On' (SKU 'A 10', private): no SKU, handle or title match on the store	404	200
+DECIDE	sold-listings	15	www	/newinventory/18-wooldridge-sport-in-stock-ready-to-take-home/	/new-inventory/	old new-inventory listing no longer on the site (the old title said SOLD)	404	200
+DECIDE	sold-listings	9	www	/newinventory/20-wooldridge-alaskan-x-lt-ready-to-ride/	/new-inventory/	old new-inventory listing no longer on the site (the old title said SOLD)	404	200
+DECIDE	sold-listings	5	www	/preowned/near-new-2023-wooldridge-25-super-sport-drifter-inboard-w-chevy-7-4l-454-hamilton-241-loaded/	/pre-owned/	old pre-owned listing not on the site any more (sold or withdrawn)	404	200
+DECIDE	sold-listings	3	apex	/preowned/2013-woolridge-23-super-sport-offshore-pilothouse/	/pre-owned/	old pre-owned listing not on the site any more (sold or withdrawn)	404	200
+DECIDE	sold-listings	3	www	/preowned/2025-wooldridge-18-hdpe-rogue/	/pre-owned/	old pre-owned listing not on the site any more (sold or withdrawn)	404	200
+DECIDE	sold-listings	3	www	/preowned/custom-2014-wooldridge-31-landing-craft-twin-diesel-jet-powered-only-140-hours/	/pre-owned/	old pre-owned listing not on the site any more (sold or withdrawn)	404	200
+DECIDE	sold-listings	3	www	/used-vehicles	/pre-owned/	pre-2019 site listing	404	200
+DECIDE	sold-listings	2	www	/preowned/2001-wooldridge-18-xtra-plus/	/pre-owned/	old pre-owned listing not on the site any more (sold or withdrawn)	404	200
+DECIDE	sold-listings	2	www	/preowned/2008-wooldridge-17-sport/	/pre-owned/	old pre-owned listing not on the site any more (sold or withdrawn)	404	200
+DECIDE	sold-listings	2	www	/preowned/2012-wooldridge-26-super-sport-pilothouse/	/pre-owned/	old pre-owned listing not on the site any more (sold or withdrawn)	404	200
+DECIDE	sold-listings	2	www	/preowned/2025-wooldridge-18-rogue-center-console/	/pre-owned/	old pre-owned listing not on the site any more (sold or withdrawn)	404	200
+DECIDE	sold-listings	2	www	/preowned/brand-new-2026-wooldridge-20-xlt-tiller-model-only-2-hours/	/pre-owned/	old pre-owned listing not on the site any more (sold or withdrawn)	404	200
+DECIDE	sold-listings	1	www	/preowned/1990-wooldridge-xp-inboard/	/pre-owned/	old pre-owned listing not on the site any more (sold or withdrawn)	404	200
+DECIDE	sold-listings	1	www	/preowned/2004-yamaha-f115-four-stroke-jet-outboard-103-hours-new-injectors/	/pre-owned/	old pre-owned listing not on the site any more (sold or withdrawn)	404	200
+DECIDE	sold-listings	1	www	/preowned/2005-21-wooldridge-alaskan-ii/	/pre-owned/	old pre-owned listing not on the site any more (sold or withdrawn)	404	200
+DECIDE	sold-listings	1	apex	/preowned/2007-24-wooldridge-supersport-offshore/	/pre-owned/	old pre-owned listing not on the site any more (sold or withdrawn)	404	200
+DECIDE	sold-listings	1	www	/preowned/2009-wooldridge-ss-offshore-pilothouse/	/pre-owned/	old pre-owned listing not on the site any more (sold or withdrawn)	404	200
+DECIDE	sold-listings	1	www	/preowned/2010-wooldridge-sport-20/	/pre-owned/	old pre-owned listing not on the site any more (sold or withdrawn)	404	200
+DECIDE	sold-listings	1	apex	/preowned/2011-wooldridge-17-sport-center-console/	/pre-owned/	old pre-owned listing not on the site any more (sold or withdrawn)	404	200
+DECIDE	sold-listings	1	apex	/preowned/2015-wooldridge-20-alaskan-xl/	/pre-owned/	old pre-owned listing not on the site any more (sold or withdrawn)	404	200
+DECIDE	sold-listings	1	apex	/preowned/2016-wooldridge-super-sport-drifter-20/	/pre-owned/	old pre-owned listing not on the site any more (sold or withdrawn)	404	200
+DECIDE	sold-listings	1	www	/preowned/2016-wooldridge-xp-21-very-low-hours/	/pre-owned/	old pre-owned listing not on the site any more (sold or withdrawn)	404	200
+DECIDE	sold-listings	1	www	/preowned/2017-wooldridge-18-alaskan-xl/	/pre-owned/	old pre-owned listing not on the site any more (sold or withdrawn)	404	200
+DECIDE	sold-listings	1	www	/preowned/2026-yamaha-f115jb-four-stroke-jet-outboard-with-34-4-hours/	/pre-owned/	old pre-owned listing not on the site any more (sold or withdrawn)	404	200
+DECIDE	sold-listings	1	apex	/preowned/brand-new-2014-sport-offshore-pilothouse/	/pre-owned/	old pre-owned listing not on the site any more (sold or withdrawn)	404	200
+DECIDE	sold-listings	1	www	/preowned/near-new-2024-20-wooldridge-alaskan-xl-console-model-loaded/	/pre-owned/	old pre-owned listing not on the site any more (sold or withdrawn)	404	200
+DECIDE	sold-listings	1	www	/preowned/wooldridge-alaskan-14/	/pre-owned/	old pre-owned listing not on the site any more (sold or withdrawn)	404	200
+DECIDE	sold-listings	1	www	/used-vehicles/1992-wooldridge-20-xtra-plus	/pre-owned/	pre-2019 site listing	404	200
+DECIDE	sold-listings	1	www	/used-vehicles/2006-17-wooldridge-alaskan	/pre-owned/	pre-2019 site listing	404	200
+DECIDE	sold-listings	1	www	/used-vehicles/2008-wooldridge-26-super-sport-offshore-pilothouse	/pre-owned/	pre-2019 site listing	404	200
+KEEP-404		16	www	/contacto		bot probe or a scraped fragment, never a page		
+KEEP-404		3	www	/search/Search%20Website		bot probe or a scraped fragment, never a page		
+KEEP-404		2	www	/dealers/MSK.BOATS@GMAIL.COM		bot probe or a scraped fragment, never a page		
+KEEP-404		2	apex	/res/favicon.ico		bot probe or a scraped fragment, never a page		
+KEEP-404		2	www	/sitemap-index.xml		sitemap guess by a crawler; the old site never had it	404	
+KEEP-404		1	www	/dealers/www.rockysmarine.com		bot probe or a scraped fragment, never a page		
+KEEP-404		1	apex	/icons/favicon.ico		bot probe or a scraped fragment, never a page		
+KEEP-404		1	www	/icons/favicon.ico		bot probe or a scraped fragment, never a page		
+KEEP-404		1	apex	/main.c6d13be3ea6fc9cb.js		bot probe or a scraped fragment, never a page		
+KEEP-404		1	www	/main.c6d13be3ea6fc9cb.js		bot probe or a scraped fragment, never a page		
+KEEP-404		1	www	/models/alaskan/undefined		a real model page with junk appended (a scraped JS string or text); nothing to send it to		
+KEEP-404		1	www	/models/skagit-x/%20%7C%20In%20this%20video,%20we%20walk%20through%20the%20layout,%20key%20features,%20and%20take%20the%20Wooldridge%2021%27%20...		a real model page with junk appended (a scraped JS string or text); nothing to send it to		
+KEEP-404		1	www	/models/supersportoffshorepilothouse/Check		a real model page with junk appended (a scraped JS string or text); nothing to send it to		
+KEEP-404		1	www	/news-sitemap.xml		sitemap guess by a crawler; the old site never had it	404	
+KEEP-404		1	www	/news_sitemap.xml		sitemap guess by a crawler; the old site never had it	404	
+KEEP-404		1	www	/res/favicon.ico		bot probe or a scraped fragment, never a page		
+KEEP-404		1	www	/sitemap.txt		sitemap guess by a crawler; the old site never had it	404	
+KEEP-404		1	www	/which-wooldridge/$%7BbuildLink%28ru.id%29%7D		bot probe or a scraped fragment, never a page		
+KEEP-404		1	www	/which-wooldridge/$%7BbuildLink(ru.id)%7D		bot probe or a scraped fragment, never a page		
+KEEP-404		1	www	/which-wooldridge/$%7BbuildLink(w.id)%7D		bot probe or a scraped fragment, never a page		
+KEEP-404	ruled-404	40	www	/category/equipment/		Stephen's ruling 2026-08-25: /category/equipment/ 404s cleanly, no redirect (page-N/feed/case variants of the same listing follow it)	404	
+KEEP-404	ruled-404	10	apex	/category/Equipment/page/2/		Stephen's ruling 2026-08-25: /category/equipment/ 404s cleanly, no redirect (page-N/feed/case variants of the same listing follow it)	404	
+KEEP-404	ruled-404	7	www	/cart/		Stephen's ruling 2026-08-25: /cart/ /checkout/ /account/ /feed/ /comments/feed/ 404 cleanly, no redirect	404	
+KEEP-404	ruled-404	5	www	/category/equipment/page/2/		Stephen's ruling 2026-08-25: /category/equipment/ 404s cleanly, no redirect (page-N/feed/case variants of the same listing follow it)	404	
+KEEP-404	ruled-404	4	www	/category/equipment/page/3/		Stephen's ruling 2026-08-25: /category/equipment/ 404s cleanly, no redirect (page-N/feed/case variants of the same listing follow it)	404	
+KEEP-404	ruled-404	3	www	/account/		Stephen's ruling 2026-08-25: /cart/ /checkout/ /account/ /feed/ /comments/feed/ 404 cleanly, no redirect	404	
+KEEP-404	ruled-404	3	www	/category/Equipment		Stephen's ruling 2026-08-25: /category/equipment/ 404s cleanly, no redirect (page-N/feed/case variants of the same listing follow it)	404	
+KEEP-404	ruled-404	3	www	/category/Equipment/		Stephen's ruling 2026-08-25: /category/equipment/ 404s cleanly, no redirect (page-N/feed/case variants of the same listing follow it)	404	
+KEEP-404	ruled-404	2	www	/cart		Stephen's ruling 2026-08-25: /cart/ /checkout/ /account/ /feed/ /comments/feed/ 404 cleanly, no redirect	404	
+KEEP-404	ruled-404	2	www	/category/equipment/feed/		Stephen's ruling 2026-08-25: /category/equipment/ 404s cleanly, no redirect (page-N/feed/case variants of the same listing follow it) (feed URL of it)	404	
+KEEP-404	ruled-404	2	www	/comments/feed/		Stephen's ruling 2026-08-25: /cart/ /checkout/ /account/ /feed/ /comments/feed/ 404 cleanly, no redirect	404	
+KEEP-404	ruled-404	2	apex	/feed		Stephen's ruling 2026-08-25: /cart/ /checkout/ /account/ /feed/ /comments/feed/ 404 cleanly, no redirect	404	
+KEEP-404	ruled-404	1	apex	/category/Equipment/		Stephen's ruling 2026-08-25: /category/equipment/ 404s cleanly, no redirect (page-N/feed/case variants of the same listing follow it)	404	
+KEEP-404	ruled-404	1	www	/category/Equipment/page/2/		Stephen's ruling 2026-08-25: /category/equipment/ 404s cleanly, no redirect (page-N/feed/case variants of the same listing follow it)	404	
+KEEP-404	ruled-404	1	www	/checkout/		Stephen's ruling 2026-08-25: /cart/ /checkout/ /account/ /feed/ /comments/feed/ 404 cleanly, no redirect	404	
+KEEP-404	ruled-404	1	www	/checkout/order-received/37030/		Stephen's ruling 2026-08-25: /cart/ /checkout/ /account/ /feed/ /comments/feed/ 404 cleanly, no redirect	404	
+KEEP-404	ruled-404	1	www	/feed/		Stephen's ruling 2026-08-25: /cart/ /checkout/ /account/ /feed/ /comments/feed/ 404 cleanly, no redirect	404	
+KEEP-404	spam-pdfs	8	www	/wp-content/uploads/2022/06/Menulistegakbersambungpdfdownload.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	5	www	/wp-content/uploads/2023/01/Telugu-Blade-Runner-2049-English-1-Movie-Download-BETTER.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	4	www	/wp-content/uploads/2022/07/creaft.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	3	apex	/wp-content/uploads/2022/06/downloadpetakotamalangpdf.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	3	www	/wp-content/uploads/2022/07/10000_BC_2008_BRRip_300MB_Dual_Audio_English_Hindi_TK.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	2	apex	/wp-content/uploads/2019/04/2015-17-ak-performance-merc-115hp80jet-phil-aronson.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	2	apex	/wp-content/uploads/2019/04/21-ss-drifter-performance.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	2	apex	/wp-content/uploads/2019/04/25-sportster-250-etec-1.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	2	apex	/wp-content/uploads/2019/04/original-14965-1136-sportster-ob-brochure.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	2	apex	/wp-content/uploads/2019/12/SUPERCUB-BROCHURE-WOOLDRIDGE-BOATS.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	2	www	/wp-content/uploads/2022/07/Passmark_WirelessMon_Professional_V401005_Crack_ThumperDC_Setup_Free_REPACK.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	2	www	/wp-content/uploads/2023/01/Adobe-Photoshop-Cs5-Software-Free-Download-Full-Version-For-Windows-10-LINK.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	2	www	/wp-content/uploads/2023/01/D-Patranabis-Principles-Of-Industrial-Instrumentation-Ebook-PORTABLE-Download.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	2	www	/wp-content/uploads/2023/01/Free-Download-Quarkxpress-50-Full-Version-TOP.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	2	www	/wp-content/uploads/2023/01/Image-Line-Sytrus-Vsti-2-6-12-Mac-Os-X-Torrent.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	2	www	/wp-content/uploads/2023/01/Rang-Tulu-Movie-Song-Premanathe-Download.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	2	www	/wp-content/uploads/2023/01/jamvin.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	2	www	/wp-content/uploads/2023/05/jaleisam.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/17-ak-performance-w-115-mercury-compressed.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/17-alaskan-console-115hp-mercury-optimax-performance-compressed.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/17-alaskan-xl-new-115merc.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/17-sport-150-merc-performance-compressed.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/20-ak-xl-w-200-mercury-performance-compressed.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/20-alaskan-xl-w-200-yamaha-performance-compressed-nxpowerlite.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/20-pilot-with-150-yamaha-performance-compressed.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/20-sport-with-225-mercury-performance-compressed.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/20-ss-drifter-w-250-ho-performance-compressed.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/20-ssdib-chev350-hamilton212_pb-2014_revb.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/20-xp-440-with-200-mercury-sportjet-performance-1.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/21-SSD-Inboard-Performance-Data.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/21-sport-off-pilot-with-pod-revised-weight-reduced-size.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/21-sportster-250-vmax.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/21-ss-offshore-cabin-performance-compressed.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/23-ss-drifter-outboard-with-200ho-e-tec.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/24-ss-off-high-sides-cuddy-200hp-yamaha.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/25-sportster-250-etec.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/bf200-performance-bulletin-wooldridge-22-ss-offshore.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/original-14850-726-17-ak-brochure.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/original-14852-725-ak-xl-ob-brochure.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/original-14855-740-sport-offshore-brochure.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/original-14856-781-ss-drifter-ob-brochure.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/original-14857-741-ss-offshore-brochure.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/original-14858-835-26-ss-pilot-brochure.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/original-14858-841-23-ss-pilot-brochure.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/original-14858-842-29-ss-pilot-brochure.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/original-14859-1012-xp-outboard-jet-brochure.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2019/04/original-14862-1010-xp-ib-jet-brochure.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/original-14863-865-sport-ib-brochure.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/original-14864-739-super-sport-drifter-inboard.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/original-14866-735-ak-xl-sj-brochure.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/original-14951-834-20-sport-os-pilot-brochure.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2019/04/original-14965-1136-sportster-ob-brochure.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/sport-ob-brochure.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/woolpb20spofftwin60hondas.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2019/04/woolpb23ssdrifterib.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2020/01/Rowland-Performance-Data-PDF.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2020/01/Wooldridge-Deepwater-33.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/AVI_To_DVD_Maker__.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/Alo_Photo_Scan____3264bit.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/Ascii2Binary.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/AutoCAD-48.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/AutoCAD-87.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/Autodesk_3ds_Max_2009_Portable.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/Autodesk_AutoCAD_Crack_.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/DirectX_Tweaker_Crack_March2022-1.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2022/06/Key_Organizer.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/Madmapper_142_REPACK_Crack_For_Mac_Torrent_Download.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2022/06/Menulistegakbersambungpdfdownload.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/Mp4_Basra_in_hindi.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/Rick_RossTrilla_Full_Album_Zip.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/Squidoo__50_Websites_to_Discover_in_2012.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/Template_Message.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/cathsial.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/cherleio.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/cinepin.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2022/06/faussha.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/georbert.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/isegia.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/kenwes.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/khrmar.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2022/06/menulistegakbersambungpdfdownload.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/patrkar.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/privacymaster.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/ranearv-1.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/schber.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/school_management_software_free_download_full_version_with_c.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/singvlad.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/trisuil.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/valachal.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/06/vereha.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/07/AZip_With_License_Code_Download.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/07/Adobe_Photoshop_2021_Version_2200.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/07/AutoCAD-111.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2022/07/AutoCAD__Keygen_Download.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/07/Ciscoasdmidmlauncherv15BETTER_Download-1.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2022/07/Crystal_Flux_activation_code_and_serial_key.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/07/Download_Temptale_Manager_Desktop_Softwareepub.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/07/Estomatologia_Pediatria_Ramon_Castillo_Mercado_Pdf_Free.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/07/HOT_Usb_Lan_Sr9700_Driver_LINK.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/07/Introductory_Circuits_for_Electrical_and_Computer_Engineerin.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/07/Love_Exchange_Movies_Torrent.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/07/Microsoft_Windows_7_AIO_PT_SP1_Maio_2013_WiNTeaM.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/07/Piku_In_Hindi_Full_Movie_Free_Download_Torrent.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/07/Revit_LT_2010_32bit_Product_Key_And_Xforce_Keygen_rar_BETTER.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/07/WatermarkerNET.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/07/Webcam_Capture_Crack___With_Registration_Code_Free_Updated2022.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/07/brador-2.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/07/calculator__calc_pro_hd_free_for_windows_10_81.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/07/ferber.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/07/gluham.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/07/kayearn.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/07/men_of_war_assault_squad_2_zombie_mod.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2022/07/rosfely.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/07/synologysurveillancestationlicensecracksoftware.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2022/07/the_forest_in_hindi_dubbed_free_download_repack_hd_1080p.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/07/yesikal.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/08/Akon_Konvicted_full_album_zip.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/08/AutoCAD__With_License_Code_For_PC.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/08/Fanuc_Kfloppy_1.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/08/Robux_Generator_2021_Free_Free_Updated.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2022/08/autocad-74.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/08/brawall.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/08/diojame.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/08/harjani.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/08/karfab.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2022/08/seliwen.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/08/seliwen.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/09/Afghan_Jalebi_Hd_Video_Song_EXCLUSIVE_Download_1080p.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/09/ImpositionWizard18withSerial-1.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/09/Nero10_Premium_14960_Serial_New_Version_2018.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/09/Sap_Gui_For_Windows_710_Download.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/09/lawfore.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/09/valarepu.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/10/Renato_Zero_All_The_Hits_Torrent_Download.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/10/pixedit_7_crack.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/11/8dio_Productions_Adagio_Cellos_Vol_1_Kontakt_Torrent_VERIFIED.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/11/Easycafe_Crack_Serial_Keygenepub.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2022/11/Labview_Biomedical_Toolkit_High_Quality_Free_Download.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/11/Windows_7_All_PlusPatch_100_By_Orbit30rar_BEST.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2022/11/anandam_telugu_movie_english_subtitles_14.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/11/clequam.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/11/dapash.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/11/feidcer.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/11/gerahar.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/11/radiant_dicom_viewer_cracked_27.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2022/11/thomlasi.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/11/zebrhy.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/12/3D-Balls-Windows-7-Theme-Crack-Free-Download-X64-Updated-2022.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/12/AutoCAD-For-Windows-2022.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/12/Autodesk-AutoCAD-2022.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/12/Digital_Attendance.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/12/Download-Adobe-Photoshop-CS6-Incl-Product-Key-2022.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/12/Download-free-Adobe-Photoshop-CC-2018-Version-19-License-Code-Keygen-Hacked-MacWin-lAtes.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/12/Dragon-Ball-Z-Kai-Tagalog-Version-Gma-7-Gohan-Vs-Cell-Full-BEST.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/12/Eonza.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/12/Halo-4-Heroes-Theme.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/12/Photoshop-2018-Download-Reddit-NEW.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2022/12/ViewBer.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/12/Visual_Matrix.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/12/Web-Search-Bar-Crack-PCWindows-2022.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/12/elilblay.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/12/hannkali.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/12/illnaf.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/12/venecorw.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2022/12/zolcas.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2023/01/Adobe-Photoshop-CC-2015-Version-18-Download-With-Key-With-Registration-Code-X64-2022.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2023/01/Adobe-Photoshop-CS5-Download-free-With-Keygen-Activation-Key-X64-last-releAse-2023.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2023/01/Arya-Ashtangika-Margaya-Sinhala-Pdf-30golkes.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2023/01/CCleaner-Professional-Plus-V558-Setup-Keygen-Is-Here-Free-Download.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2023/01/Download-Adobe-Photoshop-CC-2018-Cracked-Windows-1011-x3264-2023.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2023/01/Raja-Harishchandra-Movies-In-Hindi-Dubbed-Full-Hd-1080p-LINK.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2023/01/carnell.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2023/01/elisarg.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2023/01/esbyzosy.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2023/01/fairzan.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2023/01/flagodd.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2023/01/frilesh.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2023/01/grawens.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	apex	/wp-content/uploads/2023/01/jaholi.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2023/01/opeota.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2023/01/pelkamm.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2023/01/servtaff.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2023/01/uthmyes.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2023/01/vanelave.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2023/01/weitak.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2023/01/zanwin.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2023/05/Paragon-Backup-And-Recovery-16-Home-10128101-Serial-Crack-rar-BETTER.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2023/05/chrsand.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2023/05/reilile.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2025/01/2025-Rogue-2.0.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+KEEP-404	spam-pdfs	1	www	/wp-content/uploads/2026/03/Skagit-OB-Price-Sheet_March-2026-2.pdf		not in the old site's media library: a spam upload from the WordPress compromise (name says so)		
+LIVE		12	www	/models/pybus-lodge-fleet/		the page exists in the repo	200	
+LIVE		5	www	/models/supersportdrifter/		the page exists in the repo	200	
+LIVE		3	www	/about-history/		moved here 2026-10-28 (Tyler)	200	
+LIVE		2	www	/models/deepwater/		the page exists in the repo	200	
+LIVE		1	www	/models/river-rat-diy-kit/		the page exists in the repo	200	
+LIVE		1	www	/models/super-sport-offshore-angler/		the page exists in the repo	200	
+LIVE		1	www	/models/super-sport-offshore-pilothouse/		the page exists in the repo	200	
+LIVE	leftovers	5	www	/store/		answers 200 today, no redirect needed (was: DECIDE - no rule matched)	200	
+OTHER-HOST		1	mail.wooldridgeboats.com	/var/import/		mail.wooldridgeboats.com is not this site (sales = Tyler's dealer site)		
+OTHER-HOST		1	mail.wooldridgeboats.com	/var/importexport/		mail.wooldridgeboats.com is not this site (sales = Tyler's dealer site)		

@@ -25,6 +25,11 @@ deployment:
     # Copying assets first means a page never goes live before its files.
     - /bin/cp -R assets house.css favicon.ico $DEPLOYPATH
     - /bin/cp -R * $DEPLOYPATH
+    # --- .htaccess: `*` never matches a dot-file, so the root .htaccess has to be copied by name ---
+    # (2026-10-29: it had never once reached the server). It goes up LAST, after every page it
+    # redirects to. To take it down: delete public_html/.htaccess in cPanel File Manager - a git
+    # revert alone leaves the old copy on the host, because this deploy never deletes.
+    - /bin/cp .htaccess $DEPLOYPATH/.htaccess
     # --- retire the 18 static price-sheet PDFs left behind on the host (E2) ---
     - /bin/rm -f $DEPLOYPATH/pricesheets/ALASKAN_LT_OB_Price_Sheet.pdf
     - /bin/rm -f $DEPLOYPATH/pricesheets/ALASKAN_OB_Price_Sheet.pdf
