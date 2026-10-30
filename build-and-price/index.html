@@ -2852,8 +2852,7 @@ function makeBuildPDF(){
   startPage();
   text(L, 'WOOLDRIDGE BOATS  \u00b7  SEATTLE, WASHINGTON', 'F2', 9, {gray:0.35}); y -= 22;
   text(L, 'Build Sheet', 'F2', 22);
-  const effStr = (curModel() ? curModel().eff : 'July 2026').toUpperCase();
-  priceR('2026 PRICES · EFF. ' + effStr, 'F4', 8, 0.35); y -= 16;
+  y -= 16;   /* the "2026 PRICES · EFF." line came off here 2026-10-29 (Stephen), same as the page stamp */
   text(L, 'Prepared for ' + s.name + (s.meta ? '  \u00b7  ' + s.meta : ''), 'F1', 9.5, {gray:0.2}); y -= 13;
   text(L, s.date, 'F1', 9, {gray:0.45}); y -= 16;
   text(L, ESTIMATE_HEAD.toUpperCase(), 'F2', 11); y -= 12;
