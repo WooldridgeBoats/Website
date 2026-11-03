@@ -9,7 +9,7 @@
 (function () {
   'use strict';
   var RED = '#b8262c', BLUE = '#1b75bb';
-  var C = 200, TILT = -14;
+  var C = 200, TILT = 14;   /* tilts down to the right (Tyler 2026-11-04; was -14, up to the right) */
   function f(n) { return n.toFixed(2); }
   function pt(r, deg) { var a = deg * Math.PI / 180; return [C + r * Math.cos(a), C + r * Math.sin(a)]; }
 
