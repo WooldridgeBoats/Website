@@ -27,8 +27,8 @@ const WB_SPECS = {
     "20": {"beam":"99 in.","bottomGauge":".160 in.","bottomWidth":"80 in.","deadrise":"9\u00b0","deadriseAtBow":"9\u00b0","fuelTank":"52 gal.","lengthOverall":"20 ft. 9 in.","maxJetHP":"250 hp","maxPropHP":"150 hp","maxTillerHP":"250 hp","sideGauge":".125 in.","sideHeight":"29.5 in.","weightOpen":"1,250 lbs.","weightWindshield":"1,350 lbs."}
   },
   "rogue": {
-    "16": {"beam":"85 in.","bottomGauge":".500 in.","bottomWidth":"60 in.","deadrise":"9\u00b0","fuelTank":"14 gal.","lengthOverall":"17 ft. 11 in.","maxJetHP":"115 hp","maxPropHP":"60 hp","sideGauge":".500 in.","sideHeight":"28 in.","transomGauge":"Not listed"},
-    "18": {"beam":"86 in.","bottomGauge":".500 in.","bottomWidth":"66 in.","deadrise":"9\u00b0","fuelTank":"15 gal.","lengthOverall":"20 ft. 2 in.","maxJetHP":"200 hp","maxPropHP":"115 hp","sideGauge":".500 in.","sideHeight":"32 in.","transomGauge":"1 in."},
+    "16": {"beam":"85 in.","bottomGauge":".500 in.","bottomWidth":"60 in.","deadrise":"9\u00b0","fuelTank":"Optional (14 gal.)","lengthOverall":"17 ft. 11 in.","maxJetHP":"115 hp","maxPropHP":"60 hp","sideGauge":".500 in.","sideHeight":"28 in.","transomGauge":"1 in."},
+    "18": {"beam":"86 in.","bottomGauge":".500 in.","bottomWidth":"66 in.","deadrise":"9\u00b0","fuelTank":"Optional (15 gal.)","lengthOverall":"20 ft. 2 in.","maxJetHP":"200 hp","maxPropHP":"115 hp","sideGauge":".500 in.","sideHeight":"32 in.","transomGauge":"1 in."},
     "20": {"beam":"86 in.","bottomGauge":".625 in.","bottomWidth":"66 in.","deadrise":"9\u00b0","fuelTank":"50 gal.","lengthOverall":"21 ft. 11 in.","maxJetHP":"250 hp","maxPropHP":"115 hp","sideGauge":".500 in.","sideHeight":"32 in.","transomGauge":"1.5 in."}
   },
   "skagit": {

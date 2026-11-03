@@ -1576,7 +1576,9 @@ MODELS.forEach(m => {
       cat.items.forEach(it => {
         if (!/tilt|hydraulic/i.test(it.nm)) it.nonRadio = true;
       });
-      cat.items.unshift({id:m.id + '_str_std', nm:'Standard dash-mounted cable steering', price:0, included:true});
+      /* stdSteer: the label flips to "Tiller control - no helm steering" on a tiller hull with no helm-restoring
+         adder ticked (Stephen, 2026-11-03) - see stdSteerLabel(). Same row, same id, still $0 and included. */
+      cat.items.unshift({id:m.id + '_str_std', nm:'Standard dash-mounted cable steering', price:0, included:true, stdSteer:true});
     }
   });
   m.itemIndex = {};
@@ -1935,6 +1937,15 @@ function renderEngines(){
 
 /* ════════ RENDER: STEP 5 — OPTIONS ════════ */
 const openCats = new Set();
+/* The included Steering row on a tiller hull: a tiller boat has no helm, so the $0 row cannot say
+   "dash-mounted cable steering" unless an adder that puts a helm back in is ticked (LT "Windshield
+   addition", XLT / Rogue "Aft helm model" - every adder offered on the tiller style includes a helm
+   and cable). state.adder is the page's own record of that tick (renderLenCards clears it whenever
+   the adder is not on offer). Label only: no price, no rule, no canon change (Stephen, 2026-11-03). */
+function stdSteerLabel(it){
+  return (state.style === 'tiller' && !state.adder) ? 'Tiller control - no helm steering' : it.nm;
+}
+
 function renderOptions(){
   const host = $('#optCats');
   host.innerHTML = '';
@@ -2002,7 +2013,7 @@ function renderOptions(){
 
       const ot = document.createElement('span');
       ot.className = 'ot';
-      let inner = `<div class="nm">${esc(it.nm)}</div>`;
+      let inner = `<div class="nm">${esc(it.stdSteer ? stdSteerLabel(it) : it.nm)}</div>`;
       if (it.nt) inner += `<div class="nt">${esc(it.nt)}</div>`;
       if (it.reqLabel && st.ok) inner += `<span class="req">${esc(it.reqLabel)}</span>`;
       ot.innerHTML = inner;
