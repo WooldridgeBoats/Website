@@ -121,20 +121,20 @@ sub card {
     '</article>';
 }
 
-# ---- the homepage New Boats card (first boat shown) ------------------------------
+# ---- the homepage New Boats cards: up to 3, the same cards as the Pre-Owned column (Tyler 2026-11-04) --
 sub home_card {
-  my $b = $show[0] or return qq{        <div class="listings newinv-row">\n          <p class="newinv-note">New boats ready to run show up here as they come off the line. Call the shop at <a href="tel:+12067228998">(206)&nbsp;722-8998</a>.</p>\n        </div>\n};
-  my $blurb = esc($b->{eng} ? "$b->{eng}. " : '') . ($b->{_d} ? 'Ready now at ' . esc($b->{_d}{name}) . ', ' . esc($b->{_d}{city}) : 'Ready now at the factory') . ", Hull #$b->{hull}.";
-  my $more = @show > 1 ? scalar(@show) . ' new boats in stock right now, at the factory and with our dealers.' : 'Skip the build queue &mdash; completed boats ready to run, at the factory and with our dealers.';
-  return qq{        <div class="listings newinv-row">\n}
-    . qq{          <a class="listing" href="} . page($b) . qq{">\n}
-    . qq{            <div class="nm">} . ($b->{yr} ? esc($b->{yr}) . ' ' : '') . qq{$b->{len}&prime; } . esc($b->{name}) . ($b->{cfg} ? ' ' . esc($b->{cfg}) : '') . qq{</div>\n}
-    . qq{            <img src="assets/newinv/$b->{hull}/thumbs/hero.jpg} . vq($b) . qq{" alt="} . esc(plain($b)) . qq{, hull $b->{hull}, in stock" loading="lazy">\n}
-    . qq{            <div class="blurbsm">$blurb</div>\n}
-    . qq{            <div class="price">} . esc($b->{price}) . qq{</div>\n}
-    . qq{          </a>\n}
-    . qq{          <p class="newinv-note">$more Availability changes week to week; the current list is on the New Boats page, or call the shop at <a href="tel:+12067228998">(206)&nbsp;722-8998</a>.</p>\n}
-    . qq{        </div>\n};
+  @show or return qq{        <div class="listings newinv-row">\n          <p class="newinv-note">New boats ready to run show up here as they come off the line. Call the shop at <a href="tel:+12067228998">(206)&nbsp;722-8998</a>.</p>\n        </div>\n};
+  my $cards = '';
+  for my $b (@show[0 .. ($#show < 2 ? $#show : 2)]) {
+    my $blurb = esc($b->{eng} ? "$b->{eng}. " : '') . ($b->{_d} ? 'Ready now at ' . esc($b->{_d}{name}) . '.' : 'Ready now at the factory.');
+    $cards .= qq{          <a class="listing" href="} . page($b) . qq{">\n}
+      . qq{            <div class="nm">} . ($b->{yr} ? esc($b->{yr}) . ' ' : '') . qq{$b->{len}&prime; } . esc($b->{name}) . ($b->{cfg} ? ' ' . esc($b->{cfg}) : '') . qq{</div>\n}
+      . qq{            <img src="assets/newinv/$b->{hull}/thumbs/hero.jpg} . vq($b) . qq{" alt="} . esc(plain($b)) . qq{, hull $b->{hull}, in stock" loading="lazy">\n}
+      . qq{            <div class="blurbsm">$blurb</div>\n}
+      . qq{            <div class="price">} . esc($b->{price}) . qq{</div>\n}
+      . qq{          </a>\n};
+  }
+  return qq{        <div class="listings">\n$cards        </div>\n};
 }
 
 # ---- report ----------------------------------------------------------------------
