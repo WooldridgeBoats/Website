@@ -319,9 +319,11 @@
      else keeps the page-wide sequence it always had. */
   document.addEventListener('click', function (e) {
     var a = e.target.closest ? e.target.closest('.pcartrack a, .gallery a') : null;
-    if (!a || !/\.jpe?g$/i.test(a.getAttribute('href') || '')) return;
+    var row = a && a.closest ? a.closest('.prow[data-shop-live]') : null;
+    /* shop-live photo URLs carry a ?v= content stamp (build_shop_live.pl, 2026-11-03: Cloudflare
+       kept serving old photos under the same file names); every other grid ends in .jpg */
+    if (!a || !(row ? /\.jpe?g(\?v=\w+)?$/i : /\.jpe?g$/i).test(a.getAttribute('href') || '')) return;
     e.preventDefault();
-    var row = a.closest ? a.closest('.prow[data-shop-live]') : null;
     openLb(a, false, row ? [].slice.call(row.querySelectorAll('.pcartrack a')) : undefined);
   });
 
