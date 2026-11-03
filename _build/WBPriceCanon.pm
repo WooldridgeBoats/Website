@@ -621,7 +621,9 @@ sub fold_spans {                     # (page text, slug) -> ({from}, {tables}), 
   $n = () = $t =~ /<!-- PRICES:\Q$slug\E:tables -->/g;
   if ($n) {
     die "models/$slug: $n PRICES:$slug:tables markers (need exactly 1)\n" unless $n == 1;
-    $t =~ /^([ \t]*)<!-- PRICES:\Q$slug\E:tables -->\n(.*?)\n[ \t]*<!-- \/PRICES -->$/ms
+    # the tables sit on their own lines at the marker's indent; the indent is not part of the block (2026-11-03: the first
+    # real run read it with the indent, compared unequal on all 18 pages, and rolled itself back)
+    $t =~ /^([ \t]*)<!-- PRICES:\Q$slug\E:tables -->\n[ \t]*(.*?)\n[ \t]*<!-- \/PRICES -->$/ms
       or die "models/$slug: PRICES:$slug:tables markers found but the block did not match\n";
     %b = (s => $-[0], len => $+[0] - $-[0], have => $2, indent => $1, marked => 1);
   } else {
