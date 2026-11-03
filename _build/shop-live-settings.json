@@ -1,0 +1,8 @@
+{
+  "_note": "Settings for _build/build_shop_live.pl (/shop-ready). hold = photos (HULL-NNN) left out until Tyler OKs them; crop = per-photo 16:10 crop (w = width share, cx/cy = centre 0-1); homepage = the hull the homepage strip shows.",
+  "hold": [],
+  "crop": {
+    "5389-001": { "w": 0.68, "cx": 0.51, "cy": 0.55 }
+  },
+  "homepage": ""
+}
