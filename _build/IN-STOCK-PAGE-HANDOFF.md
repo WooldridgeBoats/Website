@@ -10,6 +10,32 @@
 > - A boat shows only once its photos are in assets/newinv/<HULL>/ (an empty master folder is skipped).
 > - The old NEWINV list inside new-inventory/index.html is gone; anything below about it is history.
 
+## ADD A NEW BOAT (the checklist; Tyler types `/new-boat`) - 2026-11-04
+
+1. **Tyler's folder** in OneDrive `MASTER-WEBSITE PHOTOS/NEW INVENTORY/`:
+   - factory boat: `<HULL>-<LEN>-<CFG>-<MODEL>/` (e.g. `5334-18-WS-ALASKAN/`)
+   - dealer boat:  `<HULL>-<LEN>-<CFG>-<MODEL>-DEALER-<DEALER>/` (e.g. `5224-18-CC-AK LT-DEALER-SUNLAND SALES/`)
+   - inside: `HERO-<HULL>-<LEN>-...jpg` (REQUIRED: top of the boat page + its card; may be the same shot as
+     the gallery thumb), `GALLERY-THUMB-<HULL>-<LEN>-...jpg`, `NN-<HULL>-<LEN>-...jpg` (2000x1250)
+   - phone folder `<HULL>-<LEN>-...-MOBILE/`, `NN-...-MOBILE.jpg` 1080x1350 (optional; may be empty)
+2. **Check first** (`_build/build_new_inventory.sh --dry-run`) + sizes. Tell Tyler what's wrong. Simple fixes
+   I may do in his master and report: a missing HERO when he says "use the GALLERY-THUMB" (copy it as HERO-...),
+   a duplicate number (`09-...-1.jpg` -> next free `10-...`). Off-size photos: tell him (he re-exports).
+3. **Details** Tyler pastes (often a dealer's spec text) go in `_build/newinv.json` as one boat entry:
+   hull, yr, len, name, cfg, drive, eng (short, e.g. "Yamaha F200LC outboard jet (140 hp at the jet)"), price,
+   vinyl, trailer (short), mpage (/models/<slug>/), dealer (key in `dealers`, "" = factory), sold:false,
+   desc (2 short paragraphs: what/where + "Call ... for more information"), features (cleaned list:
+   fix typos like "Transom Self" -> shelf), trailerfeat (one line). A new dealer: add it to `dealers` with
+   name, town, city, addr (street\ncity ST zip), tel, web, copied from that dealer's card on /dealers/.
+4. **Build**: `_build/build_new_inventory.sh` (photos + runs gen_new_inventory.pl). Then test the New Boats
+   landing and the new boat page at 1440 + 390/360/320 (cards, pill, facts, equipment list, dealer card,
+   buttons, gallery count desktop vs phone, no broken images), commit with explicit paths, Tyler pushes.
+5. **Sold**: set `"sold": true` and re-run gen_new_inventory.pl (page comes down; SOLD stamp design still TBD).
+
+Done 2026-11-04: 5334 (factory, 18' Alaskan WS), 5224 (Sunland, 2026 18' AK LT CC, $43,500),
+5286 (Sunland, 2026 20' Alaskan WS, $76,500). Known nit: the photo viewer caption puts the year after the
+length ("20'2026 Alaskan"), from the template's gallery click code (a.dataset.m); quick fix when there's time.
+
 # In Stock page (/new-inventory/): handoff
 
 Built 2026-10-20 with Tyler. READ THIS before adding, changing or selling a shop boat.
