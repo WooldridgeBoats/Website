@@ -198,10 +198,76 @@
     openVid(b.dataset.yt, b.dataset.vtitle || 'Wooldridge Boats');
   });
 
+  /* ── measurements lightbox (Tyler, 2026-11-03). Any link with data-meas="<title>"
+     whose href is a measurement-sheet JPG opens here instead of a bare browser tab
+     (a bare tab on a phone has no way back). Close × / Esc / the phone's Back button
+     all close it. Tap the diagram or Zoom to see it at full size and pan around.
+     Used by the model-page Measurements fold and the Agency "See Measurements" pill. */
+  var meas, measTitle, measImg, measZoomBtn, measPushed = false;
+
+  function buildMeas() {
+    if (meas) return;
+    meas = document.createElement('div');
+    meas.className = 'wbmeas';
+    meas.setAttribute('role', 'dialog');
+    meas.setAttribute('aria-label', 'Measurements');
+    meas.innerHTML =
+      '<div class="wbpdfhead"><span class="wbpdftitle"></span>' +
+      '<button class="wbmeaszoom" type="button">Zoom</button>' +
+      '<button class="wblbx" type="button">Close &#215;</button></div>' +
+      '<div class="wbmeasstage"><img alt=""></div>';
+    document.body.appendChild(meas);
+    measTitle = meas.querySelector('.wbpdftitle');
+    measImg = meas.querySelector('img');
+    measZoomBtn = meas.querySelector('.wbmeaszoom');
+    meas.querySelector('.wblbx').addEventListener('click', function () { closeMeas(); });
+    measZoomBtn.addEventListener('click', function () { zoomMeas(!meas.classList.contains('zoomed')); });
+    measImg.addEventListener('click', function () { zoomMeas(!meas.classList.contains('zoomed')); });
+    meas.querySelector('.wbmeasstage').addEventListener('click', function (e) {
+      if (e.target === e.currentTarget && !meas.classList.contains('zoomed')) closeMeas();
+    });
+  }
+
+  function zoomMeas(on) {
+    meas.classList.toggle('zoomed', on);
+    measZoomBtn.textContent = on ? 'Fit' : 'Zoom';
+  }
+
+  function openMeas(href, label, alt) {
+    buildMeas();
+    measTitle.textContent = label;
+    measImg.src = href;
+    measImg.alt = alt || label;
+    zoomMeas(false);
+    meas.classList.add('on');
+    lockScroll(true);
+    /* one history entry, so the phone's Back button closes the lightbox instead of leaving the page */
+    try { history.pushState({ wbmeas: 1 }, ''); measPushed = true; } catch (err) { measPushed = false; }
+  }
+
+  function closeMeas(fromPop) {
+    if (!meas || !meas.classList.contains('on')) return;
+    meas.classList.remove('on');
+    lockScroll(false);
+    if (measPushed && !fromPop) { measPushed = false; history.back(); }
+    measPushed = false;
+  }
+
+  window.addEventListener('popstate', function () { closeMeas(true); });
+
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest ? e.target.closest('a[data-meas]') : null;
+    if (!a) return;
+    e.preventDefault();
+    var img = a.querySelector('img');
+    openMeas(a.getAttribute('href'), a.getAttribute('data-meas'), img && img.alt);
+  });
+
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape') return;
     closeVid();
     closePdf();
+    closeMeas();
   });
 
   /* ── specs table — mobile length tabs. The multi-length comparison table is
