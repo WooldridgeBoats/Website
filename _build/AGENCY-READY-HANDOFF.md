@@ -2,6 +2,10 @@
 
 > **Photo folders moved 2026-10-20:** boats now live in `MASTER-WEBSITE PHOTOS/BOAT MODELS/` and `MASTER-WEBSITE PHOTOS/CUSTOM BOAT MODELS/`. Map of every folder → page → command: `_build/MASTER-PHOTO-FOLDERS.md`.
 
+> **Measurements pill (2026-11-03):** a boat whose HULL + LEN match a sheet in `MASTER-WEBSITE PHOTOS/BOAT MODEL MEASUREMENTS/`
+> gets a "See Measurements" pill on its card automatically when the builder runs (First Responder has one). Details:
+> `_build/MEASUREMENTS-HANDOFF.md` section 2.
+
 Copy everything in the box below as your first message in a new chat. Then send
 the next boat folder and say "Agency Model Ready!". The full log of how this page
 works is under the box; the new chat reads it from this file.

@@ -45,8 +45,9 @@ Many boats on one page, built by `_build/build_agency_galleries.pl`, so measurem
 photo + measurements card pair because a boat with photos + video + measurements would need 3 cards.
 
 Look (Tyler, 2026-11-03): white pill, blue text + ruler/pencil icon, ON the cover card.
-**Desktop: bigger pill (the model-page "Open full size" size), BOTTOM-RIGHT of the card** (the boat
-name + hull sit bottom-left). **Phones (<=700px): small pill, TOP-LEFT**, same height and text size
+**Desktop: BOTTOM-RIGHT of the card, opposite the boat name**: 13px text, 7px 14px padding, 14px
+icon, ~30px tall, right edge inset = the name's left inset (20px), vertically centred on the name + hull
+block (Tyler 2026-11-03: "a tad smaller, fit nice opposite the gallery name"). **Phones (<=700px): small pill, TOP-LEFT**, same height and text size
 as the "NN photos" badge (top-right), because bottom-right covers the hull line on a phone.
 Tap opens the same measurements lightbox. Cards stay the same size, so the grid stays lined up;
 on a video boat the pill sits on the photo card of the pair.
@@ -54,7 +55,15 @@ on a video boat the pill sits on the photo card of the pair.
 First sheet: `5320-20-CC-AK XL-IB-FIRST RESPONDER-MEASUREMENTS.jpg` → First Responder card
 (gallery `20-cc-ak-xl-ib-first-responder`).
 
-**Status:** NOT BUILT yet; waiting on Tyler's OK of the mockup. To build: teach
-build_agency_galleries.pl to look for a measurements sheet per boat (match by hull + length) and
-emit the pill inside the card cell (needs `.agcell` position:relative + an `.agmeas` pill class),
-then check 320 wide (pill + badge must not touch).
+**Status: BUILT 2026-11-03 (First Responder).** It's automatic now: `perl _build/build_agency_galleries.pl`
+scans `BOAT MODEL MEASUREMENTS/` and gives a boat the pill when a sheet's HULL + LEN match one of that
+boat's desktop photos (model-page sheets don't match agency hulls, so they're ignored; two boats matching
+one sheet = a WARN, not used). Sheet copied byte-for-byte to `agency-work/<key>/measurements.jpg`.
+So for a NEW agency boat: Tyler drops `HULL-LEN-CFG-MODEL-PURPOSE-MEASUREMENTS.jpg` in that folder, re-run
+the builder (its report says "+ measurements"), check, commit.
+
+Markup: `<div class="agmc">` wraps the photo card + `<a class="agmeas" data-meas=…>`. CSS `.agmc/.agmeas`
+in house.css: desktop bottom-right (`.mcmeta` right:200px keeps the name clear); **<=1100px** (tablets +
+phones, the 2-across cards get too narrow) small top-left, badge-height (line-height 1.65); <=360px
+drops the icon. Pill text stays "See Measurements" (it's a button; model pages use "Layout Diagram"
+because the "MEASUREMENTS" eyebrow sits beside it).

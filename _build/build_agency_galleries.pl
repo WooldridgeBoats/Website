@@ -27,6 +27,13 @@
 # folder holding two missions (e.g. 20′ Skagit WORK and FIRE) becomes two cards.
 # Mixed hulls inside one gallery are fine — each photo's caption carries its own.
 #
+# MEASUREMENTS (Tyler, 2026-11-03): a sheet in MASTER-WEBSITE PHOTOS/BOAT MODEL MEASUREMENTS/ named
+# HULL-LEN-CFG-MODEL-PURPOSE-MEASUREMENTS.jpg whose HULL + LEN match a boat here gives that boat a
+# "See Measurements" pill ON its photo card (desktop: bottom-right, opposite the boat name; phones:
+# small, top-left). Tap = the measurements lightbox in modelpage.js. The sheet is copied byte-for-byte
+# to <key>/measurements.jpg. Model-page sheets in that folder don't match agency hulls, so they're ignored.
+# See _build/MEASUREMENTS-HANDOFF.md.
+#
 # Writes: assets/photos/agency-work/<key>/{NN files, thumbs/, cover.jpg,
 # video.jpg, mobile/, mobile/thumbs/} (each <key> dir is wiped + rebuilt from the master),
 # the block between <!-- AGENCY-GALLERIES:BEGIN/END --> in the page (the cards), the
@@ -62,6 +69,7 @@ my $PAGE = "$REPO/agency-work-boats/index.html";
 my $DEST = "$REPO/assets/photos/agency-work";
 my $WEB  = "../assets/photos/agency-work";          # as the page references it
 my $PROV = "$REPO/assets/media-provenance.js";
+my $MEASDIR = "/Users/tylerlee/Library/CloudStorage/OneDrive-WooldridgeBoatsInc/Wooldridge Boats Inc_ - SQUIRREL HOLE/70 MARKETING AND BRAND/WEBSITE/MASTER-WEBSITE PHOTOS/BOAT MODEL MEASUREMENTS";
 
 # ---- filename codes -> display names (add a line for a new code) ------------
 my %MODEL = (
@@ -266,6 +274,18 @@ my @keys = sort { ($rank{$a} // 1e9) <=> ($rank{$b} // 1e9)     # Tyler's @ORDER
   || $G{$a}{len} <=> $G{$b}{len} || $G{$a}{model} cmp $G{$b}{model} || $G{$a}{purpose} cmp $G{$b}{purpose} || $a cmp $b } keys %G;   # last: folder key, so twin missions keep a steady order
 push @warn, "$_: not in \@ORDER — shown at the end for now; ask Tyler where it goes and add it there" for grep { !$rank{$_} } @keys;
 push @warn, "\@ORDER lists $_, but there's no such gallery (renamed folder?)" for grep { !$G{$_} } @ORDER;
+# measurement sheets: match HULL + LEN to a boat (any hull in its desktop photos)
+if (opendir my $md, $MEASDIR) {
+  for my $f (sort grep { /-MEASUREMENTS\.jpe?g$/i } readdir $md) {
+    my ($mh, $ml) = $f =~ /^([03-9]\d{3})-(\d{2})-/ or next;
+    my @hit = grep { my $g = $G{$_}; $g->{len} eq $ml && grep { ($_->{hull} // '') eq $mh } @{ $g->{d} } } @keys;
+    next unless @hit;
+    if (@hit > 1) { push @warn, "$f matches more than one boat (@hit) — not used; ask Tyler which"; next }
+    if ($G{$hit[0]}{meas}) { push @err, "$hit[0]: two measurement sheets ($f)"; next }
+    $G{$hit[0]}{meas} = "$MEASDIR/$f";
+  }
+  closedir $md;
+}
 if (grep { $VIDEO{$_} } @keys) {   # the video cards play through modelpage.js's lightbox
   open my $pc, '<:raw', $PAGE or die "$PAGE: $!"; my $pg = do { local $/; <$pc> }; close $pc;
   push @err, "the page doesn't load assets/modelpage.js (it plays the videos) — add <script defer src=\"../assets/modelpage.js\"></script> after gallery.js"
@@ -274,7 +294,7 @@ if (grep { $VIDEO{$_} } @keys) {   # the video cards play through modelpage.js's
 print "Agency galleries from: $SRC\n";
 for my $k (@keys) {
   my $g = $G{$k};
-  printf "  %-28s %2d desktop, %2d phone%s  — %s′ %s %s%s\n", $k, scalar @{ $g->{d} }, scalar @{ $g->{mob} }, ($VIDEO{$k} ? ' + video' : ''),
+  printf "  %-28s %2d desktop, %2d phone%s  — %s′ %s %s%s\n", $k, scalar @{ $g->{d} }, scalar @{ $g->{mob} }, ($VIDEO{$k} ? ' + video' : '') . ($g->{meas} ? ' + measurements' : ''),
     $g->{len}, $g->{model}, $g->{cfg}, ($g->{purpose} ? " — $g->{purpose}" : '');
 }
 print "  (no gallery folders with photos yet)\n" unless @keys;
@@ -347,6 +367,15 @@ for my $k (@keys) {
   my $title = esc($g->{purpose} || $g->{model});
   my $photo = qq{<a class="mcard" href="$WEB/$k/$d[0]{f}" data-gal="$k"><img src="$WEB/$k/cover.jpg$cv" alt="$altH" loading="lazy">$badge}
     . qq{<span class="mcmeta"><b>$g->{len}&#8242; } . esc($g->{model}) . "</b><span>" . join(' &#183; ', @sub) . "</span></span></a>";
+  if ($g->{meas}) {
+    # measurements sheet: a "See Measurements" pill ON the photo card (a sibling of the card link, so
+    # tapping it opens the measurements lightbox, not the gallery). house.css .agmc / .agmeas.
+    copy($g->{meas}, "$dir/measurements.jpg") or die "copy $g->{meas}: $!";   # byte-for-byte, Tyler's graphic
+    push @prov, "$k/measurements.jpg";
+    my $mt = "$g->{len}&#8242; " . esc($g->{model}) . ($g->{purpose} ? " &#183; " . esc($g->{purpose}) : '') . " Measurements";
+    $photo = qq{<div class="agmc">$photo<a class="agmeas" href="$WEB/$k/measurements.jpg} . ver("$dir/measurements.jpg") . qq{" data-meas="$mt">}
+      . qq{<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17L17 3l4 4L7 21H3z"/><path d="M7 13l2 2M10 10l2 2M13 7l2 2"/></svg>See Measurements</a></div>};
+  }
   if ($v) {
     # a boat with a video: ONE wide row — the mission title centred over the photo card
     # (left) and the video card (right); phones stack them (house.css .agvid/.agpair).
@@ -362,7 +391,7 @@ for my $k (@keys) {
     push @cards, qq{    <div class="agcell"><h2 class="agtitle">$title</h2>$photo</div>};
   }
   printf "  built %-28s -> %d + %d photos, cover %s%s\n", $k, $nd, $nm, ($g->{cover} ? "GALLERY-THUMB" : (split /\?/, $d[0]{f})[0]),
-    ($v ? ", video $v->{yt} (" . ($vimg ? 'VIDEO-THUMB' : "YouTube's thumbnail") . ')' : '');
+    ($v ? ", video $v->{yt} (" . ($vimg ? 'VIDEO-THUMB' : "YouTube's thumbnail") . ')' : '') . ($g->{meas} ? ", measurements" : '');
 }
 opendir my $xd, $DEST or die $!;
 my %want = map { $_ => 1 } @keys;

@@ -1913,6 +1913,27 @@ html.blueprint .agtitle{ color:#e8b64c; }   /* Night Run theme: gold, like the p
   .agcards .agvidcard .mcmeta{ left:96px; bottom:23px; }   /* level with the play button */
   .agcards .agvidcard .mcmeta span{ display:none; }
 }
+/* "See Measurements" pill ON a boat's photo card (Tyler, 2026-11-03; build_agency_galleries.pl writes it when
+   the boat has a sheet in BOAT MODEL MEASUREMENTS/). A sibling of the card link, so a tap opens the
+   measurements lightbox (modelpage.js a[data-meas]), not the gallery. Desktop: bottom-right, centred on
+   the boat name + hull lines, same 20px inset as the name. Phones: small, top-left, badge-sized. */
+.agmc{ position:relative; }
+.agcards .agmc .mcard .mcmeta{ right:200px; }   /* keep a long boat name clear of the pill */
+.agmeas{
+  position:absolute; right:20px; bottom:28px; z-index:2;
+  display:inline-flex; align-items:center; justify-content:center; gap:6px; text-align:center;
+  background:#fff; color:var(--blue); border-radius:999px; text-decoration:none;
+  font-weight:600; font-size:13px; letter-spacing:.02em; line-height:1.2; padding:7px 14px;
+  box-shadow:0 2px 8px rgba(0,0,0,.28); transition:background .2s, color .2s;
+}
+.agmeas svg{ width:14px; height:14px; flex:none; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.agmeas:hover{ background:var(--blue); color:#fff; }
+@media (max-width:1100px){   /* tablets + phones: 2-across cards get too narrow for the name AND the pill side by side, so it goes small, top-left, the photo-count badge's size */
+  .agcards .agmc .mcard .mcmeta{ right:20px; }
+  .agmeas{ top:12px; left:12px; right:auto; bottom:auto; font-size:12px; padding:4px 12px; letter-spacing:.03em; gap:5px; line-height:1.65; }
+  .agmeas svg{ width:12px; height:12px; }
+}
+@media (max-width:360px){ .agmeas svg{ display:none; } }   /* smallest phones: room between the pill and the badge */
 @media (max-width:640px){
   .agcards{ gap:28px; }
   .agcell{ flex-basis:100%; }
