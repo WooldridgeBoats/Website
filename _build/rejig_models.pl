@@ -26,7 +26,7 @@ my %VIDEO = (
   'xp'                           => ['OtGWlLbysZQ', 'Wooldridge XP'],
   'deepwater'                    => ['m4ehkABeqEg', "33' Wooldridge Deepwater Explorer"],
   'supersportoffshorepilothouse' => ['h6p-gE16A9s', "30' Wooldridge Super Sport Offshore Pilothouse"],
-  'supersportdrifter'            => ['jGDKF1hM_c8', "23' Super Sport Drifter Walkthrough"],
+  'supersportdrifter'            => ['BsHhMIc3Q_g', "23' Super Sport Drifter | Features, Layout & On-Water Look"],
   'supersportdrifterinboard'     => ['jGDKF1hM_c8', "23' Super Sport Drifter Walkthrough"],
 );
 
