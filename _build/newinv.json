@@ -85,6 +85,51 @@
         "Engine rigged and tested at the factory"
       ],
       "trailerfeat": "EZ Loader 90BS 14-18 2300 single-axle trailer: swing tongue, spare tire, slick bunks, load guides, 2\" ball, safety chains and 4-way flat connection."
+    },
+    {
+      "hull": "5286",
+      "yr": 2026,
+      "len": 20,
+      "name": "Alaskan",
+      "cfg": "Windshield",
+      "drive": "Outboard Jet",
+      "eng": "Yamaha F200LC outboard jet (140 hp at the jet)",
+      "price": "$76,500",
+      "vinyl": "Pybus Black Fade to Blue Nautical",
+      "trailer": "EZ Loader tandem torsion axle",
+      "mpage": "/models/alaskan/",
+      "dealer": "SUNLAND SALES",
+      "sold": false,
+      "desc": [
+        "A brand-new 2026 20′ Alaskan Windshield, in stock now at Sunland Sales and Service in Glendale, Arizona. An all-aluminum welded Wooldridge in Pybus Black Fade to Blue Nautical, with a Yamaha F200LC four-stroke outboard jet and an upgraded 5-blade stainless steel impeller, hung, rigged and tested at the factory, on a matching EZ Loader tandem-axle trailer.",
+        "Call Sunland Sales and Service for more information. Their details are below."
+      ],
+      "features": [
+        "All-aluminum welded hull, Pybus Black Fade to Blue Nautical",
+        "Yamaha F200LC 2.8 liter 20\" four-stroke outboard jet (140 hp jet power)",
+        "Upgraded 5-blade stainless steel impeller",
+        "Built-in under-floor aluminum fuel tank, with a secondary fuel feed for a kicker",
+        "Formed rib bottom with 4 corrugations (2 each side of the keel)",
+        "Extended bottom trim plate",
+        "Stand-up gunnels with toe kick",
+        "Full-length welded aluminum side trays with rod grippers each side",
+        "Full-width self-bailing transom shelf",
+        "Welded bow and stern eyes",
+        "Welded sport rails",
+        "Storage under the front step deck",
+        "Diamond plate bow cap with underside rope storage",
+        "Large 2-piece walk-thru windshield with tempered glass, driver-side wiper",
+        "Hydraulic steering helm with engine tilt",
+        "Yamaha tachometer and backlit fuel gauge",
+        "Water/fuel separator, bilge pump, navigation light, horn",
+        "Dual USB charger plug and 12-volt power plug",
+        "Group 24 marine battery with battery box and aluminum holder",
+        "Captain and passenger seats on all-welded lockable dry storage boxes",
+        "36\" rear bench seat with backrest and lockable storage boxes",
+        "Garmin ECHOMAP UHD2 93sv GPS/fish finder",
+        "Engine hung, rigged and tested at the factory"
+      ],
+      "trailerfeat": "EZ Loader 96BT 17-20 4400 trailer: dual torsion axles, oil bath bearings, spare tire, slick bunks, load guides, 2\" ball, 4-way flat pin."
     }
   ]
 }
