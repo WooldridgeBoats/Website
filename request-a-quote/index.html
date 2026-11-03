@@ -18,7 +18,7 @@
     - customer profile paragraph
     - likely model fit (scored with the Which-Wooldridge quiz matrix)
     - considered-models vs. profile alignment check
-    - flags (trade-in, commercial, offshore power pricing, budget mismatch)
+    - flags (commercial, offshore power pricing, budget mismatch)
     - recommended next sales action + follow-up priority
 
   SUBMISSION MODES (set in the CONFIG block at the top of the script):
@@ -327,15 +327,7 @@
 
   <div class="card">
     <div class="sec"><span class="secnum">02</span><h2>Your boating today</h2></div>
-    <div class="field" style="margin-bottom:12px;"><label>Current boat (if any)</label><input type="text" id="fCurrent" placeholder="Year / make / model / power — or “first boat”"></div>
-    <div class="field"><label>Thinking about trading it in?</label>
-      <div class="chips" data-q="trade">
-        <button type="button" class="chip" data-v="yes">Yes — value my trade</button>
-        <button type="button" class="chip" data-v="maybe">Maybe — tell me more</button>
-        <button type="button" class="chip" data-v="no">No trade</button>
-      </div>
-    </div>
-    <div class="subq field" id="tradeDetail" style="display:none;"><label>Trade-in details</label><input type="text" id="fTradeInfo" placeholder="Hours, condition, trailer included?"></div>
+    <div class="field"><label>Current boat (if any)</label><input type="text" id="fCurrent" placeholder="Year / make / model / power — or “first boat”"></div>
   </div>
 
   <div class="card">
@@ -460,7 +452,7 @@
   <div class="card">
     <div class="sec"><span class="secnum">05</span><h2>Anything else</h2><span class="secopt">optional</span></div>
     <div class="field" style="margin-bottom:14px;"><label>Notes for the shop</label><textarea id="fNotes" rows="3" placeholder="Must-have options, who referred you, questions, the story — anything that helps us help you."></textarea></div>
-    <div class="field"><label>Photos — current boat, trade-in, or your water</label>
+    <div class="field"><label>Photos — current boat or your water</label>
       <label class="filebox" for="fFiles">📷 Tap to add photos (or drag them here)<input type="file" id="fFiles" multiple accept="image/*"></label>
       <div class="thumbs" id="thumbs"></div>
     </div>
@@ -618,7 +610,6 @@ document.querySelectorAll('.chips').forEach(group => {
       state[q] = state[q] === v ? null : v;
       group.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === chip && state[q] === v));
     }
-    if (q === 'trade') $('#tradeDetail').style.display = (state.trade === 'yes' || state.trade === 'maybe') ? '' : 'none';
     group.classList.remove('err');
     saveDraft();
   });
@@ -645,7 +636,7 @@ function renderThumbs(){
 
 /* draft persistence (text fields + chips; files can't persist) */
 const DRAFT_KEY = 'wq_intake_draft_v1';
-const TEXT_IDS = ['fName','fLoc','fPhone','fEmail','fReach','fCurrent','fTradeInfo','fNotes'];
+const TEXT_IDS = ['fName','fLoc','fPhone','fEmail','fReach','fCurrent','fNotes'];
 TEXT_IDS.forEach(id => $('#'+id).addEventListener('input', saveDraft));
 $('#fDealer').addEventListener('change', saveDraft);
 /* Canada capture: the country select rides the draft like the dealer select,
@@ -672,7 +663,6 @@ function saveDraft(){
       const q = g.dataset.q, v = state[q];
       g.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', Array.isArray(v) ? v.includes(c.dataset.v) : v === c.dataset.v));
     });
-    $('#tradeDetail').style.display = (state.trade === 'yes' || state.trade === 'maybe') ? '' : 'none';
   }catch(e){}
 })();
 
@@ -723,7 +713,6 @@ function analyze(){
   }
 
   /* flags */
-  if (state.trade === 'yes' || state.trade === 'maybe') flags.push('Trade-in (' + state.trade + '): ' + ($('#fTradeInfo').value.trim() || $('#fCurrent').value.trim() || 'no details yet') + ' — get photos, hours, and engine details for valuation.');
   if (state.use.includes('guide')) flags.push('Guide/charter use — commercial spec; consider routing through custom & agency builds (Grant).');
   if (state.use.includes('freight')) flags.push('Work/freight duty — ask about bow-ramp Landing Craft needs before anchoring on a recreational hull.');
   if (fw.pp) flags.push('Offshore hull recommendation — power packages are priced with the factory team; do NOT quote engine numbers from the sheet.');
@@ -744,7 +733,6 @@ function analyze(){
 
   if (hotTime) actions.push('Check current build slots and new/dealer inventory BEFORE calling — have real dates ready.');
   actions.push('Open with the ' + fw.nm + ' fit (runner-up: ' + fr.nm + '), then price the exact rig in the configurator together.');
-  if (state.trade === 'yes' || state.trade === 'maybe') actions.push('Request trade-in photos and details in the first reply.');
   if ($('#fDealer').value) actions.push('Customer prefers: ' + $('#fDealer').value + ' — coordinate or hand off the lead there.');
   if (state.timeline === 'research') actions.push('No pressure play: send the Which-Wooldridge quiz, the model page, and a YouTube link; schedule a 3-week follow-up.');
   if (state.use.includes('saltfish') || state.use.includes('offshore') || state.water === 'salt') actions.push('Cover salt setup (anodes, washdown, kicker) — it signals we know coastal boats.');
@@ -773,7 +761,7 @@ function buildSummary(a){
   if (state.crew) prof.push(CREW_LABEL[state.crew] + ' aboard');
   if (state.load) prof.push(state.load + ' load');
   L.push('Profile: ' + prof.join(', ') + '.');
-  if ($('#fCurrent').value.trim()) L.push('Current boat: ' + $('#fCurrent').value.trim() + (state.trade ? ' (trade-in: ' + state.trade + ')' : ''));
+  if ($('#fCurrent').value.trim()) L.push('Current boat: ' + $('#fCurrent').value.trim());
   L.push('Power pref: ' + (state.power === 'ob' ? 'outboard jet' : state.power === 'ib' ? 'inboard V8 jet' : 'open to recommendation'));
   L.push('Timeline: ' + (TIME_LABEL[state.timeline] || 'not stated') + ' · Budget: ' + (b ? b.label : 'not stated'));
   if (state.models.length) L.push('Considering: ' + state.models.map(m => m === 'unsure' ? 'not sure yet' : FACTS[m].nm).join(', '));
