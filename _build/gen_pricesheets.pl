@@ -12,7 +12,10 @@
 # Writes pricesheets/<model-id>/index.html for every model. Pages carry
 # the shared header/footer via inject_partials markers — run
 # _build/inject_partials.pl after this script. Print CSS strips the
-# chrome so the printed sheet is just the sheet.
+# chrome so the printed sheet is just the sheet. Each page carries its own
+# absolute <link rel="canonical"> (added 2026-11-03): until then every canon
+# command run stripped the line gen_canonicals.pl had stamped, and the 18
+# sheets showed up as modified after a run that moved no price.
 #
 # Run after any catalogue regeneration or overlay change:
 #   perl _build/gen_pricesheets.pl && perl _build/inject_partials.pl
@@ -227,6 +230,7 @@ for my $mo (@$models){
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png?v=b2a8a002">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/brand/favicon-16.png?v=b2a8a002">
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/brand/favicon-180.png?v=b2a8a002">
+<link rel="canonical" href="https://www.wooldridgeboats.com/pricesheets/$id/">
 </head>
 <body>
 
