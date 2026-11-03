@@ -17,9 +17,12 @@
 #            --quiet                            table only, no per-model detail
 #
 # Surfaces checked: configurator const MODELS std, tools/STD_DATA.js, every
-# model page's standard-features grid, SPECS block, tagline + intro, and
-# tools/SPEC_DATA.js. The generator (_build/gen_from_canon.pl) runs this at the
-# end of every real run so an update is proven landed in the same command.
+# model page's standard-features grid, SPECS block, tagline + intro, its price
+# note under "2026 Base Pricing" (since 2026-11-03: what the ENGINES tab's
+# base-engine flag calls for - read from the workbook, or ENGINES.csv beside the
+# spec mirrors in --canon mode), and tools/SPEC_DATA.js. The generator
+# (_build/gen_from_canon.pl) runs this at the end of every real run so an update
+# is proven landed in the same command.
 use strict;
 use warnings;
 use File::Basename qw(dirname basename);
@@ -28,7 +31,7 @@ use Getopt::Long;
 use Encode qw(decode);
 use lib dirname(abs_path(__FILE__));
 use WBSpecCanon qw(slurp_text read_xlsx_tabs tabs_to_csv_text load_canon load_canon_from_tabs
-                   check_surfaces fmt_len DRIVEN_TABS);
+                   check_surfaces fmt_len base_engine_models engines_grid_from_csv price_notes DRIVEN_TABS);
 binmode STDOUT, ':encoding(UTF-8)';
 binmode STDERR, ':encoding(UTF-8)';
 
@@ -41,21 +44,26 @@ $repo =~ s{[\\/]+$}{};
 die "repo not found (no build-and-price/index.html under $repo)\n" unless -f "$repo/build-and-price/index.html";
 
 # ------------------------------------------------------------- the canon ----
-my $C;
+my $C; my $engines;                  # $engines = the ENGINES grid, for the price-note surface
 if (defined $xlsx) {
   my $tabs = read_xlsx_tabs($xlsx);
   my %texts;
   for my $t (DRIVEN_TABS) { die "workbook has no tab named '$t'\n" unless $tabs->{$t}; $texts{$t} = tabs_to_csv_text($tabs->{$t}, $t) }
   $C = load_canon_from_tabs(\%texts);
+  die "workbook has no tab named 'ENGINES' (the model pages' price note follows its base-engine flag)\n" unless $tabs->{ENGINES};
+  $engines = $tabs->{ENGINES};
   print "canon: workbook $xlsx (tabs read in memory, nothing written)\n" unless $quiet;
 } else {
   $C = load_canon($canon_dir);
+  $engines = engines_grid_from_csv("$canon_dir/ENGINES.csv") if -f "$canon_dir/ENGINES.csv";
   print "canon: folder $canon_dir\n" unless $quiet;
+  print "price note: ENGINES.csv not beside the spec mirrors - that surface is not checked\n" unless $engines || $quiet;
 }
 print "repo : $repo\n" unless $quiet;
 
 # ------------------------------------------------------------ surfaces ----
-my $rows = check_surfaces($repo, $C);
+my $N = $engines ? price_notes($C, base_engine_models($engines)) : undef;
+my $rows = check_surfaces($repo, $C, $N);
 
 # ---------------------------------------------------------- PDF audits ----
 my @audit;
