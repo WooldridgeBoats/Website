@@ -32,7 +32,8 @@ Archive: Tyler keeps a dated copy on the X Drive, `PHOTOS/IN THE SHOP/YY-MM-DD-I
    No `_source.json` any more (the old one held customer names in public files).
 5. Homepage strip (Tyler, 2026-11-03): ONE photo per build, each build's **-001** photo (the lowest
    number if 001 is held), newest hull first, "On the floor right now · N builds". So Tyler picks each
-   boat's homepage shot by making it -001. Automatic every run; no setting.
+   boat's homepage shot by making it -001. To put a build first in line, list its hull in `first`
+   in the settings (e.g. `"first": ["5333"]`, Tyler 2026-11-03); the rest follow newest first.
 6. Preview in the in-app browser (copy to the scratchpad + serve if ~/Desktop is blocked), send
    Tyler screenshots + any flagged photo, **wait for his OK**, test desktop + 390 / 360 / 320,
    commit with explicit paths, Tyler pushes.

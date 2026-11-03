@@ -17,6 +17,7 @@
 #               (1 = full width), cx/cy = crop centre (0-1). Default: full width, cx 0.5, cy 0.52.
 #               Crops are 16:10 with the BOAT centred: set cx/cy per photo after looking at it.
 # Homepage strip: every build's -001 photo (the lowest number if 001 is held), newest hull first.
+#   "first": ["5333"]   builds that lead the homepage strip, in this order (Tyler picks the lead shot)
 #
 # Writes assets/photos/shop-<hull>/<hull>-shop-N.jpg (2000x1250, 300-600 KB, max 700, no EXIF/GPS)
 # + thumbs/ (480x300); shop-* folders no longer in the master are removed. Rows: newest hull first,
@@ -169,7 +170,12 @@ sub row {
 }
 my $nb = @hulls;
 # homepage strip (Tyler, 2026-11-03): ONE photo per build on the floor, its -001 shot (the lowest
-# number if 001 is on hold), newest hull first. Each photo carries its own boat for the caption.
+# number if 001 is on hold). Order: the "first" hulls from the settings, then newest hull first.
+# Each photo carries its own boat for the caption.
+my @first = grep { $B{$_} } map { "$_" } @{ $set->{first} || [] };
+print "WARN  settings first $_: no such build on the floor — skipped\n" for grep { !$B{$_} } map { "$_" } @{ $set->{first} || [] };
+my %isfirst = map { $_ => 1 } @first;
+my @strip = (@first, grep { !$isfirst{$_} } @hulls);
 sub homerow {
   my $ind = '        ';
   my @a = map {
@@ -177,7 +183,7 @@ sub homerow {
     my $cfgattr = $bt->{cfg} ? qq{ data-cfg="$bt->{cfg}"} : '';
     qq{$ind  <a href="assets/photos/shop-$bt->{hull}/$p->{name}" data-m="$bt->{model}" data-len="$bt->{len}"$cfgattr data-hull="$bt->{hull}" data-shot="In the shop">}
     . qq{<img src="assets/photos/shop-$bt->{hull}/thumbs/$p->{name}" alt="Hull #$bt->{hull} } . title($bt) . qq{" loading="lazy"></a>}
-  } @hulls;
+  } @strip;
   return join "\n",
     qq{$ind<div class="prow" data-shop-live="1">},
     qq{$ind  <div class="prowhead"><span class="prowtitle"><b>On the floor right now</b></span>},
