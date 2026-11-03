@@ -16,7 +16,7 @@
 #   "crop":     {"5389-001": {"w":0.68, "cx":0.51, "cy":0.55}}   w = crop width as a share of the photo
 #               (1 = full width), cx/cy = crop centre (0-1). Default: full width, cx 0.5, cy 0.52.
 #               Crops are 16:10 with the BOAT centred: set cx/cy per photo after looking at it.
-#   "homepage": "5333"   the one build the homepage strip shows (default: most photos, then newest hull)
+# Homepage strip: every build's -001 photo (the lowest number if 001 is held), newest hull first.
 #
 # Writes assets/photos/shop-<hull>/<hull>-shop-N.jpg (2000x1250, 300-600 KB, max 700, no EXIF/GPS)
 # + thumbs/ (480x300); shop-* folders no longer in the master are removed. Rows: newest hull first,
@@ -88,15 +88,12 @@ for my $h (sort keys %B) {
 }
 push @warn, "settings hold $_: no such photo in the master" for grep { !$held{$_} } sort keys %hold;
 my @hulls = sort { $b <=> $a } keys %B;     # newest build first
-my $home = $set->{homepage} && $B{ $set->{homepage} } ? $set->{homepage}
-  : (sort { @{ $B{$b}{photos} } <=> @{ $B{$a}{photos} } || $b <=> $a } @hulls)[0];
-push @warn, "settings homepage $set->{homepage}: no such build — using $home" if $set->{homepage} && !$B{ $set->{homepage} };
 
 sub title { my $b = shift; "$b->{len}' $b->{model}" . ($b->{cfg} ? " $b->{cfg}" : '') }
 print "In The Shop from: $SRC\n";
 for my $h (@hulls) {
   my $b = $B{$h};
-  printf "  Hull #%s - %-40s %d photo%s%s\n", $h, title($b), scalar @{ $b->{photos} }, (@{ $b->{photos} } == 1 ? '' : 's'), ($h eq ($home // '') ? '   <- homepage' : '');
+  printf "  Hull #%s - %-40s %d photo%s\n", $h, title($b), scalar @{ $b->{photos} }, (@{ $b->{photos} } == 1 ? '' : 's');
 }
 print "WARN  $_\n" for @warn;
 if (@err) { print "ERROR $_\n" for @err; print "Nothing written — fix the names above and re-run.\n"; exit 1 }
@@ -171,13 +168,33 @@ sub row {
     qq{$ind</div>};
 }
 my $nb = @hulls;
+# homepage strip (Tyler, 2026-11-03): ONE photo per build on the floor, its -001 shot (the lowest
+# number if 001 is on hold), newest hull first. Each photo carries its own boat for the caption.
+sub homerow {
+  my $ind = '        ';
+  my @a = map {
+    my $bt = $B{$_}; my ($p) = sort { $a->{nnn} <=> $b->{nnn} } @{ $bt->{photos} };   # "$bt", not "$b" (sort's $b)
+    my $cfgattr = $bt->{cfg} ? qq{ data-cfg="$bt->{cfg}"} : '';
+    qq{$ind  <a href="assets/photos/shop-$bt->{hull}/$p->{name}" data-m="$bt->{model}" data-len="$bt->{len}"$cfgattr data-hull="$bt->{hull}" data-shot="In the shop">}
+    . qq{<img src="assets/photos/shop-$bt->{hull}/thumbs/$p->{name}" alt="Hull #$bt->{hull} } . title($bt) . qq{" loading="lazy"></a>}
+  } @hulls;
+  return join "\n",
+    qq{$ind<div class="prow" data-shop-live="1">},
+    qq{$ind  <div class="prowhead"><span class="prowtitle"><b>On the floor right now</b></span>},
+    qq{$ind    <span class="prowcount">$nb build} . ($nb == 1 ? '' : 's') . qq{</span></div>},
+    qq{$ind  <div class="pcar"><button class="pcarbtn pcarprev" type="button" aria-label="Scroll back">&#8592;</button>},
+    qq{$ind    <div class="pcartrack">}, @a,
+    qq{$ind    </div>},
+    qq{$ind    <button class="pcarbtn pcarnext" type="button" aria-label="Scroll forward">&#8594;</button></div>},
+    qq{$ind</div>};
+}
 my $homeBlock = join "\n", '',
   '    <div class="sechead tight">',
   '      <div class="eyebrow">In The Shop Right Now</div>',
   '      <h2>A look at the floor in Seattle</h2>',
-  '      <p class="lede">One build from the shop floor, updated as the crew works. Scroll the row, or tap any photo to open the full gallery.</p>',
+  '      <p class="lede">Every build on the shop floor right now, one photo each. Scroll the row, or tap any photo to see it full size.</p>',
   '    </div>',
-  row($B{$home}, '', '        '),
+  homerow(),
   qq{    <p class="askline" style="margin-top:22px;"><a href="in-the-shop/">See all $nb boat} . ($nb == 1 ? '' : 's') . qq{ on the floor right now &#8594;</a></p>}, '    ';
 my $pageBlock = join "\n", '',
   '  <div class="sechead tight">',
@@ -192,5 +209,5 @@ for ([ "$REPO/index.html", $homeBlock ], [ "$REPO/in-the-shop/index.html", $page
   $h =~ s{<!-- SHOP-LIVE:BEGIN[^\n]*-->.*?(<!-- SHOP-LIVE:END -->)}{$MARK$blk$1}s or die "no SHOP-LIVE markers in $p\n";
   open $fh, '>:raw', $p or die $!; print $fh $h; close $fh;
 }
-print "  pages: homepage shows Hull #$home; /in-the-shop/ shows $nb build(s)\n";
+print "  pages: homepage strip = $nb photo(s), one per build (its -001); /in-the-shop/ = $nb build row(s)\n";
 system('perl', "$REPO/_build/stamp_assets.pl") == 0 or die "stamp_assets.pl failed\n";

@@ -30,7 +30,9 @@ Archive: Tyler keeps a dated copy on the X Drive, `PHOTOS/IN THE SHOP/YY-MM-DD-I
    mozjpeg to <= 600 KB (never over 700), thumbs 480x300, EXIF/GPS stripped (exiftool). A photo
    already 2000x1250 and small enough goes in as-is. `shop-*` folders not in the master are removed.
    No `_source.json` any more (the old one held customer names in public files).
-5. Homepage shows ONE build: `homepage` in the settings, default = most photos, then newest hull.
+5. Homepage strip (Tyler, 2026-11-03): ONE photo per build, each build's **-001** photo (the lowest
+   number if 001 is held), newest hull first, "On the floor right now · N builds". So Tyler picks each
+   boat's homepage shot by making it -001. Automatic every run; no setting.
 6. Preview in the in-app browser (copy to the scratchpad + serve if ~/Desktop is blocked), send
    Tyler screenshots + any flagged photo, **wait for his OK**, test desktop + 390 / 360 / 320,
    commit with explicit paths, Tyler pushes.
@@ -40,4 +42,4 @@ The Build Hub `LIVE BUILDS.json` only says "IN PROCESS", so rows carry no stage 
 ## Log
 - **2026-11-03 (first run):** 9 builds, 16 photos. Held #5400 (handwritten note on the transom)
   until Tyler removed the note and re-exported; cropped the band saw out of #5389 photo 1.
-  Homepage = Hull #5333 (29' Landing Craft, 5 photos).
+  Homepage first showed one build (#5333); same day Tyler switched it to every build's -001 photo.
