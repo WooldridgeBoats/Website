@@ -28,6 +28,15 @@
   .invdesc p{ font-size:16px; line-height:1.7; text-align:center; margin:0 0 14px; }
   .invdesc p:last-child{ margin-bottom:0; }
   .invboat .factrow{ margin-top:26px; }
+  /* equipment list + the dealer's card (dealer boats, 2026-11-04) */
+  .invfeat{ max-width:840px; margin:30px auto 0; }
+  .invfeat h3{ font-family:var(--serif); font-size:19px; color:var(--blue); text-align:center; margin:0 0 12px; }
+  .invfeat ul{ columns:2; column-gap:34px; margin:0 0 18px 20px; padding:0; }
+  .invfeat li{ font-size:15px; line-height:1.55; margin-bottom:6px; break-inside:avoid; }
+  .invfeat p{ font-size:15px; line-height:1.6; text-align:center; margin:0; }
+  @media (max-width:700px){ .invfeat ul{ columns:1; } }
+  .invdealer{ max-width:440px; margin:34px auto 0; }
+  .invdealer .sechead{ margin:0 0 14px; }
   .fact.price .v{ font-family:var(--serif); font-weight:700; font-size:20px; color:var(--blue); }
   /* a pill with no small top line (Ask About Availability) centres its text in the row's 64px height (Tyler) */
   .modelctas .plate{ display:inline-flex; flex-direction:column; justify-content:center; }
@@ -192,6 +201,7 @@ __MAST__
         ['Model Year', b.yr ? esc(String(b.yr)) : ''],
         ['Length',     b.len + ' <i>ft</i>'],
         ['Power',      b.eng   ? esc(b.eng)   : ''],
+        ['Trailer',    b.trailer ? esc(b.trailer) : ''],
         ['Side Vinyl', b.vinyl ? esc(b.vinyl) : ''],
         ['Location',   b.dealer ? esc(b.dealer.name) + '<br><i>' + esc(b.dealer.city) + '</i>' : 'Factory<br><i>Seattle, WA</i>'],
         ['Hull',       '#' + esc(b.hull)]
@@ -203,12 +213,24 @@ __MAST__
           '<a class="plate ghost" href="tel:+1' + tel + '"><span class="k">' + esc(d.city) + '</span>' + esc(d.tel) + '</a>'
         : '<a class="plate" href="/contact/"><span class="k">Ready Now</span>Contact the Factory</a>' +
           '<a class="plate ghost" href="tel:+12067228998"><span class="k">Seattle Factory</span>(206) 722-8998</a>';
+      /* the boat's equipment list (a dealer's spec sheet), and the dealer's own card from /dealers/ */
+      const feats = (b.features || []).length ? '<div class="invfeat"><h3>On This Boat</h3><ul>' +
+          b.features.map(f => '<li>' + esc(f) + '</li>').join('') + '</ul>' +
+          (b.trailerfeat ? '<h3>Trailer</h3><p>' + esc(b.trailerfeat) + '</p>' : '') + '</div>' : '';
+      const dcard = d ? '<div class="invdealer"><div class="sechead tight"><div class="eyebrow">In Stock At Our Dealer</div>' +
+          '<h2 style="font-size:clamp(20px,2.6vw,28px);">Buy it from ' + esc(d.name) + '</h2></div>' +
+          '<div class="dealer"><div class="city">' + esc(d.town || d.city) + '</div><b>' + esc(d.name) + '</b>' +
+          (d.addr ? '<div class="addr">' + esc(d.addr) + '</div>' : '<div class="addr">' + esc(d.city) + '</div>') +
+          '<div class="row"><a href="tel:+1' + tel + '">' + esc(d.tel) + '</a>' +
+          (d.web ? '<a href="' + esc(d.web) + '" target="_blank" rel="noopener">Website &#8599;</a>' : '') +
+          '<a href="/dealers/">All dealers</a></div></div></div>' : '';
       return '<section class="invboat" id="hull-' + esc(b.hull) + '">' +
         '<div class="sechead tight"><h2 style="font-size:clamp(20px,2.6vw,28px);">' + title(b) + '</h2></div>' +
         '<div class="invdesc">' + (b.desc || []).map(p => '<p>' + esc(p) + '</p>').join('') + '</div>' +
         card +
         '<div class="factrow">' + facts.map(x => '<div class="fact' + (x[2] ? ' ' + x[2] : '') + '"><div class="l">' + x[0] +
           '</div><div class="v">' + x[1] + '</div></div>').join('') + '</div>' +
+        feats + dcard +
         '<div class="modelctas">' + (b.sold ? '' : ctas +
           (b.mpage ? '<a class="plate ghost" href="' + esc(b.mpage) + '"><span class="k">The Model</span>About the ' + esc(b.name) + '</a>' : '')) +
           '<a class="plate ghost" href="/new-inventory/">&lsaquo; All New Boats</a>' +

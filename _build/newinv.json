@@ -7,12 +7,15 @@
     "  boat at /new-inventory/<slug>/, the homepage New Boats card and assets/instock.js (the In Stock menu link).",
     "A boat only shows once its photos are in assets/newinv/<HULL>/. dealer: a key from 'dealers' (blank = at the factory).",
     "sold:true takes the boat off (a SOLD stamp design is still to come: ask Tyler). Order here = order on the page.",
-    "Leave a field \"\" rather than guessing; price is the official price (Tyler)."
+    "Leave a field \"\" rather than guessing; price is the official price (Tyler).",
+    "features / trailerfeat: optional equipment list (e.g. a dealer's spec sheet) shown under the facts. trailer: short Trailer fact."
   ],
   "dealers": {
     "SUNLAND SALES": {
       "name": "Sunland Sales and Service",
+      "town": "Glendale",
       "city": "Glendale, AZ",
+      "addr": "4700 West Glendale Ave\nGlendale, AZ 85301",
       "tel": "(602) 430-3957",
       "web": "https://www.sunlandsalesrv.com"
     }
@@ -40,18 +43,48 @@
     },
     {
       "hull": "5224",
-      "yr": "",
+      "yr": 2026,
       "len": 18,
       "name": "Alaskan LT",
       "cfg": "Center Console",
       "drive": "Outboard Jet",
-      "eng": "",
-      "price": "",
+      "eng": "Yamaha F115JB outboard jet (80 hp at the jet)",
+      "price": "$43,500",
       "vinyl": "",
       "mpage": "/models/alaskan-lt/",
       "dealer": "SUNLAND SALES",
       "sold": false,
-      "desc": []
+      "desc": [
+        "A brand-new 2026 18′ Alaskan LT Center Console, in stock now at Sunland Sales and Service in Glendale, Arizona. An all-aluminum welded Wooldridge with a Yamaha F115JB four-stroke outboard jet and an upgraded stainless steel impeller, rigged and tested at the factory, on a matching EZ Loader trailer.",
+        "Call Sunland Sales and Service for more information. Their details are below."
+      ],
+      "trailer": "EZ Loader single axle",
+      "features": [
+        "All-aluminum welded boat",
+        "Yamaha F115JB four-stroke outboard with jet (80 hp jet power)",
+        "Upgraded stainless steel impeller",
+        "14-gallon topside fuel tank with disconnecting fittings, secured under the front deck",
+        "Fuel/water separator",
+        "Extended bottom trim plate",
+        "Port and starboard side stable pods",
+        ".125 diamond plate floors",
+        "Powdercoat anti-skid over aluminum flooring",
+        "Heskins anti-slip on gunnels",
+        "Side trays",
+        "Fishing Trim option: rubber in the bottom of the side trays with Trim Lok on the edges",
+        "Rod grippers on the interior sides above the stock side trays",
+        "Welded bow and stern eyes",
+        "Diamond plate bow cap",
+        "Recessed diamond plate step deck",
+        "Storage under the front step deck",
+        "Floor cargo tie-down points",
+        "Center console",
+        "Explorer Package: Blue Sea Weatherdeck power source panel, bilge pump, horn, LED navigation lights, 12-volt accessory plug, dual USB plug",
+        "Yamaha control: shift/throttle cables, wire harness and tachometer",
+        "Brand-new Group 24 battery with box",
+        "Engine rigged and tested at the factory"
+      ],
+      "trailerfeat": "EZ Loader 90BS 14-18 2300 single-axle trailer: swing tongue, spare tire, slick bunks, load guides, 2\" ball, safety chains and 4-way flat connection."
     }
   ]
 }
