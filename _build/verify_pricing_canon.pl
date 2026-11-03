@@ -22,7 +22,9 @@
 # own arithmetic (option units, trailer as-stocked totals), the "from" prices on
 # the home page, quiz, quote and compare pages, the options guide's typed prices
 # (option-guide/index.html, mapped to canon by _build/option_guide_prices.tsv - 2026-10-15),
-# the CSV mirrors, the Sales Order Creator file and the trailer shop add-ons the price sheets print.
+# the CSV mirrors, the Sales Order Creator file, the trailer shop add-ons the price sheets print,
+# and (since 2026-11-03) the model pages' "2026 Base Pricing" fold - its "from $" and
+# per-configuration base-hull tables against the BOATS tab, named per LINEUP.
 # The generator (_build/gen_from_canon.pl) runs these same checks on every run.
 use strict;
 use warnings;
