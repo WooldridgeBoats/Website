@@ -9,9 +9,11 @@
 #         NN-<HULL>-<LEN>-<CFG>-<MDL>.jpg          gallery, in order
 #     <HULL>-<LEN>-...-MOBILE/                 phone set, NN-<HULL>-...-MOBILE.jpg (1080x1350)
 # Output: assets/newinv/<HULL>/ hero.jpg, NN.jpg, thumbs/{hero,cover,NN}.jpg, mobile/NN.jpg,
-# mobile/thumbs/NN.jpg, and the WB_NEWINV_PHOTOS line in new-inventory/index.html (photo counts +
-# a cache stamp per boat) and assets/instock.js (the In Stock menu link, main site + store). Price, engine,
-# words and SOLD live in the NEWINV list in that page: after changing sold:, re-run this script.
+# mobile/thumbs/NN.jpg; then it runs gen_new_inventory.pl, which writes the New Boats landing cards,
+# one page per boat, the homepage card and assets/instock.js. Price, engine, words, dealer and SOLD live in
+# _build/newinv.json (after editing only that, just run perl _build/gen_new_inventory.pl).
+# A dealer's boat: <HULL>-<LEN>-<CFG>-<MODEL>-DEALER-<DEALER>/, e.g. 5224-18-CC-AK LT-DEALER-SUNLAND SALES/.
+# An empty folder (photos still to come) is skipped.
 #
 # Usage: _build/build_new_inventory.sh [--dry-run] ["/path/to/NEW INVENTORY"]
 # Checks every file name first and stops if any is wrong (Tyler fixes them; no workarounds).
@@ -31,7 +33,9 @@ for d in "$SRC"/*/; do
   name="$(basename "$d")"
   case "$name" in *-MOBILE) continue;; esac
   if ! [[ "$name" =~ ^([0-9]{4})-([0-9]{2})- ]]; then echo "  ✗ folder not HULL-LEN-…: $name"; bad=1; continue; fi
-  hull="${BASH_REMATCH[1]}"; len="${BASH_REMATCH[2]}"; boats+=("$hull|$len|$d")
+  hull="${BASH_REMATCH[1]}"; len="${BASH_REMATCH[2]}"
+  files=("$d"*); if [ ${#files[@]} -eq 0 ]; then echo "  - $name: empty, no photos yet (skipped)"; continue; fi
+  boats+=("$hull|$len|$d")
   h=("$d"HERO-"$hull"-"$len"-*.jpg); g=("$d"GALLERY-THUMB-"$hull"-"$len"-*.jpg)
   [ ${#h[@]} -eq 1 ] || { echo "  ✗ $name: need exactly one HERO-$hull-$len-….jpg (found ${#h[@]})"; bad=1; }
   [ ${#g[@]} -eq 1 ] || { echo "  ✗ $name: need exactly one GALLERY-THUMB-$hull-$len-….jpg (found ${#g[@]})"; bad=1; }
@@ -75,15 +79,6 @@ for row in "${boats[@]}"; do
 done
 [ $DRY -eq 1 ] && { echo "[dry run] nothing written."; exit 0; }
 
-# ---- 3) the page's photo line ------------------------------------------------------
-line="<script>window.WB_NEWINV_PHOTOS={$json};</script>"
-LINE="$line" perl -0pi -e 's{<script>window\.WB_NEWINV_PHOTOS=.*?</script>}{$ENV{LINE}}s or die "no WB_NEWINV_PHOTOS line in page\n"' "$PAGE" && echo "  page: $line"
-# ---- 4) the "In Stock" menu switch: on while any NEWINV boat has sold:false ------------------
-# Both menus read assets/instock.js: the main site (header.html) and the store header, so they always
-# match. Selling the last boat (sold:true) or emptying NEWINV turns the link off on both.
-avail="$(perl -0ne 'print scalar(() = /sold:\s*false/g) if /const NEWINV = \[(.*?)\n  \];/s && ($_ = $1)' "$PAGE")"
-avail="${avail:-0}"
-perl -0pi -e "s{window\.WB_INSTOCK = \d+;}{window.WB_INSTOCK = $avail;}" "$REPO/assets/instock.js"
-echo "  In Stock link: $([ "$avail" -gt 0 ] && echo "ON ($avail for sale)" || echo OFF)"
-perl "$REPO/_build/stamp_assets.pl" >/dev/null && echo "  cache-stamped"
-echo "DONE. Check /new-inventory/ at 1440 + 390, then commit with explicit paths."
+# ---- 3) the pages: landing cards, one page per boat, homepage card, In Stock menu link ---------
+# Boat facts (price, engine, words, dealer, sold) live in _build/newinv.json (Tyler 2026-11-04).
+perl "$REPO/_build/gen_new_inventory.pl" || exit 1

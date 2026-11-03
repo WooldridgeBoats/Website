@@ -1,3 +1,15 @@
+> **REBUILT 2026-11-04 (Tyler): New Boats landing + one page per boat, like Pre-Owned.**
+> - `/new-inventory/` = the landing: title "New Boats", Pre-Owned's card grid, green pill "In Stock".
+> - Each boat = `/new-inventory/<yr>-wooldridge-<len>-<model>-<cfg>-<hull>/` (hero + rope stamp, write-up,
+>   gallery, facts incl. Location, price, buttons, "All New Boats").
+> - **Data: `_build/newinv.json`** (boats + dealers). Page template: `_build/newinv-boat-template.html`.
+>   Builder: `perl _build/gen_new_inventory.pl` (also writes the homepage card between NEWINV-HOME markers,
+>   assets/instock.js, canonicals, sitemap). Photos: `_build/build_new_inventory.sh` (runs the builder at the end).
+> - **Dealer boats:** folder `<HULL>-<LEN>-<CFG>-<MODEL>-DEALER-<DEALER>/`, `"dealer": "<KEY>"` in the json;
+>   their card + page show the dealer as Location and the dealer's buttons/phone. Sunland Sales is in `dealers`.
+> - A boat shows only once its photos are in assets/newinv/<HULL>/ (an empty master folder is skipped).
+> - The old NEWINV list inside new-inventory/index.html is gone; anything below about it is history.
+
 # In Stock page (/new-inventory/): handoff
 
 Built 2026-10-20 with Tyler. READ THIS before adding, changing or selling a shop boat.

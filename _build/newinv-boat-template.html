@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>__TITLE__</title>
+<meta name="description" content="__DESC__">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/house.css?v=7031697d">
+<script src="/assets/inv-stamp.js?v=4261d199"></script>
+<style>
+  /* NEW BOATS - one boat's page (template for gen_new_inventory.pl; was the whole In Stock page 2026-10-20, Tyler): the boat-model page pieces, so it matches them:
+     hero (a slider once there are 2+ boats) with the caption strip + HULL #, intro text, the
+     gallery card, a fact row and the buttons. Only two extras, because these boats are for sale
+     right now: the price, and the rope stamp (assets/inv-stamp.js) top RIGHT of each hero slide (moved from the left, Tyler 2026-11-04).
+     Photos come from MASTER-WEBSITE PHOTOS/NEW INVENTORY/<HULL>-<LEN>-<CFG>-<MODEL>/ via
+     _build/build_new_inventory.sh. Scoped here so house.css (stamped site-wide) isn't touched. */
+  .invhero .hs-slide{ position:relative; }
+  .invstamp{ position:absolute; right:2.2%; top:3.2%; width:15%; z-index:2; pointer-events:none;
+    filter:drop-shadow(0 2px 2px rgba(0,0,0,.28)) drop-shadow(0 8px 14px rgba(0,0,0,.30)); }
+  .invstamp svg{ display:block; width:100%; height:auto; }
+  @media (max-width:700px){ .invstamp{ width:23%; } }
+  .invboat + .invboat{ margin-top:64px; }
+  .invboat .sechead{ margin:26px 0 0; }
+  .invdesc{ max-width:840px; margin:18px auto 0; }
+  .invdesc p{ font-size:16px; line-height:1.7; text-align:center; margin:0 0 14px; }
+  .invdesc p:last-child{ margin-bottom:0; }
+  .invboat .factrow{ margin-top:26px; }
+  .fact.price .v{ font-family:var(--serif); font-weight:700; font-size:20px; color:var(--blue); }
+  /* a pill with no small top line (Ask About Availability) centres its text in the row's 64px height (Tyler) */
+  .modelctas .plate{ display:inline-flex; flex-direction:column; justify-content:center; }
+</style>
+<link rel="canonical" href="https://www.wooldridgeboats.com__PATH__">
+<link rel="icon" href="/favicon.ico?v=b2a8a002" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png?v=b2a8a002">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/brand/favicon-16.png?v=b2a8a002">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/brand/favicon-180.png?v=b2a8a002">
+</head>
+<body>
+<!-- PARTIAL:header -->
+<!-- GA4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7H638112HR"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7H638112HR');
+</script>
+<!-- /GA4 -->
+<div class="topstrip">
+  <div class="wrap">
+    <div>FACTORY &amp; SHOWROOM — 1303 S 96TH ST, SEATTLE, WA 98108 &nbsp;·&nbsp; <a href="tel:+12067228998">(206) 722-8998</a> &nbsp;·&nbsp; MON–THU 6:00AM–4:30PM</div>
+    <div class="soc"><a href="https://www.instagram.com/wooldridgeboats/">Instagram</a><a href="https://www.facebook.com/WooldridgeBoats/">Facebook</a><a href="https://www.youtube.com/channel/UC-hVTJ7HySkqCjUENQY5CCQ">YouTube</a></div>
+  </div>
+</div>
+<script src="/assets/instock.js?v=714749b5"></script><!-- sets html.wb-instock while a shop boat is for sale: shows the In Stock link (store header loads it too) -->
+<nav class="nav" aria-label="Primary">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Wooldridge Boats &#8212; Home">
+      <img src="/assets/brand/logo-wing-dark.png" alt="Wooldridge Boats 1915">
+    </a>
+    <a href="/">Home</a>
+    <span class="hasmega">
+      <a href="/#fleet">Our Boats</a>
+      <div class="mega" role="menu">
+        <div class="mega-in">
+          <div class="mcol-inboard">
+            <h5>Inboard Jet</h5>
+            <ul>
+              <li><a href="/models/alaskan-xl-inboard/">Alaskan XL Inboard</a></li>
+              <li><a href="/models/scout/">Scout</a></li>
+              <li><a href="/models/scout-widebody/">Scout Widebody</a></li>
+              <li><a href="/models/skagit-inboard/">Skagit Inboard</a></li>
+              <li><a href="/models/skagit-x/">Skagit-X</a></li>
+              <li><a href="/models/sportinboard/">Sport Inboard</a></li>
+              <li><a href="/models/supersportdrifterinboard/">Super Sport Drifter Inboard</a></li>
+            </ul>
+          </div>
+          <div class="mcol-outboard">
+            <h5>Outboard Jet</h5>
+            <ul>
+              <li><a href="/models/alaskan/">Alaskan</a></li>
+              <li><a href="/models/alaskan-lt/">Alaskan LT</a></li>
+              <li><a href="/models/alaskanxl/">Alaskan XL</a></li>
+              <li><a href="/models/xlt/">Alaskan XLT</a></li>
+              <li><a href="/models/rogue/">Rogue</a></li>
+              <li><a href="/models/skagit/">Skagit</a></li>
+              <li><a href="/models/sport/">Sport</a></li>
+              <li><a href="/models/sportster/">Sportster</a></li>
+              <li><a href="/models/supersportdrifter/">Super Sport Drifter</a></li>
+            </ul>
+          </div>
+          <div class="mcol-offshore">
+            <h5>Offshore</h5>
+            <ul>
+              <li><a href="/models/sportoffshore/">Sport Offshore</a></li>
+              <li><a href="/models/super-sport-offshore/">Super Sport Offshore</a></li>
+            </ul>
+          </div>
+          <div class="mcol-custom">
+            <h5>Custom Builds</h5>
+            <ul>
+              <li><a href="/agency-work-boats/">Agency &amp; Work Boats</a></li>
+              <li><a href="/models/landing-craft/">Landing Craft</a></li>
+              <li><a href="/models/super-sport-offshore-angler/">SSO Angler</a></li>
+              <li><a href="/models/pybus-lodge-fleet/">Pybus Point Lodge</a></li>
+              <li><a href="/models/deepwater/">Deepwater Series</a></li>
+              <li><a href="/models/canyon/">Canyon</a></li>
+              <li><a href="/models/super-sport-offshore-pilothouse/">SSO Pilothouse</a></li>
+              <li><a href="/models/river-rat-diy-kit/">River Rat DIY Kit</a></li>
+            </ul>
+          </div>
+          <!-- Q-C-9 / WEB-N-03: titled like the model columns, duplicates of the
+               main nav bar (New Boats / Pre-Owned / Custom Builds) removed -->
+          <div class="megaside">
+            <h5>Tools</h5>
+            <a href="/build-and-price/">Build &amp; Price</a>
+            <a href="/which-wooldridge/">Which Wooldridge Quiz</a>
+            <a href="/request-a-quote/">Request a Quote</a>
+            <a href="/compare/">Compare Models</a>
+            <a href="/option-guide/">Options &amp; Terms, Explained</a>
+            <a href="/river-ripper/">Game</a>
+          </div>
+        </div>
+      </div>
+    </span>
+    <a href="/pre-owned/">Pre-Owned</a>
+    <a class="nav-instock" href="/new-inventory/">In Stock</a>
+    <a href="/about-history/">About | History</a>
+    <a href="/dealers/">Dealers</a>
+    <a href="https://store.wooldridgeboats.com/">Store</a>
+    <a href="/contact/">Contact</a>
+    <a href="/build-and-price/">Build &amp; Price</a>
+    <span class="navsoc">
+      <a href="https://www.instagram.com/wooldridgeboats/" aria-label="Instagram"><img src="/assets/brand/ic-instagram.png" alt="Instagram"></a>
+      <a href="https://www.facebook.com/WooldridgeBoats/" aria-label="Facebook"><img src="/assets/brand/ic-facebook.png" alt="Facebook"></a>
+      <a href="https://www.youtube.com/channel/UC-hVTJ7HySkqCjUENQY5CCQ" aria-label="YouTube"><img src="/assets/brand/ic-youtube.png" alt="YouTube"></a>
+    </span>
+  </div>
+</nav>
+<!-- /PARTIAL:header -->
+<main class="mp-tight">
+<header class="pagemast"><div class="wrap">
+__MAST__
+  <div class="dbl mastrule"></div>
+</div></header>
+<section class="pagebody"><div class="wrap">
+
+  <!-- The hero (one slide per boat) and one section per boat are drawn from NEWINV below. -->
+  <figure class="modelhero hslider invhero" id="invhero" aria-roledescription="carousel" aria-label="New inventory photos"></figure>
+  <div id="invlist"></div>
+  __PHOTOS__
+  <script>
+  /* ONE boat's page, GENERATED by _build/gen_new_inventory.pl from _build/newinv.json and the
+     template _build/newinv-boat-template.html (Tyler 2026-11-04). Edit those and re-run; never this file. */
+  const NEWINV = [__NEWINV__];
+  (function(){
+    const esc = s => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    const P = window.WB_NEWINV_PHOTOS || {};
+    const ph = b => P[b.hull] || {n:0, m:0, v:''};
+    const dir = b => '/assets/newinv/' + esc(b.hull) + '/';
+    const q = b => ph(b).v ? '?v=' + ph(b).v : '';
+    const nn = i => (i < 10 ? '0' : '') + i;
+    const title = b => (b.yr ? b.yr + ' ' : '') + 'Wooldridge ' + b.len + '&prime; ' + esc(b.name) + (b.cfg ? ' &#8212; ' + esc(b.cfg) : '');
+    const stamp = b => window.WBStamp ? '<div class="invstamp">' + WBStamp(b.sold ? {top:'SOLD', bottom:''} : {}) + '</div>' : '';
+    const boats = NEWINV.filter(b => !b.sold).concat(NEWINV.filter(b => b.sold));   // available first
+
+    /* ---- hero: the model pages' slider markup (assets/hero-slider.js), one slide per boat ---- */
+    const cap = b => (b.yr ? b.yr + ' ' : '') + esc(b.name) + ' &#8212; ' + b.len + '&#8242;' + (b.cfg ? ' ' + esc(b.cfg) : '');
+    const hero = document.getElementById('invhero');
+    hero.innerHTML = '<div class="hs-view"><div class="hs-track">' + boats.map((b, i) =>
+        '<div class="hs-slide" data-cap="' + cap(b) + '" data-hull="' + esc(b.hull) + '">' +
+        '<img src="' + dir(b) + 'hero.jpg' + q(b) + '" alt="' + title(b) + ', Hull ' + esc(b.hull) + '"' +
+        (i ? ' loading="lazy"' : ' fetchpriority="high"') + '>' + stamp(b) + '</div>').join('') + '</div></div>' +
+      '<figcaption><span class="hs-cap"><span class="hs-model">' + (boats[0].yr ? boats[0].yr + ' ' : '') + esc(boats[0].name) +
+      '</span><span class="hs-sep"> &#8212; </span><span class="hs-spec">' + boats[0].len + '&#8242;' + (boats[0].cfg ? ' ' + esc(boats[0].cfg) : '') +
+      '</span></span><span class="ref">HULL #' + esc(boats[0].hull) + '</span></figcaption>';
+
+    /* ---- one section per boat: title, words, the gallery card, facts, buttons ---- */
+    function section(b){
+      const n = ph(b).n, m = ph(b).m;
+      const badge = (m && m !== n)
+        ? '<span class="mcbadge"><span class="wbd">' + n + ' photos</span><span class="wbm">' + m + ' photos</span></span>'
+        : '<span class="mcbadge">' + n + ' photo' + (n === 1 ? '' : 's') + '</span>';
+      const card = n ? '<div class="modelcards mc-single roomy"><a class="mcard" href="' + dir(b) + '01.jpg' + q(b) + '" data-hull="' + esc(b.hull) + '">' +
+          '<img src="' + dir(b) + 'thumbs/cover.jpg' + q(b) + '" alt="' + title(b) + ', Hull ' + esc(b.hull) + '" loading="lazy">' + badge +
+          '<span class="mcmeta"><b>' + b.len + '&#8242; ' + esc(b.name) + '</b><span>' + (b.cfg ? esc(b.cfg) + ' &#183; ' : '') + 'Hull #' + esc(b.hull) + '</span></span></a></div>' : '';
+      const facts = [
+        [b.sold ? 'Sold' : 'Price', b.sold ? 'Sold' : esc(b.price), 'price'],
+        ['Model Year', b.yr ? esc(String(b.yr)) : ''],
+        ['Length',     b.len + ' <i>ft</i>'],
+        ['Power',      b.eng   ? esc(b.eng)   : ''],
+        ['Side Vinyl', b.vinyl ? esc(b.vinyl) : ''],
+        ['Location',   b.dealer ? esc(b.dealer.name) + '<br><i>' + esc(b.dealer.city) + '</i>' : 'Factory<br><i>Seattle, WA</i>'],
+        ['Hull',       '#' + esc(b.hull)]
+      ].filter(x => x[1]);
+      /* dealer boats (Tyler 2026-11-04): buyers deal with that dealer, so the buttons are theirs */
+      const d = b.dealer, tel = d ? String(d.tel).replace(/[^\d+]/g, '') : '';
+      const ctas = d
+        ? '<a class="plate" href="' + esc(d.web || ('tel:+1' + tel)) + '"' + (d.web ? ' target="_blank" rel="noopener"' : '') + '><span class="k">At Our Dealer</span>' + esc(d.name) + '</a>' +
+          '<a class="plate ghost" href="tel:+1' + tel + '"><span class="k">' + esc(d.city) + '</span>' + esc(d.tel) + '</a>'
+        : '<a class="plate" href="/contact/"><span class="k">Ready Now</span>Contact the Factory</a>' +
+          '<a class="plate ghost" href="tel:+12067228998"><span class="k">Seattle Factory</span>(206) 722-8998</a>';
+      return '<section class="invboat" id="hull-' + esc(b.hull) + '">' +
+        '<div class="sechead tight"><h2 style="font-size:clamp(20px,2.6vw,28px);">' + title(b) + '</h2></div>' +
+        '<div class="invdesc">' + (b.desc || []).map(p => '<p>' + esc(p) + '</p>').join('') + '</div>' +
+        card +
+        '<div class="factrow">' + facts.map(x => '<div class="fact' + (x[2] ? ' ' + x[2] : '') + '"><div class="l">' + x[0] +
+          '</div><div class="v">' + x[1] + '</div></div>').join('') + '</div>' +
+        '<div class="modelctas">' + (b.sold ? '' : ctas +
+          (b.mpage ? '<a class="plate ghost" href="' + esc(b.mpage) + '"><span class="k">The Model</span>About the ' + esc(b.name) + '</a>' : '')) +
+          '<a class="plate ghost" href="/new-inventory/">&lsaquo; All New Boats</a>' +
+        '</div></section>';
+    }
+    document.getElementById('invlist').innerHTML = boats.map(section).join('');
+
+    /* the gallery card opens the shared full-screen viewer (gallery.js), like the model pages:
+       the phone set on a phone (<=700px), otherwise the desktop set */
+    const mq = window.matchMedia('(max-width:700px)');
+    document.addEventListener('click', e => {
+      const card = e.target.closest && e.target.closest('#invlist a.mcard[data-hull]');
+      if (!card || !window.WBGallery) return;
+      const b = boats.find(x => x.hull === card.dataset.hull); if (!b) return;
+      const mob = mq.matches && ph(b).m > 0, n = mob ? ph(b).m : ph(b).n, d = dir(b) + (mob ? 'mobile/' : '');
+      const list = [];
+      for (let i = 1; i <= n; i++) {
+        const a = document.createElement('a');
+        a.href = d + nn(i) + '.jpg' + q(b);
+        a.dataset.m = (b.yr ? b.yr + ' ' : '') + b.name; a.dataset.len = b.len; a.dataset.cfg = b.cfg || ''; a.dataset.hull = b.hull; a.dataset.slug = 'newinv';
+        const img = document.createElement('img'); img.src = d + 'thumbs/' + nn(i) + '.jpg' + q(b); img.alt = '';
+        a.appendChild(img); list.push(a);
+      }
+      e.preventDefault();
+      WBGallery.open(list, 0);
+    });
+  })();
+  </script>
+
+  <div class="flourish"></div>
+
+  <div class="sechead tight" style="text-align:center;"><div class="eyebrow">Don&rsquo;t See It?</div>
+  <h2 style="font-size:clamp(20px,2.6vw,28px);">Build yours from the keel up</h2>
+  <p class="lede" style="margin-left:auto;margin-right:auto;">Every Wooldridge is built to order. Price the whole boat &mdash; hull, power, trailer, options &mdash; in the configurator.</p></div>
+  <div class="modelctas" style="justify-content:center;"><a class="plate" href="/build-and-price/"><span class="k">Live 2026 Pricing</span>Open Build &amp; Price</a><a class="plate ghost" href="/contact/">Ask About Availability</a></div>
+</div></section>
+</main>
+<!-- PARTIAL:footer -->
+<footer>
+  <div class="wrap">
+    <div class="flogo"><img src="/assets/brand/logo-wing-dark.png" alt="Wooldridge Boats 1915"></div>
+    <div class="fcontact">
+      <a href="tel:+12067228998">206.722.8998</a><span class="sep">|</span><a href="mailto:data@wooldridgeboats.com?cc=info@wooldridgeboats.com">data@wooldridgeboats.com</a>
+    </div>
+    <div class="faddr">Factory | Showroom<br>1303 S 96th St.<br>Seattle, WA 98108-5011</div>
+    <div class="fhours">Monday &ndash; Thursday 6:00AM &ndash; 4:30PM</div>
+    <div class="fsoc">
+      <a href="https://www.instagram.com/wooldridgeboats/" aria-label="Instagram"><img src="/assets/brand/ic-instagram.png" alt="Instagram"></a>
+      <a href="https://www.facebook.com/WooldridgeBoats/" aria-label="Facebook"><img src="/assets/brand/ic-facebook.png" alt="Facebook"></a>
+      <a href="https://www.youtube.com/channel/UC-hVTJ7HySkqCjUENQY5CCQ" aria-label="YouTube"><img src="/assets/brand/ic-youtube.png" alt="YouTube"></a>
+    </div>
+    <div class="frow">
+      <a href="/#fleet">Our Boats</a>
+      <a href="/pre-owned/">Pre-Owned</a>
+      <a href="/new-inventory/">New Boats</a>
+      <a href="/agency-work-boats/">Agency &amp; Work Boats</a>
+      <a href="/dealers/">Dealers</a>
+      <a href="/about-history/">About | History</a>
+      <a href="/faq/">FAQ</a>
+      <a href="https://store.wooldridgeboats.com/">Store</a>
+      <a href="/contact/">Contact</a>
+    </div>
+    <div class="frow frow2">
+      <a href="/build-and-price/">Build &amp; Price</a>
+      <a href="/which-wooldridge/">Which Wooldridge Quiz</a>
+      <a href="/compare/">Compare Models</a>
+      <a href="/request-a-quote/">Request a Quote</a>
+      <a href="/option-guide/">Options &amp; Terms, Explained</a>
+      <a href="/photos/">Photos</a>
+      <a href="/river-ripper/">Play Video Game</a>
+      <a href="/dealer-resources/">Dealer Resources</a>
+      <a href="/careers/">Careers</a>
+      <a href="/privacy-policy/">Privacy Policy</a>
+      <a href="/return-policy/">Returns</a>
+    </div>
+  </div>
+  <div class="legal">
+    <div class="wrap">
+      <span class="fineprint">&copy; 2026 WOOLDRIDGE BOATS. ALL RIGHTS RESERVED.</span>
+      <span class="fineprint">ALL HULLS 5052 &amp; 5086 MARINE-GRADE ALUMINUM, WELDED BY HAND IN SEATTLE, WA.</span>
+      <span class="fineprint">PRICES SUBJECT TO CHANGE &#8212; CONTACT WOOLDRIDGE BOATS DIRECTLY FOR AN OFFICIAL QUOTE.</span>
+      <span class="fineprint">FAMILY BUILT SINCE 1915.</span>
+    </div>
+  </div>
+<script defer src="/assets/media-provenance.js?v=8c958db0"></script><script defer src="/assets/media-fade.js?v=a48a467c"></script><script defer src="/assets/tool-nudge.js?v=fe04ea5f"></script>
+</footer>
+<!-- /PARTIAL:footer -->
+<script src="/assets/shop.js?v=14ae84c5"></script>
+<script src="/assets/gallery.js?v=c6d53922" defer></script>
+<script defer src="/assets/hero-slider.js?v=bace6536"></script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+{
+  "_readme": [
+    "THE NEW BOATS (In Stock) LIST. The only place a new boat for sale is entered, changed or sold (Tyler 2026-11-04).",
+    "Photos: MASTER-WEBSITE PHOTOS/NEW INVENTORY/<HULL>-<LEN>-<CFG>-<MODEL>[-DEALER-<DEALER>]/ (+ -MOBILE), then run",
+    "  _build/build_new_inventory.sh   (copies photos to assets/newinv/<HULL>/ and runs gen_new_inventory.pl), or just",
+    "  perl _build/gen_new_inventory.pl   after editing this file. It writes /new-inventory/ (the card grid), one page per",
+    "  boat at /new-inventory/<slug>/, the homepage New Boats card and assets/instock.js (the In Stock menu link).",
+    "A boat only shows once its photos are in assets/newinv/<HULL>/. dealer: a key from 'dealers' (blank = at the factory).",
+    "sold:true takes the boat off (a SOLD stamp design is still to come: ask Tyler). Order here = order on the page.",
+    "Leave a field \"\" rather than guessing; price is the official price (Tyler)."
+  ],
+  "dealers": {
+    "SUNLAND SALES": {
+      "name": "Sunland Sales and Service",
+      "city": "Glendale, AZ",
+      "tel": "(602) 430-3957",
+      "web": "https://www.sunlandsalesrv.com"
+    }
+  },
+  "boats": [
+    {
+      "hull": "5334",
+      "yr": 2027,
+      "len": 18,
+      "name": "Alaskan",
+      "cfg": "Windshield",
+      "drive": "Outboard Jet",
+      "eng": "Yamaha 175 outboard jet",
+      "price": "$67,114",
+      "vinyl": "",
+      "mpage": "/models/alaskan/",
+      "dealer": "",
+      "sold": false,
+      "desc": [
+        "Own the legend! The Wooldridge Alaskan is the iconic jet boat that has set the standard for generations. This one is available now at the factory, ready to drive home and begin your next adventure.",
+        "Powered by a dependable Yamaha 175-horsepower outboard with a jet drive, the Alaskan is built to conquer shallow water with confidence. Its proven Wooldridge jet tunnel and distinctive hull design deliver exceptional performance, stability and control.",
+        "From secluded fishing holes and remote hunting grounds to backcountry camps and unexplored waterways, the Alaskan is designed to take you farther. When adventure calls, the Wooldridge Alaskan is ready to get you there.",
+        "Own this very boat now! Call us here at the factory for more information!"
+      ]
+    },
+    {
+      "hull": "5224",
+      "yr": "",
+      "len": 18,
+      "name": "Alaskan LT",
+      "cfg": "Center Console",
+      "drive": "Outboard Jet",
+      "eng": "",
+      "price": "",
+      "vinyl": "",
+      "mpage": "/models/alaskan-lt/",
+      "dealer": "SUNLAND SALES",
+      "sold": false,
+      "desc": []
+    }
+  ]
+}
