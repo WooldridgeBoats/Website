@@ -49,7 +49,7 @@ my $blk = <<"B";
   <!-- MEASUREMENTS:$slug  Tyler's measurement sheet (master: MASTER-WEBSITE PHOTOS/BOAT MODEL MEASUREMENTS/).
        Hand-placed OUTSIDE the canon SPECS block so /canon-sync never touches it. Built by _build/add_measurements.pl -->
   <details class="pfold measfold">
-    <summary><span class="pfoldeyebrow">Measurements</span><span class="pfoldtitle">${len}&#8242; Layout &amp; Dimensions</span><span class="pfoldchev" aria-hidden="true"></span></summary>
+    <summary><span class="pfoldeyebrow">Measurements</span><span class="pfoldtitle">${len}&#8242; Layout Diagram</span><span class="pfoldchev" aria-hidden="true"></span></summary>
     <div class="pfoldbody">
       <a class="measimg" href="$rel" data-meas="${len}&#8242; $name Measurements" target="_blank" rel="noopener"><img src="$rel" alt="${len}&#8242; $name measurement diagram with interior and layout dimensions, Hull $hull" width="2000" height="1250" loading="lazy"></a>
       <div class="measbar"><p class="bspec-foot">Shown: ${len}&#8242; $name, Hull #$hull. Approximate measurements.</p><a class="measopen" href="$rel" data-meas="${len}&#8242; $name Measurements" target="_blank" rel="noopener">Open full size</a></div>
@@ -67,7 +67,7 @@ if ($h =~ /[ \t]*<!-- MEASUREMENTS:\Q$slug\E .*?<!-- \/MEASUREMENTS -->\n/s) {
   die "$slug: no <!-- /SPECS --> block. Ask Tyler where the fold goes on this page.\n";
 }
 
-print "  sheet: $base -> $dest\n  title: ${len}' Layout & Dimensions   (Hull #$hull" . ($cfg ? ", cfg $cfg" : '') . ")\n";
+print "  sheet: $base -> $dest\n  title: ${len}' Layout Diagram   (Hull #$hull" . ($cfg ? ", cfg $cfg" : '') . ")\n";
 exit 0 if $dry and print "DRY-RUN, nothing written\n";
 
 copy($src, $dest) or die "copy failed: $!\n";

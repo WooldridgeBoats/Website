@@ -16,7 +16,7 @@ perl _build/add_measurements.pl <slug> "<Display Name>" "<path to the sheet>" [-
 ```
 
 - Copies the sheet to `assets/photos/<slug>/measurements-<hull>-<len>[-<cfg>].jpg`.
-- Adds a **"Measurements · NN′ Layout & Dimensions"** fold right under the "Full Specs" fold, in
+- Adds a **"Measurements · NN′ Layout Diagram"** fold right under the "Full Specs" fold, in
   its own `<!-- MEASUREMENTS:slug -->` markers. Re-running replaces it (new sheet = just re-run).
 - It's OUTSIDE the canon `<!-- SPECS -->` block, so /canon-sync never wipes it.
 - The diagram and the "Open full size" button open the **measurements lightbox** (modelpage.js,
@@ -29,9 +29,9 @@ perl _build/add_measurements.pl <slug> "<Display Name>" "<path to the sheet>" [-
 
 | Page | Sheet | Fold title |
 |---|---|---|
-| `models/supersportdrifter/` | 5175-23-WS-SSD | 23′ Layout & Dimensions |
-| `models/alaskan-xl-inboard/` | 5159-21-WS-AK XL-IB | 21′ Layout & Dimensions |
-| `models/scout-widebody/` | 5119-21-SCOUT WIDEBODY | 21′ Layout & Dimensions |
+| `models/supersportdrifter/` | 5175-23-WS-SSD | 23′ Layout Diagram |
+| `models/alaskan-xl-inboard/` | 5159-21-WS-AK XL-IB | 21′ Layout Diagram |
+| `models/scout-widebody/` | 5119-21-SCOUT WIDEBODY | 21′ Layout Diagram |
 
 Notes: SSD page covers 21/23/25′, the sheet is the 23′ (title says so). The AK XL IB sheet says
 "Aft Helm" while the file says WS; the caption leaves the config out.
@@ -44,8 +44,10 @@ Many boats on one page, built by `_build/build_agency_galleries.pl`, so measurem
 **"See Measurements" pill ON the boat's card** (Option C), not a fold. Tyler picked C over a
 photo + measurements card pair because a boat with photos + video + measurements would need 3 cards.
 
-Look (mocked 2026-11-03, approved direction): small white pill, blue text + ruler/pencil icon,
-**top-left of the cover card**, same height and text size as the "NN photos" badge (top-right).
+Look (Tyler, 2026-11-03): white pill, blue text + ruler/pencil icon, ON the cover card.
+**Desktop: bigger pill (the model-page "Open full size" size), BOTTOM-RIGHT of the card** (the boat
+name + hull sit bottom-left). **Phones (<=700px): small pill, TOP-LEFT**, same height and text size
+as the "NN photos" badge (top-right), because bottom-right covers the hull line on a phone.
 Tap opens the same measurements lightbox. Cards stay the same size, so the grid stays lined up;
 on a video boat the pill sits on the photo card of the pair.
 
