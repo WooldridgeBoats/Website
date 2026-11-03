@@ -35,6 +35,7 @@ use WBSpecCanon qw(slurp_bytes slurp_text);
 our @EXPORT_OK = qw(PRICE_TABS FROM_PAGES jparse jget load_site canon_from_tabs compare_prices plan_price_writes
                     apply_splices fmt_price numeq rows_of from_prices from_nodes mirror_bytes soc_blobs soc_file_bytes
                     verify_pricing OPTION_GUIDE OPTION_GUIDE_MAP option_guide_plan
+                    fold_rows fold_spans render_pricing_fold fold_prices fold_change_text check_pricing_folds
                     SHEET_FAMILIES sheet_stamp sheet_unchanged keep_unchanged_sheets);
 
 use constant PRICE_TABS => ('BOATS', 'ENGINES', 'OPTIONS', 'TRAILERS', 'PACKAGES', 'CARRY OUT', 'DISCREPANCIES', 'PROVENANCE');
@@ -552,6 +553,132 @@ sub from_nodes {                     # (page text, FLEET|FACTS) -> { model id =>
   return \%n;
 }
 
+# --------------------------------- the model pages' "2026 Base Pricing" fold ----
+# Every model page (models/<slug>/index.html) opens with a <details class="pfold"> whose summary
+# reads "2026 Base Pricing" and carries "from $X", and whose body lists one <table class="ptable">
+# per configuration with each length's base hull price. Until 2026-11-03 that text was static:
+# the canon command wrote the configurator, the print sheets and the FLEET from-prices but never
+# this fold, so the 10-21 and 10-27 hull price moves left ten pages quoting the old number
+# (Skagit-X $129,999 where canon says $131,999). Since then the fold is rendered from the BOATS
+# tab - every BASE HULL row of the model, in the tab's order: configuration, length, tank note,
+# price - and the model's LINEUP name (the site's name: "Scout" for the BOATS tab's "Scout
+# Inboard"), inside markers the command adds on first contact:
+#   <!-- PRICES:<slug>:from --><span class="pfoldfrom">from $131,999</span><!-- /PRICES -->
+#   <!-- PRICES:<slug>:tables -->                        (its own line, at the tables' indent)
+#   <table class="ptable"><caption>Windshield</caption> ... </table>
+#   <!-- /PRICES -->
+# "from" = the lowest BASE HULL price the fold shows. Nothing here is typed: configuration names,
+# lengths, tank notes and prices are the workbook's. The lede between the two blocks is the
+# PRICE-NOTE block (WBSpecCanon::price_notes) and is never touched here.
+sub fold_rows {                      # (model_id, BOATS rows as hashes) -> that model's BASE HULL rows, in the tab's order
+  my ($id, $boats) = @_;
+  return [ grep { ($_->{row_type} // '') eq 'BASE HULL' && ($_->{model_id} // '') eq $id } @$boats ];
+}
+sub render_pricing_fold {            # (site name, BASE HULL rows, indent of the tables) -> (the from span, the tables text)
+  my ($name, $rows, $indent) = @_;
+  $indent = '' unless defined $indent;
+  my (@cfgs, %by, $min);
+  for my $r (@$rows) {
+    die "BOATS: $r->{model_id} $r->{configuration} $r->{length_ft} ft has no numeric price - the 2026 Base Pricing fold cannot show it\n"
+      unless is_num($r->{price_usd});
+    push @cfgs, $r->{configuration} unless $by{ $r->{configuration} };
+    push @{ $by{ $r->{configuration} } }, $r;
+    $min = 0 + $r->{price_usd} if !defined $min || $r->{price_usd} < $min;
+  }
+  my $tables = '';
+  for my $c (@cfgs) {
+    $tables .= '<table class="ptable"><caption>' . WBSpecCanon::esc($c) . "</caption>\n$indent  "
+             . '<thead><tr><th>Model</th><th style="text-align:right">2026 Base Price</th></tr></thead><tbody>';
+    for my $r (@{ $by{$c} }) {
+      my $note = defined $r->{note} ? $r->{note} : '';
+      my $len = is_num($r->{length_ft}) ? 0 + $r->{length_ft} : $r->{length_ft};
+      $tables .= '<tr><td>' . $len . '&prime; ' . WBSpecCanon::esc($name) . " \x{2014} " . WBSpecCanon::esc($c)
+               . (length $note ? '<span class="note">' . WBSpecCanon::esc($note) . '</span>' : '')
+               . '</td><td class="money">' . _money(0 + $r->{price_usd}) . '</td></tr>';
+    }
+    $tables .= '</tbody></table>';
+  }
+  return ('<span class="pfoldfrom">from ' . _money($min) . '</span>', $tables);
+}
+# the fold as a page carries it before markers: the from-span inside the "2026 Base Pricing" summary, and the run of
+# tables between the lede and the fold's closing </div></details>. Each must match exactly once or the command stops.
+our $FOLD_BARE_FROM   = qr/<span class="pfoldeyebrow">2026 Base Pricing<\/span>(?:(?!<\/summary>).)*?(<span class="pfoldfrom">from \$[\d,]+<\/span>)/s;
+our $FOLD_BARE_TABLES = qr/<span class="pfoldeyebrow">2026 Base Pricing<\/span>.*?<div class="pfoldbody">\n(?:[^\n]*\n)*?([ \t]*)(<table class="ptable">.*?<\/table>)(?=\n[ \t]*<\/div>\n[ \t]*<\/details>)/s;
+sub fold_spans {                     # (page text, slug) -> ({from}, {tables}), each {s, len, have, marked} (+ indent); dies unless each is found once
+  my ($t, $slug) = @_;
+  my (%f, %b);
+  my $n = () = $t =~ /<!-- PRICES:\Q$slug\E:from -->/g;
+  if ($n) {
+    die "models/$slug: $n PRICES:$slug:from markers (need exactly 1)\n" unless $n == 1;
+    $t =~ /<!-- PRICES:\Q$slug\E:from -->(.*?)<!-- \/PRICES -->/s or die "models/$slug: PRICES:$slug:from markers found but the block did not match\n";
+    %f = (s => $-[0], len => $+[0] - $-[0], have => $1, marked => 1);
+  } else {
+    my @hits = $t =~ /$FOLD_BARE_FROM/g;
+    die "models/$slug: 2026 Base Pricing from-span count " . scalar(@hits) . " (need exactly 1 to add markers)\n" unless @hits == 1;
+    $t =~ /$FOLD_BARE_FROM/;
+    %f = (s => $-[1], len => $+[1] - $-[1], have => $1, marked => 0);
+  }
+  $n = () = $t =~ /<!-- PRICES:\Q$slug\E:tables -->/g;
+  if ($n) {
+    die "models/$slug: $n PRICES:$slug:tables markers (need exactly 1)\n" unless $n == 1;
+    # the tables sit on their own lines at the marker's indent; the indent is not part of the block (2026-11-03: the first
+    # real run read it with the indent, compared unequal on all 18 pages, and rolled itself back)
+    $t =~ /^([ \t]*)<!-- PRICES:\Q$slug\E:tables -->\n[ \t]*(.*?)\n[ \t]*<!-- \/PRICES -->$/ms
+      or die "models/$slug: PRICES:$slug:tables markers found but the block did not match\n";
+    %b = (s => $-[0], len => $+[0] - $-[0], have => $2, indent => $1, marked => 1);
+  } else {
+    my @hits = $t =~ /$FOLD_BARE_TABLES/g;    # (indent, tables) pairs
+    die "models/$slug: 2026 Base Pricing table-run count " . (@hits / 2) . " (need exactly 1 to add markers)\n" unless @hits == 2;
+    $t =~ /$FOLD_BARE_TABLES/;
+    %b = (s => $-[1], len => $+[2] - $-[1], have => $2, indent => $1, marked => 0);
+  }
+  return (\%f, \%b);
+}
+sub fold_prices {                    # tables text -> { "configuration|length" => price } as the page shows them
+  my ($tables) = @_;
+  my %p;
+  while ($tables =~ /<tr><td>(\d+)&prime; .*? \x{2014} (.*?)(?:<span class="note">.*?<\/span>)?<\/td><td class="money">\$([\d,]+)<\/td><\/tr>/g) {
+    my ($len, $cfg, $price) = ($1, $2, $3); $price =~ s/,//g; $p{"$cfg|$len"} = $price;
+  }
+  return \%p;
+}
+sub fold_change_text {               # (old tables, old from span, canon rows, new from span) -> "from $129,999 -> $131,999; 21 ft Aft Helm Windshield $129,999 -> $131,999"
+  my ($old_tables, $old_from, $rows, $new_from) = @_;
+  my $old = fold_prices($old_tables);
+  my @d;
+  my ($of) = $old_from =~ /from (\$[\d,]+)/; my ($nf) = $new_from =~ /from (\$[\d,]+)/;
+  push @d, "from " . ($of // '?') . " -> " . ($nf // '?') if ($of // '') ne ($nf // '');
+  my %seen;
+  for my $r (@$rows) {
+    my $len = is_num($r->{length_ft}) ? 0 + $r->{length_ft} : $r->{length_ft};
+    my $k = "$r->{configuration}|$len"; $seen{$k} = 1;
+    my $o = $old->{$k};
+    if (!defined $o) { push @d, "$len ft $r->{configuration} (not shown) -> " . _money(0 + $r->{price_usd}) }
+    elsif (!numeq($o, $r->{price_usd})) { push @d, "$len ft $r->{configuration} " . _money($o) . ' -> ' . _money(0 + $r->{price_usd}) }
+  }
+  for my $k (sort keys %$old) { next if $seen{$k}; my ($c, $l) = split /\|/, $k; push @d, "$l ft $c " . _money($old->{$k}) . ' -> dropped (no BOATS row)' }
+  return join('; ', @d);
+}
+sub check_pricing_folds {            # (repo, LINEUP rows, BOATS rows) -> one surface row { surface, models, mismatches, first }
+  my ($repo, $lineup, $boats) = @_;
+  my ($mm, $first) = (0, undef);
+  for my $m (@$lineup) {
+    my ($id, $slug) = ($m->{model_id}, $m->{page_slug});
+    my $p = "$repo/models/$slug/index.html";
+    unless (-f $p) { $mm++; $first //= "$id: page missing"; next }
+    my $rows = fold_rows($id, $boats);
+    unless (@$rows) { $mm++; $first //= "$id: no BASE HULL row in BOATS"; next }
+    my $t = slurp_text($p);
+    my ($fs, $ts) = eval { fold_spans($t, $slug) };
+    if ($@) { $mm++; (my $e = $@) =~ s/\n\z//; $first //= $e; next }
+    my ($wf, $wt) = eval { render_pricing_fold($m->{model_name}, $rows, $ts->{indent}) };
+    if ($@) { $mm++; (my $e = $@) =~ s/\n\z//; $first //= "$id: $e"; next }
+    if    ($fs->{have} ne $wf) { $mm++; $first //= "$id from: " . WBSpecCanon::first_diff($wf, $fs->{have}) }
+    elsif ($ts->{have} ne $wt) { $mm++; $first //= "$id tables: " . WBSpecCanon::first_diff($wt, $ts->{have}) }
+  }
+  return { surface => 'model pages: 2026 Base Pricing fold', models => scalar @$lineup, mismatches => $mm, first => $first // '' };
+}
+
 # ------------------------------------------------- the options guide ----
 # option-guide/index.html types a price on each priced line of its cards' sheet:[['line','price'],...]
 # lists. Stephen 2026-10-15: "Canon fills them" - those prices come from the workbook. The map
@@ -724,6 +851,12 @@ sub verify_pricing {
     push @bad, map { { d => $_ } } grep { my $k = $_; !grep { $_->{d} eq $k } @$B } sort keys %c;
     $row->('trailer shop add-ons (price sheets)', @bad ? 'FAIL' : 'PASS', @bad ? 'differ: ' . join(', ', map { $_->{d} } @bad) : scalar(@$B) . ' add-ons match the SHOP ADD-ON rows');
   }
+  # the model pages' "2026 Base Pricing" fold (from-span + per-configuration tables) against the BOATS tab, named per LINEUP (2026-11-03)
+  if ($a{tabs}{LINEUP}) {
+    my $fr = check_pricing_folds($a{repo}, rows_of($a{tabs}{LINEUP}, 'LINEUP'), rows_of($a{tabs}{BOATS}, 'BOATS'));
+    $row->('model pages: 2026 Base Pricing fold', $fr->{mismatches} ? 'FAIL' : 'PASS',
+      $fr->{mismatches} ? "$fr->{mismatches} page(s) differ from the BOATS tab - first: $fr->{first}" : "$fr->{models} pages match the BOATS tab");
+  } else { $row->('model pages: 2026 Base Pricing fold', 'WARN', 'no LINEUP tab among the tabs given - not checked') }
   return (\@out, $R, $S, $C);
 }
 

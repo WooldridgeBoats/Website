@@ -17,7 +17,12 @@
 #            --quiet                            table only, no per-model detail
 #
 # Surfaces checked: configurator const MODELS std, tools/STD_DATA.js, every
-# model page's standard-features grid, SPECS block, tagline + intro, and
+# model page's standard-features grid, SPECS block, tagline + intro, its price
+# note under "2026 Base Pricing" (since 2026-11-03: what the ENGINES tab's
+# base-engine flag calls for - read from the workbook, or ENGINES.csv beside the
+# spec mirrors in --canon mode), its "2026 Base Pricing" fold (since 2026-11-03:
+# the "from $" and the per-configuration base-hull tables against the BOATS tab -
+# the workbook's, or BOATS.csv beside the spec mirrors in --canon mode), and
 # tools/SPEC_DATA.js. The generator (_build/gen_from_canon.pl) runs this at the
 # end of every real run so an update is proven landed in the same command.
 use strict;
@@ -27,8 +32,9 @@ use Cwd qw(abs_path);
 use Getopt::Long;
 use Encode qw(decode);
 use lib dirname(abs_path(__FILE__));
-use WBSpecCanon qw(slurp_text read_xlsx_tabs tabs_to_csv_text load_canon load_canon_from_tabs
-                   check_surfaces fmt_len DRIVEN_TABS);
+use WBSpecCanon qw(slurp_text read_csv read_xlsx_tabs tabs_to_csv_text load_canon load_canon_from_tabs
+                   check_surfaces fmt_len base_engine_models engines_grid_from_csv price_notes DRIVEN_TABS);
+use WBPriceCanon qw(rows_of check_pricing_folds);
 binmode STDOUT, ':encoding(UTF-8)';
 binmode STDERR, ':encoding(UTF-8)';
 
@@ -41,21 +47,31 @@ $repo =~ s{[\\/]+$}{};
 die "repo not found (no build-and-price/index.html under $repo)\n" unless -f "$repo/build-and-price/index.html";
 
 # ------------------------------------------------------------- the canon ----
-my $C;
+my $C; my $engines; my $boats;       # $engines = the ENGINES grid, for the price-note surface; $boats = BOATS rows, for the pricing fold
 if (defined $xlsx) {
   my $tabs = read_xlsx_tabs($xlsx);
   my %texts;
   for my $t (DRIVEN_TABS) { die "workbook has no tab named '$t'\n" unless $tabs->{$t}; $texts{$t} = tabs_to_csv_text($tabs->{$t}, $t) }
   $C = load_canon_from_tabs(\%texts);
+  die "workbook has no tab named 'ENGINES' (the model pages' price note follows its base-engine flag)\n" unless $tabs->{ENGINES};
+  $engines = $tabs->{ENGINES};
+  die "workbook has no tab named 'BOATS' (the model pages' 2026 Base Pricing fold is rendered from it)\n" unless $tabs->{BOATS};
+  $boats = rows_of($tabs->{BOATS}, 'BOATS');
   print "canon: workbook $xlsx (tabs read in memory, nothing written)\n" unless $quiet;
 } else {
   $C = load_canon($canon_dir);
+  $engines = engines_grid_from_csv("$canon_dir/ENGINES.csv") if -f "$canon_dir/ENGINES.csv";
+  $boats = (read_csv("$canon_dir/BOATS.csv"))[1] if -f "$canon_dir/BOATS.csv";
   print "canon: folder $canon_dir\n" unless $quiet;
+  print "price note: ENGINES.csv not beside the spec mirrors - that surface is not checked\n" unless $engines || $quiet;
+  print "pricing fold: BOATS.csv not beside the spec mirrors - that surface is not checked\n" unless $boats || $quiet;
 }
 print "repo : $repo\n" unless $quiet;
 
 # ------------------------------------------------------------ surfaces ----
-my $rows = check_surfaces($repo, $C);
+my $N = $engines ? price_notes($C, base_engine_models($engines)) : undef;
+my $rows = check_surfaces($repo, $C, $N);
+push @$rows, check_pricing_folds($repo, $C->{lineup}, $boats) if $boats;   # the "2026 Base Pricing" fold, from the BOATS tab (2026-11-03)
 
 # ---------------------------------------------------------- PDF audits ----
 my @audit;

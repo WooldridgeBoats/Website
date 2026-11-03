@@ -45,7 +45,16 @@
 #      line maps to its canon item(s) in _build/option_guide_prices.tsv - Stephen
 #      2026-10-15, "Canon fills them"). A priced line the map does not back stops the run.
 #   3. SPECS: the configurator's std arrays, tools/STD_DATA.js, the 18 model pages'
-#      STD / SPECS / DESC blocks, tools/SPEC_DATA.js (unchanged from v1.1).
+#      STD / SPECS / DESC blocks, tools/SPEC_DATA.js (unchanged from v1.1). Since
+#      2026-11-03 also each model page's PRICE-NOTE block - the lede under "2026 Base
+#      Pricing" - picked from the ENGINES tab's base-engine flag (a $0 engine flagged
+#      base = the standard engine and jet ride in the hull price, so the page says so;
+#      every other model keeps the before-power sentence). No canon cell holds it, and a
+#      note change never rebuilds the branded price sheets (they do not carry it). Since
+#      2026-11-03 (later that day) also each model page's PRICES blocks - the "from $" and
+#      the per-configuration base-hull tables of the "2026 Base Pricing" fold - rendered
+#      from the BOATS tab and the model's LINEUP name (xlsx runs; WBPriceCanon.pm). Until
+#      then that fold was static text, and the 10-21 / 10-27 hull moves left ten pages stale.
 #   4. stamp_assets.pl, then BOTH checks: verify_spec_canon.pl and the pricing
 #      check (verify_pricing_canon.pl's code). On a FAIL every website file is put
 #      back (git checkout) and nothing else is written. verify_spec_canon.pl gets the
@@ -90,10 +99,12 @@ use Getopt::Long;
 use lib dirname(abs_path(__FILE__));
 use WBSpecCanon qw(slurp_bytes slurp_text write_text read_xlsx_tabs tabs_to_csv_text load_canon load_canon_from_tabs
                    render_std_json models_std_spans render_stdgrid render_specs_block render_spec_data_js
-                   tagline_html intro_html find_sales_tools CANON_TABS DRIVEN_TABS);
+                   tagline_html intro_html base_engine_models engines_grid_from_csv price_notes price_note_html
+                   find_sales_tools CANON_TABS DRIVEN_TABS);
 use WBPriceCanon qw(PRICE_TABS FROM_PAGES load_site canon_from_tabs compare_prices plan_price_writes apply_splices
                     from_prices from_nodes mirror_bytes soc_blobs soc_file_bytes verify_pricing fmt_price
-                    OPTION_GUIDE option_guide_plan sheet_stamp keep_unchanged_sheets);
+                    OPTION_GUIDE option_guide_plan sheet_stamp keep_unchanged_sheets
+                    fold_rows fold_spans render_pricing_fold fold_change_text);
 use JSON::PP;
 use Digest::SHA qw(sha256_hex);
 use Encode qw(encode);
@@ -164,8 +175,25 @@ if ($mode eq 'xlsx') {
 }
 printf "canon: %d models, %d with standard features, %d with specs, %d with descriptions\n",
   scalar @{ $C->{lineup} }, scalar keys %{ $C->{std} }, scalar keys %{ $C->{specs} }, scalar keys %{ $C->{desc} };
+# the price note under "2026 Base Pricing" on every model page follows the ENGINES tab's base-engine flag (2026-11-03);
+# price_notes() stops the run if a base-engine model is not a jet, so "engine and jet" is never written on a guess
+my $N;
+{
+  my $eg = $mode eq 'xlsx' ? $tabs->{ENGINES} : (-f "$canon_dir/ENGINES.csv" ? engines_grid_from_csv("$canon_dir/ENGINES.csv") : undef);
+  if ($eg) {
+    my $B = base_engine_models($eg);
+    $N = price_notes($C, $B);
+    printf "price note: %d model(s) carry a standard engine in the hull price (ENGINES base flag): %s\n", scalar keys %$B, join(', ', sort keys %$B);
+  } else { print "price note: ENGINES.csv not found beside the spec mirrors - the model pages' price note is left as it is\n" }
+}
+# the "2026 Base Pricing" fold on every model page (its "from $" and base-hull tables) is rendered from the BOATS tab
+# (2026-11-03). xlsx runs only, like every other price: a CSV-only run leaves the fold as it is and says so.
+my $BOATS = $mode eq 'xlsx' ? WBPriceCanon::rows_of($tabs->{BOATS}, 'BOATS') : undef;
+print "pricing fold: the model pages' 2026 Base Pricing fold is left as it is (prices come from the workbook only; run with --xlsx)\n" unless $BOATS;
 
-my ($changed_files, $content_changes, $marker_adds, $price_changes, $guide_changes) = (0, 0, 0, 0, 0);
+my ($changed_files, $content_changes, $marker_adds, $price_changes, $guide_changes, $note_changes, $fold_changes) = (0, 0, 0, 0, 0, 0, 0);
+my @note_moved;                      # model ids whose price note this run rewrote (for the CHANGE LOG)
+my @fold_moved;                      # "model: what moved" for every page whose 2026 Base Pricing fold this run rewrote
 sub save {                           # write only when the text changed; keep the file's own line ending
   my ($p, $text, $eol, $what) = @_;
   my $old = scalar slurp_text($p);
@@ -361,6 +389,44 @@ for my $m (@{ $C->{lineup} }) {
       $t =~ s/<\/figure>\n([ \t]*)<p style="font-size:16px; line-height:1.7;">.*?<\/p>$/"<\/figure>\n$1<!-- DESC:$slug:intro -->\n$1$html\n$1<!-- \/DESC -->"/me;
     }
   }
+
+  # d. the price note under "2026 Base Pricing" (PRICE-NOTE markers) - from the ENGINES base-engine flag, never typed.
+  #    Only the lede is inside the markers; the fold's "from $" and its price table are not touched by this step.
+  if ($N) {
+    my $html = price_note_html($N->{$id});
+    if ($t =~ /<!-- PRICE-NOTE:\Q$slug\E -->/) {
+      my $cnt = () = $t =~ /<!-- PRICE-NOTE:\Q$slug\E -->/g; die "models/$slug: $cnt PRICE-NOTE markers\n" unless $cnt == 1;
+      my ($have) = $t =~ /<!-- PRICE-NOTE:\Q$slug\E -->(.*?)<!-- \/PRICE-NOTE -->/s;
+      if ($have ne $html) { $note_changes++; push @note_moved, $id }
+      $t =~ s/<!-- PRICE-NOTE:\Q$slug\E -->.*?<!-- \/PRICE-NOTE -->/<!-- PRICE-NOTE:$slug -->$html<!-- \/PRICE-NOTE -->/s;
+    } else {
+      my @hits = $t =~ /$WBSpecCanon::PRICE_NOTE_BARE/g;   # (prefix, lede) pairs
+      die "models/$slug: 2026 Base Pricing lede count " . (@hits / 2) . " (need exactly 1 to add markers)\n" unless @hits == 2;
+      if ($hits[1] ne $html) { $note_changes++; push @note_moved, $id }
+      $marker_adds++;
+      $t =~ s/$WBSpecCanon::PRICE_NOTE_BARE/$1<!-- PRICE-NOTE:$slug -->$html<!-- \/PRICE-NOTE -->/;
+    }
+  }
+
+  # e. the "2026 Base Pricing" fold - its "from $" and the per-configuration base-hull tables (PRICES markers) - from the
+  #    BOATS tab and this model's LINEUP name, never typed (2026-11-03; static until then, so the 10-21 and 10-27 hull
+  #    price moves left ten pages quoting the old number). The lede between the two blocks is step d's, not touched here.
+  if ($BOATS) {
+    my $rows = fold_rows($id, $BOATS);
+    die "models/$slug: the BOATS tab has no BASE HULL row for '$id' - its 2026 Base Pricing fold cannot be written\n" unless @$rows;
+    my ($fs, $ts) = fold_spans($t, $slug);
+    my ($want_from, $want_tables) = render_pricing_fold($m->{model_name}, $rows, $ts->{indent});
+    if ($fs->{have} ne $want_from || $ts->{have} ne $want_tables) {
+      my $what = fold_change_text($ts->{have}, $fs->{have}, $rows, $want_from);
+      $fold_changes++; push @fold_moved, "$m->{model_name}: $what";
+      print "  models/$slug: 2026 Base Pricing fold re-derived from BOATS - $what\n";
+    }
+    $marker_adds++ unless $fs->{marked} && $ts->{marked};
+    die "models/$slug: the fold's from-span does not sit before its tables\n" unless $fs->{s} + $fs->{len} <= $ts->{s};
+    my $ind = $ts->{indent};
+    substr($t, $ts->{s}, $ts->{len}) = "$ind<!-- PRICES:$slug:tables -->\n$ind$want_tables\n$ind<!-- /PRICES -->";   # the later block first, so the earlier offsets hold
+    substr($t, $fs->{s}, $fs->{len}) = "<!-- PRICES:$slug:from -->$want_from<!-- /PRICES -->";
+  }
   save($p, $t, $eol, "models/$slug/index.html");
 }
 
@@ -373,8 +439,9 @@ for my $m (@{ $C->{lineup} }) {
   if ($dry) { $changed_files++ if $have ne $want } else { write_text($p, $want, $eol) if $have ne $want }
 }
 
-printf "\nsummary: %d price change(s), %d spec content change(s), %d marker set(s) %s, %d website file(s) %s\n",
-  $price_changes, $content_changes, $marker_adds, ($dry ? 'would be added' : 'added'), $changed_files, ($dry ? 'would change' : 'written');
+printf "\nsummary: %d price change(s), %d spec content change(s), %d price note(s) %s%s, %d model-page pricing fold(s) %s, %d marker set(s) %s, %d website file(s) %s\n",
+  $price_changes, $content_changes, $note_changes, ($dry ? 'would change' : 'changed'), (@note_moved ? ' (' . join(', ', @note_moved) . ')' : ''),
+  $fold_changes, ($dry ? 'would change' : 'changed'), $marker_adds, ($dry ? 'would be added' : 'added'), $changed_files, ($dry ? 'would change' : 'written');
 
 # ------------------------------------------------- 4. stamp + BOTH checks ----
 my $vrows = [];
@@ -803,11 +870,13 @@ if ($mode eq 'xlsx' && !$dry) {
 }
 
 # ------------------------------------------------------------ 8. the CHANGE LOG ----
-my $anything = $price_changes || $content_changes || $marker_adds || $packages_changed || $addons_changed || $rows_changed;
+my $anything = $price_changes || $content_changes || $note_changes || $fold_changes || $marker_adds || $packages_changed || $addons_changed || $rows_changed;
 if ($mode eq 'xlsx' && !$dry && $anything) {
   my $readme = dirname($canon_dir) . '/README.md';
   my @lt = localtime; my $date = sprintf('%04d-%02d-%02d', $lt[5] + 1900, $lt[4] + 1, $lt[3]);
   my @what; push @what, "$price_changes price(s)" if $price_changes; push @what, "$content_changes spec change(s)" if $content_changes;
+  push @what, "$note_changes model-page price note(s)" if $note_changes;
+  push @what, "$fold_changes model-page pricing fold(s)" if $fold_changes;
   push @what, "$rows_changed row(s) added or removed" if $rows_changed;
   push @what, 'package prices regenerated' if $packages_changed && !$price_changes;
   push @what, 'trailer shop add-on prices' if $addons_changed && !$price_changes;
@@ -822,6 +891,9 @@ if ($mode eq 'xlsx' && !$dry && $anything) {
     }
   }
   $e .= "- **Specs**: $content_changes content change(s) carried to the configurator and model pages.\n" if $content_changes;
+  $e .= "- **Model-page price note**: $note_changes page(s) now carry the sentence the ENGINES base-engine flag calls for (" . join(', ', @note_moved)
+      . "); no canon cell changed - the generator picks it from the flag.\n" if $note_changes;
+  $e .= "- **Model-page 2026 Base Pricing fold**: $fold_changes page(s) re-derived from the BOATS tab and the LINEUP name: " . join('. ', @fold_moved) . ".\n" if $fold_changes;
   for my $t (sort keys %row_diff) {
     my $d = $row_diff{$t}; my @add = map { s/^[A-Z]+\|//r } @{ $d->{add} }; my @rem = map { s/^[A-Z]+\|//r } @{ $d->{rem} };
     $e .= "- **$t rows**: " . scalar(@add) . " added" . (@add ? ' (' . join(', ', @add) . ')' : '') . "; " . scalar(@rem) . " removed" . (@rem ? ' (' . join(', ', @rem) . ')' : '') . ".\n";
