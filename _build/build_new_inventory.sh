@@ -72,7 +72,7 @@ for row in "${boats[@]}"; do
   sips -s format jpeg -Z 800 "${g[0]}" --out "$out/thumbs/cover.jpg" >/dev/null
   for f in "${gal[@]}"; do nn="$(basename "$f" | cut -c1-2)"
     cp "$f" "$out/$nn.jpg"; sips -s format jpeg -Z 800 "$f" --out "$out/thumbs/$nn.jpg" >/dev/null; done
-  for f in "${mob[@]}"; do nn="$(basename "$f" | cut -c1-2)"
+  for f in ${mob[@]+"${mob[@]}"}; do nn="$(basename "$f" | cut -c1-2)"
     cp "$f" "$out/mobile/$nn.jpg"; sips -s format jpeg -Z 400 "$f" --out "$out/mobile/thumbs/$nn.jpg" >/dev/null; done
   v="$(cat "$out"/*.jpg "$out"/thumbs/*.jpg | md5 -q | cut -c1-8)"
   json="$json${json:+,}\"$hull\":{\"n\":${#gal[@]},\"m\":${#mob[@]},\"v\":\"$v\"}"
