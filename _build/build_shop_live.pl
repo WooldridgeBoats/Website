@@ -31,6 +31,12 @@ use File::Copy qw(copy);
 use File::Find;
 use Cwd qw(abs_path);
 use JSON::PP;
+use Digest::MD5;
+
+# content-hash tag on every image URL (2026-11-03): the photo file names repeat month to month
+# (5333-shop-1.jpg ...) and Cloudflare caches images ~4h (it kept Stephen's old thumbs for days),
+# so a changed photo must get a new URL. Same idea as build_agency_galleries.pl.
+sub ver { open my $fh, '<:raw', $_[0] or die "$_[0]: $!"; '?v=' . substr(Digest::MD5->new->addfile($fh)->hexdigest, 0, 10) }
 
 my $REPO = dirname(dirname(abs_path(__FILE__)));
 my $SRC  = "/Users/tylerlee/Library/CloudStorage/OneDrive-WooldridgeBoatsInc/Wooldridge Boats Inc_ - SQUIRREL HOLE/70 MARKETING AND BRAND/WEBSITE/MASTER-WEBSITE PHOTOS/IN THE SHOP-WEB";
@@ -155,8 +161,9 @@ sub row {
   my $cfgattr = $b->{cfg} ? qq{ data-cfg="$b->{cfg}"} : '';
   my @a = map {
     my $i = $_ + 1; my $nm = $b->{photos}[$_]{name};
-    qq{$ind  <a href="${pre}assets/photos/shop-$b->{hull}/$nm" data-m="$b->{model}" data-len="$b->{len}"$cfgattr data-hull="$b->{hull}" data-shot="In the shop">}
-    . qq{<img src="${pre}assets/photos/shop-$b->{hull}/thumbs/$nm" alt="Hull #$b->{hull} $t - photo $i" loading="lazy"></a>}
+    my ($vf, $vt) = (ver("$DEST/shop-$b->{hull}/$nm"), ver("$DEST/shop-$b->{hull}/thumbs/$nm"));
+    qq{$ind  <a href="${pre}assets/photos/shop-$b->{hull}/$nm$vf" data-m="$b->{model}" data-len="$b->{len}"$cfgattr data-hull="$b->{hull}" data-shot="In the shop">}
+    . qq{<img src="${pre}assets/photos/shop-$b->{hull}/thumbs/$nm$vt" alt="Hull #$b->{hull} $t - photo $i" loading="lazy"></a>}
   } 0 .. $np - 1;
   return join "\n",
     qq{$ind<div class="prow" data-shop-live="1">},
@@ -181,8 +188,9 @@ sub homerow {
   my @a = map {
     my $bt = $B{$_}; my ($p) = sort { $a->{nnn} <=> $b->{nnn} } @{ $bt->{photos} };   # "$bt", not "$b" (sort's $b)
     my $cfgattr = $bt->{cfg} ? qq{ data-cfg="$bt->{cfg}"} : '';
-    qq{$ind  <a href="assets/photos/shop-$bt->{hull}/$p->{name}" data-m="$bt->{model}" data-len="$bt->{len}"$cfgattr data-hull="$bt->{hull}" data-shot="In the shop">}
-    . qq{<img src="assets/photos/shop-$bt->{hull}/thumbs/$p->{name}" alt="Hull #$bt->{hull} } . title($bt) . qq{" loading="lazy"></a>}
+    my ($vf, $vt) = (ver("$DEST/shop-$bt->{hull}/$p->{name}"), ver("$DEST/shop-$bt->{hull}/thumbs/$p->{name}"));
+    qq{$ind  <a href="assets/photos/shop-$bt->{hull}/$p->{name}$vf" data-m="$bt->{model}" data-len="$bt->{len}"$cfgattr data-hull="$bt->{hull}" data-shot="In the shop">}
+    . qq{<img src="assets/photos/shop-$bt->{hull}/thumbs/$p->{name}$vt" alt="Hull #$bt->{hull} } . title($bt) . qq{" loading="lazy"></a>}
   } @strip;
   return join "\n",
     qq{$ind<div class="prow" data-shop-live="1">},

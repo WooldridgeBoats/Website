@@ -30,6 +30,9 @@ Archive: Tyler keeps a dated copy on the X Drive, `PHOTOS/IN THE SHOP/YY-MM-DD-I
    mozjpeg to <= 600 KB (never over 700), thumbs 480x300, EXIF/GPS stripped (exiftool). A photo
    already 2000x1250 and small enough goes in as-is. `shop-*` folders not in the master are removed.
    No `_source.json` any more (the old one held customer names in public files).
+   Every image URL carries a `?v=<content hash>` (photo names repeat month to month and Cloudflare
+   kept serving Stephen's old thumbs for days under the same names). gallery.js accepts `?v=` on
+   shop-live rows only.
 5. Homepage strip (Tyler, 2026-11-03): ONE photo per build, each build's **-001** photo (the lowest
    number if 001 is held), newest hull first, "On the floor right now · N builds". So Tyler picks each
    boat's homepage shot by making it -001. To put a build first in line, list its hull in `first`
