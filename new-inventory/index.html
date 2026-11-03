@@ -14,11 +14,11 @@
   /* NEW INVENTORY (rebuilt 2026-10-20, Tyler): the boat-model page pieces, so it matches them:
      hero (a slider once there are 2+ boats) with the caption strip + HULL #, intro text, the
      gallery card, a fact row and the buttons. Only two extras, because these boats are for sale
-     right now: the price, and the rope stamp (assets/inv-stamp.js) top left of each hero slide.
+     right now: the price, and the rope stamp (assets/inv-stamp.js) top RIGHT of each hero slide (moved from the left, Tyler 2026-11-04).
      Photos come from MASTER-WEBSITE PHOTOS/NEW INVENTORY/<HULL>-<LEN>-<CFG>-<MODEL>/ via
      _build/build_new_inventory.sh. Scoped here so house.css (stamped site-wide) isn't touched. */
   .invhero .hs-slide{ position:relative; }
-  .invstamp{ position:absolute; left:2.2%; top:3.2%; width:15%; z-index:2; pointer-events:none;
+  .invstamp{ position:absolute; right:2.2%; top:3.2%; width:15%; z-index:2; pointer-events:none;
     filter:drop-shadow(0 2px 2px rgba(0,0,0,.28)) drop-shadow(0 8px 14px rgba(0,0,0,.30)); }
   .invstamp svg{ display:block; width:100%; height:auto; }
   @media (max-width:700px){ .invstamp{ width:23%; } }
