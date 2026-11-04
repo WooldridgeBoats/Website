@@ -61,6 +61,11 @@
 #      power options, the CONFIG UPCHARGE rows as notes in the sheet's own adder wording),
 #      rendered from the PACKAGES tab (xlsx runs; WBPriceCanon.pm). When step 6a rewrites the
 #      PACKAGES tab, the fold is rendered again from the rewritten tab in the same run.
+#      Later the same day (Stephen: "it should say what the packages include") the fold also
+#      lists what Ready to Run includes and what Fully Loaded adds - the printed sheet's tier
+#      legend, built by WBPackages from PRICE SHEETS/_PIPELINE/package-recipes.json against the
+#      configurator (the PACKAGES tab carries prices only). So the run needs _PIPELINE
+#      (--pipeline, found by itself beside CANON) and stops before writing anything without it.
 #   4. stamp_assets.pl, then BOTH checks: verify_spec_canon.pl and the pricing
 #      check (verify_pricing_canon.pl's code). On a FAIL every website file is put
 #      back (git checkout) and nothing else is written. verify_spec_canon.pl gets the
@@ -139,6 +144,10 @@ my $build = "$repo/_build";          # the TARGET repo's own generators (each de
 my $mode = defined $xlsx ? 'xlsx' : 'csv';
 my $canon_root = dirname($canon_dir);            # CANON
 my $sqh        = dirname($canon_root);           # SQUIRREL HOLE
+# PRICE SHEETS/_PIPELINE: the branded sheets (step 6) and, since 2026-11-04, the package fold's "what each package
+# includes" lists (WBPackages + package-recipes.json, the same source the printed sheets use) - so it is found up front
+$pipeline = "$sqh/60 SALES AND DEALERS/PRICE SHEETS/_PIPELINE" unless defined $pipeline;
+$pipeline =~ s{\x5c}{/}g; $pipeline =~ s{/+$}{};
 # Tyler's SALES TOOLS folder, found once from where SQUIRREL HOLE sits (see the header); step 4 and step c use it
 my ($sales_tools, $sales_how) = defined $sales_opt ? ($sales_opt, 'given with --sales-tools') : find_sales_tools($sqh);
 if (defined $sales_tools) {
@@ -202,11 +211,18 @@ print "pricing fold: the model pages' 2026 Base Pricing fold is left as it is (p
 # rendered again from the rewritten tab and checked there, so the pages never lag the tab by one run.
 my $PACKAGES = $mode eq 'xlsx' ? WBPriceCanon::rows_of($tabs->{PACKAGES}, 'PACKAGES') : undef;
 print "package fold: the model pages' 2026 Package Pricing fold is left as it is (prices come from the workbook only; run with --xlsx)\n" unless $PACKAGES;
+# its "what each package includes" lists are the printed sheet's tier legend (WBPackages, PRICE SHEETS/_PIPELINE): stop now,
+# before anything is written, if that folder is not reachable from here
+die "STOPPED before writing anything: the 2026 Package Pricing fold's package lists come from PRICE SHEETS/_PIPELINE"
+  . " (package-recipes.json + WBPackages.pm) and it is not reachable at $pipeline - pass --pipeline <folder>\n"
+  if $PACKAGES && !(-f "$pipeline/package-recipes.json" && -f "$pipeline/WBPackages.pm");
+my $PKG_LEGENDS;                     # built on first use: after step 2 has written the configurator the sheets' recipes resolve against
 sub package_fold_into {              # (page text, LINEUP row, \count, \list, \marker count) -> the text with its package fold rendered from $PACKAGES
   my ($t, $m, $cnt, $moved, $marks) = @_;
   my ($id, $slug) = ($m->{model_id}, $m->{page_slug});
+  $PKG_LEGENDS //= WBPriceCanon::package_legends($repo, $pipeline);
   my $b = package_span($t, $slug);
-  my $want = render_package_fold($slug, $m->{model_name}, package_plan(package_rows($id, $PACKAGES), $BOATS, $id), $b->{indent});
+  my $want = render_package_fold($slug, $m->{model_name}, package_plan(package_rows($id, $PACKAGES), $BOATS, $id), $b->{indent}, $PKG_LEGENDS->{$id});
   if ($b->{have} ne $want) {
     my $what = package_change_text($b->{have}, $want);
     $$cnt++; push @$moved, "$m->{model_name}: $what";
@@ -483,12 +499,12 @@ unless ($dry) {
   print "\nstamp_assets.pl:\n";
   run_perl('stamp_assets.pl', "$build/stamp_assets.pl", $repo);
   print "\nCHECKS (before anything outside the website is written):\n";
-  my @v = ($^X, "$build/verify_spec_canon.pl", '--repo', $repo, '--quiet', ($mode eq 'xlsx' ? ('--xlsx', $xlsx) : ('--canon', $canon_dir)),
+  my @v = ($^X, "$build/verify_spec_canon.pl", '--repo', $repo, '--quiet', '--pipeline', $pipeline, ($mode eq 'xlsx' ? ('--xlsx', $xlsx) : ('--canon', $canon_dir)),
            (defined $sales_tools ? ('--sales-tools', $sales_tools) : ()));
   my $spec_fail = system(@v) ? 1 : 0;
   my $price_fail = 0;
   if ($mode eq 'xlsx') {
-    ($vrows) = verify_pricing(repo => $repo, tabs => $tabs);
+    ($vrows) = verify_pricing(repo => $repo, tabs => $tabs, pkg_pipeline => $pipeline);   # pkg_pipeline: the package fold's lists only (pipeline would also check the add-ons, written later in 6b)
     printf "  %-40s %-4s %s\n", @$_ for @$vrows;
     $price_fail = grep { $_->[1] eq 'FAIL' } @$vrows;
   }
@@ -606,7 +622,7 @@ if ($mode eq 'xlsx') {
 unless ($dry) {
   if ($mode eq 'xlsx') {
     print "\nFULL PRICE CHECK (mirrors and the Sales Order Creator file included):\n";
-    my ($rows) = verify_pricing(repo => $repo, tabs => $tabs, mirrors => $canon_dir, soc_file => $soc_out);
+    my ($rows) = verify_pricing(repo => $repo, tabs => $tabs, mirrors => $canon_dir, soc_file => $soc_out, pkg_pipeline => $pipeline);
     printf "  %-40s %-4s %s\n", @$_ for @$rows;
     my $f = grep { $_->[1] eq 'FAIL' } @$rows;
     die "\nFULL CHECK FAILED after writing - the website files are in place and proven, but a file outside it is not. Read the table above.\n" if $f;
@@ -692,7 +708,7 @@ if ($mode eq 'xlsx' && !$dry) {
           my ($pt, $peol) = slurp_text($pp);
           save($pp, package_fold_into($pt, $m, \$pkg_changes, \@pkg_moved, \$marker_adds), $peol, "models/$m->{page_slug}/index.html");
         }
-        my $pc = check_package_folds($repo, $C->{lineup}, $PACKAGES, $BOATS);
+        my $pc = check_package_folds($repo, $C->{lineup}, $PACKAGES, $BOATS, $PKG_LEGENDS //= WBPriceCanon::package_legends($repo, $pipeline));
         die "PACKAGES: the model pages' 2026 Package Pricing fold does not match the rewritten tab ($pc->{first}) - the pages are written"
           . " but not committed: git checkout the models/ folder to undo, and read the message\n" if $pc->{mismatches};
         push @done, ($pkg_changes - $before) . ' model page(s) re-derived from the rewritten PACKAGES tab (2026 Package Pricing fold) - commit them'

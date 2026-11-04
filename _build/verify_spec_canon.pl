@@ -24,7 +24,9 @@
 # the "from $" and the per-configuration base-hull tables against the BOATS tab -
 # the workbook's, or BOATS.csv beside the spec mirrors in --canon mode), its
 # "2026 Package Pricing" fold under it (since 2026-11-04: against the PACKAGES
-# tab, or PACKAGES.csv beside the spec mirrors in --canon mode), and
+# tab, or PACKAGES.csv beside the spec mirrors in --canon mode; its "what each
+# package includes" lists against the sheets' recipes in PRICE SHEETS/_PIPELINE,
+# --pipeline or found beside CANON), and
 # tools/SPEC_DATA.js. The generator (_build/gen_from_canon.pl) runs this at the
 # end of every real run so an update is proven landed in the same command.
 use strict;
@@ -36,13 +38,13 @@ use Encode qw(decode);
 use lib dirname(abs_path(__FILE__));
 use WBSpecCanon qw(slurp_text read_csv read_xlsx_tabs tabs_to_csv_text load_canon load_canon_from_tabs
                    check_surfaces fmt_len base_engine_models engines_grid_from_csv price_notes DRIVEN_TABS);
-use WBPriceCanon qw(rows_of check_pricing_folds check_package_folds);
+use WBPriceCanon qw(rows_of check_pricing_folds check_package_folds package_legends);
 binmode STDOUT, ':encoding(UTF-8)';
 binmode STDERR, ':encoding(UTF-8)';
 
-my ($canon_dir, $xlsx, $repo, $sales, $tmp, $quiet);
+my ($canon_dir, $xlsx, $repo, $sales, $tmp, $quiet, $pipeline);
 GetOptions('canon=s' => \$canon_dir, 'xlsx=s' => \$xlsx, 'repo=s' => \$repo, 'sales-tools=s' => \$sales,
-           'tmp=s' => \$tmp, 'quiet' => \$quiet) or die "see the header of $0 for usage\n";
+           'tmp=s' => \$tmp, 'quiet' => \$quiet, 'pipeline=s' => \$pipeline) or die "see the header of $0 for usage\n";
 die "give --canon <folder> or --xlsx <workbook>\n" unless defined $canon_dir || defined $xlsx;
 $repo = dirname(dirname(abs_path(__FILE__))) unless defined $repo;
 $repo =~ s{[\\/]+$}{};
@@ -79,7 +81,18 @@ print "repo : $repo\n" unless $quiet;
 my $N = $engines ? price_notes($C, base_engine_models($engines)) : undef;
 my $rows = check_surfaces($repo, $C, $N);
 push @$rows, check_pricing_folds($repo, $C->{lineup}, $boats) if $boats;   # the "2026 Base Pricing" fold, from the BOATS tab (2026-11-03)
-push @$rows, check_package_folds($repo, $C->{lineup}, $packages, $boats) if $packages && $boats;   # the "2026 Package Pricing" fold, from the PACKAGES tab (2026-11-04)
+# the "2026 Package Pricing" fold, from the PACKAGES tab (2026-11-04), its package lists from the sheets' recipes in
+# PRICE SHEETS/_PIPELINE (--pipeline, or found beside CANON: <SQUIRREL HOLE>/60 SALES AND DEALERS/PRICE SHEETS/_PIPELINE)
+unless (defined $pipeline) {
+  my $croot = defined $xlsx ? dirname(abs_path($xlsx)) : dirname(abs_path($canon_dir));   # CANON
+  $pipeline = dirname($croot) . '/60 SALES AND DEALERS/PRICE SHEETS/_PIPELINE';
+}
+$pipeline =~ s{\x5c}{/}g; $pipeline =~ s{/+$}{};
+if ($packages && $boats) {
+  if (-f "$pipeline/package-recipes.json") { push @$rows, check_package_folds($repo, $C->{lineup}, $packages, $boats, package_legends($repo, $pipeline)) }
+  else { push @$rows, { surface => 'model pages: 2026 Package Pricing fold', models => 0, mismatches => 0,
+                        first => "NOT CHECKED - PRICE SHEETS/_PIPELINE not found at $pipeline (pass --pipeline)" } }
+}
 
 # ---------------------------------------------------------- PDF audits ----
 my @audit;

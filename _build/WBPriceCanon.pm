@@ -37,7 +37,7 @@ our @EXPORT_OK = qw(PRICE_TABS FROM_PAGES jparse jget load_site canon_from_tabs 
                     verify_pricing OPTION_GUIDE OPTION_GUIDE_MAP option_guide_plan
                     fold_rows fold_spans render_pricing_fold fold_prices fold_change_text check_pricing_folds
                     package_rows package_plan render_package_fold package_span package_change_text package_split_sources
-                    check_package_folds
+                    check_package_folds package_legends
                     SHEET_FAMILIES sheet_stamp sheet_unchanged keep_unchanged_sheets);
 
 use constant PRICE_TABS => ('BOATS', 'ENGINES', 'OPTIONS', 'TRAILERS', 'PACKAGES', 'CARRY OUT', 'DISCREPANCIES', 'PROVENANCE');
@@ -688,7 +688,10 @@ sub check_pricing_folds {            # (repo, LINEUP rows, BOATS rows) -> one su
 #   <!-- PACKAGES:<slug> -->            (its own line, at the fold's indent)
 #   <details class="pfold"> ... summary "2026 Package Pricing" / "Ready to Run & Fully Loaded" / "from $X" ...
 #     the price sheet's own notes (what each package includes, the Fully Loaded estimate-only note + a link to
-#     Build & Price), one <table class="ptable"> per configuration with one row per length: "from $X" under
+#     Build & Price), then (since later on 2026-11-04) the sheet's tier legend - what Ready to Run includes and
+#     what Fully Loaded adds - from WBPackages in PRICE SHEETS/_PIPELINE (package_legends below; the PACKAGES tab
+#     carries no contents), as a two-column .stdgrid that stacks on phones,
+#     one <table class="ptable"> per configuration with one row per length: "from $X" under
 #     Ready to Run = the lowest tier-1 price over that configuration's PACKAGE rows, "from $Y" under Fully
 #     Loaded = the lowest tier-3 price (the two minimums may come from different power options - ruled),
 #     then each CONFIG UPCHARGE (ADD) row as one note in the sheet's own adder wording (the tab's note column).
@@ -748,10 +751,33 @@ sub adder_note_html {                # (CONFIG UPCHARGE row, BOATS casing map) -
   $note =~ s/\bTier 2 or Tier 3 package\b/Fully Loaded package/g;   # the two-tier sheet's own phrase (WBPackages.pm)
   return '<b>' . WBSpecCanon::esc($r->{configuration_length}) . ": $price.</b> " . WBSpecCanon::esc($note);
 }
-sub render_package_fold {            # (slug, site name, plan, indent) -> the whole marked block, first line indented, no trailing newline
-  my ($slug, $name, $P, $i) = @_;
+# What each package includes (Stephen 2026-11-04, later: "it should say what the packages include"). The PACKAGES tab
+# carries prices only, so the lists come from where the printed sheets get them: the tier legend panel that
+# WBPackages::build(<repo>, <_PIPELINE>/package-recipes.json, { tiers => ['t1','t3'] }) builds for the official sheet's
+# Package Prices page (WBOfficial.pm) - the recipes resolved against the live configurator, so per-model differences
+# (Explorer in the Alaskan LT / XLT Ready to Run list, the heater on inboards and cabins) follow the sheet exactly.
+# Heads and items are the sheet's text. One cut: the sheet's "EZ Loader trailer \x{2014} exact unit named in each table"
+# is printed "EZ Loader trailer", because the website's tables do not name the trailer unit.
+use constant PKG_TRAILER_CLAUSE => " \x{2014} exact unit named in each table";
+sub package_legends {                # (repo, PRICE SHEETS/_PIPELINE) -> { model_id => [ { head, items => [text, ...] }, ... ] }
+  my ($repo, $pipe) = @_;
+  die "the 2026 Package Pricing fold needs PRICE SHEETS/_PIPELINE (package-recipes.json + WBPackages.pm) - not found at $pipe\n"
+    unless defined $pipe && -f "$pipe/package-recipes.json" && -f "$pipe/WBPackages.pm";
+  unshift @INC, $pipe unless grep { $_ eq $pipe } @INC;
+  require WBPackages;
+  my $pk = WBPackages::build($repo, "$pipe/package-recipes.json", { tiers => ['t1', 't3'] });
+  my %L;
+  for my $m (@{ $pk->{models} }) {
+    my $cols = ($m->{legend} || {})->{cols} or next;
+    $L{ $m->{id} } = [ map { my $c = $_; { head => $c->{head}, items => [ map { my $t = $_->{t}; $t =~ s/\Q${\ PKG_TRAILER_CLAUSE}\E$//; $t } @{ $c->{items} } ] } } @$cols ];
+  }
+  return \%L;
+}
+sub render_package_fold {            # (slug, site name, plan, indent, legend cols) -> the whole marked block, first line indented, no trailing newline
+  my ($slug, $name, $P, $i, $legend) = @_;
   $i = '' unless defined $i;
   my $e = \&WBSpecCanon::esc;
+  die "PACKAGES: $slug has no package legend from WBPackages - what each package includes cannot be shown\n" unless $legend && @$legend;
   my @l;
   push @l, "<!-- PACKAGES:$slug -->", '<details class="pfold">';
   push @l, '  <summary><span class="pfoldeyebrow">2026 Package Pricing</span><span class="pfoldtitle">Ready to Run &amp; Fully Loaded</span>'
@@ -759,6 +785,11 @@ sub render_package_fold {            # (slug, site name, plan, indent) -> the wh
   push @l, '  <div class="pfoldbody">';
   push @l, '    <p class="lede">' . $e->(PKG_LEGEND) . '</p>';
   push @l, '    <p class="lede">' . PKG_ESTIMATE . '</p>';
+  # the house standard-features grid (.stdgrid stacks to one column under 760px), flattened to sit inside a fold
+  push @l, '    <div class="stdgrid" style="gap:14px;margin:14px 0 6px;">'
+         . join('', map { '<div class="stdsec" style="box-shadow:none;border:1px solid var(--line);padding:14px 18px;"><h3>' . $e->($_->{head})
+                          . '</h3><ul>' . join('', map { '<li>' . $e->($_) . '</li>' } @{ $_->{items} }) . '</ul></div>' } @$legend)
+         . '</div>';
   for my $c (@{ $P->{cfgs} }) {
     push @l, '    <table class="ptable"><caption>' . $e->($c->{name}) . '</caption>';
     my $t = '      <thead><tr><th>Model</th><th style="text-align:right">Ready to Run</th><th style="text-align:right">Fully Loaded</th></tr></thead><tbody>';
@@ -827,9 +858,10 @@ sub package_split_sources {          # plan -> ["Alaskan 18 ft Windshield: RtR f
   } }
   return @o;
 }
-sub check_package_folds {            # (repo, LINEUP rows, PACKAGES rows, BOATS rows) -> one surface row { surface, models, mismatches, first }
-  my ($repo, $lineup, $pk, $boats) = @_;
+sub check_package_folds {            # (repo, LINEUP rows, PACKAGES rows, BOATS rows, legends) -> one surface row { surface, models, mismatches, first }
+  my ($repo, $lineup, $pk, $boats, $legends) = @_;
   my ($mm, $first) = (0, undef);
+  die "check_package_folds: no package legends given (package_legends(repo, _PIPELINE))\n" unless $legends;
   for my $m (@$lineup) {
     my ($id, $slug) = ($m->{model_id}, $m->{page_slug});
     my $p = "$repo/models/$slug/index.html";
@@ -838,7 +870,7 @@ sub check_package_folds {            # (repo, LINEUP rows, PACKAGES rows, BOATS 
     my $b = eval { package_span($t, $slug) };
     if ($@) { $mm++; (my $e = $@) =~ s/\n\z//; $first //= $e; next }
     unless ($b->{marked}) { $mm++; $first //= "$id: no 2026 Package Pricing fold on the page"; next }
-    my $w = eval { render_package_fold($slug, $m->{model_name}, package_plan(package_rows($id, $pk), $boats, $id), $b->{indent}) };
+    my $w = eval { render_package_fold($slug, $m->{model_name}, package_plan(package_rows($id, $pk), $boats, $id), $b->{indent}, $legends->{$id}) };
     if ($@) { $mm++; (my $e = $@) =~ s/\n\z//; $first //= "$id: $e"; next }
     if ($b->{have} ne $w) { $mm++; $first //= "$id: " . WBSpecCanon::first_diff($w, $b->{have}) }
   }
@@ -1024,12 +1056,18 @@ sub verify_pricing {
       $fr->{mismatches} ? "$fr->{mismatches} page(s) differ from the BOATS tab - first: $fr->{first}" : "$fr->{models} pages match the BOATS tab");
   } else { $row->('model pages: 2026 Base Pricing fold', 'WARN', 'no LINEUP tab among the tabs given - not checked') }
   # the model pages' "2026 Package Pricing" fold (Ready to Run / Fully Loaded from-prices per configuration and the adder notes)
-  # against the PACKAGES tab, configuration names cased per BOATS, named per LINEUP (Stephen's ruling 2026-11-04)
-  if ($a{tabs}{LINEUP}) {
-    my $pr = check_package_folds($a{repo}, rows_of($a{tabs}{LINEUP}, 'LINEUP'), rows_of($a{tabs}{PACKAGES}, 'PACKAGES'), rows_of($a{tabs}{BOATS}, 'BOATS'));
+  # against the PACKAGES tab, configuration names cased per BOATS, named per LINEUP (Stephen's ruling 2026-11-04), and its
+  # "what each package includes" lists against the sheet's tier legend (WBPackages from PRICE SHEETS/_PIPELINE, same day)
+  if (!$a{tabs}{LINEUP}) { $row->('model pages: 2026 Package Pricing fold', 'WARN', 'no LINEUP tab among the tabs given - not checked') }
+  elsif (!-f (($a{pkg_pipeline} // $a{pipeline} // '') . '/package-recipes.json')) {
+    $row->('model pages: 2026 Package Pricing fold', 'SKIP', 'PRICE SHEETS/_PIPELINE not reachable from here (its package lists come from the sheet recipes)');
+  } else {
+    my $pr = check_package_folds($a{repo}, rows_of($a{tabs}{LINEUP}, 'LINEUP'), rows_of($a{tabs}{PACKAGES}, 'PACKAGES'), rows_of($a{tabs}{BOATS}, 'BOATS'),
+                                 package_legends($a{repo}, $a{pkg_pipeline} // $a{pipeline}));
     $row->('model pages: 2026 Package Pricing fold', $pr->{mismatches} ? 'FAIL' : 'PASS',
-      $pr->{mismatches} ? "$pr->{mismatches} page(s) differ from the PACKAGES tab - first: $pr->{first}" : "$pr->{models} pages match the PACKAGES tab");
-  } else { $row->('model pages: 2026 Package Pricing fold', 'WARN', 'no LINEUP tab among the tabs given - not checked') }
+      $pr->{mismatches} ? "$pr->{mismatches} page(s) differ from the PACKAGES tab and the sheet's package lists - first: $pr->{first}"
+                        : "$pr->{models} pages match the PACKAGES tab and the sheet's package lists");
+  }
   return (\@out, $R, $S, $C);
 }
 
