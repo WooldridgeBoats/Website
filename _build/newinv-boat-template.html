@@ -35,7 +35,7 @@
   .invfeat li{ font-size:15px; line-height:1.55; margin-bottom:6px; break-inside:avoid; }
   .invfeat p{ font-size:15px; line-height:1.6; text-align:center; margin:0; }
   @media (max-width:700px){ .invfeat ul{ columns:1; } }
-  .invdealer{ max-width:440px; margin:34px auto 0; }
+  .invdealer{ max-width:440px; margin:6px auto 30px; }
   .invdealer .sechead{ margin:0 0 14px; }
   .fact.price .v{ font-family:var(--serif); font-weight:700; font-size:20px; color:var(--blue); }
   /* a pill with no small top line (Ask About Availability) centres its text in the row's 64px height (Tyler) */
@@ -224,13 +224,13 @@ __MAST__
           '<div class="row"><a href="tel:+1' + tel + '">' + esc(d.tel) + '</a>' +
           (d.web ? '<a href="' + esc(d.web) + '" target="_blank" rel="noopener">Website &#8599;</a>' : '') +
           '<a href="/dealers/">All dealers</a></div></div></div>' : '';
-      return '<section class="invboat" id="hull-' + esc(b.hull) + '">' +
+      return '<section class="invboat" id="hull-' + esc(b.hull) + '">' + dcard +   /* dealer card right under the hero (Tyler 2026-11-04) */
         '<div class="sechead tight"><h2 style="font-size:clamp(20px,2.6vw,28px);">' + title(b) + '</h2></div>' +
         '<div class="invdesc">' + (b.desc || []).map(p => '<p>' + esc(p) + '</p>').join('') + '</div>' +
         card +
         '<div class="factrow">' + facts.map(x => '<div class="fact' + (x[2] ? ' ' + x[2] : '') + '"><div class="l">' + x[0] +
           '</div><div class="v">' + x[1] + '</div></div>').join('') + '</div>' +
-        feats + dcard +
+        feats +
         '<div class="modelctas">' + (b.sold ? '' : ctas +
           (b.mpage ? '<a class="plate ghost" href="' + esc(b.mpage) + '"><span class="k">The Model</span>About the ' + esc(b.name) + '</a>' : '')) +
           '<a class="plate ghost" href="/new-inventory/">&lsaquo; All New Boats</a>' +
