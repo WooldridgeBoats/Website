@@ -225,7 +225,7 @@ __MAST__
           (d.addr ? '<div class="addr">' + esc(d.addr) + '</div>' : '<div class="addr">' + esc(d.city) + '</div>') +
           '<div class="row"><a href="tel:+1' + tel + '">' + esc(d.tel) + '</a>' +
           (d.web ? '<a href="' + esc(d.web) + '" target="_blank" rel="noopener">Website &#8599;</a>' : '') +
-          '<a href="/dealers/">All dealers</a></div></div></div>' : '';
+          '</div></div></div>' : '';
       return '<section class="invboat" id="hull-' + esc(b.hull) + '">' + dcard +   /* dealer card right under the hero (Tyler 2026-11-04) */
         '<div class="sechead tight"><h2 style="font-size:clamp(20px,2.6vw,28px);">' + title(b) + '</h2></div>' +
         '<div class="invdesc">' + (b.desc || []).map(p => '<p>' + esc(p) + '</p>').join('') + '</div>' +
