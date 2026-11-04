@@ -3,7 +3,7 @@
 #         KEEP-404 = deliberately no redirect | LIVE = answers 200 today | OTHER-HOST = not this site
 # To approve a DECIDE row: set status to APPROVED and the target you want, then run perl _build/redirects/gen_redirects.pl
 status	group	hits	host	old_path	target	how_it_was_found	answered_at_audit	target_answered
-REDIRECT	listings	14	www	/preowned/2003-wooldridge-17-alaskan/	/pre-owned/2003-wooldridge-17-alaskan/	_build/preowned.json records this exact old address as the listing's url	404	200
+REDIRECT	listings	14	www	/preowned/2003-wooldridge-17-alaskan/	/pre-owned/	sold - seller Josh Jenkins asked for the listing to come down (Rachel, Teams 2026-11-03); page removed 2026-11-04, so the old address goes to the pre-owned page	404	200
 REDIRECT	listings	7	www	/preowned/2012-wooldridge-23-super-sport-drifter/	/pre-owned/2012-wooldridge-23-super-sport-drifter/	_build/preowned.json records this exact old address as the listing's url	404	200
 REDIRECT	listings	6	www	/preowned/	/pre-owned/	old pre-owned archive -> the pre-owned page	404	200
 REDIRECT	listings	6	www	/preowned/2014-wooldridge-18-alaskan-xl/	/pre-owned/2014-wooldridge-18-alaskan-xl/	_build/preowned.json records this exact old address as the listing's url	404	200
@@ -608,3 +608,4 @@ LIVE		1	www	/models/super-sport-offshore-pilothouse/		the page exists in the rep
 LIVE	leftovers	5	www	/store/		answers 200 today, no redirect needed (was: DECIDE - no rule matched)	200	
 OTHER-HOST		1	mail.wooldridgeboats.com	/var/import/		mail.wooldridgeboats.com is not this site (sales = Tyler's dealer site)		
 OTHER-HOST		1	mail.wooldridgeboats.com	/var/importexport/		mail.wooldridgeboats.com is not this site (sales = Tyler's dealer site)		
+REDIRECT	sold-listings	0	www	/pre-owned/2003-wooldridge-17-alaskan/	/pre-owned/	sold - the listing page lived at this address 2026-10-28 to 2026-11-04 and was in the sitemap; seller Josh Jenkins asked for it to come down (Rachel, Teams 2026-11-03)	200	200

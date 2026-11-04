@@ -84,7 +84,7 @@
      ],
      "url":"https://www.wooldridgeboats.com/preowned/2014-wooldridge-18-alaskan-xl/"},
 
-    {"slug":"2003-wooldridge-17-alaskan", "sold":false,
+    {"slug":"2003-wooldridge-17-alaskan", "sold":true,
      "yr":2003, "len":17, "model":"Alaskan", "drive":"Outboard Jet",
      "eng":"2019 Yamaha 115/80 jet", "hours":"40 since repower", "trailer":"",
      "price":"$25,000", "loc":"Midland, Michigan",
