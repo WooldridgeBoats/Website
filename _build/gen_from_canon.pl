@@ -55,6 +55,12 @@
 #      the per-configuration base-hull tables of the "2026 Base Pricing" fold - rendered
 #      from the BOATS tab and the model's LINEUP name (xlsx runs; WBPriceCanon.pm). Until
 #      then that fold was static text, and the 10-21 / 10-27 hull moves left ten pages stale.
+#      Since 2026-11-04 also the "2026 Package Pricing" fold directly under it (PACKAGES markers
+#      around the whole fold; Stephen's ruling: one row per configuration and length, "Ready to
+#      Run from $X" / "Fully Loaded from $Y" = the lowest tier-1 / tier-3 price over that row's
+#      power options, the CONFIG UPCHARGE rows as notes in the sheet's own adder wording),
+#      rendered from the PACKAGES tab (xlsx runs; WBPriceCanon.pm). When step 6a rewrites the
+#      PACKAGES tab, the fold is rendered again from the rewritten tab in the same run.
 #   4. stamp_assets.pl, then BOTH checks: verify_spec_canon.pl and the pricing
 #      check (verify_pricing_canon.pl's code). On a FAIL every website file is put
 #      back (git checkout) and nothing else is written. verify_spec_canon.pl gets the
@@ -104,7 +110,8 @@ use WBSpecCanon qw(slurp_bytes slurp_text write_text read_xlsx_tabs tabs_to_csv_
 use WBPriceCanon qw(PRICE_TABS FROM_PAGES load_site canon_from_tabs compare_prices plan_price_writes apply_splices
                     from_prices from_nodes mirror_bytes soc_blobs soc_file_bytes verify_pricing fmt_price
                     OPTION_GUIDE option_guide_plan sheet_stamp keep_unchanged_sheets
-                    fold_rows fold_spans render_pricing_fold fold_change_text);
+                    fold_rows fold_spans render_pricing_fold fold_change_text
+                    package_rows package_plan render_package_fold package_span package_change_text check_package_folds);
 use JSON::PP;
 use Digest::SHA qw(sha256_hex);
 use Encode qw(encode);
@@ -190,10 +197,30 @@ my $N;
 # (2026-11-03). xlsx runs only, like every other price: a CSV-only run leaves the fold as it is and says so.
 my $BOATS = $mode eq 'xlsx' ? WBPriceCanon::rows_of($tabs->{BOATS}, 'BOATS') : undef;
 print "pricing fold: the model pages' 2026 Base Pricing fold is left as it is (prices come from the workbook only; run with --xlsx)\n" unless $BOATS;
+# the "2026 Package Pricing" fold under it (Ready to Run / Fully Loaded from-prices per configuration) is rendered from the
+# PACKAGES tab (2026-11-04), xlsx runs only. When this run regenerates the PACKAGES tab downstream (step 6a), the fold is
+# rendered again from the rewritten tab and checked there, so the pages never lag the tab by one run.
+my $PACKAGES = $mode eq 'xlsx' ? WBPriceCanon::rows_of($tabs->{PACKAGES}, 'PACKAGES') : undef;
+print "package fold: the model pages' 2026 Package Pricing fold is left as it is (prices come from the workbook only; run with --xlsx)\n" unless $PACKAGES;
+sub package_fold_into {              # (page text, LINEUP row, \count, \list, \marker count) -> the text with its package fold rendered from $PACKAGES
+  my ($t, $m, $cnt, $moved, $marks) = @_;
+  my ($id, $slug) = ($m->{model_id}, $m->{page_slug});
+  my $b = package_span($t, $slug);
+  my $want = render_package_fold($slug, $m->{model_name}, package_plan(package_rows($id, $PACKAGES), $BOATS, $id), $b->{indent});
+  if ($b->{have} ne $want) {
+    my $what = package_change_text($b->{have}, $want);
+    $$cnt++; push @$moved, "$m->{model_name}: $what";
+    print "  models/$slug: 2026 Package Pricing fold re-derived from PACKAGES - $what\n";
+  }
+  $$marks++ unless $b->{marked};
+  substr($t, $b->{s}, $b->{len}) = $b->{marked} ? $want : "$want\n";
+  return $t;
+}
 
 my ($changed_files, $content_changes, $marker_adds, $price_changes, $guide_changes, $note_changes, $fold_changes) = (0, 0, 0, 0, 0, 0, 0);
 my @note_moved;                      # model ids whose price note this run rewrote (for the CHANGE LOG)
 my @fold_moved;                      # "model: what moved" for every page whose 2026 Base Pricing fold this run rewrote
+my ($pkg_changes, @pkg_moved) = (0); # the same for the 2026 Package Pricing fold (2026-11-04)
 sub save {                           # write only when the text changed; keep the file's own line ending
   my ($p, $text, $eol, $what) = @_;
   my $old = scalar slurp_text($p);
@@ -427,6 +454,12 @@ for my $m (@{ $C->{lineup} }) {
     substr($t, $ts->{s}, $ts->{len}) = "$ind<!-- PRICES:$slug:tables -->\n$ind$want_tables\n$ind<!-- /PRICES -->";   # the later block first, so the earlier offsets hold
     substr($t, $fs->{s}, $fs->{len}) = "<!-- PRICES:$slug:from -->$want_from<!-- /PRICES -->";
   }
+
+  # f. the "2026 Package Pricing" fold, directly under the Base Pricing fold (PACKAGES markers, the whole fold) - from the
+  #    PACKAGES tab, never typed (Stephen's ruling 2026-11-04). Runs after e, so it finds the Base Pricing fold's markers.
+  if ($PACKAGES) {
+    $t = package_fold_into($t, $m, \$pkg_changes, \@pkg_moved, \$marker_adds);
+  }
   save($p, $t, $eol, "models/$slug/index.html");
 }
 
@@ -439,9 +472,10 @@ for my $m (@{ $C->{lineup} }) {
   if ($dry) { $changed_files++ if $have ne $want } else { write_text($p, $want, $eol) if $have ne $want }
 }
 
-printf "\nsummary: %d price change(s), %d spec content change(s), %d price note(s) %s%s, %d model-page pricing fold(s) %s, %d marker set(s) %s, %d website file(s) %s\n",
+printf "\nsummary: %d price change(s), %d spec content change(s), %d price note(s) %s%s, %d model-page pricing fold(s) %s, %d package fold(s) %s, %d marker set(s) %s, %d website file(s) %s\n",
   $price_changes, $content_changes, $note_changes, ($dry ? 'would change' : 'changed'), (@note_moved ? ' (' . join(', ', @note_moved) . ')' : ''),
-  $fold_changes, ($dry ? 'would change' : 'changed'), $marker_adds, ($dry ? 'would be added' : 'added'), $changed_files, ($dry ? 'would change' : 'written');
+  $fold_changes, ($dry ? 'would change' : 'changed'), $pkg_changes, ($dry ? 'would change' : 'changed'),
+  $marker_adds, ($dry ? 'would be added' : 'added'), $changed_files, ($dry ? 'would change' : 'written');
 
 # ------------------------------------------------- 4. stamp + BOTH checks ----
 my $vrows = [];
@@ -649,6 +683,20 @@ if ($mode eq 'xlsx' && !$dry) {
         die "PACKAGES: the workbook tab does not re-read as the regenerated CSV after the write\n" unless $b eq $want;
         put_atomic("$canon_dir/PACKAGES.csv", $b, 'CSV MIRRORS/PACKAGES.csv');
         $packages_changed = 1; push @done, 'PACKAGES tab and its mirror regenerated from the recipes (Excel write proved)';
+        # the model pages' 2026 Package Pricing fold follows the rewritten tab in the same run (2026-11-04), then is
+        # checked on its own at once; the FINAL CHECK below checks it again with everything else
+        $PACKAGES = WBPriceCanon::rows_of($tabs->{PACKAGES}, 'PACKAGES');
+        my $before = $pkg_changes;
+        for my $m (@{ $C->{lineup} }) {
+          my $pp = "$repo/models/$m->{page_slug}/index.html";
+          my ($pt, $peol) = slurp_text($pp);
+          save($pp, package_fold_into($pt, $m, \$pkg_changes, \@pkg_moved, \$marker_adds), $peol, "models/$m->{page_slug}/index.html");
+        }
+        my $pc = check_package_folds($repo, $C->{lineup}, $PACKAGES, $BOATS);
+        die "PACKAGES: the model pages' 2026 Package Pricing fold does not match the rewritten tab ($pc->{first}) - the pages are written"
+          . " but not committed: git checkout the models/ folder to undo, and read the message\n" if $pc->{mismatches};
+        push @done, ($pkg_changes - $before) . ' model page(s) re-derived from the rewritten PACKAGES tab (2026 Package Pricing fold) - commit them'
+          if $pkg_changes > $before;
       }
     } else { push @owed, 'PACKAGES tab: package prices moved - run the command on the P3 (the workbook tab is written through Excel)' }
   } else { push @owed, 'PACKAGES tab: PRICE SHEETS/_PIPELINE or CANON/_build not reachable from here' }
@@ -870,13 +918,14 @@ if ($mode eq 'xlsx' && !$dry) {
 }
 
 # ------------------------------------------------------------ 8. the CHANGE LOG ----
-my $anything = $price_changes || $content_changes || $note_changes || $fold_changes || $marker_adds || $packages_changed || $addons_changed || $rows_changed;
+my $anything = $price_changes || $content_changes || $note_changes || $fold_changes || $pkg_changes || $marker_adds || $packages_changed || $addons_changed || $rows_changed;
 if ($mode eq 'xlsx' && !$dry && $anything) {
   my $readme = dirname($canon_dir) . '/README.md';
   my @lt = localtime; my $date = sprintf('%04d-%02d-%02d', $lt[5] + 1900, $lt[4] + 1, $lt[3]);
   my @what; push @what, "$price_changes price(s)" if $price_changes; push @what, "$content_changes spec change(s)" if $content_changes;
   push @what, "$note_changes model-page price note(s)" if $note_changes;
   push @what, "$fold_changes model-page pricing fold(s)" if $fold_changes;
+  push @what, "$pkg_changes model-page package fold(s)" if $pkg_changes;
   push @what, "$rows_changed row(s) added or removed" if $rows_changed;
   push @what, 'package prices regenerated' if $packages_changed && !$price_changes;
   push @what, 'trailer shop add-on prices' if $addons_changed && !$price_changes;
@@ -894,6 +943,7 @@ if ($mode eq 'xlsx' && !$dry && $anything) {
   $e .= "- **Model-page price note**: $note_changes page(s) now carry the sentence the ENGINES base-engine flag calls for (" . join(', ', @note_moved)
       . "); no canon cell changed - the generator picks it from the flag.\n" if $note_changes;
   $e .= "- **Model-page 2026 Base Pricing fold**: $fold_changes page(s) re-derived from the BOATS tab and the LINEUP name: " . join('. ', @fold_moved) . ".\n" if $fold_changes;
+  $e .= "- **Model-page 2026 Package Pricing fold**: $pkg_changes page(s) re-derived from the PACKAGES tab: " . join('. ', @pkg_moved) . ".\n" if $pkg_changes;
   for my $t (sort keys %row_diff) {
     my $d = $row_diff{$t}; my @add = map { s/^[A-Z]+\|//r } @{ $d->{add} }; my @rem = map { s/^[A-Z]+\|//r } @{ $d->{rem} };
     $e .= "- **$t rows**: " . scalar(@add) . " added" . (@add ? ' (' . join(', ', @add) . ')' : '') . "; " . scalar(@rem) . " removed" . (@rem ? ' (' . join(', ', @rem) . ')' : '') . ".\n";

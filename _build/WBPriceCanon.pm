@@ -36,6 +36,8 @@ our @EXPORT_OK = qw(PRICE_TABS FROM_PAGES jparse jget load_site canon_from_tabs 
                     apply_splices fmt_price numeq rows_of from_prices from_nodes mirror_bytes soc_blobs soc_file_bytes
                     verify_pricing OPTION_GUIDE OPTION_GUIDE_MAP option_guide_plan
                     fold_rows fold_spans render_pricing_fold fold_prices fold_change_text check_pricing_folds
+                    package_rows package_plan render_package_fold package_span package_change_text package_split_sources
+                    check_package_folds
                     SHEET_FAMILIES sheet_stamp sheet_unchanged keep_unchanged_sheets);
 
 use constant PRICE_TABS => ('BOATS', 'ENGINES', 'OPTIONS', 'TRAILERS', 'PACKAGES', 'CARRY OUT', 'DISCREPANCIES', 'PROVENANCE');
@@ -679,6 +681,170 @@ sub check_pricing_folds {            # (repo, LINEUP rows, BOATS rows) -> one su
   return { surface => 'model pages: 2026 Base Pricing fold', models => scalar @$lineup, mismatches => $mm, first => $first // '' };
 }
 
+# ------------------------------- the model pages' "2026 Package Pricing" fold ----
+# Stephen's ruling 2026-11-04 (Danny had asked for "Model Packages from $" on the fleet cards; the cards stay as
+# they are and each model page gets this fold instead). Its own <details class="pfold">, directly under the
+# "2026 Base Pricing" fold, rendered whole from the PACKAGES tab - nothing in it is typed:
+#   <!-- PACKAGES:<slug> -->            (its own line, at the fold's indent)
+#   <details class="pfold"> ... summary "2026 Package Pricing" / "Ready to Run & Fully Loaded" / "from $X" ...
+#     the price sheet's own notes (what each package includes, the Fully Loaded estimate-only note + a link to
+#     Build & Price), one <table class="ptable"> per configuration with one row per length: "from $X" under
+#     Ready to Run = the lowest tier-1 price over that configuration's PACKAGE rows, "from $Y" under Fully
+#     Loaded = the lowest tier-3 price (the two minimums may come from different power options - ruled),
+#     then each CONFIG UPCHARGE (ADD) row as one note in the sheet's own adder wording (the tab's note column).
+#   </details>
+#   <!-- /PACKAGES -->
+# The summary's "from $X" = the lowest tier-1 price the fold shows. Configuration names are the PACKAGES tab's
+# (upper case there) printed in the BOATS tab's casing for that model; a part with no BOATS twin stops the command.
+# The printed sheets show two tiers, so the tab's three-tier adder phrase "Tier 2 or Tier 3 package" is printed as
+# "Fully Loaded package", exactly as WBPackages.pm words it on the two-tier sheet. The block is compared whole, so a
+# hand edit anywhere between the markers fails both verifiers.
+use constant PKG_LEGEND => "Complete packages: boat + power + EZ Loader trailer + equipment, straight factory-list math \x{2014} "
+                         . "no bundle discount, no hidden fees. Fully Loaded is everything in Ready to Run plus more equipment; "
+                         . "each price is the lowest across the power options.";
+use constant PKG_ESTIMATE => "The Fully Loaded package is for estimate purposes only \x{2014} to configure a custom build, option by "
+                           . "option, use <a href=\"/build-and-price/\">Build &amp; Price</a> for an exact quote.";
+sub package_rows {                   # (model_id, PACKAGES rows) -> that model's rows (PACKAGE and CONFIG UPCHARGE), in the tab's order
+  my ($id, $pk) = @_;
+  return [ grep { ($_->{model_id} // '') eq $id } @$pk ];
+}
+sub package_plan {                   # (model rows, BOATS rows of all models) -> { cfgs => [{name, lens => [{len, t1, t3, t1_from, t3_from}]}], adders, from }
+  my ($rows, $boats, $id) = @_;
+  my %case;
+  for my $b (@$boats) { next unless ($b->{model_id} // '') eq $id && ($b->{row_type} // '') eq 'BASE HULL'; $case{ uc $b->{configuration} } //= $b->{configuration} }
+  my (@cfgs, %ci, @adders, $from);
+  for my $r (@$rows) {
+    my $rt = $r->{row_type} // '';
+    if ($rt eq 'CONFIG UPCHARGE (ADD)') { push @adders, $r; next }
+    next unless $rt eq 'PACKAGE';
+    my ($cu, $len) = ($r->{configuration_length} // '') =~ /^(.+?) \x{2014} (\d+(?:\.\d+)?)'$/
+      or die "PACKAGES: $id configuration_length '$r->{configuration_length}' is not '<CONFIGURATION> \x{2014} <length>''\n";
+    my $name = join ' / ', map { $case{ uc $_ } // die "PACKAGES: $id configuration '$_' has no BASE HULL configuration of that name in BOATS\n" } split / \/ /, $cu;
+    for my $c (qw(tier1_ready_to_run_usd tier3_fully_loaded_usd)) {
+      die "PACKAGES: $id $r->{configuration_length} $r->{power_option_or_add} has no numeric $c - the package fold cannot show it\n" unless is_num($r->{$c});
+    }
+    my $cf = $ci{$name} //= do { push @cfgs, { name => $name, lens => [], li => {} }; $cfgs[-1] };
+    $len = 0 + $len;
+    my $L = $cf->{li}{$len} //= do { push @{ $cf->{lens} }, { len => $len }; $cf->{lens}[-1] };
+    my ($t1, $t3) = (0 + $r->{tier1_ready_to_run_usd}, 0 + $r->{tier3_fully_loaded_usd});
+    if (!defined $L->{t1} || $t1 < $L->{t1}) { $L->{t1} = $t1; $L->{t1_from} = $r->{power_option_or_add} }
+    if (!defined $L->{t3} || $t3 < $L->{t3}) { $L->{t3} = $t3; $L->{t3_from} = $r->{power_option_or_add} }
+    $from = $t1 if !defined $from || $t1 < $from;
+  }
+  die "PACKAGES: no PACKAGE row for '$id' - its 2026 Package Pricing fold cannot be written\n" unless @cfgs;
+  delete $_->{li} for @cfgs;
+  return { cfgs => \@cfgs, adders => \@adders, from => $from, case => \%case };
+}
+sub adder_note_html {                # (CONFIG UPCHARGE row, BOATS casing map) -> the sheet's adder note as one paragraph's inner HTML
+  my ($r, $case) = @_;
+  for my $c (qw(tier1_ready_to_run_usd tier3_fully_loaded_usd)) {
+    die "PACKAGES: $r->{model_id} $r->{configuration_length} has no numeric $c\n" unless is_num($r->{$c});
+  }
+  my ($a1, $a3) = (0 + $r->{tier1_ready_to_run_usd}, 0 + $r->{tier3_fully_loaded_usd});
+  my $price = $a1 == $a3 ? '+' . _money($a1) : '+' . _money($a1) . ' Ready to Run, +' . _money($a3) . ' Fully Loaded';
+  my $note = $r->{note} // '';
+  die "PACKAGES: $r->{model_id} $r->{configuration_length} has no note - the adder cannot be explained on the page\n" unless length $note;
+  for my $u (sort { length $b <=> length $a || $a cmp $b } keys %$case) { $note =~ s/\b\Q$u\E\b/$case->{$u}/g }
+  $note =~ s/\bTier 2 or Tier 3 package\b/Fully Loaded package/g;   # the two-tier sheet's own phrase (WBPackages.pm)
+  return '<b>' . WBSpecCanon::esc($r->{configuration_length}) . ": $price.</b> " . WBSpecCanon::esc($note);
+}
+sub render_package_fold {            # (slug, site name, plan, indent) -> the whole marked block, first line indented, no trailing newline
+  my ($slug, $name, $P, $i) = @_;
+  $i = '' unless defined $i;
+  my $e = \&WBSpecCanon::esc;
+  my @l;
+  push @l, "<!-- PACKAGES:$slug -->", '<details class="pfold">';
+  push @l, '  <summary><span class="pfoldeyebrow">2026 Package Pricing</span><span class="pfoldtitle">Ready to Run &amp; Fully Loaded</span>'
+         . '<span class="pfoldfrom">from ' . _money($P->{from}) . '</span><span class="pfoldchev" aria-hidden="true"></span></summary>';
+  push @l, '  <div class="pfoldbody">';
+  push @l, '    <p class="lede">' . $e->(PKG_LEGEND) . '</p>';
+  push @l, '    <p class="lede">' . PKG_ESTIMATE . '</p>';
+  for my $c (@{ $P->{cfgs} }) {
+    push @l, '    <table class="ptable"><caption>' . $e->($c->{name}) . '</caption>';
+    my $t = '      <thead><tr><th>Model</th><th style="text-align:right">Ready to Run</th><th style="text-align:right">Fully Loaded</th></tr></thead><tbody>';
+    for my $L (@{ $c->{lens} }) {
+      $t .= '<tr><td>' . $L->{len} . '&prime; ' . $e->($name) . " \x{2014} " . $e->($c->{name}) . '</td>'
+          . '<td class="money">from ' . _money($L->{t1}) . '</td><td class="money">from ' . _money($L->{t3}) . '</td></tr>';
+    }
+    push @l, $t . '</tbody></table>';
+  }
+  push @l, '    <p class="lede">' . adder_note_html($_, $P->{case}) . '</p>' for @{ $P->{adders} };
+  push @l, '  </div>', '</details>', '<!-- /PACKAGES -->';
+  return join "\n", map { "$i$_" } @l;
+}
+sub package_span {                   # (page text, slug) -> { s, len, have, indent, marked }; dies unless the place is unambiguous
+  my ($t, $slug) = @_;
+  # the end of the "2026 Base Pricing" fold: its PRICES tables block, then </div> and </details> on their own lines
+  my $n = () = $t =~ /<!-- PRICES:\Q$slug\E:tables -->/g;
+  die "models/$slug: $n PRICES:$slug:tables markers (the package fold sits under the 2026 Base Pricing fold, which needs exactly 1)\n" unless $n == 1;
+  $t =~ /<!-- PRICES:\Q$slug\E:tables -->\n.*?\n[ \t]*<!-- \/PRICES -->\n[ \t]*<\/div>\n([ \t]*)<\/details>\n/s
+    or die "models/$slug: the 2026 Base Pricing fold does not close right after its PRICES tables block\n";
+  my ($end, $indent) = ($+[0], $1);
+  $n = () = $t =~ /<!-- PACKAGES:\Q$slug\E -->/g;
+  if ($n) {
+    die "models/$slug: $n PACKAGES:$slug markers (need exactly 1)\n" unless $n == 1;
+    $t =~ /^([ \t]*)<!-- PACKAGES:\Q$slug\E -->\n.*?\n[ \t]*<!-- \/PACKAGES -->$/ms
+      or die "models/$slug: PACKAGES:$slug marker found but the block did not match\n";
+    my %b = (s => $-[0], len => $+[0] - $-[0], have => substr($t, $-[0], $+[0] - $-[0]), indent => $1, marked => 1);
+    die "models/$slug: the 2026 Package Pricing fold is not directly under the 2026 Base Pricing fold\n" unless $b{s} == $end;
+    return \%b;
+  }
+  die "models/$slug: a 2026 Package Pricing fold without PACKAGES markers is on the page - remove it or mark it\n" if $t =~ /2026 Package Pricing/;
+  return { s => $end, len => 0, have => '', indent => $indent, marked => 0 };
+}
+sub package_cells {                  # block text -> { "configuration|length" => "t1|t3" } as the page shows them
+  my ($b) = @_;
+  my (%p, $cap);
+  for my $line (split /\n/, $b) {
+    $cap = $1 if $line =~ /<caption>(.*?)<\/caption>/;
+    while ($line =~ /<tr><td>([\d.]+)&prime; .*?<\/td><td class="money">from \$([\d,]+)<\/td><td class="money">from \$([\d,]+)<\/td><\/tr>/g) {
+      my ($l, $a, $c) = ($1, $2, $3); s/,//g for $a, $c; $p{ ($cap // '') . "|$l" } = "$a|$c";
+    }
+  }
+  return \%p;
+}
+sub package_change_text {            # (old block, new block) -> "from $X -> $Y; 18 ft Windshield RtR $a -> $b ..." or "added"
+  my ($old, $new) = @_;
+  return 'fold added' unless length $old;
+  my @d;
+  my ($of) = $old =~ /<span class="pfoldfrom">from (\$[\d,]+)/; my ($nf) = $new =~ /<span class="pfoldfrom">from (\$[\d,]+)/;
+  push @d, 'from ' . ($of // '?') . ' -> ' . ($nf // '?') if ($of // '') ne ($nf // '');
+  my ($o, $n) = (package_cells($old), package_cells($new));
+  for my $k (sort keys %{ { %$o, %$n } }) {
+    my ($c, $l) = split /\|/, $k, 2;
+    my $fmt = sub { my ($v) = @_; return 'none' unless defined $v; my ($a, $b) = split /\|/, $v; return 'RtR ' . _money($a) . ' / FL ' . _money($b) };
+    push @d, "$l ft $c " . $fmt->($o->{$k}) . ' -> ' . $fmt->($n->{$k}) if ($o->{$k} // '') ne ($n->{$k} // '');
+  }
+  push @d, 'notes or wording changed' unless @d;
+  return join '; ', @d;
+}
+sub package_split_sources {          # plan -> ["Alaskan 18 ft Windshield: RtR from <power>, FL from <power>", ...] where the two minimums differ
+  my ($name, $P) = @_;
+  my @o;
+  for my $c (@{ $P->{cfgs} }) { for my $L (@{ $c->{lens} }) {
+    push @o, "$name $L->{len} ft $c->{name}: Ready to Run " . _money($L->{t1}) . " from '$L->{t1_from}', Fully Loaded " . _money($L->{t3}) . " from '$L->{t3_from}'"
+      if $L->{t1_from} ne $L->{t3_from};
+  } }
+  return @o;
+}
+sub check_package_folds {            # (repo, LINEUP rows, PACKAGES rows, BOATS rows) -> one surface row { surface, models, mismatches, first }
+  my ($repo, $lineup, $pk, $boats) = @_;
+  my ($mm, $first) = (0, undef);
+  for my $m (@$lineup) {
+    my ($id, $slug) = ($m->{model_id}, $m->{page_slug});
+    my $p = "$repo/models/$slug/index.html";
+    unless (-f $p) { $mm++; $first //= "$id: page missing"; next }
+    my $t = slurp_text($p);
+    my $b = eval { package_span($t, $slug) };
+    if ($@) { $mm++; (my $e = $@) =~ s/\n\z//; $first //= $e; next }
+    unless ($b->{marked}) { $mm++; $first //= "$id: no 2026 Package Pricing fold on the page"; next }
+    my $w = eval { render_package_fold($slug, $m->{model_name}, package_plan(package_rows($id, $pk), $boats, $id), $b->{indent}) };
+    if ($@) { $mm++; (my $e = $@) =~ s/\n\z//; $first //= "$id: $e"; next }
+    if ($b->{have} ne $w) { $mm++; $first //= "$id: " . WBSpecCanon::first_diff($w, $b->{have}) }
+  }
+  return { surface => 'model pages: 2026 Package Pricing fold', models => scalar @$lineup, mismatches => $mm, first => $first // '' };
+}
+
 # ------------------------------------------------- the options guide ----
 # option-guide/index.html types a price on each priced line of its cards' sheet:[['line','price'],...]
 # lists. Stephen 2026-10-15: "Canon fills them" - those prices come from the workbook. The map
@@ -857,6 +1023,13 @@ sub verify_pricing {
     $row->('model pages: 2026 Base Pricing fold', $fr->{mismatches} ? 'FAIL' : 'PASS',
       $fr->{mismatches} ? "$fr->{mismatches} page(s) differ from the BOATS tab - first: $fr->{first}" : "$fr->{models} pages match the BOATS tab");
   } else { $row->('model pages: 2026 Base Pricing fold', 'WARN', 'no LINEUP tab among the tabs given - not checked') }
+  # the model pages' "2026 Package Pricing" fold (Ready to Run / Fully Loaded from-prices per configuration and the adder notes)
+  # against the PACKAGES tab, configuration names cased per BOATS, named per LINEUP (Stephen's ruling 2026-11-04)
+  if ($a{tabs}{LINEUP}) {
+    my $pr = check_package_folds($a{repo}, rows_of($a{tabs}{LINEUP}, 'LINEUP'), rows_of($a{tabs}{PACKAGES}, 'PACKAGES'), rows_of($a{tabs}{BOATS}, 'BOATS'));
+    $row->('model pages: 2026 Package Pricing fold', $pr->{mismatches} ? 'FAIL' : 'PASS',
+      $pr->{mismatches} ? "$pr->{mismatches} page(s) differ from the PACKAGES tab - first: $pr->{first}" : "$pr->{models} pages match the PACKAGES tab");
+  } else { $row->('model pages: 2026 Package Pricing fold', 'WARN', 'no LINEUP tab among the tabs given - not checked') }
   return (\@out, $R, $S, $C);
 }
 

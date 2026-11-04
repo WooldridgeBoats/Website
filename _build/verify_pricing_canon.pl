@@ -24,7 +24,8 @@
 # (option-guide/index.html, mapped to canon by _build/option_guide_prices.tsv - 2026-10-15),
 # the CSV mirrors, the Sales Order Creator file, the trailer shop add-ons the price sheets print,
 # and (since 2026-11-03) the model pages' "2026 Base Pricing" fold - its "from $" and
-# per-configuration base-hull tables against the BOATS tab, named per LINEUP.
+# per-configuration base-hull tables against the BOATS tab, named per LINEUP - and (since
+# 2026-11-04) the "2026 Package Pricing" fold under it, against the PACKAGES tab.
 # The generator (_build/gen_from_canon.pl) runs these same checks on every run.
 use strict;
 use warnings;
