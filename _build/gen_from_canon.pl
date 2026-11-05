@@ -89,6 +89,10 @@
 #      "Prices to type in QuickBooks" list). Then this run's QuickBooks price moves printed, a final check of
 #      everything, and the CHANGE LOG entry in CANON/README.md.
 #   7. What it cannot do from where it runs is printed as OWED, naming the machine.
+#      Since 2.3 (2026-11-05, Tyler's ask): one OWED line per lineup model whose SPECS, STD FEATURES or
+#      LINEUP rows moved since the last run (mirrors vs the workbook) - "Tyler's SPECS-STANDARD FEATURES
+#      PDFs: Rogue HDPE (SPECS: Transom Gauge @16, ...)". It goes into the CHANGE LOG's Owed line too, and
+#      /canon-sync drafts Tyler an email from it after a real P3 run. Prices etc. never owe him one.
 #
 # SALES TOOLS (Tyler's folder; step c publishes the price-sheet PDFs into its PRICE SHEETS)
 # is found once, from where SQUIRREL HOLE sits, by WBSpecCanon::find_sales_tools:
@@ -123,7 +127,7 @@ use Encode qw(encode);
 binmode STDOUT, ':encoding(UTF-8)';
 binmode STDERR, ':encoding(UTF-8)';
 
-our $VERSION = '2.2';
+our $VERSION = '2.3';
 my ($canon_dir, $xlsx, $repo, $dry, $out, $soc_out, $pipeline, $qb_import, $sales_opt, $by, $with, $why);
 my $sheets = 'run';
 GetOptions('canon=s' => \$canon_dir, 'xlsx=s' => \$xlsx, 'repo=s' => \$repo, 'dry-run' => \$dry, 'out=s' => \$out,
@@ -549,6 +553,22 @@ if ($mode eq 'xlsx') {
       }
     } else { print "  rows since the last run: not compared (" . ($@ || 'the previous mirrors could not be keyed') . ")\n" }
   } else { print "  rows since the last run: not compared (a previous mirror is missing)\n" }
+}
+# 2026-11-05 (Tyler's ask, Stephen's go): Tyler's SPECS-STANDARD FEATURES PDFs print the SPECS, STD FEATURES and LINEUP
+# tabs. Compare those three tabs as the last run left them (the mirrors) with the workbook now, and owe Tyler one line per
+# lineup model whose printed facts moved - from the canon's own change list, never from the PDF text (the audit row's
+# substring check missed Rogue 16 ft Transom Gauge). Prices, packages, engines, options, trailers and DESCRIPTIONS do not
+# reach those PDFs and owe nothing. The lines start "Tyler's SPECS-STANDARD FEATURES PDFs: " - /canon-sync looks for that.
+if ($mode eq 'xlsx') {
+  my @need = WBSpecCanon::SPEC_PDF_TABS();
+  if (my @gone = grep { !length $old_mirror{$_} } @need) {
+    print "  Tyler's spec PDFs: not compared (no previous mirror for " . join(', ', @gone) . ")\n";
+    push @owed, "Tyler's SPECS-STANDARD FEATURES PDFs: could not tell what moved (no previous " . join(' / ', @gone) . ' mirror) - check them by hand' if $content_changes;
+  } else {
+    my @pdf = WBSpecCanon::spec_pdf_owed({ map { $_ => Encode::decode('UTF-8', $old_mirror{$_}) } @need }, { map { $_ => $texts{$_} } @need });
+    printf "  Tyler's spec PDFs: %s\n", (@pdf ? scalar(@pdf) . ' model(s) moved - see OWED' : 'nothing they print moved');
+    push @owed, "Tyler's SPECS-STANDARD FEATURES PDFs: $_" for @pdf;
+  }
 }
 if ($mode eq 'xlsx') {
   for my $t (CANON_TABS) { next unless defined $texts{$t}; put_atomic("$canon_dir/$t.csv", encode('UTF-8', $texts{$t}), "CSV MIRRORS/$t.csv") }
@@ -978,6 +998,7 @@ if ($mode eq 'xlsx' && !$dry && $anything) {
 }
 
 print "\nDONE DOWNSTREAM:\n", (@done ? map { "  - $_\n" } @done : "  nothing needed\n") if $mode eq 'xlsx' && !$dry;
-push @owed, "Tyler's SPECS-STANDARD FEATURES PDFs (his Mac; verify_spec_canon.pl audits them)" if $content_changes;
+# a CSV-only run has no workbook to compare the mirrors with, so it keeps the old blanket line (xlsx runs owe per model, step 5)
+push @owed, "Tyler's SPECS-STANDARD FEATURES PDFs (his Mac; verify_spec_canon.pl audits them)" if $content_changes && $mode ne 'xlsx';
 print "\nOWED - not done by this run:\n", (@owed ? map { "  - $_\n" } @owed : "  nothing\n");
 exit 0;

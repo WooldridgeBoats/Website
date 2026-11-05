@@ -99,6 +99,9 @@ my @audit;
 {
   my $pdftotext;
   for my $d (split /[:;]/, ($ENV{PATH} || '')) { for my $n (qw(pdftotext pdftotext.exe)) { if (-x "$d/$n" || -f "$d/$n") { $pdftotext = "$d/$n"; last } } last if $pdftotext }
+  # 2026-11-05: Git for Windows ships pdftotext in mingw64/bin, beside the usr/bin perl this runs under on the P3, but that
+  # folder is not on PowerShell's PATH - so the audit was SKIPPED on the P3 although the tool was there all along
+  unless ($pdftotext) { my $g = dirname(dirname(dirname($^X))) . '/mingw64/bin/pdftotext.exe'; $g =~ s{\\}{/}g; $pdftotext = $g if -f $g }
   unless (defined $sales) {
     # derive: the OneDrive library beside the repo, if it is there (P3 layout); otherwise skip
     my $up = $repo; for (1 .. 4) { $up = dirname($up); my $cand = "$up/Wooldridge Boats Inc_ - Documents/SALES TOOLS"; if (-d $cand) { $sales = $cand; last } }
@@ -113,12 +116,14 @@ my @audit;
     $tmp =~ s{\\}{/}g;
     my $n = 0;
     my $text_of = sub {               # copy to a short path (long paths return ~300 bytes silently), then pdftotext
-      my ($pdf) = @_;
+      my ($pdf, $layout) = @_;
       my $short = sprintf('%s/wbcanon_%d_%d.pdf', $tmp, $$, ++$n);
       open my $i, '<:raw', $pdf or return undef; open my $o, '>:raw', $short or return undef;
       my $bytes = do { local $/; <$i> }; print $o $bytes; close $i; close $o;
-      # reading order (no -layout): a two-column layout would split a feature line in two
-      my $t = `"$pdftotext" -enc UTF-8 "$short" - 2>/dev/null`;
+      # reading order (no -layout) for feature lines: a two-column layout would split a feature line in two.
+      # -layout for the spec table: one printed row = one text line, so a row's values can be checked together.
+      my $flag = $layout ? '-layout ' : '';
+      my $t = `"$pdftotext" ${flag}-enc UTF-8 "$short" - 2>/dev/null`;
       unlink $short;
       $t = decode('UTF-8', $t, Encode::FB_DEFAULT);
       return $t;
@@ -141,16 +146,31 @@ my @audit;
         my @miss = grep { index($t, $norm->($_->{t})) < 0 } @items;
         if (@miss) { $pmm++; $pf //= "$id: \"$miss[0]{t}\" not in " . basename($spec) }
         push @detail, sprintf('  %-10s spec PDF %-48s features %3d/%-3d present', $id, basename($spec), scalar(@items) - scalar(@miss), scalar @items);
-        my $s = $C->{specs}{$id}; my @vals; my @vmiss;
+        my $s = $C->{specs}{$id}; my @vals; my @vmiss; my $vbad = 0;
         if ($s) {
-          for my $cat (@{ $s->{categories} }) { for my $row (@{ $cat->{rows} }) { for my $i (0 .. $#{ $s->{lengths} }) {
-            my $c = $row->{cells}[$i];
-            my @v = $row->{layout} eq 'list' ? map { $_->[1] } @$c : ref $c ? $c->{v} : $c;
-            for my $v (@v) { push @vals, $v; push @vmiss, "$row->{label} @ " . fmt_len($s->{lengths}[$i]) . " = $v" if index($t, $norm->($v)) < 0 }
-          } } }
+          # 2026-11-05: a plain row is checked as a ROW - its values, in length order, on one line of the -layout text.
+          # The old check looked for each value anywhere on the page, so Rogue 16 ft Transom Gauge "1 in." passed because
+          # "1 in." is printed elsewhere (Tyler's report). Probed on all 18 PDFs that day: every plain row of 17 holds;
+          # Rogue's 5 misaligned rows are the real fault. List and badge rows keep the page-wide check.
+          my @lines = map { $norm->($_) } split /\n/, ($text_of->($spec, 1) // '');
+          for my $cat (@{ $s->{categories} }) { for my $row (@{ $cat->{rows} }) {
+            if ($row->{layout} eq 'plain' && !grep { ref $_ } @{ $row->{cells} }) {
+              my @v = grep { defined && length } @{ $row->{cells} };
+              next unless @v;
+              push @vals, @v;
+              my $want = join(' ', map { $norm->($_) } @v);
+              unless (grep { index($_, $want) >= 0 } @lines) { push @vmiss, "$row->{label} = " . join(' / ', @v) . ' (not one printed row)'; $vbad += @v }
+              next;
+            }
+            for my $i (0 .. $#{ $s->{lengths} }) {
+              my $c = $row->{cells}[$i];
+              my @v = $row->{layout} eq 'list' ? map { $_->[1] } @$c : ref $c ? $c->{v} : $c;
+              for my $v (@v) { push @vals, $v; if (index($t, $norm->($v)) < 0) { push @vmiss, "$row->{label} @ " . fmt_len($s->{lengths}[$i]) . " = $v"; $vbad++ } }
+            }
+          } }
         }
         if (@vmiss) { $vmm++; $vf //= "$id: $vmiss[0] not in " . basename($spec) }
-        push @detail, sprintf('  %-10s spec PDF %-48s values   %3d/%-3d present', $id, basename($spec), scalar(@vals) - scalar(@vmiss), scalar @vals);
+        push @detail, sprintf('  %-10s spec PDF %-48s values   %3d/%-3d present', $id, basename($spec), scalar(@vals) - $vbad, scalar @vals);
       } else { push @detail, sprintf('  %-10s spec PDF: none found for "%s"', $id, join('" / "', @cand)) }
       if ($bro) {
         my $t = $norm->($text_of->($bro) // '');

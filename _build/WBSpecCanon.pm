@@ -37,7 +37,7 @@ our @EXPORT_OK = qw(slurp_bytes slurp_text detect_eol write_text read_csv parse_
                     render_std_json models_std_spans models_field_spans render_stdgrid render_specs_block
                     render_spec_data_js tagline_html intro_html check_surfaces fmt_len
                     base_engine_models engines_grid_from_csv price_notes price_note_html
-                    read_overlay apply_overlay find_sales_tools CANON_TABS DRIVEN_TABS);
+                    read_overlay apply_overlay find_sales_tools spec_pdf_owed CANON_TABS DRIVEN_TABS SPEC_PDF_TABS);
 
 use constant CANON_TABS  => ('STD FEATURES', 'SPECS', 'LINEUP', 'DESCRIPTIONS', 'SPEC DISCREPANCIES', 'SPEC PROVENANCE');
 use constant DRIVEN_TABS => ('STD FEATURES', 'SPECS', 'LINEUP', 'DESCRIPTIONS');
@@ -780,6 +780,89 @@ sub apply_overlay {                  # (decoded const MODELS arrayref, read_over
     $_->{nm} = $ren{ $_->{id} } for grep { $ren{ $_->{id} } } @{ $c->{items} };
   } }
   return $models;
+}
+
+# ------------------------------------------------ Tyler's spec PDFs: what moved ----
+# Tyler's SPECS-STANDARD FEATURES PDFs (SALES TOOLS, built on his Mac only) print the SPECS tab
+# on page 1, the STD FEATURES tab on page 2, and the LINEUP name / lengths / configurations.
+# spec_pdf_owed compares the three tabs as the last run left them (the CSV mirrors) with the
+# workbook now and returns one line per lineup model whose printed facts moved, e.g.
+#   Rogue HDPE (SPECS: Transom Gauge @16, Fuel Tank @16/@18)
+# Prices, packages, engines, options, trailers and DESCRIPTIONS do not reach those PDFs and are
+# not read here. Keyed off the canon's own change list, not off the PDF text (Tyler 2026-11-05:
+# the substring audit missed Rogue 16 ft Transom Gauge because "1 in." sits elsewhere on the page).
+use constant SPEC_PDF_TABS => ('SPECS', 'STD FEATURES', 'LINEUP');
+sub spec_pdf_owed {                  # ({tab => old CSV text}, {tab => new CSV text}) -> list of "Model (TAB: what; ...)"
+  my ($old, $new) = @_;
+  my %T;                             # side => tab => [row hashes]
+  for my $side (['old', $old], ['new', $new]) {
+    for my $t (SPEC_PDF_TABS) {
+      my ($hdr, $rows) = parse_csv_text($side->[1]{$t}, $t);
+      $T{ $side->[0] }{$t} = [ map { my %h; @h{@$hdr} = map { defined $_ ? $_ : '' } @$_[0 .. $#$hdr]; \%h } @$rows ];
+    }
+  }
+  my $short = sub { my $s = shift; return length($s) > 48 ? substr($s, 0, 45) . '...' : $s };
+  my (%name, %sort, %what);
+  my %L = map { my $side = $_; $side => { map { $_->{model_id} => $_ } @{ $T{$side}{LINEUP} } } } qw(old new);
+  for my $side (qw(old new)) { for my $r (@{ $T{$side}{LINEUP} }) { $name{ $r->{model_id} } = $r->{model_name}; $sort{ $r->{model_id} } //= $r->{sort_order} } }
+  $sort{$_} = $L{new}{$_}{sort_order} for keys %{ $L{new} };
+  # LINEUP: what the PDFs print or are filed under
+  my @lf = (['model_name', 'name'], ['lengths_offered', 'lengths offered'], ['hull_configs', 'configurations'], ['family', 'family'], ['drive', 'drive'], ['status', 'status']);
+  for my $id (keys %name) {
+    my ($o, $n) = ($L{old}{$id}, $L{new}{$id});
+    if (!$o) { push @{ $what{$id}{LINEUP} }, 'new model'; next }
+    if (!$n) { push @{ $what{$id}{LINEUP} }, 'removed from the lineup'; next }
+    for my $f (@lf) { my ($k, $lbl) = @$f; push @{ $what{$id}{LINEUP} }, "$lbl $o->{$k} -> $n->{$k}" if $o->{$k} ne $n->{$k} }
+  }
+  # SPECS: every (field, length) cell; a list-layout cell is all its rows in order
+  my (%cell, @forder, %fseen);
+  for my $side (qw(old new)) {
+    for my $r (@{ $T{$side}{SPECS} }) {
+      my $id = $r->{model_id}; next unless exists $name{$id};
+      my $k = "$r->{field}\t$r->{length_ft}";
+      $cell{$side}{$id}{$k} .= join("\x1e", $r->{value_text}, $r->{note}, $r->{category}, $r->{layout}) . "\x1f";
+      push @forder, "$id\t$r->{field}" unless $fseen{"$id\t$r->{field}"}++;
+    }
+  }
+  my %lens;                          # "id\tfield" -> lengths that moved
+  for my $id (keys %name) {
+    my %k = map { $_ => 1 } keys %{ $cell{old}{$id} || {} }, keys %{ $cell{new}{$id} || {} };
+    for my $k (keys %k) {
+      next if ($cell{old}{$id}{$k} // '') eq ($cell{new}{$id}{$k} // '');
+      my ($f, $len) = split /\t/, $k, 2; push @{ $lens{"$id\t$f"} }, $len;
+    }
+  }
+  for my $idf (@forder) {
+    next unless $lens{$idf};
+    my ($id, $f) = split /\t/, $idf, 2;
+    my @l = sort { ($a =~ /^[\d.]+$/ && $b =~ /^[\d.]+$/) ? $a <=> $b : $a cmp $b } @{ $lens{$idf} };
+    push @{ $what{$id}{SPECS} }, "$f @" . join('/@', @l);
+  }
+  # STD FEATURES: items added, removed or re-tagged; otherwise the order or grouping
+  for my $id (keys %name) {
+    my %seq; my %tag;
+    for my $side (qw(old new)) {
+      my @r = sort { ($a->{group_order} || 0) <=> ($b->{group_order} || 0) || ($a->{item_order} || 0) <=> ($b->{item_order} || 0) }
+              grep { $_->{model_id} eq $id } @{ $T{$side}{'STD FEATURES'} };
+      $seq{$side} = join("\x1f", map { "$_->{group_heading}\x1e$_->{item_text}\x1e$_->{config_tag}" } @r);
+      $tag{$side}{ $_->{item_text} } = $_->{config_tag} for @r;
+    }
+    next if $seq{old} eq $seq{new};
+    my @add = grep { !exists $tag{old}{$_} } sort keys %{ $tag{new} };
+    my @rem = grep { !exists $tag{new}{$_} } sort keys %{ $tag{old} };
+    my @ret = grep { exists $tag{old}{$_} && $tag{old}{$_} ne $tag{new}{$_} } sort keys %{ $tag{new} };
+    my @w;
+    push @w, (@add > 3 ? scalar(@add) . ' items added' : map { 'added "' . $short->($_) . '"' } @add);
+    push @w, (@rem > 3 ? scalar(@rem) . ' items removed' : map { 'removed "' . $short->($_) . '"' } @rem);
+    push @w, (@ret > 3 ? scalar(@ret) . ' items re-tagged' : map { '"' . $short->($_) . "\" tag $tag{old}{$_} -> $tag{new}{$_}" } @ret);
+    push @w, 'order or grouping changed' unless @w;
+    push @{ $what{$id}{'STD FEATURES'} }, @w;
+  }
+  my @out;
+  for my $id (sort { ($sort{$a} || 999) <=> ($sort{$b} || 999) || $a cmp $b } keys %what) {
+    push @out, "$name{$id} (" . join('; ', map { "$_: " . join(', ', @{ $what{$id}{$_} }) } grep { $what{$id}{$_} } SPEC_PDF_TABS) . ')';
+  }
+  return @out;
 }
 
 1;
