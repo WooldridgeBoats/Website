@@ -139,7 +139,11 @@
         <input type="hidden" name="form" value="contact">
         <label for="f-nm">Name <span class="reqstar" style="color:#c0392b;">*</span></label><input id="f-nm" name="nm" required autocomplete="name">
         <label for="f-em">Email <span class="reqstar" style="color:#c0392b;">*</span></label><input id="f-em" name="em" type="email" required autocomplete="email">
-        <label for="f-ph">Phone (optional)</label><input id="f-ph" name="ph" autocomplete="tel">
+        <!-- 2026-11-05 (Stephen, from Rachel's request): phone is REQUIRED on the contact
+             form only, so the shop always has a number to call back. At least 7 digits,
+             checked in the submit handler below and again in forms/submit.php (form=contact). -->
+        <label for="f-ph">Phone <span class="reqstar" style="color:#c0392b;">*</span></label><input id="f-ph" name="ph" type="tel" required autocomplete="tel" aria-describedby="f-phErr">
+        <p id="f-phErr" role="alert" style="display:none; font-size:14px; line-height:1.5; margin:6px 0 0; padding:8px 12px; border-left:3px solid #c0392b; background:#fdf3f2; color:#c0392b;">Please enter a phone number we can call you back on, with at least 7 digits.</p>
         <!-- Canada location capture (go-live week 2026-08): optional country + region.
              Reaches the notification body as one 'Location:' line via submit.php's
              generic field serializer; never blocks a submission. -->
@@ -193,8 +197,26 @@
           return r ? r + ', USA' : '';
         }
 
+        /* 2026-11-05: phone must carry at least 7 digits. Count digits only, so
+           +1, spaces, dashes, dots, parentheses and "x123" extensions all pass.
+           The browser's own `required` stops an empty box before this runs. */
+        var fPh = document.getElementById('f-ph'), fPhErr = document.getElementById('f-phErr');
+        function phoneOk(){ return (fPh.value.replace(/\D/g, '').length >= 7); }
+        fPh.addEventListener('input', function(){
+          if (fPhErr.style.display !== 'none' && phoneOk()){
+            fPhErr.style.display = 'none'; fPh.removeAttribute('aria-invalid'); fPh.style.borderColor = '';
+          }
+        });
+
         f.addEventListener('submit', function(ev){
           ev.preventDefault();
+          if (!phoneOk()){
+            fPhErr.style.display = 'block';
+            fPh.setAttribute('aria-invalid', 'true');
+            fPh.style.borderColor = '#c0392b';
+            fPh.focus();
+            return;
+          }
           var fd = new FormData();
           fd.append('form', 'contact');
           fd.append('name', f.nm.value.trim());

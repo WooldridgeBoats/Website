@@ -240,6 +240,14 @@ $email = clean_header(isset($_POST['email']) ? $_POST['email'] : '');
 $phone = clean_header(isset($_POST['phone']) ? $_POST['phone'] : '');
 $badFields = 'Please check the form — a name plus a phone number or email address is needed.';
 if ($name === '')  fail(400, 'name required', $badFields);
+/* 2026-11-05 (Stephen, from Rachel's request): the CONTACT form requires email AND a
+   callable phone (at least 7 digits; formatting and extensions allowed). Keyed on the
+   POSTED value, not on $form, because $form also falls back to 'contact' for a missing
+   or unknown form name. Every other form keeps "phone or email" below. */
+if (isset($_POST['form']) && $_POST['form'] === 'contact'){
+  if ($email === '') fail(400, 'email required', 'Please add your email address so we can reply.');
+  if (strlen(preg_replace('/\D+/', '', $phone)) < 7) fail(400, 'phone required', 'Please add a phone number we can call you back on, with at least 7 digits.');
+}
 if ($email === '' && $phone === '') fail(400, 'phone or email required', $badFields);
 if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) fail(400, 'bad email', 'That email address doesn\'t look right — please check it.');
 
