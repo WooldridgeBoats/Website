@@ -108,7 +108,8 @@ for d in "$SRC"/*/; do bn="$(basename "$d")"; case "$(printf %s "$bn" | tr 'A-Z'
 # ---- 2) assets: wipe + copy fulls/thumbs, build gallery HTML + covers list ----
 GAL="$(mktemp)"; COVERKEYS=""
 say "converting: $MODEL ($SLUG)  <-  $(basename "$SRC")"
-run "rm -f \"$DEST\"/*.jpg; mkdir -p \"$DEST/thumbs\"; rm -f \"$DEST/thumbs\"/*.jpg"
+# keep measurements-*.jpg: those are Tyler's measurement sheets (add_measurements.pl), not gallery photos (2026-11-05)
+run "find \"$DEST\" -maxdepth 1 -name '*.jpg' ! -name 'measurements-*' -delete; mkdir -p \"$DEST/thumbs\"; rm -f \"$DEST/thumbs\"/*.jpg"
 : > "$GAL"
 
 # order length dirs ascending by their leading number (no global IFS mutation)
