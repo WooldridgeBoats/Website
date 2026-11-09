@@ -19,6 +19,7 @@
 // See _build/instagram/INSTAGRAM-FEED-SETUP.md for the whole picture.
 // ─────────────────────────────────────────────────────────────────────────────
 import { writeFile, mkdir } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 
 const TOKEN   = process.env.IG_TOKEN;
 const REPO    = process.env.FEED_REPO || process.env.GITHUB_REPOSITORY || 'WooldridgeBoats/Website';
@@ -64,11 +65,16 @@ for (const m of data.slice(0, LIMIT)) {
   const name = `img-${n}.jpg`;
   const imgRes = await fetch(srcUrl);
   if (!imgRes.ok) { console.warn(`skipped ${name}: image ${imgRes.status}`); n -= 1; continue; }
-  await writeFile(`${OUT_DIR}/${name}`, Buffer.from(await imgRes.arrayBuffer()));
+  const buf = Buffer.from(await imgRes.arrayBuffer());
+  await writeFile(`${OUT_DIR}/${name}`, buf);
+  // ?v=<content hash> (2026-11-09): the files are named by position (img-1..), so when a new post
+  // shifts them, browsers and the CDN kept showing the old picture under the same name (the
+  // homepage showed "It's Big" twice). A changed picture now always gets a new address.
+  const v = createHash('md5').update(buf).digest('hex').slice(0, 10);
 
   posts.push({
     permalink: m.permalink || PROFILE,
-    image: `${CDN_BASE}/${name}`,
+    image: `${CDN_BASE}/${name}?v=${v}`,
     caption: firstLine(m.caption)
   });
 }
