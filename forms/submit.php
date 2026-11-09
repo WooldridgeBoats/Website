@@ -15,6 +15,14 @@
                  (auto-response Reply-To: data@. stephen@ is off this
                  Cc deliberately - data@ is an alias on his mailbox
                  and sits on the To, so he still gets it)
+     quiz     -> data@   cc danny@  (Stephen 9 Nov 2026: the Which
+                 Wooldridge quiz's "send us your answers" box, same two
+                 people its mailto reached. It replaced a mailto that hung
+                 Danny's new Outlook on "Loading" - a visitor whose mail app
+                 stalls just leaves, so the send moved server-side. Mail from
+                 website@ to data@ passes the INQUIRIES flow's trigger, so
+                 quiz leads still reach the Build Hub. Auto-response
+                 Reply-To: danny@, the person the quiz hands them to.)
    info@ was VACATED in July - that reasoning stands as history and is
    in the governance doc's mail-routing section - but it is a real
    shared mailbox, read again as of 26 Aug 2026 (Stephen's ruling), so
@@ -154,6 +162,7 @@ $ROUTES = array(
   'contact' => array('to' => 'info@wooldridgeboats.com', 'cc' => 'data@wooldridgeboats.com', 'reply' => 'info@wooldridgeboats.com'),
   'quote'   => array('to' => 'sales@wooldridgeboats.com', 'cc' => 'data@wooldridgeboats.com', 'reply' => 'sales@wooldridgeboats.com'),
   'careers' => array('to' => 'data@wooldridgeboats.com', 'cc' => 'parts@wooldridgeboats.com, luke@wooldridgeboats.com, grant@wooldridgeboats.com', 'reply' => 'data@wooldridgeboats.com'),
+  'quiz'    => array('to' => 'data@wooldridgeboats.com', 'cc' => 'danny@wooldridgeboats.com', 'reply' => 'danny@wooldridgeboats.com'),
 );
 $FROM_NAME   = 'Wooldridge Website';
 $AUTO_REPLY  = true;

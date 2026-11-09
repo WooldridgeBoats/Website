@@ -104,6 +104,21 @@
   .askbar .in{max-width:860px; margin:0 auto; padding:22px 20px; display:flex; flex-wrap:wrap; align-items:center; gap:16px; justify-content:space-between;}
   .askbar .txt{font-size:14px; color:var(--slate); line-height:1.5; max-width:520px;}
   .askbar .txt b{color:var(--ink);}
+  /* send box (2026-11-09): the answers go to the shop through forms/submit.php, not the visitor's mail app */
+  .askform{max-width:860px; margin:0 auto; padding:0 20px 24px;}
+  .askform .grid{display:grid; gap:12px; grid-template-columns:1fr;}
+  @media (min-width:640px){ .askform .grid{grid-template-columns:1fr 1fr 1fr;} }
+  .askform label{display:block; font-size:12.5px; font-weight:700; color:var(--ink); letter-spacing:.02em;}
+  .askform input, .askform textarea{display:block; width:100%; box-sizing:border-box; margin-top:5px; font:inherit; font-size:15px; padding:10px 12px; border:1px solid var(--rule); background:#fff; color:var(--ink);}
+  .askform textarea{min-height:76px; resize:vertical;}
+  .askform input:focus, .askform textarea:focus{outline:2px solid var(--buoy); outline-offset:0; border-color:var(--buoy);}
+  .askform .err-on{border-color:#b3261e;}
+  .askform .row2{margin-top:12px;}
+  .askform .acts{margin-top:14px; display:flex; flex-wrap:wrap; align-items:center; gap:14px;}
+  .askform .msg{margin-top:12px; font-size:14px; line-height:1.5;}
+  .askform .msg.bad{color:#b3261e;}
+  .askform .msg.good{color:var(--ink); border-left:3px solid var(--buoy); padding:10px 14px; background:#fff;}
+  .askform .hp{position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;}
 
   .btn.ghost2{background:var(--card); color:var(--buoy-deep); border:1px solid var(--buoy); text-decoration:none; display:inline-block;}
   .btn.ghost2:hover{background:#fff;}
@@ -242,10 +257,29 @@
   <div class="in">
     <div class="txt"><b>Want a real person on it?</b> Send your answers straight to the shop and we’ll follow up with pricing, build slots, and honest advice — no obligation.</div>
     <div style="display:flex; flex-wrap:wrap; gap:10px;">
-      <button type="button" class="btn" id="btnAskDanny">Email us for more information</button>
+      <button type="button" class="btn" id="btnAskDanny" aria-expanded="false" aria-controls="askForm">Send us your answers</button>
       <a class="btn ghost2" id="btnOpenConfig" href="/build-and-price/">Build &amp; price your boat &rarr;</a>
     </div>
   </div>
+  <!-- Send box (2026-11-09, Stephen's call after Danny's new Outlook hung on "Loading"
+       when the old button opened a mailto): the quiz now POSTs to forms/submit.php
+       (form=quiz -> data@ cc danny@, auto-response to the visitor), so no mail app
+       stands between a visitor and the shop. The old mailto stays as the small
+       "open it in my own email" link and as the way out when the send fails. -->
+  <form class="askform" id="askForm" hidden novalidate>
+    <div class="grid">
+      <div><label for="askName">Your name *</label><input id="askName" autocomplete="name" maxlength="120"></div>
+      <div><label for="askEmail">Email</label><input id="askEmail" type="email" autocomplete="email" maxlength="200"></div>
+      <div><label for="askPhone">Phone</label><input id="askPhone" type="tel" autocomplete="tel" maxlength="40"></div>
+    </div>
+    <div class="row2"><label for="askNote">Anything else we should know? (optional)</label><textarea id="askNote" maxlength="4000"></textarea></div>
+    <div class="hp" aria-hidden="true"><label for="askHp">Leave this empty</label><input id="askHp" tabindex="-1" autocomplete="off"></div>
+    <div class="acts">
+      <button type="submit" class="btn" id="askSend">Send to the shop</button>
+      <button type="button" class="ghostlink" id="askMailto">or open it in my own email</button>
+    </div>
+    <div class="msg" id="askMsg" role="status" aria-live="polite"></div>
+  </form>
 </div>
 
 <footer class="linesfoot" aria-hidden="true">
@@ -600,7 +634,96 @@ function mailAscii(s){
   return t.replace(/[^\x00-\x7f]/g, '');
 }
 
-document.getElementById('btnAskDanny').addEventListener('click', () => {
+/* ── Send box (2026-11-09) ─────────────────────────────────────────────
+   The askbar button opens the box; Send POSTs to forms/submit.php as form=quiz.
+   The handler sends by Microsoft Graph and answers ok:true only once the mail is
+   accepted, so the success line is the truth; anything else shows the handler's
+   own words plus the email link and the phone number. The summary carries the
+   same WB-INQUIRY footer the mailto did, now with Name/Email/Phone filled in,
+   so the Build Hub's inquiry reader files it the same way. */
+const ASK_ENDPOINT = '/forms/submit.php';
+const askEl = id => document.getElementById(id);
+function quizSummary(name, email, phone, note){
+  const L = ['Which Wooldridge quiz result', ''];
+  if (LAST){
+    L.push('Recommended: ' + FACTS[LAST.win].nm + ' (runner-up: ' + FACTS[LAST.run].nm + ')');
+  } else {
+    L.push('Sent before finishing the quiz - no recommendation yet.');
+  }
+  const sum = answerSummary();
+  if (sum.length){ L.push(''); L.push('Answers:'); sum.forEach(s => L.push(s)); }
+  if (note){ L.push(''); L.push('Note from the visitor:'); L.push(note); }
+  L.push('');
+  L.push('--- WB-INQUIRY v1 (for our records - please leave this section intact) ---');
+  L.push('Source: Which Wooldridge Quiz');
+  L.push('Type: QUIZ RESULT');
+  if (LAST){ L.push('Model: ' + FACTS[LAST.win].nm); L.push('RunnerUp: ' + FACTS[LAST.run].nm); }
+  if (name) L.push('Name: ' + name);
+  if (email) L.push('Email: ' + email);
+  if (phone) L.push('Phone: ' + phone);
+  return L.join('\n');
+}
+function askSay(text, kind){
+  const m = askEl('askMsg');
+  m.className = 'msg' + (kind ? ' ' + kind : '');
+  m.textContent = text;
+}
+askEl('btnAskDanny').addEventListener('click', () => {
+  const f = askEl('askForm');
+  f.hidden = false;
+  askEl('btnAskDanny').setAttribute('aria-expanded', 'true');
+  f.scrollIntoView({block:'nearest'});
+  askEl('askName').focus({preventScroll:true});
+});
+['askName','askEmail','askPhone'].forEach(id => askEl(id).addEventListener('input', () => askEl(id).classList.remove('err-on')));
+askEl('askMailto').addEventListener('click', openQuizMailto);
+askEl('askForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const name = askEl('askName').value.trim(), email = askEl('askEmail').value.trim(),
+        phone = askEl('askPhone').value.trim(), note = askEl('askNote').value.trim();
+  askEl('askName').classList.toggle('err-on', name.length < 2);
+  const noContact = !email && !phone;
+  const badEmail = !!email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  askEl('askEmail').classList.toggle('err-on', noContact || badEmail);
+  askEl('askPhone').classList.toggle('err-on', noContact);
+  if (name.length < 2){ askSay('Please add your name.', 'bad'); askEl('askName').focus(); return; }
+  if (noContact){ askSay('Please add an email address or a phone number so we can reach you.', 'bad'); askEl('askEmail').focus(); return; }
+  if (badEmail){ askSay('That email address doesn’t look right — please check it.', 'bad'); askEl('askEmail').focus(); return; }
+
+  const btn = askEl('askSend');
+  btn.disabled = true; btn.textContent = 'Sending…'; askSay('', '');
+  const model = LAST ? FACTS[LAST.win].nm : '';
+  const fd = new FormData();
+  fd.append('form', 'quiz');
+  fd.append('website', askEl('askHp').value);   /* honeypot - submit.php pretends success when it is filled */
+  fd.append('subject', (model ? model + ' inquiry' : 'Boat inquiry') + ' — from the Which Wooldridge quiz — ' + name);
+  fd.append('summary', quizSummary(name, email, phone, note));
+  fd.append('name', name);
+  fd.append('email', email);
+  fd.append('phone', phone);
+  const failed = why => {
+    btn.disabled = false; btn.textContent = 'Send to the shop';
+    /* the handler's own message may already give the phone number - say it once */
+    const base = why || 'We couldn’t send that.';
+    askSay(base + ' You can also use “open it in my own email” below'
+      + (base.indexOf('722-8998') >= 0 ? '.' : ', or call the shop at (206) 722-8998.'), 'bad');
+  };
+  fetch(ASK_ENDPOINT, {method:'POST', body:fd})
+    .then(r => r.json().then(d => ({ok: r.ok && !!d && d.ok === true, why: (d && typeof d.message === 'string') ? d.message : ''}),
+                             () => ({ok:false, why:''})))
+    .then(res => {
+      if (!res.ok) return failed(res.why);
+      askEl('askForm').querySelectorAll('input,textarea,button').forEach(el => { el.disabled = true; });
+      btn.textContent = 'Sent';
+      askSay('Sent — it’s with the shop now. A real person will be in touch within 2–3 business days.'
+        + (email ? ' A copy is on its way to ' + email + '.' : ''), 'good');
+    })
+    .catch(() => failed(''));
+});
+
+/* The old button's mailto, kept as the visitor's own-email option and the way out
+   when the send fails. Unchanged except that it is now a named function. */
+function openQuizMailto(){
   let subject = 'Boat inquiry from the Which Wooldridge quiz';
   let body = 'Hi Danny,\n\nI just went through the \u201cWhich Wooldridge Is Right For You\u201d quiz and I\u2019d like more information.\n';
   if (LAST){
@@ -614,7 +737,7 @@ document.getElementById('btnAskDanny').addEventListener('click', () => {
   body += '\n--- WB-INQUIRY v1 (for our records - please leave this section intact) ---\nSource: Which Wooldridge Quiz\nType: QUIZ RESULT\n';
   if (LAST) body += 'Model: ' + FACTS[LAST.win].nm + '\nRunnerUp: ' + FACTS[LAST.run].nm + '\n';
   location.href = 'mailto:data@wooldridgeboats.com?cc=danny%40wooldridgeboats.com&subject=' + encodeURIComponent(mailAscii(subject)) + '&body=' + encodeURIComponent(mailAscii(body));
-});
+}
 
 render();
 </script>
