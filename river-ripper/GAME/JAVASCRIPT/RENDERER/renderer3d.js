@@ -1463,7 +1463,7 @@ RR.Renderer3D = {
         // and fade -- one draw call per live burst, no lights. Phones get
         // fewer, smaller bursts.
         this._fireworks = [];
-        var nB = LITE ? 4 : 6, nP = LITE ? 48 : 90;
+        var nB = LITE ? 5 : 8, nP = LITE ? 48 : 90;
         // Round, soft-edged spark (a plain PointsMaterial draws hard squares).
         if (!this._sparkTex) {
             var sc = document.createElement('canvas'); sc.width = sc.height = 64;
@@ -1491,8 +1491,11 @@ RR.Renderer3D = {
         }
         if (this.camera) this.camera.layers.enable(1);
         this._fwNext = 0; this._fwLast = null;
+        var gc = this.getWorldPos(RR.River.finishZ, 0), up = this.getWorldPos(RR.River.finishZ - 2000, 0);
+        var fl = Math.sqrt((gc.x - up.x) * (gc.x - up.x) + (gc.z - up.z) * (gc.z - up.z)) || 1;
         this._fwGate = { x: (L.x + R.x) / 2, z: (L.z + R.z) / 2, span: span,
-                         ux: dx / (span || 1), uz: dz / (span || 1) };
+                         ux: dx / (span || 1), uz: dz / (span || 1),
+                         fx: (gc.x - up.x) / fl, fz: (gc.z - up.z) / fl };   // downstream
         this.finishGate = g;
         this.scene.add(g);
     },
@@ -1500,7 +1503,8 @@ RR.Renderer3D = {
     // Shows/hides the finish party and flies the fireworks. Nothing shows
     // until the boat is within FINISH_PARTY_RANGE of the gate.
     FINISH_PARTY_RANGE: 500,   // world units from the gate before the lights show (~2 s at speed)
-    FIREWORKS_RANGE: 220,      // ...and the fireworks, right before the line (~1 s at speed)
+    FIREWORKS_RANGE: 600,      // ...and the fireworks: ~2-3 s before the line, then on through the
+                               // finish celebration (Tyler: "go off sooner")
 
     _updateFireworks: function (time) {
         var fw = this._fireworks, G = this._fwGate;
@@ -1510,18 +1514,27 @@ RR.Renderer3D = {
         // Close to the gate only (world distance, so bends don't fool it).
         var bp = this.getWorldPos(RR.Boat.z, 0);
         var gd = Math.sqrt((bp.x - G.x) * (bp.x - G.x) + (bp.z - G.z) * (bp.z - G.z));
-        var near = gd < this.FINISH_PARTY_RANGE && RR.Boat.z < RR.River.finishZ + 2000;
+        var near = gd < this.FINISH_PARTY_RANGE || (RR.Boat.z >= RR.River.finishZ && RR.Boat.z < RR.River.finishZ + 9000);
         if (this._finishPartyGroup) this._finishPartyGroup.visible = near;
         // Fireworks only go off RIGHT before the line (Tyler, 2026-11-10).
-        var launch = gd < this.FIREWORKS_RANGE && RR.Boat.z < RR.River.finishZ + 2000;
+        var past = RR.Boat.z >= RR.River.finishZ;
+        var launch = (gd < this.FIREWORKS_RANGE && !past) || (past && RR.Boat.z < RR.River.finishZ + 9000);
         var colors = [[0.09, 0.9, 1], [1, 0.26, 0.7], [1, 0.84, 0.29], [0.22, 1, 0.48], [0.65, 0.42, 1], [1, 0.54, 0.16]];
         if (launch && time >= this._fwNext) {
             var free = null, i;
             for (i = 0; i < fw.length; i++) if (fw[i].age >= fw[i].life) { free = fw[i]; break; }
             if (free) {
-                this._fwNext = time + 0.16 + Math.random() * 0.16;   // a quick volley
-                var off = (Math.random() - 0.5) * G.span * 1.1;
-                var cx = G.x + G.ux * off, cz = G.z + G.uz * off, cy = 55 + Math.random() * 45;
+                this._fwNext = time + (past ? 0.12 : 0.24) + Math.random() * 0.16;   // faster over the line
+                // Across the river, and 40-140 units PAST the gate so the
+                // bursts stay in frame on the run-in and as the boat crosses.
+                // Over the line, the boat coasts on past the gate -- so the
+                // celebration bursts go off AHEAD of the boat, where the
+                // camera is looking, not back over the gate behind it.
+                var off = (Math.random() - 0.5) * G.span * 1.1, ahead = 40 + Math.random() * 100;
+                var ox = past ? bp.x : G.x, oz = past ? bp.z : G.z;
+                if (past) ahead = 220 + Math.random() * 140;   // far enough the coasting boat never flies through one
+                var cx = ox + G.ux * off + G.fx * ahead, cz = oz + G.uz * off + G.fz * ahead;
+                var cy = past ? 28 + Math.random() * 34 : 50 + Math.random() * 50;   // lower once over the line: in frame
                 var c1 = colors[Math.floor(Math.random() * 6)], c2 = colors[Math.floor(Math.random() * 6)];
                 var pos = free.pts.geometry.getAttribute('position'), col = free.pts.geometry.getAttribute('color');
                 var n = pos.count, sp = 38 + Math.random() * 22;

@@ -510,6 +510,7 @@ RR.RiverScene = {
     enter: function () {
         this.time = 0;
         this.finished = false;
+        this._finishHold = 0; this._finishNext = null;
         this.crashHandled = false;
 
         // DON'T REBUILD WHAT LAUNCHSCENE JUST BUILT.
@@ -571,6 +572,20 @@ RR.RiverScene = {
         if (RR.Scoring.salmonFlash > 0) RR.Scoring.salmonFlash -= dt;
         if (RR.Scoring.shortcutFlash > 0) RR.Scoring.shortcutFlash -= dt;
 
+        // Finish celebration: coast to a stop past the gate. No steering,
+        // collisions, crashes or scoring -- just the show, then name entry.
+        if (this._finishHold > 0) {
+            this._finishHold -= dt;
+            boat.speed *= Math.pow(0.25, dt);
+            boat.z += boat.speed * dt;
+            RR.Audio.setEngine(0.15, boat.speed / Math.max(1, boat.getMaxSpeed()));
+            if (this._finishHold <= 0) {
+                this._finishHold = 0;
+                RR.Engine.changeScene(this._finishNext || RR.LevelCompleteScene);
+            }
+            return;
+        }
+
         if (RR.Input.justPressed('Escape')) {
             RR.Engine.pushOverlay(RR.PauseScene);
             return;
@@ -629,11 +644,17 @@ RR.RiverScene = {
             // Making the finish line is the best run there is -- it gets the
             // top-ten board too (Tyler, 2026-10-26: "if you make it to the
             // finish line you don't get to type in top score").
-            RR.Engine.changeScene(RR.Progress.boardThen(
-                RR.Scoring.getScore(), RR.Progress.carriedDistance, RR.LevelCompleteScene, true));
+            // FINISH CELEBRATION (Tyler, 2026-11-10: "you can't see them
+            // going off when you cross the finish line"). Hold the river for
+            // a moment so the boat coasts through under the fireworks, then
+            // go to name entry. Scoring froze at the line just above.
+            this._finishNext = RR.Progress.boardThen(
+                RR.Scoring.getScore(), RR.Progress.carriedDistance, RR.LevelCompleteScene, true);
+            this._finishHold = this.FINISH_HOLD;
             return;
         }
     },
+    FINISH_HOLD: 1.8,   // seconds of fireworks after the line, before name entry
 
     render3D: function (dt) {
         RR.Renderer3D.update(dt, RR.Engine.totalTime);
