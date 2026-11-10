@@ -52,6 +52,7 @@ RR.Ramps = {
             boat.rampPitch=-Math.atan2(this.height,this.length);
             if(boat.z>=end) {
                 ramp.used=true;boat._ridingRamp=null;
+                if (RR.Scoring && RR.Scoring.addRampBonus) RR.Scoring.addRampBonus();
                 boat.rampHeight=0;boat.rampPitch=0;
                 boat.jumpHeight=this.height/C.WORLD_SCALE;
                 boat.jumpVelocity=1050;boat.jumpBuffered=0;

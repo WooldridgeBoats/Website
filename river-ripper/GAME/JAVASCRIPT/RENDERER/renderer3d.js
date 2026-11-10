@@ -412,16 +412,16 @@ RR.Renderer3D = {
             // The board, nailed on facing downstream at eye level from a boat.
             // Sized to read from mid-channel at speed, which is the only
             // place and pace anyone will ever see it from.
-            var boardW = 46, boardH = boardW * (160 / 512);
+            var boardW = 76, boardH = boardW * (160 / 512);
             var board = new THREE.Mesh(
                 new THREE.PlaneGeometry(boardW, boardH),
                 new THREE.MeshBasicMaterial({
-                    map: self._makeSignTexture(m.text),
+                    map: self._makeSignTexture(m.text), toneMapped: false,
                     side: THREE.DoubleSide
                 }));
             // Stand it just off the trunk on the river side.
             var off = 6.4;
-            board.position.set(p.x, 17, p.z);
+            board.position.set(p.x, 24, p.z);
             board.rotation.y = facing + Math.PI;
             board.translateZ(off);
             g.add(board);
@@ -1370,7 +1370,7 @@ RR.Renderer3D = {
 
         var L = this.getWorldPos(RR.River.finishZ, -1.15);
         var R = this.getWorldPos(RR.River.finishZ, 1.15);
-        var postH = 26;
+        var postH = 44;
 
         var i, p;
         for (i = 0; i < 2; i++) {
@@ -1384,8 +1384,8 @@ RR.Renderer3D = {
         var span = Math.sqrt(dx * dx + dz * dz);
         // Segmented so it can be waved. 30 across is enough for a smooth
         // travelling wave without the vertex loop showing up in a frame.
-        var banner = new THREE.Mesh(new THREE.PlaneGeometry(span, 9, 30, 4), bannerMat);
-        banner.position.set((L.x + R.x) / 2, postH - 5.5, (L.z + R.z) / 2);
+        var banner = new THREE.Mesh(new THREE.PlaneGeometry(span, 16, 30, 4), bannerMat);
+        banner.position.set((L.x + R.x) / 2, postH - 9, (L.z + R.z) / 2);
         // + PI so the plane's FRONT face points downstream, at the boat. The
         // material is DoubleSide so the banner is solid either way, but the
         // back face shows the texture mirrored -- without this, FINISH reads
@@ -1400,6 +1400,20 @@ RR.Renderer3D = {
             banner.geometry.getAttribute('position').array);
         this._finishSpan = span;
 
+        // Visible colored fixtures and slow sweeping beams, without extra
+        // shadow-casting lights or a postprocessing pass on phone GPUs.
+        this._finishParty = [];
+        [L,R].forEach(function(bank,side){
+            var colors=[0x16e6ff,0xff42b3,0xffd54a];
+            for(var n=0;n<3;n++){
+                var color=colors[n], fixture=new THREE.Mesh(new THREE.SphereGeometry(3,10,8),new THREE.MeshBasicMaterial({color:color,toneMapped:false}));
+                fixture.position.set(bank.x,12+n*14,bank.z);g.add(fixture);
+                var pivot=new THREE.Group();pivot.position.set(bank.x,12+n*14,bank.z);
+                var beam=new THREE.Mesh(new THREE.ConeGeometry(10,70,10,1,true),new THREE.MeshBasicMaterial({color:color,transparent:true,opacity:0.18,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,toneMapped:false}));
+                beam.rotation.z=Math.PI;beam.position.y=35;pivot.add(beam);g.add(pivot);
+                this._finishParty.push({pivot:pivot,phase:n*1.8+side*2,side:side});
+            }
+        },this);
         this.finishGate = g;
         this.scene.add(g);
     },
@@ -3304,6 +3318,15 @@ RR.Renderer3D = {
         // Deck layout: exactly one rig visible. An unknown layout falls back
         // to the Alaskan's windshield rig.
         var layout = C.trait(model, 'layout');
+        if(this._grantSeated){
+            var standing=layout==='console'||layout==='lt';
+            this._grantSeated.visible=layout!=='tiller'&&!standing;
+            this._grantStanding.visible=layout!=='tiller'&&standing;
+            var poses={windshield:[-0.86,0.30,1.90],console:[0,0.30,-2.38],lt:[0,0.30,-1.90],walkthrough:[-0.90,0.30,1.70],skagit:[-0.80,0.30,1.55],cabin:[-0.80,0.30,0.5]};
+            var pose=poses[layout]||poses.windshield;
+            this._grantSeated.position.set(pose[0],pose[1],pose[2]);this._grantStanding.position.set(pose[0],pose[1],pose[2]);
+        }
+
         if (this._boatRigs) {
             var rigKey = this._boatRigs[layout] ? layout : 'windshield';
             for (var rk in this._boatRigs) this._boatRigs[rk].visible = (rk === rigKey);
@@ -3371,6 +3394,30 @@ RR.Renderer3D = {
                 this._logoRigs.std.visible = this._logoRigs.rogue.visible = this._logoRigs.white.visible = false;
             }
         }
+    },
+
+    launchBoatPreview: function () {
+        var model=RR.Boat.getModel(),cad=this._cadRigs&&this._cadRigs[model.id];
+        var key=model.id+':'+(cad?cad.uuid:'loading')+':'+(this._decals.white.port.image.width);
+        if(this._launchPreviewKey===key)return this._launchPreview;
+        this._applyBoatModel();
+        var scene=new THREE.Scene(),copy=this.boatGroup.clone(true),remove=[];
+        copy.visible=true;copy.position.set(0,0,0);copy.rotation.set(0,0,0);
+        copy.traverse(function(o){if(!o.visible)remove.push(o);});remove.forEach(function(o){if(o.parent)o.parent.remove(o);});scene.add(copy);
+        scene.add(new THREE.HemisphereLight(0xe5f4ff,0x56615a,1.4));
+        var sun=new THREE.DirectionalLight(0xffffff,2);sun.position.set(20,40,20);scene.add(sun);
+        copy.updateMatrixWorld(true);var bounds=new THREE.Box3().setFromObject(copy),center=bounds.getCenter(new THREE.Vector3()),size=bounds.getSize(new THREE.Vector3());
+        var width=Math.max(size.z*1.12,size.y*2.4),height=width/2;
+        var cam=new THREE.OrthographicCamera(-width/2,width/2,height/2,-height/2,0.1,250);
+        cam.position.set(65,center.y+12,center.z);cam.lookAt(center);
+        var target=new THREE.WebGLRenderTarget(512,256);target.texture.encoding=THREE.sRGBEncoding;
+        var renderer=this.renderer,previous=renderer.getRenderTarget(),clear=renderer.getClearColor(new THREE.Color()).clone(),alpha=renderer.getClearAlpha();
+        var pixels=new Uint8Array(512*256*4);
+        try{renderer.setRenderTarget(target);renderer.setClearColor(0x000000,0);renderer.clear();renderer.render(scene,cam);renderer.readRenderTargetPixels(target,0,0,512,256,pixels);}
+        finally{renderer.setRenderTarget(previous);renderer.setClearColor(clear,alpha);target.dispose();}
+        var canvas=document.createElement('canvas');canvas.width=512;canvas.height=256;var ctx=canvas.getContext('2d'),data=ctx.createImageData(512,256);
+        for(var y=0;y<256;y++)data.data.set(pixels.subarray((255-y)*512*4,(256-y)*512*4),y*512*4);
+        ctx.putImageData(data,0,0);canvas.modelId=model.id;this._launchPreview=canvas;this._launchPreviewKey=key;return canvas;
     },
 
     // ---- REAL CAD HULLS (2026-10-26) ---------------------------------------
@@ -4328,6 +4375,26 @@ RR.Renderer3D = {
         addTo=tillerRig;
         tube(0,0.95,-5.2,-0.08,1.38,-4.20,0.055,frameMat);tube(-0.08,1.38,-4.20,-0.08,1.38,-4.0,0.065,vinylMat);
         this._tillerDriver=driver;
+        function helmDriver(seated) {
+            var person=new THREE.Group();person.name=seated?'GrantSeated':'GrantStanding';
+            var drop=seated?0.42:0;addTo=person;
+            softBox(0.62,0.84,0.36,0,1.38-drop,0,0.12,hoodie);
+            softBox(0.5,0.23,0.33,0,0.91-drop,0,0.07,pants);
+            [head,beard,hairTop,cap,brim,capPatch].forEach(function(part){var cp=part.clone();cp.position.y-=drop;person.add(cp);});
+            [-1,1].forEach(function(side){
+                var kneeZ=seated?0.42:0.06,kneeY=seated?0.50:0.46;
+                tube(side*0.17,0.91-drop,0,side*0.2,kneeY,kneeZ,0.105,pants);
+                tube(side*0.2,kneeY,kneeZ,side*0.22,0.08,kneeZ,0.085,pants);
+                softBox(0.19,0.14,0.32,side*0.22,0.06,kneeZ+0.10,0.04,frameMat);
+                tube(side*0.29,1.64-drop,0,side*0.36,1.30-drop,0.23,0.085,hoodie);
+                tube(side*0.36,1.30-drop,0.23,side*0.22,1.21-drop,0.56,0.065,skin);
+            });
+            return person;
+        }
+        this._grantSeated=helmDriver(true);this._grantStanding=helmDriver(false);
+        this.boatGroup.add(this._grantSeated);this.boatGroup.add(this._grantStanding);
+        addTo=tillerRig;
+
 
         // Everything built straight onto boatGroup so far is the hand-built
         // HULL (plating, cap, sole, bow deck). Gather it into one group so a
@@ -4952,6 +5019,10 @@ RR.Renderer3D = {
     // free. Two frequencies beat against each other so it never looks like a
     // single clean sine.
     _updateFinishBanner: function (time) {
+        if(this._finishParty)this._finishParty.forEach(function(light){
+            light.pivot.rotation.z=(light.side ? 1 : -1)*(0.25+0.30*Math.sin(time*0.7+light.phase));
+            light.pivot.rotation.x=0.25*Math.sin(time*0.55+light.phase);
+        });
         var banner = this._finishBanner;
         if (!banner) return;
         var pos = banner.geometry.getAttribute('position');
