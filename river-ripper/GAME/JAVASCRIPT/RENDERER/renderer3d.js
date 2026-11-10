@@ -1400,22 +1400,156 @@ RR.Renderer3D = {
             banner.geometry.getAttribute('position').array);
         this._finishSpan = span;
 
-        // Visible colored fixtures and slow sweeping beams, without extra
-        // shadow-casting lights or a postprocessing pass on phone GPUs.
+        // FINISH PARTY (Tyler, 2026-11-10: "more colorful lights on both
+        // banks and stronger sweeping beams"). Light poles line both banks on
+        // the run-in to the gate, plus the gate posts' own fixtures. Glowing
+        // MeshBasic + additive cones only -- no real lights, shadows or
+        // postprocessing -- and phones (LITE) get fewer poles and coarser
+        // cones, so the finish costs a few dozen cheap draw calls at most.
+        // Tyler: the party must ONLY show close to the finish line. All of it
+        // lives in one group that _updateFinishParty hides until the boat is
+        // within FINISH_PARTY_RANGE world units of the gate.
+        var party = new THREE.Group(); party.visible = false; g.add(party);
+        this._finishPartyGroup = party;
         this._finishParty = [];
-        [L,R].forEach(function(bank,side){
-            var colors=[0x16e6ff,0xff42b3,0xffd54a];
-            for(var n=0;n<3;n++){
-                var color=colors[n], fixture=new THREE.Mesh(new THREE.SphereGeometry(3,10,8),new THREE.MeshBasicMaterial({color:color,toneMapped:false}));
-                fixture.position.set(bank.x,12+n*14,bank.z);g.add(fixture);
-                var pivot=new THREE.Group();pivot.position.set(bank.x,12+n*14,bank.z);
-                var beam=new THREE.Mesh(new THREE.ConeGeometry(10,70,10,1,true),new THREE.MeshBasicMaterial({color:color,transparent:true,opacity:0.18,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,toneMapped:false}));
-                beam.rotation.z=Math.PI;beam.position.y=35;pivot.add(beam);g.add(pivot);
-                this._finishParty.push({pivot:pivot,phase:n*1.8+side*2,side:side});
-            }
-        },this);
+        var LITE = !!RR.Config.LITE;
+        var colors = [0x16e6ff, 0xff42b3, 0xffd54a, 0x39ff7a, 0xa66bff, 0xff8a2a];
+        var poleMat = new THREE.MeshStandardMaterial({ color: 0x2A3036, roughness: 0.6, metalness: 0.4 });
+        var poles = LITE ? 3 : 4, spacing = 40;    // world units between poles: tight to the gate
+        var cone = LITE ? 8 : 14, k = 0, self = this;
+        function addLight(x, y, z, side, color, beamLen, beamR) {
+            var bulbMat = new THREE.MeshBasicMaterial({ color: color, toneMapped: false, fog: false });
+            var fixture = new THREE.Mesh(new THREE.SphereGeometry(4.2, LITE ? 8 : 12, LITE ? 6 : 8), bulbMat);
+            fixture.position.set(x, y, z); party.add(fixture);
+            var pivot = new THREE.Group(); pivot.position.set(x, y, z);
+            // Normal (not additive) blending: additive goes near-white against
+            // the overcast sky, and these should read as COLOURED beams.
+            var beamMat = new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.3, fog: false,
+                depthWrite: false, side: THREE.DoubleSide, toneMapped: false });
+            var beam = new THREE.Mesh(new THREE.ConeGeometry(beamR, beamLen, cone, 1, true), beamMat);
+            beam.rotation.z = Math.PI; beam.position.y = beamLen / 2; pivot.add(beam); party.add(pivot);
+            self._finishParty.push({ pivot: pivot, fixture: fixture, beamMat: beamMat,
+                phase: k * 0.9 + side * 2.1, chase: k, side: side });
+            k++;
+        }
+        // Gate posts: three fixtures stacked up each post, as before but brighter.
+        [L, R].forEach(function (bank, side) {
+            for (var n = 0; n < 3; n++) addLight(bank.x, 12 + n * 14, bank.z, side, colors[(n + side * 3) % 6], 120, 16);
+        });
+        // Bank poles leading up to the gate, both sides, colors running in a
+        // chase down the line.
+        // Walk back up the river in small steps and drop a pair of poles
+        // every `spacing` WORLD units, so they stay evenly spread round bends
+        // (river z units are ~20x smaller than world units).
+        var placed = [], walkZ = RR.River.finishZ, prev = this.getWorldPos(walkZ, 0), run = 0;
+        while (placed.length < poles && walkZ > RR.Config.SEGMENT_LENGTH) {
+            walkZ -= RR.Config.SEGMENT_LENGTH;
+            var here = this.getWorldPos(walkZ, 0);
+            run += Math.sqrt((here.x - prev.x) * (here.x - prev.x) + (here.z - prev.z) * (here.z - prev.z));
+            prev = here;
+            if (run >= spacing) { placed.push(walkZ); run = 0; }
+        }
+        for (var pi = 1; pi <= placed.length; pi++) {
+            var pz = placed[pi - 1];
+            [-1.28, 1.28].forEach(function (lat, side) {
+                var b = self.getWorldPos(pz, lat), h = 34;
+                var pole = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.9, h, 6), poleMat);
+                pole.position.set(b.x, h / 2, b.z); party.add(pole);
+                addLight(b.x, h + 2, b.z, side, colors[(pi * 2 + side) % 6], 140, 18);
+            });
+        }
+        // FIREWORKS over the gate (Tyler, 2026-11-10). A small pool of
+        // bursts, each one THREE.Points object of sparks that fly out, fall
+        // and fade -- one draw call per live burst, no lights. Phones get
+        // fewer, smaller bursts.
+        this._fireworks = [];
+        var nB = LITE ? 4 : 6, nP = LITE ? 48 : 90;
+        // Round, soft-edged spark (a plain PointsMaterial draws hard squares).
+        if (!this._sparkTex) {
+            var sc = document.createElement('canvas'); sc.width = sc.height = 64;
+            var sx = sc.getContext('2d'), sgr = sx.createRadialGradient(32, 32, 0, 32, 32, 32);
+            sgr.addColorStop(0, 'rgba(255,255,255,1)'); sgr.addColorStop(0.35, 'rgba(255,255,255,0.95)');
+            sgr.addColorStop(0.7, 'rgba(255,255,255,0.35)'); sgr.addColorStop(1, 'rgba(255,255,255,0)');
+            sx.fillStyle = sgr; sx.fillRect(0, 0, 64, 64);
+            this._sparkTex = new THREE.CanvasTexture(sc);
+            this._sparkTex._rrShared = true;   // memoized: _disposeGroup must not free it
+        }
+        for (var fb = 0; fb < nB; fb++) {
+            var fgeo = new THREE.BufferGeometry();
+            fgeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(nP * 3), 3));
+            fgeo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(nP * 3), 3));
+            // Normal blending: additive turns to white against the bright sky.
+            var fmat = new THREE.PointsMaterial({ size: LITE ? 12 : 10, map: this._sparkTex, vertexColors: true,
+                transparent: true, opacity: 0, depthWrite: false, fog: false, toneMapped: false });
+            var pts = new THREE.Points(fgeo, fmat);
+            pts.frustumCulled = false; pts.visible = false; party.add(pts);
+            // Layer 1: the main camera sees it, the water-reflection camera
+            // (default layer 0 only) doesn't -- reflected bursts read as odd
+            // blobs floating beside the boat.
+            pts.layers.set(1);
+            this._fireworks.push({ pts: pts, vel: new Float32Array(nP * 3), age: 99, life: 1.8 });
+        }
+        if (this.camera) this.camera.layers.enable(1);
+        this._fwNext = 0; this._fwLast = null;
+        this._fwGate = { x: (L.x + R.x) / 2, z: (L.z + R.z) / 2, span: span,
+                         ux: dx / (span || 1), uz: dz / (span || 1) };
         this.finishGate = g;
         this.scene.add(g);
+    },
+
+    // Shows/hides the finish party and flies the fireworks. Nothing shows
+    // until the boat is within FINISH_PARTY_RANGE of the gate.
+    FINISH_PARTY_RANGE: 500,   // world units from the gate before the lights show (~2 s at speed)
+    FIREWORKS_RANGE: 220,      // ...and the fireworks, right before the line (~1 s at speed)
+
+    _updateFireworks: function (time) {
+        var fw = this._fireworks, G = this._fwGate;
+        if (!fw || !G || !RR.Boat || !RR.River.finishZ) return;
+        var dt = this._fwLast === null ? 0 : Math.min(0.1, Math.max(0, time - this._fwLast));
+        this._fwLast = time;
+        // Close to the gate only (world distance, so bends don't fool it).
+        var bp = this.getWorldPos(RR.Boat.z, 0);
+        var gd = Math.sqrt((bp.x - G.x) * (bp.x - G.x) + (bp.z - G.z) * (bp.z - G.z));
+        var near = gd < this.FINISH_PARTY_RANGE && RR.Boat.z < RR.River.finishZ + 2000;
+        if (this._finishPartyGroup) this._finishPartyGroup.visible = near;
+        // Fireworks only go off RIGHT before the line (Tyler, 2026-11-10).
+        var launch = gd < this.FIREWORKS_RANGE && RR.Boat.z < RR.River.finishZ + 2000;
+        var colors = [[0.09, 0.9, 1], [1, 0.26, 0.7], [1, 0.84, 0.29], [0.22, 1, 0.48], [0.65, 0.42, 1], [1, 0.54, 0.16]];
+        if (launch && time >= this._fwNext) {
+            var free = null, i;
+            for (i = 0; i < fw.length; i++) if (fw[i].age >= fw[i].life) { free = fw[i]; break; }
+            if (free) {
+                this._fwNext = time + 0.16 + Math.random() * 0.16;   // a quick volley
+                var off = (Math.random() - 0.5) * G.span * 1.1;
+                var cx = G.x + G.ux * off, cz = G.z + G.uz * off, cy = 55 + Math.random() * 45;
+                var c1 = colors[Math.floor(Math.random() * 6)], c2 = colors[Math.floor(Math.random() * 6)];
+                var pos = free.pts.geometry.getAttribute('position'), col = free.pts.geometry.getAttribute('color');
+                var n = pos.count, sp = 38 + Math.random() * 22;
+                for (i = 0; i < n; i++) {
+                    var u = Math.random() * 2 - 1, th = Math.random() * Math.PI * 2, r = Math.sqrt(1 - u * u);
+                    var v = sp * (0.75 + Math.random() * 0.25);
+                    free.vel[i * 3] = r * Math.cos(th) * v; free.vel[i * 3 + 1] = u * v; free.vel[i * 3 + 2] = r * Math.sin(th) * v;
+                    pos.array[i * 3] = cx; pos.array[i * 3 + 1] = cy; pos.array[i * 3 + 2] = cz;
+                    var cc = i % 3 ? c1 : c2;
+                    col.array[i * 3] = cc[0]; col.array[i * 3 + 1] = cc[1]; col.array[i * 3 + 2] = cc[2];
+                }
+                col.needsUpdate = true; pos.needsUpdate = true;
+                free.age = 0; free.life = 1.6 + Math.random() * 0.6; free.pts.visible = true;
+            }
+        }
+        for (var b = 0; b < fw.length; b++) {
+            var f = fw[b];
+            if (f.age >= f.life) { f.pts.visible = false; continue; }
+            f.age += dt;
+            var p = f.pts.geometry.getAttribute('position'), drag = Math.pow(0.35, dt);
+            for (var k = 0; k < p.count; k++) {
+                f.vel[k * 3] *= drag; f.vel[k * 3 + 1] = f.vel[k * 3 + 1] * drag - 22 * dt; f.vel[k * 3 + 2] *= drag;
+                p.array[k * 3] += f.vel[k * 3] * dt; p.array[k * 3 + 1] += f.vel[k * 3 + 1] * dt; p.array[k * 3 + 2] += f.vel[k * 3 + 2] * dt;
+            }
+            p.needsUpdate = true;
+            var life = f.age / f.life;
+            f.pts.material.opacity = life < 0.08 ? 1 : Math.max(0, 1 - (life - 0.08) / 0.92);
+        }
     },
 
     // What the built scene is a function of. Everything buildScene draws comes
@@ -4970,6 +5104,7 @@ RR.Renderer3D = {
         this._updateVisibleObjects(boat);
         this._updateWildlife(boat, time);
         this._updateFinishBanner(time);
+        this._updateFireworks(time);
         this._updateCrocs(boat, time);
         // Keep the pyramids on the horizon ahead, the same way the mountain
         // backdrop is re-parked -- they are scenery, not something you pass.
@@ -5019,9 +5154,15 @@ RR.Renderer3D = {
     // free. Two frequencies beat against each other so it never looks like a
     // single clean sine.
     _updateFinishBanner: function (time) {
-        if(this._finishParty)this._finishParty.forEach(function(light){
-            light.pivot.rotation.z=(light.side ? 1 : -1)*(0.25+0.30*Math.sin(time*0.7+light.phase));
-            light.pivot.rotation.x=0.25*Math.sin(time*0.55+light.phase);
+        // Wide sweeps that lean out over the river, and a pulse that chases
+        // down each bank so the whole run-in flickers like a party.
+        if (this._finishParty) this._finishParty.forEach(function (light) {
+            light.pivot.rotation.z = (light.side ? 1 : -1) * (0.35 + 0.55 * Math.sin(time * 1.1 + light.phase));
+            light.pivot.rotation.x = 0.45 * Math.sin(time * 0.8 + light.phase);
+            var pulse = 0.5 + 0.5 * Math.sin(time * 4.0 - light.chase * 0.8);
+            light.beamMat.opacity = 0.22 + 0.28 * pulse;
+            var sc = 0.85 + 0.35 * pulse;
+            light.fixture.scale.set(sc, sc, sc);
         });
         var banner = this._finishBanner;
         if (!banner) return;

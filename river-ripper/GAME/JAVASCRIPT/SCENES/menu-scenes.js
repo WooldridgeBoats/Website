@@ -465,12 +465,9 @@ RR.MenuScene = {
     },
 
     optionLabel: function (index) {
-        if (index === 2) return 'RIVER · ◀  [ ' + RR.RiverLevels.getSelected().name + ' ]  ▶';
+        if (index === 2) return 'RIVER · ◀  ' + RR.RiverLevels.getSelected().name + '  ▶';
         if (index !== 3) return this.options[index];
-        var active = RR.Difficulty.getSelected().label;
-        return 'DIFFICULTY · ' + (active === 'EASY' ? '[ EASY ]' : 'EASY') + ' / ' +
-            (active === 'MEDIUM' ? '[ MEDIUM ]' : 'MEDIUM') + ' / ' +
-            (active === 'HARD' ? '[ HARD ]' : 'HARD');
+        return 'DIFFICULTY · EASY / MEDIUM / HARD';
     },
 
     render: function (ctx) {
@@ -530,6 +527,16 @@ RR.MenuScene = {
                 }
                 UI.label(ctx, r.label, W / 2, r.cy, 19,
                     i === this.hot ? 'rgba(223,227,230,0.85)' : 'rgba(223,227,230,0.55)', 500);
+            }
+            if (i === 2 || i === 3) {
+                var active = i === 2 ? RR.RiverLevels.getSelected().name : RR.Difficulty.getSelected().label;
+                var size = isSelected ? this.ROW_SIZE : 19, weight = isSelected ? 600 : 500;
+                var tracking = size * .09;
+                ctx.font = weight + ' ' + size + 'px ' + C.FONT_UI;
+                var left = W/2 - UI.trackedWidth(ctx,r.label,tracking)/2;
+                var prefix = r.label.slice(0,r.label.indexOf(active));
+                if (prefix.length) left += UI.trackedWidth(ctx,prefix,tracking) + tracking;
+                UI.label(ctx,active,left,r.cy,size,C.UI_GOLD,weight,'left');
             }
         }
 
@@ -1028,7 +1035,7 @@ RR.HighScoresScene = {
         if (this.art) return;
         this.art = [];
         for (var n=1;n<=8;n++) { var img=new Image(); img.src='GAME/ASSETS/UI/SCOREBOARDS/river-'+n+'.jpg'; this.art.push(img); }
-        this.xl = new Image(); this.xl.src='GAME/ASSETS/UI/SCOREBOARDS/alaskan-xl-photo-cutout.svg';
+        this.xl = new Image(); this.xl.src='GAME/ASSETS/UI/SCOREBOARDS/alaskan-xl-approved.png?v=approved1';
         this.atlas=new Image();this.atlas.src='GAME/ASSETS/UI/SCOREBOARDS/world-atlas.svg';
     },
     drawAtlas: function (ctx, W, H) {
