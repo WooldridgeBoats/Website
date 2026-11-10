@@ -10,7 +10,7 @@ window.RR = window.RR || {};
 // name entry if and only if it qualifies. Prompting on every crash for a
 // 200-point run would be nagging, and a leaderboard nobody makes is not one.
 //
-// Storage is per-browser, same as rr_highscore. There is no server.
+// Shared server boards with separate per-browser fallback storage.
 // ---------------------------------------------------------------------------
 RR.Scores = {
     KEY: 'rr_top10',
@@ -48,7 +48,7 @@ RR.Scores = {
     refresh: function () {
         if (!this._wantsRemote() || !window.fetch) return;
         var self = this;
-        fetch(this.ENDPOINT + '?t=' + Date.now(), { cache: 'no-store' })
+        fetch(this.ENDPOINT + (this.ENDPOINT.indexOf('?') >= 0 ? '&t=' : '?t=') + Date.now(), { cache: 'no-store' })
             .then(function (r) { return r.ok ? r.json() : null; })
             .then(function (j) { if (j && j.ok) self._takeRemote(j.list); })
             .catch(function () {});
@@ -264,5 +264,20 @@ RR.Scores = {
     }
 };
 
+// Independent instances prevent late network responses mixing boards.
+RR.Scores.boards = {};
+RR.Scores.forBoard = function (key) {
+    key = key || 'world-tour';
+    if (key === 'world-tour') return this;
+    if (!/^river-[1-8]$/.test(key)) throw new Error('Unknown score board');
+    if (!this.boards[key]) {
+        var board = Object.assign({}, this);
+        board.KEY = 'rr_top10_' + key;
+        board.ENDPOINT = this.ENDPOINT + '?board=' + key;
+        board.list = []; board.remoteList = []; board.online = false;
+        this.boards[key] = board;
+    }
+    return this.boards[key];
+};
 RR.Scores.load();
 RR.Scores.refresh();

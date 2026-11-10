@@ -13,30 +13,38 @@ RR.Progress = {
     // NameEntryScene, so a run that clears a river and keeps going is not
     // asked for its name twice.
     runName: null,
+    completedRivers: [],
+    riverStartScore: 0,
+    riverStartDistance: 0,
     reset: function () {
         this.level = RR.RiverLevels ? RR.RiverLevels.selectedIndex + 1 : 1;
         this.carriedScore = 0;
         this.carriedDistance = 0;
         this.runName = null;
+        this.completedRivers = [];
     },
     // Record this run's score on the board. Returns the scene to show next:
     // the name entry screen when the run qualifies and has no name yet,
     // otherwise `next` (the run is updated silently if it is already on).
     boardThen: function (score, distance, next, completed) {
-        if (completed) {
-            RR.NameEntryScene.prime(score,distance,next);
-            RR.NameEntryScene.first=this.runName ? this.runName.first : '';
-            RR.NameEntryScene.initial=this.runName ? this.runName.initial : '';
-            return RR.NameEntryScene;
+        var key = 'river-' + this.level;
+        var entries = [{board:key, score:Math.max(0, Math.floor(score - this.riverStartScore)),
+            distance:Math.max(0, distance - this.riverStartDistance)}];
+        if (completed && this.completedRivers.indexOf(this.level) < 0) this.completedRivers.push(this.level);
+        if (completed && this.completedRivers.length === RR.RiverLevels.profiles.length) {
+            entries.push({board:'world-tour', score:score, distance:distance});
         }
-        if (this.runName) {
-            if (RR.Scores.qualifies(score) || this._onBoard()) {
-                RR.Scores.add(this.runName.first, this.runName.initial, score, distance, this.runName.run);
-            }
+        if (!completed && this.runName) {
+            entries.forEach(function(e) {
+                if (e.score >= RR.Scores.MIN) RR.Scores.forBoard(e.board).add(this.runName.first,
+                    this.runName.initial, e.score, e.distance, this.runName.run);
+            }, this);
             return next;
         }
-        if (RR.Scores && RR.Scores.qualifies(score)) {
-            RR.NameEntryScene.prime(score, distance, next);
+        if (completed || entries.some(function(e) { return RR.Scores.forBoard(e.board).qualifies(e.score); })) {
+            RR.NameEntryScene.prime(entries[0].score, entries[0].distance, next, entries);
+            RR.NameEntryScene.first=this.runName ? this.runName.first : '';
+            RR.NameEntryScene.initial=this.runName ? this.runName.initial : '';
             return RR.NameEntryScene;
         }
         return next;
@@ -524,6 +532,9 @@ RR.RiverScene = {
         RR.Boat.reset();
         RR.Scoring.reset();
         RR.Scoring.score = RR.Progress.carriedScore;
+        RR.Progress.riverStartScore = RR.Progress.carriedScore;
+        RR.Progress.riverStartDistance = RR.Progress.carriedDistance;
+        RR.Scores.forBoard('river-' + RR.Progress.level).refresh();
         RR.Collision.resetNearMisses();
         if (!reuse) RR.Renderer3D.buildScene();
         RR.Renderer3D._camPos = null;

@@ -1,0 +1,4 @@
+Map geometry: Natural Earth 1:110m country boundaries (public domain). https://www.naturalearthdata.com/about/terms-of-use/
+Source: https://github.com/nvkelso/natural-earth-vector/blob/master/geojson/ne_110m_admin_0_countries.geojson
+River stops are approximate representative locations, not complete river courses.
+Boat: original BOAT-ALASKAN-XL-20.jpg embedded byte-for-byte in an SVG silhouette clip. No generated boat or altered lettering is deployed.
