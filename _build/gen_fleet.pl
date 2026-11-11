@@ -144,6 +144,11 @@ for my $mo (@$models){
     pp => ($drive eq 'offshore' ? JSON::PP::true : JSON::PP::false),
   };
   my $pres = $PRESENTATION{$id} or die "no PRESENTATION entry for new model '$id' — add photo/blurb/url above\n";
+  # The quiz result shows the winner's hero photo and a link to its model page, so the
+  # quiz FACTS carry the same ph/url the home-page rail uses (the Tyler-vetted hero). The
+  # slimmer quote-request FACTS below is built field by field and does not pick these up.
+  $facts{$id}{ph}  = $pres->{ph};
+  $facts{$id}{url} = $pres->{url};
   $fleet{$id} = { id=>$id, nm=>$mo->{nm}, d=>$drive, lens=>\@lens, from=>$from, %$pres };
 }
 
