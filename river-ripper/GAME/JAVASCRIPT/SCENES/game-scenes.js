@@ -2,7 +2,7 @@ window.RR = window.RR || {};
 
 // Which stop the player is on, and the score carried from the previous river.
 // Level 1 is the Skyqualmie -- home water, the confluence this game was built
-// on. After the full set a tougher tour begins.
+// on. One run ends after the final river; a new tour starts with a fresh score.
 RR.Progress = {
     level: 1,
     carriedScore: 0,
@@ -13,30 +13,38 @@ RR.Progress = {
     // NameEntryScene, so a run that clears a river and keeps going is not
     // asked for its name twice.
     runName: null,
+    completedRivers: [],
+    riverStartScore: 0,
+    riverStartDistance: 0,
     reset: function () {
         this.level = RR.RiverLevels ? RR.RiverLevels.selectedIndex + 1 : 1;
         this.carriedScore = 0;
         this.carriedDistance = 0;
         this.runName = null;
+        this.completedRivers = [];
     },
     // Record this run's score on the board. Returns the scene to show next:
     // the name entry screen when the run qualifies and has no name yet,
     // otherwise `next` (the run is updated silently if it is already on).
     boardThen: function (score, distance, next, completed) {
-        if (completed) {
-            RR.NameEntryScene.prime(score,distance,next);
-            RR.NameEntryScene.first=this.runName ? this.runName.first : '';
-            RR.NameEntryScene.initial=this.runName ? this.runName.initial : '';
-            return RR.NameEntryScene;
+        var key = 'river-' + this.level;
+        var entries = [{board:key, score:Math.max(0, Math.floor(score - this.riverStartScore)),
+            distance:Math.max(0, distance - this.riverStartDistance)}];
+        if (completed && this.completedRivers.indexOf(this.level) < 0) this.completedRivers.push(this.level);
+        if (completed && this.completedRivers.length === RR.RiverLevels.profiles.length) {
+            entries.push({board:'world-tour', score:score, distance:distance});
         }
-        if (this.runName) {
-            if (RR.Scores.qualifies(score) || this._onBoard()) {
-                RR.Scores.add(this.runName.first, this.runName.initial, score, distance, this.runName.run);
-            }
+        if (!completed && this.runName) {
+            entries.forEach(function(e) {
+                if (e.score >= RR.Scores.MIN) RR.Scores.forBoard(e.board).add(this.runName.first,
+                    this.runName.initial, e.score, e.distance, this.runName.run);
+            }, this);
             return next;
         }
-        if (RR.Scores && RR.Scores.qualifies(score)) {
-            RR.NameEntryScene.prime(score, distance, next);
+        if (completed || entries.some(function(e) { return RR.Scores.forBoard(e.board).qualifies(e.score); })) {
+            RR.NameEntryScene.prime(entries[0].score, entries[0].distance, next, entries);
+            RR.NameEntryScene.first=this.runName ? this.runName.first : '';
+            RR.NameEntryScene.initial=this.runName ? this.runName.initial : '';
             return RR.NameEntryScene;
         }
         return next;
@@ -381,33 +389,8 @@ RR.LaunchScene.drawRig = function (ctx, C, carryingBoat, wetLine, reversing) {
     // Bow points LEFT, at the tow vehicle; outboard hangs off the transom at
     // the right, which is the end that goes in first when you back down.
     if (carryingBoat) {
-        ctx.fillStyle = ALLOY;
-        ctx.beginPath();
-        ctx.moveTo(30, -66);            // sheer runs ahead of the chine
-        ctx.lineTo(130, -66);           // sheer, aft to the transom
-        ctx.lineTo(130, -50);           // transom
-        ctx.lineTo(44, -50);            // chine
-        ctx.closePath(); ctx.fill();
-        ctx.fillStyle = ALLOY_DK;       // the raked flat bow plate
-        ctx.beginPath();
-        ctx.moveTo(30, -66); ctx.lineTo(44, -50);
-        ctx.lineTo(40, -50); ctx.lineTo(27, -64);
-        ctx.closePath(); ctx.fill();
-        ctx.fillStyle = C.WB_BLUE; ctx.fillRect(46, -62, 78, 2);   // accent stripe
-        ctx.fillStyle = GLASS;                                     // 2-panel windshield, well forward
-        ctx.beginPath();
-        ctx.moveTo(48, -66); ctx.lineTo(66, -66);
-        ctx.lineTo(62, -78); ctx.lineTo(52, -78);
-        ctx.closePath(); ctx.fill();
-        ctx.strokeStyle = ALLOY; ctx.lineWidth = 1.4;
-        ctx.beginPath(); ctx.moveTo(57, -66); ctx.lineTo(57, -78); ctx.stroke();
-        ctx.strokeStyle = '#B9BEC4'; ctx.lineWidth = 1.6;          // grab rail
-        ctx.beginPath(); ctx.moveTo(72, -68); ctx.lineTo(122, -68); ctx.stroke();
-        ctx.fillStyle = TRIM;                                      // outboard on the transom
-        ctx.fillRect(130, -68, 13, 16);
-        ctx.fillRect(133, -52, 6, 14);
-        ctx.fillStyle = '#FFD800';                                  // school-bus-yellow intake foot
-        ctx.fillRect(132, -40, 9, 5);
+        var preview = RR.Renderer3D.launchBoatPreview();
+        if (preview) ctx.drawImage(preview, 19, -82, 134, 67);
     }
 
     // ---------------- Suburban ----------------
@@ -527,6 +510,7 @@ RR.RiverScene = {
     enter: function () {
         this.time = 0;
         this.finished = false;
+        this._finishHold = 0; this._finishNext = null;
         this.crashHandled = false;
 
         // DON'T REBUILD WHAT LAUNCHSCENE JUST BUILT.
@@ -549,6 +533,9 @@ RR.RiverScene = {
         RR.Boat.reset();
         RR.Scoring.reset();
         RR.Scoring.score = RR.Progress.carriedScore;
+        RR.Progress.riverStartScore = RR.Progress.carriedScore;
+        RR.Progress.riverStartDistance = RR.Progress.carriedDistance;
+        RR.Scores.forBoard('river-' + RR.Progress.level).refresh();
         RR.Collision.resetNearMisses();
         if (!reuse) RR.Renderer3D.buildScene();
         RR.Renderer3D._camPos = null;
@@ -584,6 +571,20 @@ RR.RiverScene = {
         if (RR.Scoring.logJumpFlash > 0) RR.Scoring.logJumpFlash -= dt;
         if (RR.Scoring.salmonFlash > 0) RR.Scoring.salmonFlash -= dt;
         if (RR.Scoring.shortcutFlash > 0) RR.Scoring.shortcutFlash -= dt;
+
+        // Finish celebration: coast to a stop past the gate. No steering,
+        // collisions, crashes or scoring -- just the show, then name entry.
+        if (this._finishHold > 0) {
+            this._finishHold -= dt;
+            boat.speed *= Math.pow(0.25, dt);
+            boat.z += boat.speed * dt;
+            RR.Audio.setEngine(0.15, boat.speed / Math.max(1, boat.getMaxSpeed()));
+            if (this._finishHold <= 0) {
+                this._finishHold = 0;
+                RR.Engine.changeScene(this._finishNext || RR.LevelCompleteScene);
+            }
+            return;
+        }
 
         if (RR.Input.justPressed('Escape')) {
             RR.Engine.pushOverlay(RR.PauseScene);
@@ -636,18 +637,24 @@ RR.RiverScene = {
         // Through the gate at the head of navigation -- level cleared.
         if (!this.finished && RR.River.finishZ && boat.z >= RR.River.finishZ) {
             this.finished = true;
-            RR.Scoring.addRouteBonus();   // ROUTE_BONUS, for running the gate
+            RR.Scoring.finishRiver(boat);
             RR.Scoring.saveHighScore();
             RR.Progress.carriedScore = RR.Scoring.score;
             RR.Progress.carriedDistance += boat.distanceTraveled;
             // Making the finish line is the best run there is -- it gets the
             // top-ten board too (Tyler, 2026-10-26: "if you make it to the
             // finish line you don't get to type in top score").
-            RR.Engine.changeScene(RR.Progress.boardThen(
-                RR.Scoring.getScore(), RR.Progress.carriedDistance, RR.LevelCompleteScene, true));
+            // FINISH CELEBRATION (Tyler, 2026-11-10: "you can't see them
+            // going off when you cross the finish line"). Hold the river for
+            // a moment so the boat coasts through under the fireworks, then
+            // go to name entry. Scoring froze at the line just above.
+            this._finishNext = RR.Progress.boardThen(
+                RR.Scoring.getScore(), RR.Progress.carriedDistance, RR.LevelCompleteScene, true);
+            this._finishHold = this.FINISH_HOLD;
             return;
         }
     },
+    FINISH_HOLD: 1.8,   // seconds of fireworks after the line, before name entry
 
     render3D: function (dt) {
         RR.Renderer3D.update(dt, RR.Engine.totalTime);
@@ -660,11 +667,21 @@ RR.RiverScene = {
         var H = C.CANVAS_HEIGHT;
         this.drawHUD(ctx, W, H);
         this.drawRiverIntro(ctx, W, H);
+        if (RR.Scoring.lineMultiplier > 1) {
+            ctx.save();ctx.textAlign='center';ctx.font='bold 18px '+C.FONT_UI;ctx.fillStyle='#a8f5ef';
+            ctx.fillText((RR.Scoring.lineMultiplier === 2 ? 'NARROW LINE' : 'TIGHT WATER')+'  ×'+RR.Scoring.lineMultiplier.toFixed(1)+' DISTANCE',W/2,102);ctx.restore();
+        }
+        // Large, brief repeats of the bank signs remain readable on phones.
+        var progress = RR.Boat.z / Math.max(1, RR.River.finishZ), signText = '';
+        if(progress>=0.48 && progress<0.53)signText='HALFWAY THERE';
+        else if(progress>=0.88 && progress<0.93)signText='FINAL STRETCH';
+        else if(progress>=0.96 && !this.finished)signText='FINISH AHEAD';
+        if(signText){ctx.save();ctx.fillStyle='rgba(6,18,27,0.88)';RR.UI.pill(ctx,W/2-190,H*0.27,380,46,8);ctx.fill();ctx.font='bold 26px '+C.FONT_UI;ctx.textAlign='center';ctx.fillStyle='#fff4b0';ctx.fillText(signText,W/2,H*0.27+32);ctx.restore();}
         if (RR.Scoring.logJumpFlash > 0 || RR.Boat.boostTimer > 0) {
             ctx.save();ctx.textAlign='center';ctx.font='bold 22px ' + C.FONT_UI;
             ctx.fillStyle='rgba(10,24,32,0.86)';RR.UI.pill(ctx,W/2-150,H*0.17,300,42,8);ctx.fill();
             ctx.fillStyle='#f5ce72';
-            ctx.fillText(RR.Scoring.logJumpFlash > 0 ? 'LOG CLEARED  +500' : 'RAMP BOOST  ' + RR.Boat.boostTimer.toFixed(1) + 's',W/2,H*0.17+28);
+            ctx.fillText(RR.Scoring.logJumpFlash > 0 ? 'LOG CLEARED  +' + C.JUMP_POINTS : 'RAMP +' + C.RAMP_POINTS + '  ' + RR.Boat.boostTimer.toFixed(1) + 's',W/2,H*0.17+28);
             ctx.restore();
         }
     },
@@ -1453,6 +1470,7 @@ RR.LevelCompleteScene = {
 
     enter: function () {
         this.time = 0;
+        this.tourComplete = RR.Progress.level >= RR.RiverLevels.profiles.length;
         RR.Audio.stopMusic();
         RR.Audio.play('horn', 0.8);
     },
@@ -1460,6 +1478,9 @@ RR.LevelCompleteScene = {
     update: function (dt) {
         this.time += dt;
         if (this.time < 0.6) return;
+        if(this.tourComplete && (this.time>=6 || RR.Input.justPressed('Enter') || RR.Input.justPressed('Space') || RR.Input.clicked || RR.Input.justPressed('Escape'))){
+            RR.Input.clicked=false;RR.Progress.reset();RR.Scoring.reset();RR.Engine.changeScene(RR.MenuScene);return;
+        }
         if (RR.Input.justPressed('Enter') || RR.Input.justPressed('Space') || RR.Input.clicked) {
             RR.Input.clicked = false;
             RR.Progress.level++;
@@ -1486,7 +1507,7 @@ RR.LevelCompleteScene = {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
-        UI.headline(ctx, currentRiver.name + ' CLEARED', W / 2, H * 0.20, 46, C.WB_WHITE, C.WB_BLUE);
+        UI.headline(ctx, this.tourComplete ? 'WORLD TOUR COMPLETE!' : currentRiver.name + ' CLEARED', W / 2, H * 0.20, 46, C.WB_WHITE, C.WB_BLUE);
         UI.label(ctx, 'LEVEL ' + RR.Progress.level + ' · ' + RR.Difficulty.getSelected().label + ' · ' + currentRiver.location,
             W / 2, H * 0.29, 14, C.WB_BLUE, 600);
 
@@ -1498,26 +1519,27 @@ RR.LevelCompleteScene = {
             // damaged, so a damaged run could report over 100%.
             ['TOP SPEED', Math.round(100 * RR.Boat.maxSpeed /
                 (RR.Config.MAX_SPEED * RR.Boat.getModel().speedMult)) + '%'],
-            ['NEAR MISSES', String(RR.Boat.nearMisses)]
+            ['TIME BONUS', '+' + RR.Scoring.finishTimeBonus],
+            ['RIVER TIME', RR.Scoring.elapsed.toFixed(1) + ' seconds']
         ];
         var i, ry;
         for (i = 0; i < rows.length; i++) {
-            ry = H * 0.42 + i * 34;
+            ry = H * 0.38 + i * 30;
             ctx.fillStyle = i % 2 === 0 ? 'rgba(223,227,230,0.05)' : 'rgba(223,227,230,0.02)';
             ctx.fillRect(W * 0.30, ry - 14, W * 0.40, 28);
             ctx.fillStyle = C.WB_BLUE;
             ctx.fillRect(W * 0.30, ry - 14, 3, 28);
-            UI.label(ctx, rows[i][0], W * 0.33, ry, 13, 'rgba(223,227,230,0.6)', 500, 'left');
-            UI.label(ctx, rows[i][1], W * 0.67, ry, 15, C.WB_WHITE, 600, 'right');
+            UI.label(ctx, rows[i][0], W * 0.33, ry, 16, 'rgba(223,227,230,0.6)', 500, 'left');
+            UI.label(ctx, rows[i][1], W * 0.67, ry, 18, C.WB_WHITE, 600, 'right');
         }
 
-        UI.headline(ctx, 'NEXT: ' + nextRiver.name, W / 2, H * 0.66, 26, C.WB_BLUE, null);
-        UI.label(ctx, nextRiver.location + ' · ' + nextRiver.tagline, W / 2, H * 0.72, 11, 'rgba(223,227,230,0.55)', 500);
+        UI.headline(ctx, this.tourComplete ? 'FINAL SCORE SAVED' : 'NEXT: ' + nextRiver.name, W / 2, H * 0.66, 26, C.WB_BLUE, null);
+        UI.label(ctx, this.tourComplete ? 'One tour. One final score. Start fresh from the menu.' : nextRiver.location + ' · ' + nextRiver.tagline, W / 2, H * 0.72, 11, 'rgba(223,227,230,0.55)', 500);
 
         if (this.time > 0.6) {
             var flash = (Math.sin(this.time * 3) + 1) * 0.5;
             ctx.globalAlpha = 0.55 + flash * 0.45;
-            UI.label(ctx, 'PRESS ENTER FOR LEVEL ' + nextLevel, W / 2, H * 0.85, 17, C.WB_WHITE, 600);
+            UI.label(ctx, this.tourComplete ? 'RETURNING TO MENU · TAP TO CONTINUE' : 'PRESS ENTER FOR LEVEL ' + nextLevel, W / 2, H * 0.85, 17, C.WB_WHITE, 600);
             ctx.globalAlpha = 1;
         }
         UI.label(ctx, 'ESC — BACK TO MENU', W / 2, H * 0.92, 12, 'rgba(223,227,230,0.4)', 500);

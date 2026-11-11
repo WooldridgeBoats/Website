@@ -36,7 +36,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 define('RR_KEEP', 50);          /* rows kept on disk (the game shows 10) */
 define('RR_SHOW', 10);
 define('RR_MAX_SCORE', 5000000);
-define('RR_RATE_PER_HOUR', 30); /* posts per IP per hour */
+define('RR_RATE_PER_HOUR', 60); /* posts per IP per hour, all nine boards together (30 -> 60 on 2026-11-10: a tour now also posts each river's own board) */
 
 function rr_out($code, $arr) { http_response_code($code); echo json_encode($arr); exit; }
 
@@ -104,7 +104,13 @@ function rr_public($list) {
 
 $dir = rr_data_dir();
 if (!$dir) rr_out(500, array('ok' => false, 'error' => 'storage'));
-$file = $dir . '/scores.json';
+// Keep the existing scores.json untouched as the World Tour board.
+// New river files start empty; never infer river-only points from old totals.
+$board = isset($_GET['board']) ? (string)$_GET['board'] : 'world-tour';
+if ($board !== 'world-tour' && !preg_match('/^river-[1-8]$/D', $board)) {
+  rr_out(400, array('ok' => false, 'error' => 'board'));
+}
+$file = $dir . ($board === 'world-tour' ? '/scores.json' : '/scores-' . $board . '.json');
 
 /* ---- read ------------------------------------------------------------ */
 $fh = @fopen($file, 'c+');

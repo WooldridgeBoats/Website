@@ -412,16 +412,16 @@ RR.Renderer3D = {
             // The board, nailed on facing downstream at eye level from a boat.
             // Sized to read from mid-channel at speed, which is the only
             // place and pace anyone will ever see it from.
-            var boardW = 46, boardH = boardW * (160 / 512);
+            var boardW = 76, boardH = boardW * (160 / 512);
             var board = new THREE.Mesh(
                 new THREE.PlaneGeometry(boardW, boardH),
                 new THREE.MeshBasicMaterial({
-                    map: self._makeSignTexture(m.text),
+                    map: self._makeSignTexture(m.text), toneMapped: false,
                     side: THREE.DoubleSide
                 }));
             // Stand it just off the trunk on the river side.
             var off = 6.4;
-            board.position.set(p.x, 17, p.z);
+            board.position.set(p.x, 24, p.z);
             board.rotation.y = facing + Math.PI;
             board.translateZ(off);
             g.add(board);
@@ -1370,7 +1370,7 @@ RR.Renderer3D = {
 
         var L = this.getWorldPos(RR.River.finishZ, -1.15);
         var R = this.getWorldPos(RR.River.finishZ, 1.15);
-        var postH = 26;
+        var postH = 44;
 
         var i, p;
         for (i = 0; i < 2; i++) {
@@ -1384,8 +1384,8 @@ RR.Renderer3D = {
         var span = Math.sqrt(dx * dx + dz * dz);
         // Segmented so it can be waved. 30 across is enough for a smooth
         // travelling wave without the vertex loop showing up in a frame.
-        var banner = new THREE.Mesh(new THREE.PlaneGeometry(span, 9, 30, 4), bannerMat);
-        banner.position.set((L.x + R.x) / 2, postH - 5.5, (L.z + R.z) / 2);
+        var banner = new THREE.Mesh(new THREE.PlaneGeometry(span, 16, 30, 4), bannerMat);
+        banner.position.set((L.x + R.x) / 2, postH - 9, (L.z + R.z) / 2);
         // + PI so the plane's FRONT face points downstream, at the boat. The
         // material is DoubleSide so the banner is solid either way, but the
         // back face shows the texture mirrored -- without this, FINISH reads
@@ -1400,8 +1400,169 @@ RR.Renderer3D = {
             banner.geometry.getAttribute('position').array);
         this._finishSpan = span;
 
+        // FINISH PARTY (Tyler, 2026-11-10: "more colorful lights on both
+        // banks and stronger sweeping beams"). Light poles line both banks on
+        // the run-in to the gate, plus the gate posts' own fixtures. Glowing
+        // MeshBasic + additive cones only -- no real lights, shadows or
+        // postprocessing -- and phones (LITE) get fewer poles and coarser
+        // cones, so the finish costs a few dozen cheap draw calls at most.
+        // Tyler: the party must ONLY show close to the finish line. All of it
+        // lives in one group that _updateFinishParty hides until the boat is
+        // within FINISH_PARTY_RANGE world units of the gate.
+        var party = new THREE.Group(); party.visible = false; g.add(party);
+        this._finishPartyGroup = party;
+        this._finishParty = [];
+        var LITE = !!RR.Config.LITE;
+        var colors = [0x16e6ff, 0xff42b3, 0xffd54a, 0x39ff7a, 0xa66bff, 0xff8a2a];
+        var poleMat = new THREE.MeshStandardMaterial({ color: 0x2A3036, roughness: 0.6, metalness: 0.4 });
+        var poles = LITE ? 3 : 4, spacing = 40;    // world units between poles: tight to the gate
+        var cone = LITE ? 8 : 14, k = 0, self = this;
+        function addLight(x, y, z, side, color, beamLen, beamR) {
+            var bulbMat = new THREE.MeshBasicMaterial({ color: color, toneMapped: false, fog: false });
+            var fixture = new THREE.Mesh(new THREE.SphereGeometry(4.2, LITE ? 8 : 12, LITE ? 6 : 8), bulbMat);
+            fixture.position.set(x, y, z); party.add(fixture);
+            var pivot = new THREE.Group(); pivot.position.set(x, y, z);
+            // Normal (not additive) blending: additive goes near-white against
+            // the overcast sky, and these should read as COLOURED beams.
+            var beamMat = new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.3, fog: false,
+                depthWrite: false, side: THREE.DoubleSide, toneMapped: false });
+            var beam = new THREE.Mesh(new THREE.ConeGeometry(beamR, beamLen, cone, 1, true), beamMat);
+            beam.rotation.z = Math.PI; beam.position.y = beamLen / 2; pivot.add(beam); party.add(pivot);
+            self._finishParty.push({ pivot: pivot, fixture: fixture, beamMat: beamMat,
+                phase: k * 0.9 + side * 2.1, chase: k, side: side });
+            k++;
+        }
+        // Gate posts: three fixtures stacked up each post, as before but brighter.
+        [L, R].forEach(function (bank, side) {
+            for (var n = 0; n < 3; n++) addLight(bank.x, 12 + n * 14, bank.z, side, colors[(n + side * 3) % 6], 120, 16);
+        });
+        // Bank poles leading up to the gate, both sides, colors running in a
+        // chase down the line.
+        // Walk back up the river in small steps and drop a pair of poles
+        // every `spacing` WORLD units, so they stay evenly spread round bends
+        // (river z units are ~20x smaller than world units).
+        var placed = [], walkZ = RR.River.finishZ, prev = this.getWorldPos(walkZ, 0), run = 0;
+        while (placed.length < poles && walkZ > RR.Config.SEGMENT_LENGTH) {
+            walkZ -= RR.Config.SEGMENT_LENGTH;
+            var here = this.getWorldPos(walkZ, 0);
+            run += Math.sqrt((here.x - prev.x) * (here.x - prev.x) + (here.z - prev.z) * (here.z - prev.z));
+            prev = here;
+            if (run >= spacing) { placed.push(walkZ); run = 0; }
+        }
+        for (var pi = 1; pi <= placed.length; pi++) {
+            var pz = placed[pi - 1];
+            [-1.28, 1.28].forEach(function (lat, side) {
+                var b = self.getWorldPos(pz, lat), h = 34;
+                var pole = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.9, h, 6), poleMat);
+                pole.position.set(b.x, h / 2, b.z); party.add(pole);
+                addLight(b.x, h + 2, b.z, side, colors[(pi * 2 + side) % 6], 140, 18);
+            });
+        }
+        // FIREWORKS over the gate (Tyler, 2026-11-10). A small pool of
+        // bursts, each one THREE.Points object of sparks that fly out, fall
+        // and fade -- one draw call per live burst, no lights. Phones get
+        // fewer, smaller bursts.
+        this._fireworks = [];
+        var nB = LITE ? 5 : 8, nP = LITE ? 48 : 90;
+        // Round, soft-edged spark (a plain PointsMaterial draws hard squares).
+        if (!this._sparkTex) {
+            var sc = document.createElement('canvas'); sc.width = sc.height = 64;
+            var sx = sc.getContext('2d'), sgr = sx.createRadialGradient(32, 32, 0, 32, 32, 32);
+            sgr.addColorStop(0, 'rgba(255,255,255,1)'); sgr.addColorStop(0.35, 'rgba(255,255,255,0.95)');
+            sgr.addColorStop(0.7, 'rgba(255,255,255,0.35)'); sgr.addColorStop(1, 'rgba(255,255,255,0)');
+            sx.fillStyle = sgr; sx.fillRect(0, 0, 64, 64);
+            this._sparkTex = new THREE.CanvasTexture(sc);
+            this._sparkTex._rrShared = true;   // memoized: _disposeGroup must not free it
+        }
+        for (var fb = 0; fb < nB; fb++) {
+            var fgeo = new THREE.BufferGeometry();
+            fgeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(nP * 3), 3));
+            fgeo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(nP * 3), 3));
+            // Normal blending: additive turns to white against the bright sky.
+            var fmat = new THREE.PointsMaterial({ size: LITE ? 12 : 10, map: this._sparkTex, vertexColors: true,
+                transparent: true, opacity: 0, depthWrite: false, fog: false, toneMapped: false });
+            var pts = new THREE.Points(fgeo, fmat);
+            pts.frustumCulled = false; pts.visible = false; party.add(pts);
+            // Layer 1: the main camera sees it, the water-reflection camera
+            // (default layer 0 only) doesn't -- reflected bursts read as odd
+            // blobs floating beside the boat.
+            pts.layers.set(1);
+            this._fireworks.push({ pts: pts, vel: new Float32Array(nP * 3), age: 99, life: 1.8 });
+        }
+        if (this.camera) this.camera.layers.enable(1);
+        this._fwNext = 0; this._fwLast = null;
+        var gc = this.getWorldPos(RR.River.finishZ, 0), up = this.getWorldPos(RR.River.finishZ - 2000, 0);
+        var fl = Math.sqrt((gc.x - up.x) * (gc.x - up.x) + (gc.z - up.z) * (gc.z - up.z)) || 1;
+        this._fwGate = { x: (L.x + R.x) / 2, z: (L.z + R.z) / 2, span: span,
+                         ux: dx / (span || 1), uz: dz / (span || 1),
+                         fx: (gc.x - up.x) / fl, fz: (gc.z - up.z) / fl };   // downstream
         this.finishGate = g;
         this.scene.add(g);
+    },
+
+    // Shows/hides the finish party and flies the fireworks. Nothing shows
+    // until the boat is within FINISH_PARTY_RANGE of the gate.
+    FINISH_PARTY_RANGE: 500,   // world units from the gate before the lights show (~2 s at speed)
+    FIREWORKS_RANGE: 600,      // ...and the fireworks: ~2-3 s before the line, then on through the
+                               // finish celebration (Tyler: "go off sooner")
+
+    _updateFireworks: function (time) {
+        var fw = this._fireworks, G = this._fwGate;
+        if (!fw || !G || !RR.Boat || !RR.River.finishZ) return;
+        var dt = this._fwLast === null ? 0 : Math.min(0.1, Math.max(0, time - this._fwLast));
+        this._fwLast = time;
+        // Close to the gate only (world distance, so bends don't fool it).
+        var bp = this.getWorldPos(RR.Boat.z, 0);
+        var gd = Math.sqrt((bp.x - G.x) * (bp.x - G.x) + (bp.z - G.z) * (bp.z - G.z));
+        var near = gd < this.FINISH_PARTY_RANGE || (RR.Boat.z >= RR.River.finishZ && RR.Boat.z < RR.River.finishZ + 9000);
+        if (this._finishPartyGroup) this._finishPartyGroup.visible = near;
+        // Fireworks only go off RIGHT before the line (Tyler, 2026-11-10).
+        var past = RR.Boat.z >= RR.River.finishZ;
+        var launch = (gd < this.FIREWORKS_RANGE && !past) || (past && RR.Boat.z < RR.River.finishZ + 9000);
+        var colors = [[0.09, 0.9, 1], [1, 0.26, 0.7], [1, 0.84, 0.29], [0.22, 1, 0.48], [0.65, 0.42, 1], [1, 0.54, 0.16]];
+        if (launch && time >= this._fwNext) {
+            var free = null, i;
+            for (i = 0; i < fw.length; i++) if (fw[i].age >= fw[i].life) { free = fw[i]; break; }
+            if (free) {
+                this._fwNext = time + (past ? 0.12 : 0.24) + Math.random() * 0.16;   // faster over the line
+                // Across the river, and 40-140 units PAST the gate so the
+                // bursts stay in frame on the run-in and as the boat crosses.
+                // Over the line, the boat coasts on past the gate -- so the
+                // celebration bursts go off AHEAD of the boat, where the
+                // camera is looking, not back over the gate behind it.
+                var off = (Math.random() - 0.5) * G.span * 1.1, ahead = 40 + Math.random() * 100;
+                var ox = past ? bp.x : G.x, oz = past ? bp.z : G.z;
+                if (past) ahead = 220 + Math.random() * 140;   // far enough the coasting boat never flies through one
+                var cx = ox + G.ux * off + G.fx * ahead, cz = oz + G.uz * off + G.fz * ahead;
+                var cy = past ? 28 + Math.random() * 34 : 50 + Math.random() * 50;   // lower once over the line: in frame
+                var c1 = colors[Math.floor(Math.random() * 6)], c2 = colors[Math.floor(Math.random() * 6)];
+                var pos = free.pts.geometry.getAttribute('position'), col = free.pts.geometry.getAttribute('color');
+                var n = pos.count, sp = 38 + Math.random() * 22;
+                for (i = 0; i < n; i++) {
+                    var u = Math.random() * 2 - 1, th = Math.random() * Math.PI * 2, r = Math.sqrt(1 - u * u);
+                    var v = sp * (0.75 + Math.random() * 0.25);
+                    free.vel[i * 3] = r * Math.cos(th) * v; free.vel[i * 3 + 1] = u * v; free.vel[i * 3 + 2] = r * Math.sin(th) * v;
+                    pos.array[i * 3] = cx; pos.array[i * 3 + 1] = cy; pos.array[i * 3 + 2] = cz;
+                    var cc = i % 3 ? c1 : c2;
+                    col.array[i * 3] = cc[0]; col.array[i * 3 + 1] = cc[1]; col.array[i * 3 + 2] = cc[2];
+                }
+                col.needsUpdate = true; pos.needsUpdate = true;
+                free.age = 0; free.life = 1.6 + Math.random() * 0.6; free.pts.visible = true;
+            }
+        }
+        for (var b = 0; b < fw.length; b++) {
+            var f = fw[b];
+            if (f.age >= f.life) { f.pts.visible = false; continue; }
+            f.age += dt;
+            var p = f.pts.geometry.getAttribute('position'), drag = Math.pow(0.35, dt);
+            for (var k = 0; k < p.count; k++) {
+                f.vel[k * 3] *= drag; f.vel[k * 3 + 1] = f.vel[k * 3 + 1] * drag - 22 * dt; f.vel[k * 3 + 2] *= drag;
+                p.array[k * 3] += f.vel[k * 3] * dt; p.array[k * 3 + 1] += f.vel[k * 3 + 1] * dt; p.array[k * 3 + 2] += f.vel[k * 3 + 2] * dt;
+            }
+            p.needsUpdate = true;
+            var life = f.age / f.life;
+            f.pts.material.opacity = life < 0.08 ? 1 : Math.max(0, 1 - (life - 0.08) / 0.92);
+        }
     },
 
     // What the built scene is a function of. Everything buildScene draws comes
@@ -3304,6 +3465,15 @@ RR.Renderer3D = {
         // Deck layout: exactly one rig visible. An unknown layout falls back
         // to the Alaskan's windshield rig.
         var layout = C.trait(model, 'layout');
+        if(this._grantSeated){
+            var standing=layout==='console'||layout==='lt';
+            this._grantSeated.visible=layout!=='tiller'&&!standing;
+            this._grantStanding.visible=layout!=='tiller'&&standing;
+            var poses={windshield:[-0.86,0.30,1.90],console:[0,0.30,-2.38],lt:[0,0.30,-1.90],walkthrough:[-0.90,0.30,1.70],skagit:[-0.80,0.30,1.55],cabin:[-0.80,0.30,0.5]};
+            var pose=poses[layout]||poses.windshield;
+            this._grantSeated.position.set(pose[0],pose[1],pose[2]);this._grantStanding.position.set(pose[0],pose[1],pose[2]);
+        }
+
         if (this._boatRigs) {
             var rigKey = this._boatRigs[layout] ? layout : 'windshield';
             for (var rk in this._boatRigs) this._boatRigs[rk].visible = (rk === rigKey);
@@ -3371,6 +3541,30 @@ RR.Renderer3D = {
                 this._logoRigs.std.visible = this._logoRigs.rogue.visible = this._logoRigs.white.visible = false;
             }
         }
+    },
+
+    launchBoatPreview: function () {
+        var model=RR.Boat.getModel(),cad=this._cadRigs&&this._cadRigs[model.id];
+        var key=model.id+':'+(cad?cad.uuid:'loading')+':'+(this._decals.white.port.image.width);
+        if(this._launchPreviewKey===key)return this._launchPreview;
+        this._applyBoatModel();
+        var scene=new THREE.Scene(),copy=this.boatGroup.clone(true),remove=[];
+        copy.visible=true;copy.position.set(0,0,0);copy.rotation.set(0,0,0);
+        copy.traverse(function(o){if(!o.visible)remove.push(o);});remove.forEach(function(o){if(o.parent)o.parent.remove(o);});scene.add(copy);
+        scene.add(new THREE.HemisphereLight(0xe5f4ff,0x56615a,1.4));
+        var sun=new THREE.DirectionalLight(0xffffff,2);sun.position.set(20,40,20);scene.add(sun);
+        copy.updateMatrixWorld(true);var bounds=new THREE.Box3().setFromObject(copy),center=bounds.getCenter(new THREE.Vector3()),size=bounds.getSize(new THREE.Vector3());
+        var width=Math.max(size.z*1.12,size.y*2.4),height=width/2;
+        var cam=new THREE.OrthographicCamera(-width/2,width/2,height/2,-height/2,0.1,250);
+        cam.position.set(65,center.y+12,center.z);cam.lookAt(center);
+        var target=new THREE.WebGLRenderTarget(512,256);target.texture.encoding=THREE.sRGBEncoding;
+        var renderer=this.renderer,previous=renderer.getRenderTarget(),clear=renderer.getClearColor(new THREE.Color()).clone(),alpha=renderer.getClearAlpha();
+        var pixels=new Uint8Array(512*256*4);
+        try{renderer.setRenderTarget(target);renderer.setClearColor(0x000000,0);renderer.clear();renderer.render(scene,cam);renderer.readRenderTargetPixels(target,0,0,512,256,pixels);}
+        finally{renderer.setRenderTarget(previous);renderer.setClearColor(clear,alpha);target.dispose();}
+        var canvas=document.createElement('canvas');canvas.width=512;canvas.height=256;var ctx=canvas.getContext('2d'),data=ctx.createImageData(512,256);
+        for(var y=0;y<256;y++)data.data.set(pixels.subarray((255-y)*512*4,(256-y)*512*4),y*512*4);
+        ctx.putImageData(data,0,0);canvas.modelId=model.id;this._launchPreview=canvas;this._launchPreviewKey=key;return canvas;
     },
 
     // ---- REAL CAD HULLS (2026-10-26) ---------------------------------------
@@ -4328,6 +4522,26 @@ RR.Renderer3D = {
         addTo=tillerRig;
         tube(0,0.95,-5.2,-0.08,1.38,-4.20,0.055,frameMat);tube(-0.08,1.38,-4.20,-0.08,1.38,-4.0,0.065,vinylMat);
         this._tillerDriver=driver;
+        function helmDriver(seated) {
+            var person=new THREE.Group();person.name=seated?'GrantSeated':'GrantStanding';
+            var drop=seated?0.42:0;addTo=person;
+            softBox(0.62,0.84,0.36,0,1.38-drop,0,0.12,hoodie);
+            softBox(0.5,0.23,0.33,0,0.91-drop,0,0.07,pants);
+            [head,beard,hairTop,cap,brim,capPatch].forEach(function(part){var cp=part.clone();cp.position.y-=drop;person.add(cp);});
+            [-1,1].forEach(function(side){
+                var kneeZ=seated?0.42:0.06,kneeY=seated?0.50:0.46;
+                tube(side*0.17,0.91-drop,0,side*0.2,kneeY,kneeZ,0.105,pants);
+                tube(side*0.2,kneeY,kneeZ,side*0.22,0.08,kneeZ,0.085,pants);
+                softBox(0.19,0.14,0.32,side*0.22,0.06,kneeZ+0.10,0.04,frameMat);
+                tube(side*0.29,1.64-drop,0,side*0.36,1.30-drop,0.23,0.085,hoodie);
+                tube(side*0.36,1.30-drop,0.23,side*0.22,1.21-drop,0.56,0.065,skin);
+            });
+            return person;
+        }
+        this._grantSeated=helmDriver(true);this._grantStanding=helmDriver(false);
+        this.boatGroup.add(this._grantSeated);this.boatGroup.add(this._grantStanding);
+        addTo=tillerRig;
+
 
         // Everything built straight onto boatGroup so far is the hand-built
         // HULL (plating, cap, sole, bow deck). Gather it into one group so a
@@ -4903,6 +5117,7 @@ RR.Renderer3D = {
         this._updateVisibleObjects(boat);
         this._updateWildlife(boat, time);
         this._updateFinishBanner(time);
+        this._updateFireworks(time);
         this._updateCrocs(boat, time);
         // Keep the pyramids on the horizon ahead, the same way the mountain
         // backdrop is re-parked -- they are scenery, not something you pass.
@@ -4952,6 +5167,16 @@ RR.Renderer3D = {
     // free. Two frequencies beat against each other so it never looks like a
     // single clean sine.
     _updateFinishBanner: function (time) {
+        // Wide sweeps that lean out over the river, and a pulse that chases
+        // down each bank so the whole run-in flickers like a party.
+        if (this._finishParty) this._finishParty.forEach(function (light) {
+            light.pivot.rotation.z = (light.side ? 1 : -1) * (0.35 + 0.55 * Math.sin(time * 1.1 + light.phase));
+            light.pivot.rotation.x = 0.45 * Math.sin(time * 0.8 + light.phase);
+            var pulse = 0.5 + 0.5 * Math.sin(time * 4.0 - light.chase * 0.8);
+            light.beamMat.opacity = 0.22 + 0.28 * pulse;
+            var sc = 0.85 + 0.35 * pulse;
+            light.fixture.scale.set(sc, sc, sc);
+        });
         var banner = this._finishBanner;
         if (!banner) return;
         var pos = banner.geometry.getAttribute('position');

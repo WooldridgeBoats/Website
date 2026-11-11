@@ -465,12 +465,9 @@ RR.MenuScene = {
     },
 
     optionLabel: function (index) {
-        if (index === 2) return 'RIVER · ◀  [ ' + RR.RiverLevels.getSelected().name + ' ]  ▶';
+        if (index === 2) return 'RIVER · ◀  ' + RR.RiverLevels.getSelected().name + '  ▶';
         if (index !== 3) return this.options[index];
-        var active = RR.Difficulty.getSelected().label;
-        return 'DIFFICULTY · ' + (active === 'EASY' ? '[ EASY ]' : 'EASY') + ' / ' +
-            (active === 'MEDIUM' ? '[ MEDIUM ]' : 'MEDIUM') + ' / ' +
-            (active === 'HARD' ? '[ HARD ]' : 'HARD');
+        return 'DIFFICULTY · EASY / MEDIUM / HARD';
     },
 
     render: function (ctx) {
@@ -530,6 +527,16 @@ RR.MenuScene = {
                 }
                 UI.label(ctx, r.label, W / 2, r.cy, 19,
                     i === this.hot ? 'rgba(223,227,230,0.85)' : 'rgba(223,227,230,0.55)', 500);
+            }
+            if (i === 2 || i === 3) {
+                var active = i === 2 ? RR.RiverLevels.getSelected().name : RR.Difficulty.getSelected().label;
+                var size = isSelected ? this.ROW_SIZE : 19, weight = isSelected ? 600 : 500;
+                var tracking = size * .09;
+                ctx.font = weight + ' ' + size + 'px ' + C.FONT_UI;
+                var left = W/2 - UI.trackedWidth(ctx,r.label,tracking)/2;
+                var prefix = r.label.slice(0,r.label.indexOf(active));
+                if (prefix.length) left += UI.trackedWidth(ctx,prefix,tracking) + tracking;
+                UI.label(ctx,active,left,r.cy,size,C.UI_GOLD,weight,'left');
             }
         }
 
@@ -867,12 +874,14 @@ RR.NameEntryScene = {
     distance: 0,
 
     // RiverScene hands the run in before switching to this scene.
-    prime: function (score, distance, next) {
+    prime: function (score, distance, next, entries) {
+        this.entries = entries || [{board:"world-tour",score:score,distance:distance}];
+        var board = RR.Scores.forBoard(this.entries[0].board);
         this.next = next || RR.CrashScene;
         this.score = Math.floor(score);
         this.distance = distance || 0;
-        this.qualifies = RR.Scores.qualifies(this.score);
-        this.rank = RR.Scores.rankFor(this.score);
+        this.qualifies = board.qualifies(this.score);
+        this.rank = board.rankFor(this.score);
         this.first = '';
         this.initial = '';
         this.field = 0;
@@ -905,7 +914,9 @@ RR.NameEntryScene = {
             var run = (RR.Progress.runName && RR.Progress.runName.run) || ('r' + Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36));
             // Keep the named personal result even when the shared top ten is full.
             try { localStorage.setItem('rr_last_named_run',JSON.stringify({first:this.first,last:this.initial,score:this.score,river:RR.River.profile.name,run:run})); } catch(e) {}
-            if (this.qualifies) RR.Scores.add(this.first, this.initial, this.score, this.distance, run);
+            this.entries.forEach(function(e) {
+                if (e.score >= RR.Scores.MIN) RR.Scores.forBoard(e.board).add(this.first, this.initial, e.score, e.distance, run);
+            }, this);
             // Remember who's driving for the rest of this tour -- after a
             // crash too, since RETRY continues the same run (one board row).
             RR.Progress.runName = { first: this.first, initial: this.initial, run: run };
@@ -959,7 +970,7 @@ RR.NameEntryScene = {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
-        UI.headline(ctx, this.qualifies ? 'TOP TEN RUN' : 'RIVER COMPLETE', W / 2, H * 0.13, 44, C.UI_GOLD, C.WB_BLUE);
+        UI.headline(ctx, this.entries && this.entries.length > 1 ? 'RIVER + WORLD TOUR' : this.qualifies ? 'RIVER TOP TEN' : 'RIVER COMPLETE', W / 2, H * 0.13, 44, C.UI_GOLD, C.WB_BLUE);
         UI.label(ctx, this.qualifies ? 'YOU PLACED #' + this.rank + ' WITH ' + this.score.toLocaleString() : 'NAME YOUR RUN · '+this.score.toLocaleString()+' POINTS · SAVED ON THIS DEVICE',
             W / 2, H * 0.205, 15, C.WB_WHITE, 600);
         UI.label(ctx, RR.BoatCatalog.getSelected().model + ' · ' +
@@ -1019,39 +1030,83 @@ RR.NameEntryScene = {
 };
 
 RR.HighScoresScene = {
-    enter: function () { RR.Scoring.loadHighScore(); RR.Scores.refresh(); RR.Scores.load(); },
-
-    update: function (dt) {
-        if (RR.Input.justPressed('Escape') || RR.Input.justPressed('Enter') ||
-                RR.Input.justPressed('Space') || RR.Input.clicked) {
-            RR.Input.clicked = false;
-            RR.Engine.changeScene(RR.MenuScene);
+    // Static scenery captures keep the score screen inexpensive on phones.
+    loadArt: function () {
+        if (this.art) return;
+        this.art = [];
+        for (var n=1;n<=8;n++) { var img=new Image(); img.src='GAME/ASSETS/UI/SCOREBOARDS/river-'+n+'.jpg'; this.art.push(img); }
+        this.xl = new Image(); this.xl.src='GAME/ASSETS/UI/SCOREBOARDS/alaskan-xl-approved.png?v=approved1';
+        this.atlas=new Image();this.atlas.src='GAME/ASSETS/UI/SCOREBOARDS/world-atlas.svg';
+    },
+    drawAtlas: function (ctx, W, H) {
+        if(this.atlas.complete && this.atlas.naturalWidth) ctx.drawImage(this.atlas,W*.018,H*.255,W*.58,H*.49);
+        var names=['SKYQUALMIE','ROGUE','COLORADO','AMAZON','ZAMBEZI','MEKONG','RHINE','NILE'];
+        names.forEach(function(name,i){RR.UI.label(ctx,(i+1)+'  '+name,W*(.06+(i%4)*.14),H*(.79+Math.floor(i/4)*.05),13,'#e3f5ee',600,'left');});
+    },
+    drawArt: function (ctx, W, H) {
+        this.loadArt();
+        ctx.fillStyle='#0c202b';ctx.fillRect(0,0,W,H);
+        if (this.boardIndex) {
+            RR.UI.drawCover(ctx,this.art[this.boardIndex-1],0,0,W,H);
+            ctx.fillStyle='rgba(3,14,23,.48)';ctx.fillRect(0,0,W,H);
+        } else {
+            this.drawAtlas(ctx,W,H);
+            ctx.fillStyle='rgba(3,14,23,0)';ctx.fillRect(0,0,W,H);
+            // Separate thumbnail above the table: never overlaps score rows.
+            // Ends left of the speaker button (1236,44), which sat on the motor.
+            var bx=W*.775,by=H*.025,bw=W*.16,bh=H*.135;
+            ctx.save();RR.UI.pill(ctx,bx,by,bw,bh,8);ctx.clip();if(this.xl.complete&&this.xl.naturalWidth)ctx.drawImage(this.xl,bx,by,bw,bh);ctx.restore();
+            RR.UI.label(ctx,'ALASKAN WINDSHIELD XL',bx+bw/2,by+bh+12,10,'#c9e2e7',600);
         }
+        ctx.fillStyle='rgba(4,15,23,.72)';RR.UI.pill(ctx,W*(this.boardIndex?.115:.61),H*.255,W*(this.boardIndex?.77:.375),H*.55,12);ctx.fill();
+    },
+
+    boardIndex: 0,
+    selectBoard: function (delta) {
+        this.boardIndex = (this.boardIndex + delta + 9) % 9;
+        this.board = RR.Scores.forBoard(this.boardIndex ? 'river-' + this.boardIndex : 'world-tour');
+        this.board.refresh();
+    },
+    enter: function () { this.boardIndex=0; this.selectBoard(0); },
+    update: function () {
+        var I=RR.Input, W=RR.Config.CANVAS_WIDTH, H=RR.Config.CANVAS_HEIGHT;
+        if (I.justPressed('ArrowLeft')) this.selectBoard(-1);
+        if (I.justPressed('ArrowRight')) this.selectBoard(1);
+        if (I.clicked && I.mouseY >= H*.14 && I.mouseY <= H*.25) {
+            this.selectBoard(I.mouseX < W/2 ? -1 : 1); I.clicked=false; return;
+        }
+        if (I.justPressed('Escape') || I.justPressed('Enter') || I.justPressed('Space') || (I.clicked && I.mouseY > H*.85)) {
+            I.clicked=false; RR.Engine.changeScene(RR.MenuScene);
+        }
+        I.clicked=false;
     },
 
     render: function (ctx) {
         var W = RR.Config.CANVAS_WIDTH, H = RR.Config.CANVAS_HEIGHT;
         var C = RR.Config, UI = RR.UI, S = RR.Scoring;
-        UI.backdrop(ctx, W, H);
+        this.drawArt(ctx, W, H);
         UI.topRule(ctx, W);
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        UI.headline(ctx, 'HIGH SCORES', W / 2, H * 0.14, 42, C.WB_WHITE, C.WB_BLUE);
+        UI.headline(ctx, 'HIGH SCORES', W / 2, H * 0.095, 34, C.WB_WHITE, C.WB_BLUE);
 
-        var list = RR.Scores.load();     // re-read each frame: the shared board lands async
-        var x0 = W * 0.13, x1 = W * 0.87, rowH = 40, top = H * 0.235;
+        var title = this.boardIndex ? RR.RiverLevels.profiles[this.boardIndex-1].name : 'WORLD TOUR';
+        UI.label(ctx, '\u25C0     '+title.toUpperCase()+'     \u25B6', W/2, H*.19, 20, C.WB_WHITE, 700);
+        var list = this.board.load();
+        var world = !this.boardIndex;
+        var x0 = W * (world ? .62 : .13), x1 = W * (world ? .975 : .87), rowH = Math.min(40, H * 0.052), top = H * 0.28;
 
         // Column header
-        UI.label(ctx, '#', x0 + 18, top, 11, 'rgba(223,227,230,0.4)', 600, 'left');
-        UI.label(ctx, 'NAME', x0 + 62, top, 11, 'rgba(223,227,230,0.4)', 600, 'left');
-        UI.label(ctx, 'BOAT · RIVER', W * 0.44, top, 11, 'rgba(223,227,230,0.4)', 600, 'left');
-        UI.label(ctx, 'SCORE', x1 - 18, top, 11, 'rgba(223,227,230,0.4)', 600, 'right');
+        UI.label(ctx, '#', x0 + 18, top, 11, 'rgba(223,227,230,0.75)', 600, 'left');
+        UI.label(ctx, 'NAME', x0 + 62, top, 11, 'rgba(223,227,230,0.75)', 600, 'left');
+        if(!world) UI.label(ctx, 'BOAT · RIVER', W * 0.44, top, 11, 'rgba(223,227,230,0.75)', 600, 'left');
+        UI.label(ctx, 'SCORE', x1 - 18, top, 11, 'rgba(223,227,230,0.75)', 600, 'right');
 
         if (!list.length) {
-            UI.label(ctx, 'NO RUNS ON THE BOARD YET', W / 2, H * 0.46, 16,
-                'rgba(223,227,230,0.45)', 600);
-            UI.label(ctx, 'FINISH A RUN AND YOU CAN PUT YOUR NAME UP HERE', W / 2, H * 0.52, 12,
-                'rgba(223,227,230,0.32)', 500);
+            UI.label(ctx, 'NO RUNS ON THE BOARD YET', (world ? W*.8 : W/2), H * 0.46, 16,
+                'rgba(223,227,230,0.75)', 600);
+            UI.label(ctx, world ? 'COMPLETE ALL EIGHT RIVERS' : 'FINISH A RUN AND YOU CAN PUT YOUR NAME UP HERE', (world ? W*.8 : W/2), H * 0.52, 12,
+                'rgba(223,227,230,0.65)', 500);
         }
 
         var i, ry, e;
@@ -1063,36 +1118,36 @@ RR.HighScoresScene = {
             ctx.fillStyle = i === 0 ? C.UI_GOLD : C.WB_BLUE;
             ctx.fillRect(x0, ry - 16, 3, 32);
 
-            UI.label(ctx, String(i + 1), x0 + 18, ry, 13,
+            UI.label(ctx, String(i + 1), x0 + 18, ry, 15,
                 i === 0 ? C.UI_GOLD : 'rgba(223,227,230,0.55)', 600, 'left');
             // Full names can run long: shrink the type to fit the column
             // rather than run into BOAT · RIVER.
-            var nm = RR.Scores.display(e), nfs = 14;
-            var nAvail = W * 0.44 - (x0 + 62) - 14;
+            var nm = RR.Scores.display(e), nfs = 18;
+            var nAvail = (world ? x1-105 : W * .44) - (x0 + 62) - 14;
             ctx.font = '600 ' + nfs + 'px ' + C.FONT_UI;
             // (+ the 0.09em tracking UI.label adds per letter)
-            while (nfs > 10 && ctx.measureText(nm).width + nm.length * nfs * 0.09 > nAvail) {
+            while (nfs > 13 && ctx.measureText(nm).width + nm.length * nfs * 0.09 > nAvail) {
                 nfs--;
                 ctx.font = '600 ' + nfs + 'px ' + C.FONT_UI;
             }
             UI.label(ctx, nm, x0 + 62, ry, nfs,
                 i === 0 ? C.UI_GOLD : C.WB_WHITE, 600, 'left');
 
-            ctx.font = '400 11px ' + C.FONT_UI;
-            ctx.fillStyle = 'rgba(223,227,230,0.45)';
+            ctx.font = '400 13px ' + C.FONT_UI;
+            ctx.fillStyle = 'rgba(223,227,230,0.75)';
             ctx.textAlign = 'left';
-            ctx.fillText((e.boat || '—') + '  ·  ' + (e.river || '—'), W * 0.44, ry);
+            if(!world) ctx.fillText((e.boat || '—') + '  ·  ' + (e.river || '—'), W * 0.44, ry, W * .30);
             ctx.textAlign = 'center';
 
-            UI.label(ctx, e.score.toLocaleString(), x1 - 18, ry, 15,
+            UI.label(ctx, e.score.toLocaleString(), x1 - 18, ry, 18,
                 i === 0 ? C.UI_GOLD : C.WB_WHITE, 600, 'right');
         }
 
-        UI.label(ctx, RR.Scores.online ? 'TOP TEN · EVERYONE WHO PLAYS AT WOOLDRIDGEBOATS.COM'
-                                       : 'TOP TEN ONLY · SAVED IN THIS BROWSER', W / 2, H * 0.845, 11,
-            'rgba(223,227,230,0.38)', 500);
-        UI.label(ctx, 'PRESS ENTER OR ESC TO RETURN', W / 2, H * 0.90, 12,
-            'rgba(223,227,230,0.4)', 500);
+        UI.label(ctx, this.board.online ? 'TOP TEN · EVERYONE WHO PLAYS AT WOOLDRIDGEBOATS.COM'
+                                       : 'TOP TEN ONLY · SAVED IN THIS BROWSER', W / 2, H * (world ? .91 : .845), 11,
+            'rgba(223,227,230,0.75)', 500);
+        UI.label(ctx, 'TAP ARROWS TO CHANGE BOARD · TAP HERE TO RETURN', W / 2, H * (world ? .96 : .90), 12,
+            'rgba(223,227,230,0.75)', 500);
     }
 };
 
@@ -1193,6 +1248,6 @@ RR.HowToPlayScene = {
         }
         ctx.textAlign = 'center';
 
-        UI.label(ctx, 'PRESS ENTER OR ESC TO RETURN', W / 2, H * 0.95, 12, 'rgba(223,227,230,0.4)', 500);
+        UI.label(ctx, 'TAP ARROWS TO CHANGE BOARD · TAP HERE TO RETURN', W / 2, H * 0.95, 12, 'rgba(223,227,230,0.4)', 500);
     }
 };
