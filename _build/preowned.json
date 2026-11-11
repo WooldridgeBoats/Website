@@ -11,6 +11,17 @@
     "The order below is the order on the page. sold:true hides the boat and takes its page down."
   ],
   "listings": [
+    {"slug":"1984-wooldridge-22-classic", "sold":false,
+     "yr":1984, "len":22, "model":"Classic", "drive":"Inboard Jet",
+     "eng":"Inboard jet (not running, engine not seized)", "hours":"Unknown", "trailer":"EZ Loader",
+     "price":"$14,000 OBO", "loc":"Port Orchard, Washington",
+     "contact":"Aaron Finley", "phone":"253-208-0269", "email":"finleyaaron110@gmail.com",
+     "note":"Clean bottom, freshwater only; engine needs attention", "n":10,
+     "desc":["This was my in-laws' family pleasure boat, used mostly for duck hunting, and we're looking to sell it. We've owned it for more than 10 years.",
+             "The bottom has no scrapes or dents. It has never been river run, other than on the Columbia. Freshwater only.",
+             "The engine is not running, but it is not seized, so it needs some attention. The trailer brakes were done in the last three years, and a new actuator was installed this year.",
+             "Viewings by appointment. Call is the best way to reach me."],
+     "url":""},
     {"slug":"1990-wooldridge-17-alaskan", "sold":false,
      "yr":1990, "len":17, "model":"Alaskan", "drive":"Outboard Jet",
      "eng":"Johnson 90 jet + kicker + electric motor", "hours":"", "trailer":"Included",
