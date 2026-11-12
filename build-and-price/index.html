@@ -880,6 +880,7 @@
   gtag('config', 'G-7H638112HR');
 </script>
 <!-- /GA4 -->
+<script src="/assets/adsource.js?v=7a06b80d"></script><!-- first-touch utm capture: the lead tools add an "Ad source:" line from it (2026-11-12) -->
 <div class="topstrip">
   <div class="wrap">
     <div>FACTORY &amp; SHOWROOM — 1303 S 96TH ST, SEATTLE, WA 98108 &nbsp;·&nbsp; <a href="tel:+12067228998">(206) 722-8998</a> &nbsp;·&nbsp; MON–THU 6:00AM–4:30PM</div>
@@ -2669,6 +2670,12 @@ function wbInquiryBlock(type){
   const cm = curModel(), cs = curStyle();
   const L = ['--- WB-INQUIRY v1 (for our records - please leave this section intact) ---',
     'Source: Boat Configurator', 'Type: ' + type];
+  /* 2026-11-12 (paid video campaign): which ad / tagged link the visitor landed on, from
+     /assets/adsource.js. Absent entirely when the landing carried no utm. It sits right after
+     Source ON PURPOSE: the Hub's inqWB() folds an unrecognised line into Options when it
+     directly follows the Options line, and ignores it anywhere else. */
+  const adLine = (window.WBAdSource && WBAdSource.line()) || '';
+  if (adLine) L.splice(2, 0, adLine);
   if (cm) L.push('Model: ' + cm.nm);
   if (drv) L.push('Drive: ' + drv);
   if (state.len) L.push('Length: ' + state.len);
@@ -2992,6 +2999,11 @@ function emailBuildSheet(){
     + '&subject=' + encodeURIComponent(mailAscii(subject))
     + '&body=' + encodeURIComponent(mailAscii(emailBodyText()).replace(/\n/g, '\r\n'));   /* RFC 6068: a body line break is %0D%0A (the parsers already strip the CR, mail in transit is CRLF anyway) */
   toast('Build sheet PDF downloaded \u2014 attach it to the email that opens.');
+  /* 2026-11-12: GA4 conversion (+ Meta Lead once _build/add_meta_pixel.pl has run). Counts the
+     click that opens the customer's mail app - a mailto cannot tell us they pressed send. */
+  const evModel = curModel() ? curModel().nm : '';
+  if (typeof gtag === 'function') gtag('event', 'build_sheet_sent', {model: evModel, length: state.len || ''});
+  if (typeof fbq === 'function') fbq('track', 'Lead', {content_name: evModel, content_category: 'build_sheet'});
   setTimeout(() => { window.location.href = mailto; }, 450);
 }
 $('#btnEmail').addEventListener('click', emailBuildSheet);
@@ -3024,6 +3036,10 @@ function openReserve(){
   $('#reserveModal').hidden = false;
 }
 $('#btnReserve').addEventListener('click', openReserve);
+/* 2026-11-12: GA4 conversion - the customer clicked "Email Carrie" in the reserve-a-slot modal */
+$('#rMail').addEventListener('click', () => {
+  if (typeof gtag === 'function') gtag('event', 'slot_reservation_click', {model: curModel() ? curModel().nm : '', length: state.len || ''});
+});
 $('#rClose').addEventListener('click', () => { $('#reserveModal').hidden = true; });
 $('#reserveModal').addEventListener('click', e => { if (e.target === $('#reserveModal')) $('#reserveModal').hidden = true; });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') $('#reserveModal').hidden = true; });
