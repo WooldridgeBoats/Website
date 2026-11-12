@@ -796,6 +796,12 @@ function buildSummary(a){
   L.push('');
   L.push('--- WB-INQUIRY v1 (for our records - please leave this section intact) ---');
   L.push('Source: Quote Request Form');
+  /* 2026-11-12 (paid video campaign): one 'Ad source:' line from /assets/adsource.js, only when
+     the visitor landed on a utm-tagged link. Additive: submit.php mails the summary verbatim,
+     and the Hub / Sales Order Creator readers skip a key they do not know (it sits after Source,
+     never after an Options line, which the Hub folds continuations onto). */
+  const adLine = (window.WBAdSource && WBAdSource.line()) || '';
+  if (adLine) L.push(adLine);
   L.push('Type: QUOTE REQUEST');
   L.push('Model: ' + fw.nm);
   L.push('RunnerUp: ' + fr.nm);
@@ -870,7 +876,15 @@ $('#qiForm').addEventListener('submit', e => {
         .then(r => r.json().then(
           d => ({sent: r.ok && !!d && d.ok === true, why: (d && typeof d.message === 'string') ? d.message : ''}),
           () => ({sent: false, why: r.status === 413 ? 'Those photos were too large for us to receive.' : ''})))
-        .then(res => done(res.sent ? 'posted' : 'post-failed', res.sent ? '' : res.why));
+        .then(res => {
+          /* 2026-11-12: GA4 conversion (+ Meta Lead once the pixel is installed) - success only */
+          if (res.sent){
+            const evModel = FACTS[a.w.id].nm;
+            if (typeof gtag === 'function') gtag('event', 'quote_submitted', {model: evModel});
+            if (typeof fbq === 'function') fbq('track', 'Lead', {content_name: evModel, content_category: 'quote_request'});
+          }
+          done(res.sent ? 'posted' : 'post-failed', res.sent ? '' : res.why);
+        });
     }).catch(() => done('post-failed', ''));
   } else {
     showSummary(a, summary, subject, 'mailto');
@@ -889,7 +903,7 @@ function customerCopy(summary){
   summary.split('\n').forEach(l => {
     if (/^== /.test(l) || /^--- WB-INQUIRY/.test(l)) skipping = HIDE.test(l);
     if (skipping) return;
-    if (/^(Follow-up priority|Priority|Model|RunnerUp): /.test(l)) return;
+    if (/^(Follow-up priority|Priority|Model|RunnerUp|Ad source): /.test(l)) return;   /* Ad source: shop-side only (2026-11-12) */
     out.push(l);
   });
   return out.join('\n').replace(/\n{3,}/g, '\n\n');
