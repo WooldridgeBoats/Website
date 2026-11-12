@@ -1474,7 +1474,7 @@ const CUSTOMER_MODE = true;  /* customer-facing build: no custom pricing, softer
    the lock on for that browser tab (remembered in sessionStorage) and starts it locked, so it can be
    looked at on the live site while the public sees no change. ?pricelock=0 ends the preview. It
    only ends a preview: it cannot switch off a lock that PRICE_LOCK = true has turned on. */
-const PRICE_LOCK = false;
+const PRICE_LOCK = true;   /* switched ON by Stephen's ruling, 12 Nov 2026 */
 const PRICE_UNLOCK_KEY = 'wb_price_unlocked_v1';   /* localStorage: this browser has submitted a build. A flag only, never customer details. */
 const PRICE_LOCK_ON = (function(){
   const PREVIEW_KEY = 'wbPriceLockPreview';
