@@ -1545,7 +1545,8 @@ const LOCK_COPY = {
   failed:      'Your prices are showing now, and your build sheet PDF has downloaded. We had trouble sending your build to our team — this page will keep trying while it stays open.',
   failedAgain: 'We had trouble sending that just now — this page will keep trying while it stays open. Your build sheet PDF has downloaded.',
   failedFinal: 'We could not send your build to our team. Please try again in a few minutes, or call (206) 722-8998.',
-  sentLate:    e => 'Sent. Your build reached our team, and a copy is on its way to ' + e + '.'
+  sentLate:    e => 'Sent. Your build reached our team, and a copy is on its way to ' + e + '.',
+  sentQueued:  e => 'Received. Your prices are showing now and we have your build. The emailed copy to ' + e + ' may take a little while to arrive.'
 };
 
 /* ════════ ESTIMATE DISCLAIMER (2026-10-29, dealer feedback via Danny) ════════
@@ -3325,7 +3326,9 @@ function buildFormData(){
   fd.append('phone', c.phone.trim());
   return fd;
 }
-/* One attempt. Resolves 'ok', 'limited' (the server's hourly ceiling: trying again will not help) or 'failed'. */
+/* One attempt. Resolves 'ok', 'queued' (the server has the build saved and will mail it when
+   Microsoft answers again: as good as sent, but the emailed copy comes later), 'limited' (the
+   server's hourly ceiling: trying again will not help) or 'failed'. */
 function postBuild(){
   let timer = null;
   try {
@@ -3333,7 +3336,7 @@ function postBuild(){
     if (ctl) timer = setTimeout(() => ctl.abort(), BUILD_SEND_TIMEOUT);
     const fd = buildFormData();
     return fetch(BUILD_ENDPOINT, ctl ? {method:'POST', body:fd, signal:ctl.signal} : {method:'POST', body:fd})
-      .then(r => r.json().then(d => (r.ok && !!d && d.ok === true) ? 'ok' : (r.status === 429 ? 'limited' : 'failed'),
+      .then(r => r.json().then(d => (r.ok && !!d && d.ok === true) ? (d.queued === true ? 'queued' : 'ok') : (r.status === 429 ? 'limited' : 'failed'),
                                () => (r.status === 429 ? 'limited' : 'failed')),
             () => 'failed')
       .then(v => { clearTimeout(timer); return v; });
@@ -3353,8 +3356,8 @@ function queueBuildRetry(k){
     if (!customerReady()){ queueBuildRetry(k + 1); return; }   /* a required field was cleared since: wait for it */
     postBuild().then(v => {
       if (buildSending) return;
-      if (v === 'ok'){
-        sendNote = {bad:false, text: LOCK_COPY.sentLate(state.customer.email.trim())};
+      if (v === 'ok' || v === 'queued'){
+        sendNote = {bad:false, text: v === 'queued' ? LOCK_COPY.sentQueued(state.customer.email.trim()) : LOCK_COPY.sentLate(state.customer.email.trim())};
         renderLockUI();
         countBuildSent();
       } else if (v === 'failed') queueBuildRetry(k + 1);
@@ -3372,12 +3375,13 @@ function sendBuild(){
   buildSending = true; sendNote = null;
   renderLockUI();
   const finish = result => {
-    const ok = result === 'ok';
+    const ok = result === 'ok' || result === 'queued';
     buildSending = false;
     unlockPrices();
     const evModel = curModel() ? curModel().nm : '';
     if (ok){
-      sendNote = {bad:false, text: first ? LOCK_COPY.sent(email) : LOCK_COPY.sentAgain(email), pdf:true};
+      sendNote = {bad:false, pdf:true,
+        text: result === 'queued' ? LOCK_COPY.sentQueued(email) : first ? LOCK_COPY.sent(email) : LOCK_COPY.sentAgain(email)};
       sync();                       /* every price on the page re-draws, real */
       downloadBuildPDF(name);
       countBuildSent();
@@ -3400,7 +3404,7 @@ function sendBuild(){
      take over. */
   const t0 = Date.now();
   const attempt = n => postBuild().then(v => {
-    if (v === 'ok' || v === 'limited' || n >= BUILD_RETRY_QUICK.length || Date.now() - t0 > 8000){ finish(v); return; }
+    if (v === 'ok' || v === 'queued' || v === 'limited' || n >= BUILD_RETRY_QUICK.length || Date.now() - t0 > 8000){ finish(v); return; }
     setTimeout(() => attempt(n + 1), BUILD_RETRY_QUICK[n]);
   });
   attempt(0);

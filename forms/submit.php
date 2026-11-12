@@ -208,6 +208,113 @@ function fail($code, $detail, $userMsg = null){
 }
 function clean_header($s){ return trim(preg_replace('/[\r\n]+/', ' ', (string)$s)); }  /* header-injection guard */
 
+/* ─── the 'build' route's out-tray (12 Nov 2026) ───────────────────────
+   Build & Price submissions are saved on this host BEFORE they are mailed,
+   so a build is never lost when Microsoft's mail service is not answering
+   (seen 12 Nov 2026: Graph timed out for half an hour and every submission
+   came back 502). The save is one JSON file per build in `wb-build-queue`
+   beside the credential file, in the account home, outside every web root.
+   - mail goes       -> the file is deleted.
+   - mail fails      -> the file stays, the visitor is told yes (we have the
+                        build), and the next 'build' submission that DOES
+                        send delivers the waiting ones. No timer, no cron.
+   - cannot save     -> nothing changes: the route behaves as it did before.
+   A file being delivered is renamed `.sending` first so two requests never
+   send the same one; a file that will not parse, or has failed 40 times, is
+   renamed `.bad` and left for a person. No other route uses any of this. */
+function wb_queue_dir($home){
+  $d = rtrim((string)$home, '/') . '/wb-build-queue';
+  /* never keep customer data anywhere the web can reach: if the credential
+     file were ever found under the document root, there is no out-tray */
+  $root = isset($_SERVER['DOCUMENT_ROOT']) ? rtrim((string)$_SERVER['DOCUMENT_ROOT'], '/') : '';
+  if ($root !== '' && strpos($d . '/', $root . '/') === 0) return null;
+  if (!is_dir($d)) @mkdir($d, 0700);
+  return is_dir($d) ? $d : null;
+}
+function wb_queue_save($home, $item){
+  $d = wb_queue_dir($home);
+  if ($d === null) return null;
+  $json = json_encode($item);
+  if ($json === false || strlen($json) > 1000000) return null;   /* a real build is a few KB; anything huge is not saved */
+  $f = $d . '/' . date('Ymd-His') . '-' . substr(md5(uniqid('wbq', true)), 0, 8) . '.json';
+  if (@file_put_contents($f, $json, LOCK_EX) === false) return null;
+  return $f;
+}
+function wb_queue_flush($home, $graph, $from, $canFinish){
+  global $AUTO_REPLY;
+  if (!function_exists('glob')) return;
+  $d = wb_queue_dir($home);
+  if ($d === null) return;
+  $now = time();
+  /* When the server could not finish the visitor's answer first, they are
+     still waiting on this request: deliver one file at most, and give each
+     Graph call a shorter leash. */
+  $max = $canFinish ? 3 : 1;
+  if (!$canFinish) $graph->timeout = 8;
+  /* a claim left behind by a request that died is released after 10 minutes */
+  $stale = glob($d . '/*.json.sending');
+  if (is_array($stale)){
+    foreach ($stale as $s){
+      if (@filemtime($s) < $now - 600) @rename($s, substr($s, 0, -8));
+    }
+  }
+  $files = glob($d . '/*.json');
+  if (!is_array($files) || count($files) === 0) return;
+  sort($files);                                   /* names start with the save time: oldest first */
+  $done = 0;
+  foreach ($files as $f){
+    if ($done >= $max || time() - $now > 12) break;   /* a few per submission, and never for long */
+    if (@filemtime($f) > $now - 120) continue;    /* saved in the last two minutes: its own request may still be mailing it */
+    $claim = $f . '.sending';
+    if (!@rename($f, $claim)) continue;           /* another request took it */
+    @touch($claim);                               /* the 10-minute stale-claim clock starts now, not at the save time */
+    $item = json_decode((string)@file_get_contents($claim), true);
+    if (!is_array($item) || !isset($item['gm']) || !is_array($item['gm'])){
+      @rename($claim, $f . '.bad');
+      wb_log('QUEUE: set aside a saved build that will not read: ' . basename($f));
+      continue;
+    }
+    try {
+      $graph->send($from, $item['gm']);
+    } catch (WBGraphError $e){
+      /* Put it back with its try count raised, at the BACK of the line (a
+         new name), so one build that can never send does not hold up the
+         ones behind it. After 40 tries it is set aside as .bad for a person.
+         The new copy is written beside the claim and swapped in, so a failed
+         write never empties the only copy. */
+      $item['tries'] = (isset($item['tries']) ? (int)$item['tries'] : 0) + 1;
+      $dead = ($item['tries'] >= 40);
+      $back = $dead ? $f . '.bad' : $d . '/' . date('Ymd-His') . '-' . substr(md5(uniqid('wbq', true)), 0, 8) . '.json';
+      $json = json_encode($item);
+      if ($json !== false && @file_put_contents($back . '.tmp', $json, LOCK_EX) !== false && @rename($back . '.tmp', $back)){
+        @unlink($claim);
+      } else {
+        @unlink($back . '.tmp');
+        @rename($claim, $back);
+      }
+      wb_log('QUEUE: saved build not delivered (try ' . $item['tries'] . ($dead ? ', SET ASIDE as .bad for a person' : '') . '): ' . basename($f) . ' : ' . $e->getMessage());
+      return;                                     /* stop here: if Microsoft is not answering, the rest would fail too */
+    }
+    $done++;
+    wb_log('QUEUE: delivered a saved build from ' . date('Y-m-d H:i', isset($item['saved']) ? (int)$item['saved'] : $now) . ': ' . basename($f));
+    if (!empty($AUTO_REPLY) && isset($item['email']) && $item['email'] !== '' && isset($item['ar_body'])){
+      try {
+        $graph->send($from, array(
+          'subject'      => isset($item['ar_subject']) ? $item['ar_subject'] : 'We received your inquiry - Wooldridge Boats',
+          'body'         => array('contentType' => 'Text', 'content' => $item['ar_body']),
+          'from'         => array('emailAddress' => array('address' => $from, 'name' => 'Wooldridge Boats')),
+          'toRecipients' => array(array('emailAddress' => array('address' => $item['email'], 'name' => isset($item['name']) ? $item['name'] : ''))),
+          'replyTo'      => array(array('emailAddress' => array('address' => isset($item['reply']) ? $item['reply'] : 'sales@wooldridgeboats.com'))),
+          'internetMessageHeaders' => array(array('name' => 'X-Auto-Response-Suppress', 'value' => 'All')),
+        ));
+      } catch (WBGraphError $e){
+        wb_log('QUEUE: the copy to the submitter failed (the saved build itself DID deliver): ' . $e->getMessage());
+      }
+    }
+    @unlink($claim);
+  }
+}
+
 /* ─── locate the credential file ──────────────────────────────────────
    Walk up from the document root (and from this file) until `.mailsecret.php`
    turns up. Derived, not hardcoded: /public_html/dev and /public_html are
@@ -464,15 +571,41 @@ if ($TRANSPORT === 'graph'){
     }
   }
 
+  /* 'build' route only: save first, mail second - see "the 'build' route's
+     out-tray" above. $qFile stays null for every other route, and for a
+     build that could not be saved, and then nothing below changes. */
+  $qFile = null;
+  if ($form === 'build' && !$parts){            /* the page sends no files; a post that carries some is not saved */
+    $qFile = wb_queue_save(dirname($cfgPath), array(
+      'saved'      => time(),
+      'tries'      => 0,
+      'name'       => $name,
+      'email'      => $email,
+      'reply'      => $route['reply'],
+      'gm'         => $gm,
+      'ar_subject' => $ar_subject,
+      'ar_body'    => $ar_b,
+    ));
+    if ($qFile === null) wb_log('QUEUE: could not save this build before mailing - it is mailed with no saved copy');
+  }
+
   try {
     $graph->send($FROM, $gm);
   } catch (WBGraphError $e){
     wb_log('FAILED ' . $form . ' -> ' . implode(', ', $envRcpt) . ' via graph : ' . $e->getMessage()
       . ' | trace: ' . implode(' / ', $graph->trace));
+    if ($qFile !== null){
+      /* the build is safe on this host: the visitor gets a yes, and a later
+         'build' submission that does send will deliver it */
+      wb_log('QUEUED build for later delivery: ' . basename($qFile));
+      echo json_encode(array('ok' => true, 'queued' => true));
+      exit;
+    }
     fail(502, 'mail send failed');
   }
   wb_log('SENT ' . $form . ' -> ' . implode(', ', $envRcpt) . ' via graph'
     . ($parts ? ' (' . count($parts) . ' attachment' . (count($parts) > 1 ? 's' : '') . ')' : ''));
+  if ($qFile !== null) @unlink($qFile);          /* mailed: the saved copy has done its job */
 
   /* customer auto-response — same rule as the smtp leg: a failed
      auto-response is NOT a failed submission; log it and still say yes */
@@ -493,6 +626,17 @@ if ($TRANSPORT === 'graph'){
     }
   }
   echo json_encode(array('ok' => true));
+  if ($form === 'build'){
+    /* this build just mailed, so Microsoft is answering: deliver any builds
+       saved while it was not. The visitor's answer is finished first where
+       the server allows it, so they are not kept waiting on someone else's. */
+    $canFinish = false;
+    if (function_exists('ignore_user_abort')) @ignore_user_abort(true);
+    if (function_exists('fastcgi_finish_request'))        { $canFinish = (@fastcgi_finish_request() !== false); }
+    else if (function_exists('litespeed_finish_request')) { $canFinish = (@litespeed_finish_request() !== false); }
+    else if (function_exists('flush'))                    { @flush(); }
+    wb_queue_flush(dirname($cfgPath), $graph, $FROM, $canFinish);
+  }
   exit;
 }
 
