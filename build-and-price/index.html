@@ -812,6 +812,11 @@
     font-family:var(--sans); font-size:12px; font-weight:700; color:var(--buoy); text-decoration:underline;
   }
   .sheet .total .lockhint[hidden]{ display:none; }
+  /* The price sheets are public, and the page says so while prices are hidden (Stephen, 2026-11-12). */
+  .locksheets{ margin:-8px 0 18px; padding:0 16px; font-family:var(--sans); font-size:13px; line-height:1.45; color:var(--ink); }
+  .locksheets a{ color:var(--buoy); font-weight:700; }
+  .sheet .total .locksheet{ display:block; margin-top:5px; font-family:var(--sans); font-size:12px; color:var(--ink); text-decoration:underline; }
+  .sheet .total .locksheet[hidden]{ display:none; }
   .sheet .acts button.pdfmail.lockopen .bs{ max-height:4em; margin-top:5px; opacity:.9; }
   .sheet .acts .sendnote{
     padding:10px 12px; border:1px solid var(--rule); border-left:4px solid var(--kelp); border-radius:6px;
@@ -823,7 +828,7 @@
     display:inline; flex:none; width:auto; margin:0; padding:0; border:0; border-radius:0; background:none; box-shadow:none;
     font:inherit; font-weight:700; letter-spacing:0; color:var(--buoy); text-decoration:underline; cursor:pointer;
   }
-  @media print{ .lockband, .lockhint{ display:none !important; } }
+  @media print{ .lockband, .lockhint, .locksheets, .locksheet{ display:none !important; } }
   .rbtn{ background:var(--card); color:var(--ink); border:2px solid #000; }
   .rbtn:hover{ background:var(--ink); color:#fff; opacity:1; }
   .rbtn.ghost{ background:none; }
@@ -1041,6 +1046,7 @@
     <!-- PRICE LOCK reminder (2026-11-12): shown only while the lock is on and this visitor has not
          submitted a build yet. Its wording is set by the main script (LOCK_COPY). -->
     <button type="button" class="lockband" id="lockBand" hidden><span class="lbt" id="lockBandText"></span><span class="lbgo" id="lockBandGo"></span></button>
+    <p class="locksheets" id="lockSheets" hidden></p>
 
     <!-- customer -->
     <section class="custpanel" id="custPanel">
@@ -1289,7 +1295,7 @@
         <div class="trow grand"><span class="tl">Estimated total</span><span class="tv" id="totalVal">$0</span></div>
         <div class="split" id="totalSplit" style="display:none"></div>
         <div class="tsub" id="totalSub">Select a boat to begin.</div>
-        <button type="button" class="lockhint" id="lockHint" hidden></button>      </div>
+        <button type="button" class="lockhint" id="lockHint" hidden></button><a class="locksheet" id="lockSheetLink" target="_blank" rel="noopener" hidden></a>      </div>
       <div class="acts">
         <div class="dealernote" id="dealerNote" hidden></div>
         <button type="button" id="btnEmail" class="band pdfmail">
@@ -1518,6 +1524,11 @@ const LOCK_COPY = {
   btnAgainSub: 'Emails this build to you and the Wooldridge team again, and downloads a fresh PDF.',
   sending:     'Sending…',
   hint:        'Submit your build to see your prices',
+  /* The price sheets are public and the page says so (Stephen, 2026-11-12: "we're not actually KEEPING the prices from them"). */
+  sheetsNone:  'Rather see every price up front? Each boat’s full price sheet is open to everyone. Choose a boat below and a link to its sheet appears here.',
+  sheetsLead:  'Rather see every price up front? The full price sheet is open to everyone: ',
+  sheetsLink:  nm => 'see the ' + nm + ' price sheet',
+  sheetTotal:  nm => 'Or see the full ' + nm + ' price sheet',
   noteReady:   'Ready — submit your build to see your prices.',
   noteMissing: 'Still needed to submit your build and see your prices: ',
   noteReadyAgain:   'Ready to send an updated copy of your build sheet.',
@@ -2813,6 +2824,23 @@ function renderLockUI(){
   if (!PRICE_LOCK_ON) return;
   const hidden = pricesHidden();
   $('#lockBand').hidden = !hidden;
+  /* the price sheets are public: say so under the band, and link the chosen boat's sheet there and
+     under the masked total. /pricesheets/<id>/ uses the same ids as the catalogue (all 18 exist). */
+  const pm = curModel();
+  const sheetUrl = pm ? '/pricesheets/' + pm.id + '/' : '';
+  const ls = $('#lockSheets');
+  ls.hidden = !hidden;
+  ls.textContent = !hidden ? '' : pm ? LOCK_COPY.sheetsLead : LOCK_COPY.sheetsNone;
+  if (hidden && pm){
+    const a = document.createElement('a');
+    a.href = sheetUrl; a.target = '_blank'; a.rel = 'noopener';
+    a.textContent = LOCK_COPY.sheetsLink(pm.nm);
+    ls.appendChild(a);
+    ls.appendChild(document.createTextNode('.'));
+  }
+  const sl = $('#lockSheetLink');
+  sl.hidden = !(hidden && pm);
+  if (hidden && pm){ sl.href = sheetUrl; sl.textContent = LOCK_COPY.sheetTotal(pm.nm); }
   if (MAST_TAG) MAST_TAG.textContent = hidden ? LOCK_COPY.mastTag : MAST_TAG_TEXT;
   const eb = $('#btnEmail');
   eb.classList.toggle('lockopen', hidden && !buildSending);
