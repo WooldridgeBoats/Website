@@ -795,6 +795,35 @@
   .sheet .acts .dealernote a{ color:var(--buoy); font-weight:700; }
   .sheet .acts button.reset{ color:var(--slate); }
   .sheet .acts button.reset:hover:not(:disabled){ background:var(--ink); color:#fff; }
+  /* PRICE LOCK (2026-11-12): the reminder band, the "submit to see" hint and the send note.
+     Every one of these stays [hidden] unless the lock is on (see PRICE_LOCK in the main script). */
+  .lockband{
+    display:flex; flex-wrap:wrap; align-items:center; gap:6px 16px; width:100%; margin:0 0 18px; padding:13px 16px;
+    text-align:left; cursor:pointer; background:var(--card); color:var(--ink);
+    border:1px solid var(--rule); border-left:4px solid var(--buoy); border-radius:6px;
+    font-family:var(--sans); font-size:14px; line-height:1.45;
+  }
+  .lockband[hidden]{ display:none; }
+  .lockband:hover{ border-color:var(--buoy); }
+  .lockband .lbt{ flex:1 1 320px; }
+  .lockband .lbgo{ flex:none; margin-left:auto; color:var(--buoy); font-weight:700; font-size:13px; white-space:nowrap; }
+  .sheet .total .lockhint{
+    display:block; margin-top:7px; padding:0; border:0; background:none; cursor:pointer; text-align:left;
+    font-family:var(--sans); font-size:12px; font-weight:700; color:var(--buoy); text-decoration:underline;
+  }
+  .sheet .total .lockhint[hidden]{ display:none; }
+  .sheet .acts button.pdfmail.lockopen .bs{ max-height:4em; margin-top:5px; opacity:.9; }
+  .sheet .acts .sendnote{
+    padding:10px 12px; border:1px solid var(--rule); border-left:4px solid var(--kelp); border-radius:6px;
+    background:var(--card); font-family:var(--sans); font-size:12.5px; line-height:1.45; color:var(--ink);
+  }
+  .sheet .acts .sendnote.bad{ border-left-color:var(--buoy); }
+  .sheet .acts .sendnote[hidden]{ display:none; }
+  .sheet .acts .sendnote button, .sheet .acts .sendnote button:hover{
+    display:inline; flex:none; width:auto; margin:0; padding:0; border:0; border-radius:0; background:none; box-shadow:none;
+    font:inherit; font-weight:700; letter-spacing:0; color:var(--buoy); text-decoration:underline; cursor:pointer;
+  }
+  @media print{ .lockband, .lockhint{ display:none !important; } }
   .rbtn{ background:var(--card); color:var(--ink); border:2px solid #000; }
   .rbtn:hover{ background:var(--ink); color:#fff; opacity:1; }
   .rbtn.ghost{ background:none; }
@@ -1008,6 +1037,10 @@
 
 <div class="cfg-wrap">
   <main>
+
+    <!-- PRICE LOCK reminder (2026-11-12): shown only while the lock is on and this visitor has not
+         submitted a build yet. Its wording is set by the main script (LOCK_COPY). -->
+    <button type="button" class="lockband" id="lockBand" hidden><span class="lbt" id="lockBandText"></span><span class="lbgo" id="lockBandGo"></span></button>
 
     <!-- customer -->
     <section class="custpanel" id="custPanel">
@@ -1255,13 +1288,15 @@
       <div class="total">
         <div class="trow grand"><span class="tl">Estimated total</span><span class="tv" id="totalVal">$0</span></div>
         <div class="split" id="totalSplit" style="display:none"></div>
-        <div class="tsub" id="totalSub">Select a boat to begin.</div>      </div>
+        <div class="tsub" id="totalSub">Select a boat to begin.</div>
+        <button type="button" class="lockhint" id="lockHint" hidden></button>      </div>
       <div class="acts">
         <div class="dealernote" id="dealerNote" hidden></div>
         <button type="button" id="btnEmail" class="band pdfmail">
           <span class="bt">Download a PDF copy of this build sheet &amp; email copies to yourself &amp; the Wooldridge team</span>
           <span class="bs">Saves the PDF to your computer, then opens your email app with the message ready to go &mdash; attach the PDF and press Send.</span>
         </button>
+        <div class="sendnote" id="sendNote" role="status" hidden></div>
         <button type="button" id="btnReserve" class="band reserve">Reserve a build slot with a down payment</button>
         <button type="button" id="btnQuote" class="band quote">Request a quote from our sales team</button>
         <button type="button" id="btnReset" class="band reset">Clear build sheet and start over</button>
@@ -1340,6 +1375,19 @@
   var body = document.getElementById('oxDrawerBody');
   if (!link || !drawer) return;
   var loaded = false, failed = false;
+  /* PRICE LOCK (2026-11-12): while the configurator is hiding prices, the guide shown in this
+     drawer hides its dollar figures the same way. The /option-guide/ page itself is not changed.
+     loadedHidden remembers which way the drawer was built, so it is rebuilt after an unlock. */
+  var loadedHidden = false, maskObs = null;
+  function priceHide(){ return !!(window.WB && WB.pricesHidden && WB.maskDollars && WB.pricesHidden()); }
+  function maskTree(root){
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), n, t;
+    while ((n = w.nextNode())){
+      if (n.parentNode && /^(STYLE|SCRIPT)$/.test(n.parentNode.nodeName)) continue;
+      t = WB.maskDollars(n.nodeValue);
+      if (t !== n.nodeValue) n.nodeValue = t;
+    }
+  }
   function close(){ drawer.hidden = true; document.documentElement.style.overflow = ''; }
   document.getElementById('oxDrawerClose').addEventListener('click', close);
   document.getElementById('oxDrawerScrim').addEventListener('click', close);
@@ -1348,7 +1396,13 @@
     if (failed) return;              /* fail soft: behave as the plain link */
     e.preventDefault();
     drawer.hidden = false; document.documentElement.style.overflow = 'hidden';
-    if (loaded) return;
+    var hide = priceHide();
+    if (loaded && loadedHidden === hide) return;
+    if (loaded){   /* built the other way (prices were hidden, now shown): build it again */
+      loaded = false;
+      if (maskObs){ maskObs.disconnect(); maskObs = null; }
+      body.innerHTML = '<div class="oxdrawer-loading">Loading the option guide&hellip;</div>';
+    }
     fetch('/option-guide/', {credentials:'same-origin'}).then(function(r){
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.text();
@@ -1365,14 +1419,30 @@
       var host = document.createElement('div');
       body.appendChild(host);
       var shadow = host.attachShadow({mode:'open'});
-      shadow.innerHTML = '<style>' + style.textContent +
-        '\n.ox-mast{display:none!important}.oxfoot{display:none!important}' +
-        '\n.oxbar{position:sticky; top:0;}</style>' + m[1];
+      var widget = m[1];
       var src = script.textContent.replace(
         /window\.scrollTo\(\{top:[^}]*\}\);/,
         "el.scrollIntoView({block:'start'});");
+      if (hide){
+        /* mask the figures in the text BEFORE it becomes page content: the guide's markup, and
+           its price rows (the sheet:[[...]] lists its script draws the cards from) */
+        widget = WB.maskDollars(widget);
+        src = src.replace(/sheet:\[\[[\s\S]*?\]\]/g, function(blk){ return WB.maskDollars(blk); });
+      }
+      shadow.innerHTML = '<style>' + style.textContent +
+        '\n.ox-mast{display:none!important}.oxfoot{display:none!important}' +
+        '\n.oxbar{position:sticky; top:0;}</style>' + widget;
       new Function('document', src)(shadow);   /* ShadowRoot serves getElementById/querySelectorAll */
-      loaded = true;
+      if (hide){
+        /* safety net for a figure written anywhere else in the guide (its descriptions), and for
+           every re-draw when the visitor searches or filters inside the drawer */
+        maskTree(shadow);
+        if (window.MutationObserver){
+          maskObs = new MutationObserver(function(){ maskTree(shadow); });
+          maskObs.observe(shadow, {childList:true, subtree:true, characterData:true});
+        }
+      }
+      loaded = true; loadedHidden = hide;
     }).catch(function(){
       failed = true;
       close();
@@ -1387,6 +1457,83 @@
 <script>
 'use strict';
 const CUSTOMER_MODE = true;  /* customer-facing build: no custom pricing, softer copy */
+
+/* ════════ PRICE LOCK (Stephen's rulings, 2026-11-12) ════════
+   PRICE_LOCK is the ONE switch. false = the page behaves exactly as it did before this was built.
+   true  = a visitor configures freely but every price on screen shows its first digit and a fixed
+           mask, until they submit the build from this page (forms/submit.php, route 'build');
+           the full prices then appear right away and a copy is emailed to them.
+   What stays real while locked: the "hull from" price on the boat cards (step 02).
+   What is NOT hidden, on purpose: the prices in this page's code (the catalogue and trailer data
+   lines, RULES_OVERLAY.js), the model pages, the print price sheets and the option guide page. This is a
+   screen-level lock only, and the canon tools still read and write the numbers in this file.
+   Everything that LEAVES the page (the email text, the PDF, the WB-INQUIRY block, the reserve
+   email, the trailer Copy text) always carries real prices: those use fmt(). What is drawn on
+   screen uses dfmt(), which masks while locked.
+   Preview without flipping the switch: open this page with ?pricelock=1 on the address. That turns
+   the lock on for that browser tab (remembered in sessionStorage) and starts it locked, so it can be
+   looked at on the live site while the public sees no change. ?pricelock=0 ends the preview. It
+   only ends a preview: it cannot switch off a lock that PRICE_LOCK = true has turned on. */
+const PRICE_LOCK = false;
+const PRICE_UNLOCK_KEY = 'wb_price_unlocked_v1';   /* localStorage: this browser has submitted a build. A flag only, never customer details. */
+const PRICE_LOCK_ON = (function(){
+  const PREVIEW_KEY = 'wbPriceLockPreview';
+  let preview = false;
+  try {
+    const qs = new URLSearchParams(window.location.search || '');
+    const q = qs.get('pricelock');
+    if (q === '1' || q === '0'){
+      if (q === '1'){
+        preview = true;
+        try { window.sessionStorage.setItem(PREVIEW_KEY, '1'); } catch(e){}
+        try { window.localStorage.removeItem(PRICE_UNLOCK_KEY); } catch(e){}   /* a preview link always starts locked */
+      } else {
+        try { window.sessionStorage.removeItem(PREVIEW_KEY); } catch(e){}
+      }
+      /* take the switch off the address so a reload behaves the way a customer's would */
+      try {
+        qs.delete('pricelock');
+        const rest = qs.toString();
+        window.history.replaceState(null, '', window.location.pathname + (rest ? '?' + rest : '') + window.location.hash);
+      } catch(e){}
+    } else {
+      try { preview = window.sessionStorage.getItem(PREVIEW_KEY) === '1'; } catch(e){}
+    }
+  } catch(e){}
+  return PRICE_LOCK || preview;
+})();
+let priceUnlocked = false;
+if (PRICE_LOCK_ON){ try { priceUnlocked = window.localStorage.getItem(PRICE_UNLOCK_KEY) === '1'; } catch(e){} }
+const pricesHidden = () => PRICE_LOCK_ON && !priceUnlocked;
+let buildSending = false;   /* true only while the lock's submit is on its way to the server */
+let sendNote = null;        /* {bad, text, retry|pdf} - the line under the submit button after a send */
+/* Every customer-facing word the lock adds is here, so it can be changed in one place. */
+const LOCK_COPY = {
+  band:        'Build your boat any way you like — your full pricing appears on this page the moment you submit your build, and a copy is emailed to you.',
+  bandGo:      'Submit my build →',
+  mastTag:     '2026 prices — build your Wooldridge, then submit your build to see your full pricing.',
+  btn:         'Submit my build and show my prices',
+  btnSub:      'Your pricing appears right away, and a copy goes to your email.',
+  btnAgain:    'Send me an updated copy',
+  btnAgainSub: 'Emails this build to you and the Wooldridge team again, and downloads a fresh PDF.',
+  sending:     'Sending…',
+  hint:        'Submit your build to see your prices',
+  noteReady:   'Ready — submit your build to see your prices.',
+  noteMissing: 'Still needed to submit your build and see your prices: ',
+  noteReadyAgain:   'Ready to send an updated copy of your build sheet.',
+  noteMissingAgain: 'Still needed to send your build sheet: ',
+  needFields:  'Complete your name, email, phone, and zip code to submit your build.',
+  reserve:     'Submit your build to see your pricing and reserve a build slot.',
+  copy:        'Submit your build to see your pricing.',
+  sentToast:   'Sent — your prices are showing now.',
+  sentAgainToast: 'Sent — an updated copy is on its way.',
+  failedLink:  'Open my email app again',
+  pdfLink:     'Download the PDF again',
+  sent:       e => 'Sent. Your prices are showing now, and a copy is on its way to ' + e + '. Your build sheet PDF has downloaded too.',
+  sentAgain:   e => 'Sent. An updated copy is on its way to ' + e + ', and a fresh PDF has downloaded.',
+  failed:      'That did not send from this page. Your prices are showing now, and your email app is opening with your build ready to go — attach the downloaded PDF and press Send, and you and the Wooldridge team will both get a copy.',
+  failedAgain: 'That did not send from this page. Your email app is opening with your build ready to go — attach the downloaded PDF and press Send, and you and the Wooldridge team will both get a copy.'
+};
 
 /* ════════ ESTIMATE DISCLAIMER (2026-10-29, dealer feedback via Danny) ════════
    Shown large under every total: the web sheet, the PDF and the email body.
@@ -1621,7 +1768,19 @@ const state = {
 let customSeq = 0;
 
 const $ = s => document.querySelector(s);
-const fmt = n => '$' + n.toLocaleString('en-US');
+const fmt = n => '$' + n.toLocaleString('en-US');   /* the REAL price. Use it for everything that leaves the page. */
+/* PRICE LOCK display side. PRICE_MASK is one fixed string, the same for every price, so the masked
+   text never shows how many digits a price has: $499 and $124,999 both draw as "$" + first digit +
+   PRICE_MASK. A zero stays "$0" (it means included / nothing chosen yet), and a credit keeps its
+   minus sign exactly where fmt() puts it. Nothing here writes the real figure anywhere in the page
+   while prices are hidden. */
+const PRICE_MASK = '•••';
+const maskMoney = t => String(t).replace(/(\d)[\d,]*(?:\.\d+)?/, '$1' + PRICE_MASK);          /* one formatted price */
+const maskDollars = s => String(s).replace(/\$-?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?(?!•)/g,   /* every price inside a run of text; safe to run twice */
+  m => /[1-9]/.test(m) ? maskMoney(m) : m);
+const priceText = (real, n) => (!pricesHidden() || !n) ? real : maskMoney(real);
+const dfmt = n => priceText(fmt(n), n);               /* what goes ON SCREEN */
+const dtxt = s => pricesHidden() ? maskDollars(s) : s; /* catalogue wording that quotes a price, e.g. "both sides = $3,999" */
 const esc = s => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 
 const visModels = () => MODELS.filter(m => !(CUSTOMER_MODE && m.hidden));
@@ -1811,8 +1970,8 @@ function renderStyleCards(){
     b.type = 'button';
     b.className = 'choice' + (state.style === s.id ? ' sel' : '');
     const prices = m.lengths.map(L => s.hulls[L]).filter(v => v != null);
-    const perLen = m.lengths.map(L => `${L}′ ${s.hulls[L] != null ? fmt(s.hulls[L]) : 'CALL'}`).join(' · ');
-    const lo = prices.length ? `<span class="from">hull from</span> ${fmt(Math.min(...prices))}` : `<span class="from">hull priced on request</span>`;
+    const perLen = m.lengths.map(L => `${L}′ ${s.hulls[L] != null ? dfmt(s.hulls[L]) : 'CALL'}`).join(' · ');
+    const lo = prices.length ? `<span class="from">hull from</span> ${dfmt(Math.min(...prices))}` : `<span class="from">hull priced on request</span>`;
     b.innerHTML = `<div class="cname">${esc(s.nm)}</div>
       <div class="cdesc">${esc(m.nm)} hull — ${perLen}</div>
       <div class="cprice">${lo}</div>`;
@@ -1873,7 +2032,7 @@ function renderLenCards(){
     const note = s && s.hullNotes && s.hullNotes[L] ? s.hullNotes[L] : '';
     b.innerHTML = `<div class="cname">${L}&prime; ${esc(m.nm)}</div>
       <div class="cdesc">${esc(note || ' ')}</div>
-      <div class="cprice">${hull != null ? `<span class="from">hull</span> ${fmt(hull)}` : s ? '<span class="from">hull priced on request</span>' : '<span class="from">select a model first</span>'}</div>`;
+      <div class="cprice">${hull != null ? `<span class="from">hull</span> ${dfmt(hull)}` : s ? '<span class="from">hull priced on request</span>' : '<span class="from">select a model first</span>'}</div>`;
     b.addEventListener('click', () => { state.len = L; sync(); });
     el.appendChild(b);
   }
@@ -1885,7 +2044,7 @@ function renderLenCards(){
   if (show){
     $('#adderTtl').textContent = a.nm;
     $('#adderSub').textContent = a.desc;
-    $('#adderPrice').textContent = '+ ' + fmt(a.price);
+    $('#adderPrice').textContent = '+ ' + dfmt(a.price);
   }
   if (!show && state.adder){ state.adder = false; $('#adderChk').checked = false; }
 }
@@ -1910,7 +2069,7 @@ function renderEngines(){
     hullRow.innerHTML = `<span class="dot"></span>
       <span class="en"><span class="nm">Hull only — no outboard</span>
       <div class="nt">${state.len}&prime; ${esc(m.nm)} ${esc(s.nm)} hull as published</div></span>
-      <span class="pr">${fmt(hull)}</span>`;
+      <span class="pr">${dfmt(hull)}</span>`;
     hullRow.addEventListener('click', () => { state.engine = 'hull'; sync(); });
     el.appendChild(hullRow);
   }
@@ -1920,7 +2079,7 @@ function renderEngines(){
     b.type = 'button';
     b.className = 'engrow' + (state.engine === e.nm ? ' sel' : '');
     const pr = e.base ? '<span style="color:var(--kelp);font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.08em">INCLUDED</span>'
-      : e.price != null ? '+ ' + fmt(e.price)
+      : e.price != null ? '+ ' + dfmt(e.price)
       : '<span style="color:var(--slate);font-style:italic;font-family:var(--sans);font-weight:400">Priced on request</span>';
     b.innerHTML = `<span class="dot"></span>
       <span class="en"><span class="nm">${esc(e.nm)}</span>${e.nt ? `<div class="nt">${esc(e.nt)}</div>` : ''}</span>
@@ -2014,8 +2173,8 @@ function renderOptions(){
 
       const ot = document.createElement('span');
       ot.className = 'ot';
-      let inner = `<div class="nm">${esc(it.stdSteer ? stdSteerLabel(it) : it.nm)}</div>`;
-      if (it.nt) inner += `<div class="nt">${esc(it.nt)}</div>`;
+      let inner = `<div class="nm">${esc(dtxt(it.stdSteer ? stdSteerLabel(it) : it.nm))}</div>`;
+      if (it.nt) inner += `<div class="nt">${esc(dtxt(it.nt))}</div>`;
       if (it.reqLabel && st.ok) inner += `<span class="req">${esc(it.reqLabel)}</span>`;
       ot.innerHTML = inner;
 
@@ -2073,8 +2232,8 @@ function renderOptions(){
       const p = priceOf(it);
       if (it.included){ pr.className = 'pr'; pr.style.color = 'var(--kelp)'; pr.textContent = 'Included'; }
       else if (p === null){ pr.className = 'pr call'; pr.textContent = 'Priced on request'; }
-      else if (typeof it.price === 'object' && !state.len){ pr.className = 'pr'; pr.textContent = 'from ' + fmt(Math.min(...Object.values(it.price))); }
-      else { pr.className = 'pr'; pr.textContent = fmt(p); }
+      else if (typeof it.price === 'object' && !state.len){ pr.className = 'pr'; pr.textContent = 'from ' + dfmt(Math.min(...Object.values(it.price))); }
+      else { pr.className = 'pr'; pr.textContent = dfmt(p); }
       row.appendChild(pr);
 
       if (!st.ok){
@@ -2089,7 +2248,7 @@ function renderOptions(){
     if (cat.notes) for (const n of cat.notes){
       const nd = document.createElement('div');
       nd.className = 'optnote';
-      nd.textContent = n;
+      nd.textContent = dtxt(n);
       body.appendChild(nd);
     }
 
@@ -2143,7 +2302,7 @@ function enforce(){
     const arr = curEngines();
     if (!arr || !arr.some(e => e.nm === state.engine)) state.engine = null;
   }
-  if (dropped.length) toast('Removed (no longer applies): ' + dropped.join(' · '));
+  if (dropped.length) toast('Removed (no longer applies): ' + dtxt(dropped.join(' · ')));
 }
 
 /* ════════ BUILD SHEET ════════ */
@@ -2207,8 +2366,11 @@ function renderSheet(){
     boatTotal += ln.p;
     const d = document.createElement('div');
     d.className = 'sline ' + ln.cls;
-    d.innerHTML = `<span class="lt"><div class="l1">${esc(ln.l1)}</div>${ln.l2 ? `<div class="l2">${esc(ln.l2)}</div>` : ''}</span>
-      <span class="dots"></span><span class="lp">${ln.ptext ? esc(ln.ptext) : fmt(ln.p)}</span>`;
+    /* dtxt: a catalogue name or note that quotes a price is masked like the prices are; a custom
+       item is the customer's own wording and is never touched */
+    const l1 = ln.customId ? ln.l1 : dtxt(ln.l1), l2 = (ln.l2 && !ln.customId) ? dtxt(ln.l2) : ln.l2;
+    d.innerHTML = `<span class="lt"><div class="l1">${esc(l1)}</div>${l2 ? `<div class="l2">${esc(l2)}</div>` : ''}</span>
+      <span class="dots"></span><span class="lp">${ln.ptext ? esc(ln.ptext) : dfmt(ln.p)}</span>`;
     if (ln.optId || ln.radioCat || ln.customId){
       const rm = document.createElement('button');
       rm.type = 'button'; rm.className = 'rm'; rm.title = 'Remove'; rm.textContent = '✕';
@@ -2230,7 +2392,7 @@ function renderSheet(){
     d.className = 'sline trailer';
     const tag = tr.baseKnown ? '' : ' · base TBD';
     d.innerHTML = `<span class="lt"><div class="l1">${esc(tr.name)} trailer</div><div class="l2">EZ Loader · ${esc(tr.desc)}${tag}</div>${(tr.cautions||[]).map(c => `<div class="l2">Caution: ${esc(c)}</div>`).join('')}</span>
-      <span class="dots"></span><span class="lp">${fmt(tr.retail)}</span>`;
+      <span class="dots"></span><span class="lp">${dfmt(tr.retail)}</span>`;
     const rm = document.createElement('button');
     rm.type = 'button'; rm.className = 'rm'; rm.title = 'Remove trailer'; rm.textContent = '✕';
     rm.addEventListener('click', () => { if (window.TR) TR.removeFromBuild(); });
@@ -2245,8 +2407,9 @@ function renderSheet(){
   } else iq.style.display = 'none';
 
   const grand = boatTotal + trailerTotal;
-  $('#totalVal').textContent = fmt(grand);
-  $('#mbarVal').textContent = fmt(grand);
+  $('#totalVal').textContent = dfmt(grand);
+  $('#mbarVal').textContent = dfmt(grand);
+  $('#lockHint').hidden = !(pricesHidden() && grand > 0);   /* the "submit to see" hint under a masked total */
   const rbtn = $('#btnReserve');
   rbtn.disabled = grand === 0;
   rbtn.style.opacity = grand === 0 ? '.5' : '';
@@ -2255,7 +2418,7 @@ function renderSheet(){
   const split = $('#totalSplit');
   if (tr && boatTotal){
     split.style.display = 'block';
-    split.textContent = `Boat & options ${fmt(boatTotal)} · Trailer ${fmt(trailerTotal)}`;
+    split.textContent = `Boat & options ${dfmt(boatTotal)} · Trailer ${dfmt(trailerTotal)}`;
   } else split.style.display = 'none';
 
   const sub = $('#totalSub');
@@ -2265,7 +2428,7 @@ function renderSheet(){
   else if (!state.style) sub.textContent = 'Select a model.';
   else if (!state.len) sub.textContent = 'Select a length.';
   else if (curStyle() && curStyle().hulls[state.len] == null) sub.textContent = 'Hull priced on request — total reflects options and upgrades only.';
-  else if (!state.engine) sub.textContent = 'Hull price shown — choose a power option or hull only.';
+  else if (!state.engine) sub.textContent = pricesHidden() ? 'Hull chosen — choose a power option or hull only.' : 'Hull price shown — choose a power option or hull only.';
   else if (state.engine === 'hull') sub.textContent = 'Hull only — no outboard.';
   else if (m.drive === 'ib' && curEngine() && curEngine().base) sub.textContent = 'Hull with ' + m.baseEngine + ' included, per the ' + m.eff + ' price sheet.';
   else sub.textContent = 'Hull + power, per the ' + m.eff + ' price sheet.';
@@ -2373,12 +2536,17 @@ function renderCustomer(){
 
   const ready = customerReady();
   const eb = $('#btnEmail');
-  eb.disabled = !ready;
+  eb.disabled = !ready || buildSending;   /* buildSending is only ever true while the price lock's submit is in flight */
   eb.style.opacity = ready ? '' : '.5';
   eb.style.cursor = ready ? '' : 'not-allowed';
 
+  /* with the price lock on, the note under the fields says what the button now does */
+  const noteReady = !PRICE_LOCK_ON ? 'Ready to download and email your build sheet.'
+    : pricesHidden() ? LOCK_COPY.noteReady : LOCK_COPY.noteReadyAgain;
+  const noteMissing = !PRICE_LOCK_ON ? 'Still needed to download and email your build sheet: '
+    : pricesHidden() ? LOCK_COPY.noteMissing : LOCK_COPY.noteMissingAgain;
   const note = $('#custNote');
-  if (ready){ note.classList.remove('warn'); note.textContent = 'Ready to download and email your build sheet.'; }
+  if (ready){ note.classList.remove('warn'); note.textContent = noteReady; }
   else {
     note.classList.add('warn');
     const missing = [];
@@ -2386,7 +2554,7 @@ function renderCustomer(){
     if (!emailOK(c.email)) missing.push('a valid email');
     if (!phoneOK(c.phone)) missing.push(c.country === 'Other' ? 'a phone number' : 'a 10-digit phone number');
     if (!zipOK(c.zip)) missing.push(c.country === 'USA' ? 'a 5-digit zip code' : 'a postal code');
-    note.textContent = 'Still needed to download and email your build sheet: ' + missing.join(', ').replace(/, ([^,]*)$/, ' and $1') + '.';
+    note.textContent = noteMissing + missing.join(', ').replace(/, ([^,]*)$/, ' and $1') + '.';
   }
 
   $('#cFirst').classList.toggle('missing', custTouched && c.first.trim() === '');
@@ -2405,7 +2573,7 @@ function renderCustomList(){
   for (const c of state.custom){
     const row = document.createElement('div');
     row.className = 'crow';
-    row.innerHTML = `<span class="cn">${esc(c.name)}</span><span class="cp">${c.price != null ? fmt(c.price) : (c.pnote || 'Priced on request')}</span>`;
+    row.innerHTML = `<span class="cn">${esc(c.name)}</span><span class="cp">${c.price != null ? dfmt(c.price) : (c.pnote || 'Priced on request')}</span>`;
     const rm = document.createElement('button');
     rm.type = 'button'; rm.className = 'crm'; rm.title = 'Remove'; rm.textContent = '✕';
     rm.addEventListener('click', () => { state.custom = state.custom.filter(x => x.id !== c.id); sync(); });
@@ -2485,7 +2653,13 @@ window.WB = {
   buildContext(){
     const m = curModel();
     return (m && state.len) ? {tag:m.trailerTag, len:state.len} : null;
-  }
+  },
+  /* PRICE LOCK: the trailer picker and the option-guide drawer are separate scripts, so they
+     ask here whether prices are hidden and use the same mask this script does */
+  pricesHidden,
+  priceText,
+  maskDollars,
+  lockedPrompt(msg){ toast(msg || LOCK_COPY.copy); goToSubmit(); }
 };
 
 /* ════════ SHARE LINK + AUTOSAVE — state <-> compact JSON ════════ */
@@ -2626,8 +2800,74 @@ function sync(){
   renderCustomer();
   renderNotes();
   renderSheet();
+  renderLockUI();
   if (window.TR) TR.contextChanged();
   schedSave();
+}
+
+/* ════════ PRICE LOCK — the reminder band, the submit button's wording, the send note ════════
+   Does nothing at all unless the lock is on (PRICE_LOCK, or a ?pricelock=1 preview). */
+const MAST_TAG = document.querySelector('.mast .tag');
+const MAST_TAG_TEXT = MAST_TAG ? MAST_TAG.textContent : '';
+function renderLockUI(){
+  if (!PRICE_LOCK_ON) return;
+  const hidden = pricesHidden();
+  $('#lockBand').hidden = !hidden;
+  if (MAST_TAG) MAST_TAG.textContent = hidden ? LOCK_COPY.mastTag : MAST_TAG_TEXT;
+  const eb = $('#btnEmail');
+  eb.classList.toggle('lockopen', hidden && !buildSending);
+  eb.querySelector('.bt').textContent = buildSending ? LOCK_COPY.sending : hidden ? LOCK_COPY.btn : LOCK_COPY.btnAgain;
+  eb.querySelector('.bs').textContent = hidden ? LOCK_COPY.btnSub : LOCK_COPY.btnAgainSub;
+  if (buildSending) eb.disabled = true;
+  const sn = $('#sendNote');
+  sn.hidden = !sendNote;
+  sn.classList.toggle('bad', !!(sendNote && sendNote.bad));
+  sn.textContent = sendNote ? sendNote.text : '';
+  if (sendNote && (sendNote.retry || sendNote.pdf)){
+    /* a real button the customer presses themselves, in case the browser held back what the page
+       started on its own once the server had answered: the mail app after a failed send, the PDF
+       after a good one */
+    const again = document.createElement('button');
+    again.type = 'button';
+    again.textContent = sendNote.retry ? LOCK_COPY.failedLink : LOCK_COPY.pdfLink;
+    const retry = !!sendNote.retry;
+    again.addEventListener('click', () => {
+      if (!customerReady()){ goToSubmit(); return; }
+      if (retry) mailBuildSheet(false);
+      else downloadBuildPDF([state.customer.first.trim(), state.customer.last.trim()].filter(Boolean).join(' '));
+    });
+    sn.appendChild(document.createTextNode(' '));
+    sn.appendChild(again);
+  }
+}
+/* "the submit step": the five required fields at the top if any is missing, else the submit button */
+function goToSubmit(){
+  const c = state.customer;
+  if (!customerReady()){
+    custTouched = true; renderCustomer();
+    const el = c.first.trim() === '' ? $('#cFirst') : c.last.trim() === '' ? $('#cLast')
+      : !emailOK(c.email) ? $('#cEmail') : !zipOK(c.zip) ? $('#cZip') : $('#cPhone');
+    el.scrollIntoView({behavior:'smooth', block:'center'});
+    try { el.focus({preventScroll:true}); } catch(e){ el.focus(); }
+    return;
+  }
+  const eb = $('#btnEmail');
+  eb.scrollIntoView({behavior:'smooth', block:'center'});
+  try { eb.focus({preventScroll:true}); } catch(e){ eb.focus(); }
+}
+if (PRICE_LOCK_ON){
+  $('#lockBandText').textContent = LOCK_COPY.band;
+  $('#lockBandGo').textContent = LOCK_COPY.bandGo;
+  $('#lockHint').textContent = LOCK_COPY.hint;
+  $('#lockBand').addEventListener('click', goToSubmit);
+  $('#lockHint').addEventListener('click', goToSubmit);
+  /* spam trap, same idea as the quiz's: people never see or fill it, forms/submit.php drops
+     anything that arrives with it filled. No name attribute, so a browser's autofill leaves it alone. */
+  const hp = document.createElement('input');
+  hp.type = 'text'; hp.id = 'cHp'; hp.tabIndex = -1; hp.autocomplete = 'off';
+  hp.setAttribute('aria-hidden', 'true');
+  hp.style.cssText = 'position:absolute;left:-9999px;top:auto;width:1px;height:1px;opacity:0;';
+  $('#custPanel').appendChild(hp);
 }
 
 $('#adderChk').addEventListener('change', e => { state.adder = e.target.checked; sync(); });
@@ -2978,11 +3218,7 @@ function makeBuildPDF(){
   return new Blob([bytes], {type:'application/pdf'});
 }
 
-function emailBuildSheet(){
-  if (!customerReady()){ toast('Complete your name, email, phone, and zip code before emailing.'); $('#cFirst').focus(); return; }
-  const c = state.customer;
-  const name = [c.first.trim(), c.last.trim()].filter(Boolean).join(' ');
-  /* 1. download the PDF for attaching */
+function downloadBuildPDF(name){
   const blob = makeBuildPDF();
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -2992,6 +3228,22 @@ function emailBuildSheet(){
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+/* 2026-11-12: GA4 conversion (+ Meta Lead once _build/add_meta_pixel.pl has run). With the price
+   lock off it counts the click that opens the customer's mail app - a mailto cannot tell us they
+   pressed send. With the lock on it counts a build the server accepted. */
+function countBuildSent(){
+  const evModel = curModel() ? curModel().nm : '';
+  if (typeof gtag === 'function') gtag('event', 'build_sheet_sent', {model: evModel, length: state.len || ''});
+  if (typeof fbq === 'function') fbq('track', 'Lead', {content_name: evModel, content_category: 'build_sheet'});
+}
+/* The mail-app path. With the price lock OFF this is the whole button, step for step as before.
+   With the lock on it is only the way out when the send from the page fails (count = false). */
+function mailBuildSheet(count){
+  const c = state.customer;
+  const name = [c.first.trim(), c.last.trim()].filter(Boolean).join(' ');
+  /* 1. download the PDF for attaching */
+  downloadBuildPDF(name);
   /* 2. open a pre-addressed email to the customer + dealership */
   const subject = 'Wooldridge Boats Build Sheet \u2014 ' + name;
   const mailto = 'mailto:' + encodeURIComponent(c.email.trim())
@@ -2999,12 +3251,71 @@ function emailBuildSheet(){
     + '&subject=' + encodeURIComponent(mailAscii(subject))
     + '&body=' + encodeURIComponent(mailAscii(emailBodyText()).replace(/\n/g, '\r\n'));   /* RFC 6068: a body line break is %0D%0A (the parsers already strip the CR, mail in transit is CRLF anyway) */
   toast('Build sheet PDF downloaded \u2014 attach it to the email that opens.');
-  /* 2026-11-12: GA4 conversion (+ Meta Lead once _build/add_meta_pixel.pl has run). Counts the
-     click that opens the customer's mail app - a mailto cannot tell us they pressed send. */
-  const evModel = curModel() ? curModel().nm : '';
-  if (typeof gtag === 'function') gtag('event', 'build_sheet_sent', {model: evModel, length: state.len || ''});
-  if (typeof fbq === 'function') fbq('track', 'Lead', {content_name: evModel, content_category: 'build_sheet'});
+  if (count) countBuildSent();
   setTimeout(() => { window.location.href = mailto; }, 450);
+}
+
+/* ════════ PRICE LOCK — submit the build from the page (forms/submit.php, route 'build') ════════
+   Only reached when the lock is on. The server emails the build to data@ (the same address the
+   mail-app path copies, so the inquiries flow files it for the Build Hub exactly as before) and
+   sends the customer an automatic copy. What is posted is emailBodyText() as it stands: real
+   prices, the same section markers, the WB-INQUIRY block. No attachment.
+   Whatever happens, the customer ends up with prices on screen: a failed send unlocks too, and
+   falls back to the mail-app path so the lead is not lost. */
+const BUILD_ENDPOINT = '/forms/submit.php';
+const BUILD_SEND_TIMEOUT = 45000;   /* ms - past this the send is treated as failed and the mail-app path takes over */
+function unlockPrices(){
+  priceUnlocked = true;
+  try { window.localStorage.setItem(PRICE_UNLOCK_KEY, '1'); } catch(e){ /* private window: unlocked for this visit only */ }
+}
+function sendBuild(){
+  if (buildSending) return;
+  const c = state.customer;
+  const name = [c.first.trim(), c.last.trim()].filter(Boolean).join(' ');
+  const email = c.email.trim();
+  const first = pricesHidden();          /* the send that unlocks, as opposed to "send me an updated copy" */
+  const hp = $('#cHp');
+  const fd = new FormData();
+  fd.append('form', 'build');
+  fd.append('website', hp ? hp.value : '');   /* spam trap - submit.php pretends success when it is filled */
+  fd.append('subject', 'Wooldridge Boats Build Sheet \u2014 ' + name);   /* the inquiries flow matches on this phrase */
+  fd.append('summary', emailBodyText());
+  fd.append('name', name);
+  fd.append('email', email);
+  fd.append('phone', c.phone.trim());
+  buildSending = true; sendNote = null;
+  renderLockUI();
+  const finish = ok => {
+    buildSending = false;
+    unlockPrices();
+    const evModel = curModel() ? curModel().nm : '';
+    if (ok){
+      sendNote = {bad:false, text: first ? LOCK_COPY.sent(email) : LOCK_COPY.sentAgain(email), pdf:true};
+      sync();                       /* every price on the page re-draws, real */
+      downloadBuildPDF(name);
+      countBuildSent();
+      toast(first ? LOCK_COPY.sentToast : LOCK_COPY.sentAgainToast);
+    } else {
+      sendNote = {bad:true, text: first ? LOCK_COPY.failed : LOCK_COPY.failedAgain, retry:true};
+      sync();
+      if (typeof gtag === 'function') gtag('event', 'build_send_failed', {model: evModel, length: state.len || ''});
+      mailBuildSheet(false);        /* PDF + the customer's own mail app, exactly the lock-off path */
+    }
+  };
+  let sent, timer = null;
+  try {
+    const ctl = (typeof AbortController === 'function') ? new AbortController() : null;
+    if (ctl) timer = setTimeout(() => ctl.abort(), BUILD_SEND_TIMEOUT);
+    sent = fetch(BUILD_ENDPOINT, ctl ? {method:'POST', body:fd, signal:ctl.signal} : {method:'POST', body:fd})
+      .then(r => r.json().then(d => r.ok && !!d && d.ok === true, () => false), () => false);
+  } catch(e){ sent = Promise.resolve(false); }
+  sent.then(ok => { clearTimeout(timer); finish(ok); });
+}
+
+function emailBuildSheet(){
+  if (!customerReady()){ toast(PRICE_LOCK_ON ? LOCK_COPY.needFields : 'Complete your name, email, phone, and zip code before emailing.'); $('#cFirst').focus(); return; }
+  if (PRICE_LOCK_ON){ sendBuild(); return; }
+  mailBuildSheet(true);
 }
 $('#btnEmail').addEventListener('click', emailBuildSheet);
 
@@ -3018,12 +3329,15 @@ function depositInfo(total){
 function openReserve(){
   const s = sheetSummary();
   if (s.total === 0){ toast('Configure a build to see your reservation deposit.'); return; }
+  /* PRICE LOCK: the deposit is a share of the total, so it is not shown before the build is
+     submitted - the visitor is sent to the submit step instead. After that this works as before. */
+  if (pricesHidden()){ toast(LOCK_COPY.reserve); goToSubmit(); return; }
   const di = depositInfo(s.total);
   const dep = di.amt;
   $('#rDepPct').textContent = di.pct + ' deposit';
   $('#rDepPct2').textContent = di.pct + ' deposit';
-  $('#rDepAmt').textContent = fmt(dep);
-  $('#rDepSub').textContent = di.pct + ' of your ' + fmt(s.total) + ' total build';
+  $('#rDepAmt').textContent = dfmt(dep);
+  $('#rDepSub').textContent = di.pct + ' of your ' + dfmt(s.total) + ' total build';
   const first = s.rows.length ? s.rows[0].l1 : 'Configured build';
   const NL = String.fromCharCode(10);
   const body = 'Hi Carrie,' + NL + NL + 'I would like to reserve a build slot.' + NL + NL
@@ -3056,6 +3370,7 @@ $('#btnReset').addEventListener('click', () => {
   fillRegionControl();
   if (window.TR) TR.removeFromBuild(); else state.trailer = null;
   clearSaved();
+  sendNote = null;   /* price lock: the last send's note goes with the build it was about (the unlock itself is kept) */
   sync();
   window.scrollTo({top:0, behavior:'smooth'});
 });
@@ -3150,6 +3465,12 @@ const buildState = {};
 
 const fmt  = n => '$' + n.toLocaleString('en-US',{maximumFractionDigits:0});
 const fmt2 = n => '$' + n.toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2});
+/* PRICE LOCK: fmt / fmt2 above are the REAL prices (the Copy text uses them). What this picker
+   draws on screen goes through dfmt / dfmt2, which ask the main script (window.WB) whether prices
+   are hidden and mask the same way it does. With the lock off they return the real text. */
+const shownPrice = (real, n) => (window.WB && WB.priceText) ? WB.priceText(real, n) : real;
+const dfmt  = n => shownPrice(fmt(n), n);
+const dfmt2 = n => shownPrice(fmt2(n), n);
 
 const qEl = document.getElementById('trQ');
 const chipsEl = document.getElementById('trChips');
@@ -3326,7 +3647,7 @@ function buildCard(t, tag, fit){
     <div class="boats">${quickNotes(t).join(' &middot; ')}</div>
     <div class="from">
       <span class="fl">Retail from</span>
-      ${from!=null ? `<span class="fv">${fmt(from)}</span>` : `<span class="tbd">Base TBD</span>`}
+      ${from!=null ? `<span class="fv">${dfmt(from)}</span>` : `<span class="tbd">Base TBD</span>`}
     </div>
     <div class="caret">${inbuild?'<span class="inbuildtag">In build</span>':''}${fit?'<span class="fitchip">FITS BUILD</span>':''}${tag?`<span class="whytag">${tag}</span>`:''}${t.cap?`<span class="capchip">${t.cap.toLocaleString()} lb</span>`:''}<span class="arr">&#9656;</span></div>`;
   row.onclick = ()=>toggle(t.id);
@@ -3356,7 +3677,7 @@ function liHTML(t, item, kind, idx, checked, locked){
         ${item.part?`<div class="li-part">${item.part}</div>`:''}
         ${item.caution?`<div class="li-caution">Caution: ${item.caution}</div>`:''}
       </div>
-      <div class="li-cost ${zero?'zero':''}">${zero?'N/C':fmt(RETAIL_MODE?rprice(item.cost):item.cost)}</div>
+      <div class="li-cost ${zero?'zero':''}">${zero?'N/C':dfmt(RETAIL_MODE?rprice(item.cost):item.cost)}</div>
     </label>`;
 }
 
@@ -3385,7 +3706,7 @@ function buildDetail(t){
         <input type="checkbox" checked disabled>
         <div class="li-body"><div class="li-name">${RETAIL_MODE?'Base trailer':'Base Trailer Cost'}</div>
         ${m.basePart?`<div class="li-part">${m.basePart}</div>`:''}</div>
-        <div class="li-cost">${fmt(RETAIL_MODE?rprice(m.base):m.base)}</div>
+        <div class="li-cost">${dfmt(RETAIL_MODE?rprice(m.base):m.base)}</div>
       </div>`;
   } else {
     html += `
@@ -3458,15 +3779,15 @@ function updateTicket(id){
   let html = '';
   lines.forEach(l=>{
     const v = RETAIL_MODE ? rprice(l.v) : l.v;
-    html += `<div class="trow"><span class="n">${l.n}${l.c?' *':''}</span><span class="v ${l.v===0?'zero':''}">${l.v===0?'N/C':fmt(v)}</span></div>`;
+    html += `<div class="trow"><span class="n">${l.n}${l.c?' *':''}</span><span class="v ${l.v===0?'zero':''}">${l.v===0?'N/C':dfmt(v)}</span></div>`;
   });
   cautions.forEach(c=>{ html += `<div class="trow cnote">* ${c}</div>`; });
-  if(!RETAIL_MODE) html += `<div class="trow sub"><span class="n">Subtotal cost</span><span class="v">${fmt(subtotal)}</span></div>`;
+  if(!RETAIL_MODE) html += `<div class="trow sub"><span class="n">Subtotal cost</span><span class="v">${dfmt(subtotal)}</span></div>`;
   rowsEl.innerHTML = html;
-  document.getElementById('tkRetail-'+id).textContent = RETAIL_MODE ? fmt(rounded) : fmt2(retail);
+  document.getElementById('tkRetail-'+id).textContent = RETAIL_MODE ? dfmt(rounded) : dfmt2(retail);
   document.getElementById('tkNote-'+id).textContent =
     RETAIL_MODE ? (baseKnown ? 'Includes base trailer and all selected equipment' : 'Price pending — base trailer not yet published')
-    : (baseKnown ? `${fmt(subtotal)} × ${markup} · rounds to ${fmt(rounded)}`
+    : (baseKnown ? `${dfmt(subtotal)} × ${markup} · rounds to ${dfmt(rounded)}`
                  : `Enter a base cost — price shown is options only`);
   if(id===buildTrailerId) pushTrailer(t);
 }
@@ -3493,6 +3814,9 @@ function removeFromBuild(){
 }
 
 function copyBuild(id, btn){
+  /* PRICE LOCK: the copied text carries the real trailer prices, so while prices are hidden the
+     button sends the visitor to the submit step instead of copying */
+  if (window.WB && WB.pricesHidden && WB.pricesHidden()){ WB.lockedPrompt(); return; }
   const t = findT(id), m = t.m;
   const {lines, subtotal, retail, cautions} = totals(t);
   const st = getState(t);

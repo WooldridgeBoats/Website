@@ -23,6 +23,14 @@
                  website@ to data@ passes the INQUIRIES flow's trigger, so
                  quiz leads still reach the Build Hub. Auto-response
                  Reply-To: danny@, the person the quiz hands them to.)
+     build    -> data@   (no cc)    (Stephen 12 Nov 2026: the Build & Price
+                 "submit my build" button, which is only in use while the
+                 configurator's price lock is on. data@ is the one address
+                 the configurator's mail-app path has always copied, so the
+                 INQUIRIES flow files these for the Build Hub the same way.
+                 Auto-response Reply-To: sales@, same as the quote route.
+                 This is the ONLY route with a per-IP rate limit - see the
+                 block just after the credential file is found.)
    info@ was VACATED in July - that reasoning stands as history and is
    in the governance doc's mail-routing section - but it is a real
    shared mailbox, read again as of 26 Aug 2026 (Stephen's ruling), so
@@ -163,6 +171,7 @@ $ROUTES = array(
   'quote'   => array('to' => 'sales@wooldridgeboats.com', 'cc' => 'data@wooldridgeboats.com', 'reply' => 'sales@wooldridgeboats.com'),
   'careers' => array('to' => 'data@wooldridgeboats.com', 'cc' => 'parts@wooldridgeboats.com, luke@wooldridgeboats.com, grant@wooldridgeboats.com', 'reply' => 'data@wooldridgeboats.com'),
   'quiz'    => array('to' => 'data@wooldridgeboats.com', 'cc' => 'danny@wooldridgeboats.com', 'reply' => 'danny@wooldridgeboats.com'),
+  'build'   => array('to' => 'data@wooldridgeboats.com', 'cc' => '', 'reply' => 'sales@wooldridgeboats.com'),
 );
 $FROM_NAME   = 'Wooldridge Website';
 $AUTO_REPLY  = true;
@@ -319,6 +328,42 @@ if ($cfgPath === null){
   fail(503, 'mail config missing');
 }
 $WB_LOGFILE = dirname($cfgPath) . '/wb-form-mail.log';
+
+/* ─── per-IP rate limit: the 'build' route ONLY (12 Nov 2026) ─────────
+   The Build & Price submit mails visitor-typed text to a visitor-typed
+   address (the auto-response), so it gets a ceiling the other routes do
+   not have: 20 submissions per IP per hour. Same pattern as
+   forms/river-ripper-scores.php. The tally sits beside the credential
+   file in the account home, outside every web root. If that file cannot
+   be read or written the limit simply does not apply - a storage hiccup
+   must never turn a real customer away. Over the limit the answer is
+   429 / ok:false, and the page falls back to the visitor's own mail app.
+   No other route reaches this block. */
+if ($form === 'build'){
+  $BUILD_RATE = 20;
+  $rateFile = dirname($cfgPath) . '/wb-form-build-rate.json';
+  $rateIp   = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0';
+  $rateKey  = md5($rateIp);
+  $rateNow  = time();
+  $rate = json_decode((string)@file_get_contents($rateFile), true);
+  if (!is_array($rate)) $rate = array();
+  $hits = array();
+  if (isset($rate[$rateKey]) && is_array($rate[$rateKey])){
+    foreach ($rate[$rateKey] as $t){
+      if ((int)$t > $rateNow - 3600) $hits[] = (int)$t;
+    }
+  }
+  if (count($hits) >= $BUILD_RATE){
+    wb_log('RATE-LIMITED build from ' . $rateIp . ' (' . count($hits) . ' in the last hour)');
+    fail(429, 'rate limited', 'We have received several builds from you in the last hour. Please try again a little later, or call (206) 722-8998.');
+  }
+  $hits[] = $rateNow;
+  $rate[$rateKey] = $hits;
+  foreach ($rate as $k => $v){
+    if (!is_array($v) || count($v) === 0 || max($v) < $rateNow - 3600) unset($rate[$k]);
+  }
+  @file_put_contents($rateFile, json_encode($rate), LOCK_EX);
+}
 
 $MAIL = @include $cfgPath;
 if (!is_array($MAIL)){
