@@ -3393,11 +3393,14 @@ function sendBuild(){
       if (result !== 'limited') queueBuildRetry(0);
     }
   };
-  /* up to three attempts while the button says "Sending…": the first, then two quick re-tries. A
-     first attempt that already took 20 seconds is not re-tried here: the customer has waited enough. */
+  /* up to three attempts while the button says "Sending…": the first, then two quick re-tries. The
+     quick re-tries are for a failure that comes back fast (a dropped connection). When the server
+     itself waited on Microsoft and gave up, the answer takes about 15 seconds (seen live 2026-11-12),
+     so once 8 seconds have gone the customer is not kept waiting: prices show and the quiet retries
+     take over. */
   const t0 = Date.now();
   const attempt = n => postBuild().then(v => {
-    if (v === 'ok' || v === 'limited' || n >= BUILD_RETRY_QUICK.length || Date.now() - t0 > 20000){ finish(v); return; }
+    if (v === 'ok' || v === 'limited' || n >= BUILD_RETRY_QUICK.length || Date.now() - t0 > 8000){ finish(v); return; }
     setTimeout(() => attempt(n + 1), BUILD_RETRY_QUICK[n]);
   });
   attempt(0);
