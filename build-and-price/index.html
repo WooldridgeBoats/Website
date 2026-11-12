@@ -3008,7 +3008,7 @@ function emailItemLines(name, price){
   words.push(last + '\u0001\u2014\u0001' + price);   /* price stays glued to the final word: character code 1 stands in for a no-break space while wrapping */
   return emailWrap(words.join(' '), '', '  ').map(l => l.split('\u0001').join(' '));
 }
-function emailBodyText(){
+function emailBodyText(sentBySite){
   const s = sheetSummary();
   const NL = '\n';
   const RULE = '================================================';
@@ -3056,7 +3056,11 @@ function emailBodyText(){
   t += 'RESERVE THIS BUILD' + NL + RULE + NL;
   t += 'A ' + depositInfo(s.total).pct + ' deposit (' + fmt(depositInfo(s.total).amt) + ') holds your build slot.' + NL;
   t += 'Contact Carrie@wooldridgeboats.com or (206) 722-8998.' + NL + NL;
-  t += 'A PDF copy of this build sheet was downloaded alongside this email \u2014 please attach it.' + NL + NL;
+  /* Sent by the website (price lock submit) there is nothing to attach, so the line says where the PDF went.
+     Both versions open with "A PDF copy" - the Build Hub's importer uses those words as an end marker. */
+  t += (sentBySite
+        ? 'A PDF copy of this build sheet was downloaded to your computer when you submitted it.'
+        : 'A PDF copy of this build sheet was downloaded alongside this email \u2014 please attach it.') + NL + NL;
   t += wbInquiryBlock('BUILD CONFIGURATION') + NL;
   t += 'Wooldridge Boats \u00b7 Seattle, Washington \u00b7 wooldridgeboats.com';
   return t;
@@ -3258,8 +3262,8 @@ function mailBuildSheet(count){
 /* ════════ PRICE LOCK — submit the build from the page (forms/submit.php, route 'build') ════════
    Only reached when the lock is on. The server emails the build to data@ (the same address the
    mail-app path copies, so the inquiries flow files it for the Build Hub exactly as before) and
-   sends the customer an automatic copy. What is posted is emailBodyText() as it stands: real
-   prices, the same section markers, the WB-INQUIRY block. No attachment.
+   sends the customer an automatic copy. What is posted is emailBodyText(true): real prices, the
+   same section markers, the WB-INQUIRY block, and one changed sentence (the PDF line). No attachment.
    Whatever happens, the customer ends up with prices on screen: a failed send unlocks too, and
    falls back to the mail-app path so the lead is not lost. */
 const BUILD_ENDPOINT = '/forms/submit.php';
@@ -3279,7 +3283,7 @@ function sendBuild(){
   fd.append('form', 'build');
   fd.append('website', hp ? hp.value : '');   /* spam trap - submit.php pretends success when it is filled */
   fd.append('subject', 'Wooldridge Boats Build Sheet \u2014 ' + name);   /* the inquiries flow matches on this phrase */
-  fd.append('summary', emailBodyText());
+  fd.append('summary', emailBodyText(true));   /* true = sent by the website: the PDF line says "downloaded to your computer", not "please attach it" */
   fd.append('name', name);
   fd.append('email', email);
   fd.append('phone', c.phone.trim());
