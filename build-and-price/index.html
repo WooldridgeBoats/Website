@@ -1481,7 +1481,7 @@ const CUSTOMER_MODE = true;  /* customer-facing build: no custom pricing, softer
    looked at on the live site while the public sees no change. ?pricelock=0 ends the preview. It
    only ends a preview: it cannot switch off a lock that PRICE_LOCK = true has turned on. */
 const PRICE_LOCK = true;   /* switched ON by Stephen's ruling, 12 Nov 2026 */
-const PRICE_UNLOCK_KEY = 'wb_price_unlocked_v1';   /* localStorage: this browser has submitted a build. A flag only, never customer details. */
+const PRICE_UNLOCK_KEY = 'wb_price_unlocked_v1';   /* RETIRED 2026-11-13. The first day's version remembered a submit in localStorage under this name, so a browser that had submitted once saw prices for good. Stephen: prices are hidden on EVERY visit and show only after a submit in that visit. Nothing is written under this name any more; it is kept only so the old flag can be removed below. */
 const PRICE_LOCK_ON = (function(){
   const PREVIEW_KEY = 'wbPriceLockPreview';
   let preview = false;
@@ -1508,8 +1508,8 @@ const PRICE_LOCK_ON = (function(){
   } catch(e){}
   return PRICE_LOCK || preview;
 })();
-let priceUnlocked = false;
-if (PRICE_LOCK_ON){ try { priceUnlocked = window.localStorage.getItem(PRICE_UNLOCK_KEY) === '1'; } catch(e){} }
+let priceUnlocked = false;   /* this page load only: every visit starts hidden, a reload hides them again */
+try { window.localStorage.removeItem(PRICE_UNLOCK_KEY); } catch(e){}   /* clear the flag the first day's version left behind */
 const pricesHidden = () => PRICE_LOCK_ON && !priceUnlocked;
 let buildSending = false;   /* true only while the lock's submit is on its way to the server */
 let sendNote = null;        /* {bad, text, retry|pdf} - the line under the submit button after a send */
@@ -3308,8 +3308,7 @@ const BUILD_RETRY_SLOW = 30000;     /* ms - after that, quietly this often while
 const BUILD_RETRY_SLOW_MAX = 20;    /* ...this many times (about ten minutes) */
 let buildRetryTimer = null;
 function unlockPrices(){
-  priceUnlocked = true;
-  try { window.localStorage.setItem(PRICE_UNLOCK_KEY, '1'); } catch(e){ /* private window: unlocked for this visit only */ }
+  priceUnlocked = true;   /* for this page load only - nothing is remembered between visits (Stephen, 2026-11-13) */
 }
 /* What is posted: the build as the page stands right now. */
 function buildFormData(){
