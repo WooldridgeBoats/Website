@@ -2634,10 +2634,26 @@ const VINYL_COLORS = [
   {nm:'Forest',       hex:'#2f4a3a'},
   {nm:'Signal Red',   hex:'#8e2f2f'}
 ];
-const VINYL_PREFIX = 'Vinyl color (placeholder swatch): ';
-const VINYL_PREFIX_OLD = 'Vinyl colour (placeholder swatch): ';   /* pre-2026-10-28 spelling: still recognised so an old share link does not double-count */
+/* The build-sheet line reads "Vinyl color: <name>". "(placeholder swatch)" was dropped from it on
+   Stephen's ruling, 13 Nov 2026: it was reaching real customers' sheets, PDFs and emailed copies. The
+   note at the step on the page still says the colors are stand-ins. */
+const VINYL_PREFIX = 'Vinyl color: ';
+/* earlier wordings (the "placeholder swatch" one, and "colour" before 2026-10-28): still recognised so an
+   old share link or a saved build does not double-count, and re-worded when it loads (vinylReword) */
+const VINYL_PREFIX_OLD = ['Vinyl color (placeholder swatch): ', 'Vinyl colour (placeholder swatch): '];
 const VINYL_PNOTE  = 'Price determined by complexity';
-function vinylCurrent(){ return state.custom.find(c => String(c.name).indexOf(VINYL_PREFIX) === 0 || String(c.name).indexOf(VINYL_PREFIX_OLD) === 0); }
+function vinylOldPrefix(nm){ nm = String(nm); return VINYL_PREFIX_OLD.find(p => nm.indexOf(p) === 0) || ''; }
+function vinylReword(list){
+  list.forEach(c => {
+    const old = vinylOldPrefix(c.name);
+    if (!old) return;
+    c.name = VINYL_PREFIX + String(c.name).slice(old.length);
+    if (c.price == null && !c.pnote) c.pnote = VINYL_PNOTE;
+  });
+  return list;
+}
+/* the swatch pick is told apart from a custom item a customer typed ("Vinyl color: grey") by its price note */
+function vinylCurrent(){ return state.custom.find(c => vinylOldPrefix(c.name) || (c.pnote === VINYL_PNOTE && String(c.name).indexOf(VINYL_PREFIX) === 0)); }
 function renderVinyl(){
   const host = $('#vinylRow');
   if (!host) return;
@@ -2704,7 +2720,7 @@ function applyPacked(p){
   state.opts   = (p.o && typeof p.o === 'object' && !Array.isArray(p.o)) ? p.o : {};
   state.radios = (p.r && typeof p.r === 'object' && !Array.isArray(p.r)) ? p.r : {};
   state.radioQty = (p.rq && typeof p.rq === 'object' && !Array.isArray(p.rq)) ? p.rq : {};
-  state.custom = Array.isArray(p.cu) ? p.cu.filter(c => c && typeof c.name === 'string') : [];
+  state.custom = vinylReword(Array.isArray(p.cu) ? p.cu.filter(c => c && typeof c.name === 'string') : []);
   customSeq = state.custom.reduce((a, c) => Math.max(a, (parseInt(String(c.id).replace(/\D/g, ''), 10) || 0) + 1), 0);
   state.notesText = typeof p.n === 'string' ? p.n : '';
   $('#buildNotes').value = state.notesText;
