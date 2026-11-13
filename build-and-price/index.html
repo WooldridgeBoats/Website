@@ -1508,9 +1508,17 @@ const PRICE_LOCK_ON = (function(){
   } catch(e){}
   return PRICE_LOCK || preview;
 })();
-let priceUnlocked = false;   /* this page load only: every visit starts hidden, a reload hides them again */
+/* Which boats this visitor has submitted a build of, on THIS page load only. Prices show for a boat
+   once a build of it has been submitted; switching to a different boat hides them again until that
+   one is submitted too (Stephen, 2026-11-13: "Yes, per boat"). Going back to a boat already
+   submitted in this visit shows its prices again. '' stands for "no boat chosen" (a trailer-only
+   sheet). Nothing is remembered between visits: every visit and every reload starts hidden. */
+const unlockedBoats = new Set();
 try { window.localStorage.removeItem(PRICE_UNLOCK_KEY); } catch(e){}   /* clear the flag the first day's version left behind */
-const pricesHidden = () => PRICE_LOCK_ON && !priceUnlocked;
+const pricesHidden = () => {
+  if (!PRICE_LOCK_ON) return false;
+  try { return !unlockedBoats.has(state.model || ''); } catch(e){ return true; }   /* asked before the page's state exists: hidden */
+};
 let buildSending = false;   /* true only while the lock's submit is on its way to the server */
 let sendNote = null;        /* {bad, text, retry|pdf} - the line under the submit button after a send */
 /* Every customer-facing word the lock adds is here, so it can be changed in one place. */
@@ -2851,17 +2859,19 @@ function renderLockUI(){
   eb.querySelector('.bs').textContent = hidden ? LOCK_COPY.btnSub : LOCK_COPY.btnAgainSub;
   if (buildSending) eb.disabled = true;
   const sn = $('#sendNote');
-  sn.hidden = !sendNote;
-  sn.classList.toggle('bad', !!(sendNote && sendNote.bad));
-  sn.textContent = sendNote ? sendNote.text : '';
-  if (sendNote && (sendNote.retry || sendNote.pdf)){
+  /* a note belongs to the boat it was about: it is not shown while the visitor is on another boat */
+  const note = (sendNote && (sendNote.boat === undefined || sendNote.boat === (state.model || ''))) ? sendNote : null;
+  sn.hidden = !note;
+  sn.classList.toggle('bad', !!(note && note.bad));
+  sn.textContent = note ? note.text : '';
+  if (note && (note.retry || note.pdf)){
     /* a real button the customer presses themselves, in case the browser held back what the page
        started on its own once the server had answered: the mail app after a failed send, the PDF
        after a good one */
     const again = document.createElement('button');
     again.type = 'button';
-    again.textContent = sendNote.retry ? LOCK_COPY.failedLink : LOCK_COPY.pdfLink;
-    const retry = !!sendNote.retry;
+    again.textContent = note.retry ? LOCK_COPY.failedLink : LOCK_COPY.pdfLink;
+    const retry = !!note.retry;
     again.addEventListener('click', () => {
       if (!customerReady()){ goToSubmit(); return; }
       if (retry) sendBuild();          /* "Try sending again": another send from the page, never the mail app */
@@ -3300,15 +3310,16 @@ function mailBuildSheet(count){
    then have to send from"). A send that fails is tried twice more straight away; if it still fails
    the prices show, the PDF downloads, and the page keeps trying quietly every 30 seconds while it
    stays open (about ten minutes), so the build still reaches data@ and the Build Hub. Nothing about
-   the customer is stored for this: each retry reads the page as it stands. */
+   the customer is written to the browser's storage for this: the retries re-send the build as it
+   was submitted, held in the page's memory only. */
 const BUILD_ENDPOINT = '/forms/submit.php';
 const BUILD_SEND_TIMEOUT = 45000;   /* ms - past this one attempt is treated as failed */
 const BUILD_RETRY_QUICK = [3000, 6000];   /* ms - the waits before the two immediate re-tries, while the button still says "Sending…" */
 const BUILD_RETRY_SLOW = 30000;     /* ms - after that, quietly this often while the page stays open... */
 const BUILD_RETRY_SLOW_MAX = 20;    /* ...this many times (about ten minutes) */
 let buildRetryTimer = null;
-function unlockPrices(){
-  priceUnlocked = true;   /* for this page load only - nothing is remembered between visits (Stephen, 2026-11-13) */
+function unlockPrices(boat){
+  unlockedBoats.add(boat || '');   /* this boat, this page load only - see unlockedBoats */
 }
 /* What is posted: the build as the page stands right now. */
 function buildFormData(){
@@ -3328,12 +3339,11 @@ function buildFormData(){
 /* One attempt. Resolves 'ok', 'queued' (the server has the build saved and will mail it when
    Microsoft answers again: as good as sent, but the emailed copy comes later), 'limited' (the
    server's hourly ceiling: trying again will not help) or 'failed'. */
-function postBuild(){
+function postBuild(fd){
   let timer = null;
   try {
     const ctl = (typeof AbortController === 'function') ? new AbortController() : null;
     if (ctl) timer = setTimeout(() => ctl.abort(), BUILD_SEND_TIMEOUT);
-    const fd = buildFormData();
     return fetch(BUILD_ENDPOINT, ctl ? {method:'POST', body:fd, signal:ctl.signal} : {method:'POST', body:fd})
       .then(r => r.json().then(d => (r.ok && !!d && d.ok === true) ? (d.queued === true ? 'queued' : 'ok') : (r.status === 429 ? 'limited' : 'failed'),
                                () => (r.status === 429 ? 'limited' : 'failed')),
@@ -3341,25 +3351,26 @@ function postBuild(){
       .then(v => { clearTimeout(timer); return v; });
   } catch(e){ clearTimeout(timer); return Promise.resolve('failed'); }
 }
-/* The quiet retries after a send that did not get through. No mail app, nothing stored. */
-function queueBuildRetry(k){
+/* The quiet retries after a send that did not get through. No mail app, nothing written to the
+   browser's storage. They re-send the build exactly as it was submitted (fd), not whatever the
+   page shows by then, so a boat the visitor has moved on to is never sent as if they submitted it. */
+function queueBuildRetry(k, fd, email, boat){
   clearTimeout(buildRetryTimer); buildRetryTimer = null;
   if (k >= BUILD_RETRY_SLOW_MAX){
-    sendNote = {bad:true, text: LOCK_COPY.failedFinal, retry:true};
+    sendNote = {bad:true, text: LOCK_COPY.failedFinal, retry:true, boat:boat};
     renderLockUI();
     return;
   }
   buildRetryTimer = setTimeout(() => {
     buildRetryTimer = null;
     if (buildSending) return;                                  /* the customer pressed the button: that send owns it now */
-    if (!customerReady()){ queueBuildRetry(k + 1); return; }   /* a required field was cleared since: wait for it */
-    postBuild().then(v => {
+    postBuild(fd).then(v => {
       if (buildSending) return;
       if (v === 'ok' || v === 'queued'){
-        sendNote = {bad:false, text: v === 'queued' ? LOCK_COPY.sentQueued(state.customer.email.trim()) : LOCK_COPY.sentLate(state.customer.email.trim())};
+        sendNote = {bad:false, boat:boat, text: v === 'queued' ? LOCK_COPY.sentQueued(email) : LOCK_COPY.sentLate(email)};
         renderLockUI();
         countBuildSent();
-      } else if (v === 'failed') queueBuildRetry(k + 1);
+      } else if (v === 'failed') queueBuildRetry(k + 1, fd, email, boat);
       /* 'limited': stop, the server has had enough from this address for now */
     });
   }, BUILD_RETRY_SLOW);
@@ -3370,16 +3381,18 @@ function sendBuild(){
   const name = [c.first.trim(), c.last.trim()].filter(Boolean).join(' ');
   const email = c.email.trim();
   const first = pricesHidden();          /* the send that unlocks, as opposed to "send me an updated copy" */
+  const boat = state.model || '';        /* the boat this submit is for: its prices are the ones that show */
+  const fd = buildFormData();            /* the build as submitted: every attempt and retry sends exactly this */
   clearTimeout(buildRetryTimer); buildRetryTimer = null;   /* a send the customer starts replaces any quiet retry in waiting */
   buildSending = true; sendNote = null;
   renderLockUI();
   const finish = result => {
     const ok = result === 'ok' || result === 'queued';
     buildSending = false;
-    unlockPrices();
+    unlockPrices(boat);
     const evModel = curModel() ? curModel().nm : '';
     if (ok){
-      sendNote = {bad:false, pdf:true,
+      sendNote = {bad:false, pdf:true, boat:boat,
         text: result === 'queued' ? LOCK_COPY.sentQueued(email) : first ? LOCK_COPY.sent(email) : LOCK_COPY.sentAgain(email)};
       sync();                       /* every price on the page re-draws, real */
       downloadBuildPDF(name);
@@ -3388,12 +3401,12 @@ function sendBuild(){
     } else {
       /* did not get through: the prices show anyway and the PDF downloads. NO mail app. The page
          keeps trying quietly, unless the server said it has had too many from this address. */
-      sendNote = {bad:true, retry:true,
+      sendNote = {bad:true, retry:true, boat:boat,
         text: result === 'limited' ? LOCK_COPY.failedFinal : first ? LOCK_COPY.failed : LOCK_COPY.failedAgain};
       sync();
       downloadBuildPDF(name);
       if (typeof gtag === 'function') gtag('event', 'build_send_failed', {model: evModel, length: state.len || ''});
-      if (result !== 'limited') queueBuildRetry(0);
+      if (result !== 'limited') queueBuildRetry(0, fd, email, boat);
     }
   };
   /* up to three attempts while the button says "Sending…": the first, then two quick re-tries. The
@@ -3402,7 +3415,7 @@ function sendBuild(){
      so once 8 seconds have gone the customer is not kept waiting: prices show and the quiet retries
      take over. */
   const t0 = Date.now();
-  const attempt = n => postBuild().then(v => {
+  const attempt = n => postBuild(fd).then(v => {
     if (v === 'ok' || v === 'queued' || v === 'limited' || n >= BUILD_RETRY_QUICK.length || Date.now() - t0 > 8000){ finish(v); return; }
     setTimeout(() => attempt(n + 1), BUILD_RETRY_QUICK[n]);
   });
