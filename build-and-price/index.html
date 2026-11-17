@@ -829,6 +829,37 @@
     font:inherit; font-weight:700; letter-spacing:0; color:var(--buoy); text-decoration:underline; cursor:pointer;
   }
   @media print{ .lockband, .lockhint, .locksheets, .locksheet{ display:none !important; } }
+  /* DEALER MODE (2026-11-17): the dealer notice at the top, the download / print block where the
+     submit button is on the public page, and the code prompt. Every one of these stays [hidden]
+     unless the page was opened with ?dealer=1 (see DEALER MODE in the main script). */
+  .dealerband{
+    margin:0 0 18px; padding:13px 16px; background:var(--card); color:var(--ink);
+    border:1px solid var(--rule); border-left:4px solid var(--kelp); border-radius:6px;
+    font-family:var(--sans); font-size:14px; line-height:1.45;
+  }
+  .dealerband[hidden]{ display:none; }
+  .dealerband b{ display:block; font-size:12.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--kelp); margin-bottom:3px; }
+  .dealerband a{ color:var(--buoy); font-weight:700; }
+  .dealerband .dfull{ display:inline-block; margin-top:6px; font-size:12.5px; }
+  .sheet .acts .dealeracts{ display:flex; flex-direction:column; gap:10px; }
+  .sheet .acts .dealeracts[hidden]{ display:none; }
+  .sheet .acts .dealeracts p{
+    margin:0; padding:10px 12px; border:1px solid var(--rule); border-left:4px solid var(--kelp); border-radius:6px;
+    background:var(--card); font-family:var(--sans); font-size:12.5px; line-height:1.45; color:var(--ink);
+  }
+  .sheet .acts .dealeracts p a{ color:var(--buoy); font-weight:700; }
+  .rmodal .dgin{
+    display:block; width:100%; box-sizing:border-box; margin:0 0 8px; padding:10px 12px;
+    font-family:var(--mono); font-size:16px; color:var(--ink); background:#fff;
+    border:1px solid var(--ink); border-radius:2px;
+  }
+  .rmodal .dgin:focus{ outline:2px solid var(--buoy); outline-offset:1px; }
+  .rmodal .dgmsg{ min-height:1.3em; margin:0 0 10px; font-family:var(--sans); font-size:13px; line-height:1.4; color:var(--buoy-deep); font-weight:700; }
+  .rmodal button.rbtn{ width:100%; cursor:pointer; }
+  .rmodal button.rbtn:disabled{ opacity:.6; cursor:wait; }
+  .rmodal .dgalt{ margin:10px 0 0; font-size:12.5px; color:var(--slate); }
+  .rmodal .dgalt a{ color:var(--buoy); }
+  @media print{ .dealerband, .dealeracts{ display:none !important; } }
   .rbtn{ background:var(--card); color:var(--ink); border:2px solid #000; }
   .rbtn:hover{ background:var(--ink); color:#fff; opacity:1; }
   .rbtn.ghost{ background:none; }
@@ -1059,6 +1090,8 @@
          submitted a build yet. Its wording is set by the main script (LOCK_COPY). -->
     <button type="button" class="lockband" id="lockBand" hidden><span class="lbt" id="lockBandText"></span><span class="lbgo" id="lockBandGo"></span></button>
     <p class="locksheets" id="lockSheets" hidden></p>
+    <!-- DEALER MODE notice (2026-11-17): shown only on /build-and-price/?dealer=1. Wording: DEALER_COPY. -->
+    <div class="dealerband" id="dealerBand" role="note" hidden></div>
 
     <!-- customer -->
     <section class="custpanel" id="custPanel">
@@ -1310,6 +1343,12 @@
         <button type="button" class="lockhint" id="lockHint" hidden></button><a class="locksheet" id="lockSheetLink" target="_blank" rel="noopener" hidden></a>      </div>
       <div class="acts">
         <div class="dealernote" id="dealerNote" hidden></div>
+        <!-- DEALER MODE (2026-11-17): takes the place of the submit button, which the dealer version removes. -->
+        <div class="dealeracts" id="dealerActs" hidden>
+          <p id="dealerActsText"></p>
+          <button type="button" id="btnDealerPdf" class="band pdfmail"></button>
+          <button type="button" id="btnDealerPrint" class="band"></button>
+        </div>
         <button type="button" id="btnEmail" class="band pdfmail">
           <span class="bt">Download a PDF copy of this build sheet &amp; email copies to yourself &amp; the Wooldridge team</span>
           <span class="bs">Saves the PDF to your computer, then opens your email app with the message ready to go &mdash; attach the PDF and press Send.</span>
@@ -1347,6 +1386,20 @@
     <p>A <span id="rDepPct2">deposit</span> reserves your place in the Wooldridge build schedule &mdash; 20% on builds under $120,000, 10% on builds of $120,000 and up. Contact Carrie to submit your deposit and lock in your slot.</p>
     <a class="rbtn" id="rMail" href="mailto:Carrie@wooldridgeboats.com?cc=data@wooldridgeboats.com">Email Carrie@wooldridgeboats.com</a>
     <a class="rbtn ghost" href="tel:+12067228998">Call (206) 722-8998</a>
+  </div>
+</div>
+
+<!-- DEALER MODE code prompt (2026-11-17): shown only on /build-and-price/?dealer=1, once per page load.
+     The code is checked by forms/dealer-check.php on the server and is never in this page. Not a <form>
+     on purpose, and no name on the field, so the browser does not keep the code in its form history. -->
+<div class="rmodal" id="dealerGate" hidden>
+  <div class="rbox" role="dialog" aria-modal="true" aria-labelledby="dealerGateHead" aria-describedby="dealerGateText">
+    <div class="rh" id="dealerGateHead"></div>
+    <p id="dealerGateText"></p>
+    <input type="text" class="dgin" id="dealerCode" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-labelledby="dealerGateHead">
+    <div class="dgmsg" id="dealerMsg" role="alert"></div>
+    <button type="button" class="rbtn" id="dealerGo"></button>
+    <p class="dgalt"><a id="dealerAlt" href="/build-and-price/" target="_top"></a></p>
   </div>
 </div>
 
@@ -1493,6 +1546,25 @@ const CUSTOMER_MODE = true;  /* customer-facing build: no custom pricing, softer
    looked at on the live site while the public sees no change. ?pricelock=0 ends the preview. It
    only ends a preview: it cannot switch off a lock that PRICE_LOCK = true has turned on. */
 const PRICE_LOCK = true;   /* switched ON by Stephen's ruling, 12 Nov 2026 */
+/* ════════ DEALER MODE (Stephen's rulings, 2026-11-17) ════════
+   This same page, opened as /build-and-price/?dealer=1, is the internal DEALER version (Tyler's sales
+   site shows it full-screen in a frame). Without ?dealer=1 nothing below changes anything.
+   - One shared dealer code, asked once per page load and checked by the website's SERVER
+     (forms/dealer-check.php, against a salted hash in the hosting account home - never in this file or
+     the repo). Nothing is remembered: every visit and every reload asks again.
+   - Right code: full prices everywhere (screen, PDF, print). PRICE_LOCK_ON is false for a dealer page
+     load, and pricesHidden() answers false once the server has accepted the code (dealerOpen).
+     Until then the page stays masked exactly like the public page.
+   - No submit, ever: the dealer version takes the Submit button off the page (and Reserve and Request a
+     quote, which also send). The dealer downloads or prints the build sheet and emails it to CC_EMAIL,
+     the address the build sheet always went to before the lock.
+   - With PRICE_LOCK switched off there is nothing to unlock, so no code is asked (DEALER_GATE).
+   The dealer's own parts are the DEALER MODE block at the end of this script. */
+const DEALER_MODE = (function(){
+  try { return new URLSearchParams(window.location.search || '').get('dealer') === '1'; } catch(e){ return false; }
+})();
+const DEALER_GATE = DEALER_MODE && PRICE_LOCK;
+let dealerOpen = false;   /* true once the server accepted the code - this page load only */
 const PRICE_UNLOCK_KEY = 'wb_price_unlocked_v1';   /* RETIRED 2026-11-13. The first day's version remembered a submit in localStorage under this name, so a browser that had submitted once saw prices for good. Stephen: prices are hidden on EVERY visit and show only after a submit in that visit. Nothing is written under this name any more; it is kept only so the old flag can be removed below. */
 const PRICE_LOCK_ON = (function(){
   const PREVIEW_KEY = 'wbPriceLockPreview';
@@ -1518,7 +1590,7 @@ const PRICE_LOCK_ON = (function(){
       try { preview = window.sessionStorage.getItem(PREVIEW_KEY) === '1'; } catch(e){}
     }
   } catch(e){}
-  return PRICE_LOCK || preview;
+  return (PRICE_LOCK || preview) && !DEALER_MODE;   /* the dealer version never runs the customer lock (DEALER MODE above) */
 })();
 /* Which boats this visitor has submitted a build of, on THIS page load only. Prices show for a boat
    once a build of it has been submitted; switching to a different boat hides them again until that
@@ -1528,6 +1600,7 @@ const PRICE_LOCK_ON = (function(){
 const unlockedBoats = new Set();
 try { window.localStorage.removeItem(PRICE_UNLOCK_KEY); } catch(e){}   /* clear the flag the first day's version left behind */
 const pricesHidden = () => {
+  if (DEALER_MODE) return DEALER_GATE && !dealerOpen;   /* dealer version: hidden only until the code is accepted */
   if (!PRICE_LOCK_ON) return false;
   try { return !unlockedBoats.has(state.model || ''); } catch(e){ return true; }   /* asked before the page's state exists: hidden */
 };
@@ -1567,6 +1640,35 @@ const LOCK_COPY = {
   failedFinal: 'We could not send your build to our team. Please try again in a few minutes, or call (206) 722-8998.',
   sentLate:    e => 'Sent. Your build reached our team, and a copy is on its way to ' + e + '.',
   sentQueued:  e => 'Received. Your prices are showing now and we have your build. The emailed copy to ' + e + ' may take a little while to arrive.'
+};
+/* Every word the DEALER version adds (see DEALER MODE above). The address dealers email their build sheet
+   to is CC_EMAIL (data@): the DEALER MODE block at the end of this script puts it between band / bandTail
+   and acts / actsTail as an email link, and passes it to pdfToast as e. */
+const DEALER_COPY = {
+  bandHead:  'Dealer version',
+  band:      'This page does not send anything to Wooldridge — there is no Submit button here. When your build is ready, download the build sheet PDF (or print it) and email it to ',
+  bandTail:  '. That is how your build reaches us.',
+  full:      'Trouble downloading or printing inside this page? Open it full screen',
+  acts:      'This dealer version cannot submit a build the way the public website does. Download the build sheet PDF (or print it) and email it to ',
+  actsTail:  '.',
+  mailSubject: 'Dealer build sheet',
+  pdf:       'Download the build sheet PDF',
+  print:     'Print the build sheet',
+  pdfToast:  e => 'Build sheet PDF downloaded — email it to ' + e + '.',
+  needBoat:  'Choose a boat (or a trailer) first.',
+  custHead:  'Customer information',
+  custReq:   'optional — printed on the build sheet',
+  custNote:  'Optional. Anything entered here prints on the build sheet as “Prepared for”. Nothing is sent from this page.',
+  gateHead:  'Dealer version',
+  gateText:  'Enter the dealer code to see full pricing. It is asked each time this page is opened.',
+  gateBtn:   'Show dealer pricing',
+  gateEmpty: 'Type the dealer code first.',
+  checking:  'Checking…',
+  wrong:     'That code is not right. Check it and try again.',
+  tooMany:   'Too many wrong tries from this connection. Please wait an hour, or call (206) 722-8998.',
+  down:      'The code check is not answering right now. Please try again in a minute, or call (206) 722-8998.',
+  notDealer: 'Not a dealer? Go to the public Build & Price page.',
+  openToast: 'Dealer pricing is on for this visit.'
 };
 
 /* ════════ ESTIMATE DISCLAIMER (2026-10-29, dealer feedback via Danny) ════════
@@ -2443,7 +2545,7 @@ function renderSheet(){
   const grand = boatTotal + trailerTotal;
   $('#totalVal').textContent = dfmt(grand);
   $('#mbarVal').textContent = dfmt(grand);
-  $('#lockHint').hidden = !(pricesHidden() && grand > 0);   /* the "submit to see" hint under a masked total */
+  $('#lockHint').hidden = !(PRICE_LOCK_ON && pricesHidden() && grand > 0);   /* the "submit to see" hint under a masked total (never in the dealer version: nothing to submit) */
   const rbtn = $('#btnReserve');
   rbtn.disabled = grand === 0;
   rbtn.style.opacity = grand === 0 ? '.5' : '';
@@ -2570,9 +2672,11 @@ function renderCustomer(){
 
   const ready = customerReady();
   const eb = $('#btnEmail');
-  eb.disabled = !ready || buildSending;   /* buildSending is only ever true while the price lock's submit is in flight */
-  eb.style.opacity = ready ? '' : '.5';
-  eb.style.cursor = ready ? '' : 'not-allowed';
+  if (eb){   /* the dealer version takes this button off the page (DEALER MODE) */
+    eb.disabled = !ready || buildSending;   /* buildSending is only ever true while the price lock's submit is in flight */
+    eb.style.opacity = ready ? '' : '.5';
+    eb.style.cursor = ready ? '' : 'not-allowed';
+  }
 
   /* with the price lock on, the note under the fields says what the button now does */
   const noteReady = !PRICE_LOCK_ON ? 'Ready to download and email your build sheet.'
@@ -2580,7 +2684,8 @@ function renderCustomer(){
   const noteMissing = !PRICE_LOCK_ON ? 'Still needed to download and email your build sheet: '
     : pricesHidden() ? LOCK_COPY.noteMissing : LOCK_COPY.noteMissingAgain;
   const note = $('#custNote');
-  if (ready){ note.classList.remove('warn'); note.textContent = noteReady; }
+  if (DEALER_MODE){ note.classList.remove('warn'); note.textContent = DEALER_COPY.custNote; }   /* optional for a dealer: nothing is sent */
+  else if (ready){ note.classList.remove('warn'); note.textContent = noteReady; }
   else {
     note.classList.add('warn');
     const missing = [];
@@ -2597,6 +2702,7 @@ function renderCustomer(){
   $('#cPhone').classList.toggle('missing', custTouched && !phoneOK(c.phone));
   updateDealerNote();
   $('#cZip').classList.toggle('missing', custTouched && !zipOK(c.zip));
+  if (DEALER_MODE) ['#cFirst','#cLast','#cEmail','#cPhone','#cZip'].forEach(s => $(s).classList.remove('missing'));   /* optional for a dealer */
 }
 function renderCustomList(){
   const host = $('#customList');
@@ -2709,7 +2815,7 @@ window.WB = {
   pricesHidden,
   priceText,
   maskDollars,
-  lockedPrompt(msg){ toast(msg || LOCK_COPY.copy); goToSubmit(); }
+  lockedPrompt(msg){ if (DEALER_MODE){ dealerAsk(); return; } toast(msg || LOCK_COPY.copy); goToSubmit(); }
 };
 
 /* ════════ SHARE LINK + AUTOSAVE — state <-> compact JSON ════════ */
@@ -2921,6 +3027,7 @@ function goToSubmit(){
     return;
   }
   const eb = $('#btnEmail');
+  if (!eb) return;   /* the dealer version has no submit button (DEALER MODE) */
   eb.scrollIntoView({behavior:'smooth', block:'center'});
   try { eb.focus({preventScroll:true}); } catch(e){ eb.focus(); }
 }
@@ -3515,6 +3622,130 @@ $('#btnReset').addEventListener('click', () => {
 $('#mbarBtn').addEventListener('click', () => {
   document.getElementById('railTop').scrollIntoView({behavior:'smooth', block:'start'});
 });
+
+/* ════════ DEALER MODE — the dealer version's own parts (see DEALER MODE near the top) ════════
+   Runs only on ?dealer=1. Takes the sending buttons off the page, shows the notice at the top and the
+   download / print block where the submit button was, and asks for the dealer code once per page load.
+   The code goes to the server and nowhere else: it is not stored, and the field is emptied once accepted.
+   Nothing here counts a conversion (no gtag / fbq events): a dealer's download is not a customer lead. */
+const DEALER_ENDPOINT = '/forms/dealer-check.php';
+const DEALER_CHECK_TIMEOUT = 20000;   /* ms - past this the check is treated as not answering */
+let dealerChecking = false;
+/* the address as an email link. The subject stays clear of the Hub inquiries flow's subject phrases on
+   purpose: a dealer's email carries a PDF the Hub cannot read, so it should reach the inbox as plain mail. */
+function dealerMailHref(){
+  const m = curModel();
+  const subj = DEALER_COPY.mailSubject + (m ? ' - ' + m.nm + (state.len ? ' ' + state.len + ' ft' : '') : '');
+  return 'mailto:' + CC_EMAIL + '?subject=' + encodeURIComponent(mailAscii(subj));
+}
+function dealerMailLink(){
+  const a = document.createElement('a');
+  a.href = dealerMailHref();
+  a.textContent = CC_EMAIL;
+  a.addEventListener('click', () => { a.href = dealerMailHref(); });   /* the boat chosen by now */
+  return a;
+}
+function dealerAsk(){
+  if (!DEALER_GATE || dealerOpen) return;
+  $('#dealerGate').hidden = false;
+  setTimeout(() => { try { $('#dealerCode').focus(); } catch(e){} }, 30);
+}
+function dealerCheck(){
+  if (dealerChecking) return;
+  const inp = $('#dealerCode'), btn = $('#dealerGo'), msg = $('#dealerMsg');
+  const code = inp.value.trim();
+  if (!code){ msg.textContent = DEALER_COPY.gateEmpty; inp.focus(); return; }
+  dealerChecking = true;
+  btn.disabled = true; btn.textContent = DEALER_COPY.checking; msg.textContent = '';
+  const fd = new FormData();
+  fd.append('code', code);
+  let timer = null;
+  const ctl = (typeof AbortController === 'function') ? new AbortController() : null;
+  if (ctl) timer = setTimeout(() => ctl.abort(), DEALER_CHECK_TIMEOUT);
+  const opts = {method:'POST', body:fd, cache:'no-store', credentials:'same-origin'};
+  if (ctl) opts.signal = ctl.signal;
+  let req;
+  try { req = fetch(DEALER_ENDPOINT, opts); } catch(e){ req = Promise.reject(e); }
+  req.then(r => r.json().then(d => ({s:r.status, d:d}), () => ({s:r.status, d:null})))
+    .then(x => (x.s === 200 && x.d && x.d.ok === true) ? 'ok' : x.s === 403 ? 'wrong' : x.s === 429 ? 'many' : 'down',
+          () => 'down')
+    .then(v => {
+      clearTimeout(timer);
+      dealerChecking = false;
+      btn.disabled = false; btn.textContent = DEALER_COPY.gateBtn;
+      if (v === 'ok'){
+        dealerOpen = true;              /* this page load only: a reload asks again */
+        inp.value = '';
+        $('#dealerGate').hidden = true;
+        sync();                         /* every price on the page re-draws, real */
+        toast(DEALER_COPY.openToast);
+        return;
+      }
+      msg.textContent = v === 'wrong' ? DEALER_COPY.wrong : v === 'many' ? DEALER_COPY.tooMany : DEALER_COPY.down;
+      inp.focus();
+      if (v === 'wrong') inp.select();
+    });
+}
+function dealerDownload(){
+  if (pricesHidden()){ dealerAsk(); return; }
+  const m = curModel();
+  if (!m && !state.trailer){ toast(DEALER_COPY.needBoat); return; }
+  const c = state.customer;
+  const who = [c.first.trim(), c.last.trim()].filter(Boolean).join(' ');
+  downloadBuildPDF('Dealer ' + (who || (m ? m.nm + (state.len ? ' ' + state.len + 'ft' : '') : 'Trailer')));
+  toast(DEALER_COPY.pdfToast(CC_EMAIL));
+}
+function dealerPrint(){
+  if (pricesHidden()){ dealerAsk(); return; }
+  window.print();
+}
+if (DEALER_MODE){
+  const eb = $('#btnEmail');
+  if (eb) eb.remove();   /* ruling 2026-11-17: no submit in the dealer version - gone, not greyed out */
+  ['#btnReserve', '#btnQuote'].forEach(s => { const b = $(s); if (b){ b.hidden = true; b.style.display = 'none'; } });   /* both send too */
+  const band = $('#dealerBand');
+  const bh = document.createElement('b');
+  bh.textContent = DEALER_COPY.bandHead;
+  band.appendChild(bh);
+  band.appendChild(document.createTextNode(DEALER_COPY.band));
+  band.appendChild(dealerMailLink());
+  band.appendChild(document.createTextNode(DEALER_COPY.bandTail));
+  let framed = true;
+  try { framed = window.self !== window.top; } catch(e){}
+  if (framed){
+    /* inside the sales site's frame: a way out to the same dealer page on its own, for a browser that
+       will not download or print from inside a frame. The code is asked again there. */
+    const fl = document.createElement('a');
+    fl.className = 'dfull';
+    fl.href = window.location.pathname + '?dealer=1';
+    fl.target = '_blank'; fl.rel = 'noopener';
+    fl.textContent = DEALER_COPY.full + ' ↗';
+    band.appendChild(document.createElement('br'));
+    band.appendChild(fl);
+  }
+  band.hidden = false;
+  const at = $('#dealerActsText');
+  at.textContent = DEALER_COPY.acts;
+  at.appendChild(dealerMailLink());
+  at.appendChild(document.createTextNode(DEALER_COPY.actsTail));
+  $('#btnDealerPdf').textContent = DEALER_COPY.pdf;
+  $('#btnDealerPrint').textContent = DEALER_COPY.print;
+  $('#btnDealerPdf').addEventListener('click', dealerDownload);
+  $('#btnDealerPrint').addEventListener('click', dealerPrint);
+  $('#dealerActs').hidden = false;
+  const ch = document.querySelector('#custPanel .cph h2');
+  if (ch) ch.textContent = DEALER_COPY.custHead;
+  const cr = document.querySelector('#custPanel .cph .req');
+  if (cr) cr.textContent = DEALER_COPY.custReq;
+  document.querySelectorAll('#custPanel .star').forEach(s => { s.style.display = 'none'; });   /* nothing is required of a dealer */
+  $('#dealerGateHead').textContent = DEALER_COPY.gateHead;
+  $('#dealerGateText').textContent = DEALER_COPY.gateText;
+  $('#dealerGo').textContent = DEALER_COPY.gateBtn;
+  $('#dealerAlt').textContent = DEALER_COPY.notDealer;
+  $('#dealerGo').addEventListener('click', dealerCheck);
+  $('#dealerCode').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); dealerCheck(); } });
+  dealerAsk();
+}
 
 $('#estHead').textContent = ESTIMATE_HEAD;
 $('#estBody').textContent = ESTIMATE_BODY;
