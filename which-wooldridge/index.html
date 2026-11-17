@@ -155,6 +155,19 @@
   gtag('config', 'G-7H638112HR');
 </script>
 <!-- /GA4 -->
+<!-- META PIXEL -->
+<script>
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+  document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '1849665576035900');
+  fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=1849665576035900&amp;ev=PageView&amp;noscript=1"></noscript>
+<!-- /META PIXEL -->
+<script src="/assets/adsource.js?v=7a06b80d"></script><!-- first-touch utm capture: the lead tools add an "Ad source:" line from it (2026-11-12) -->
 <div class="topstrip">
   <div class="wrap">
     <div>FACTORY &amp; SHOWROOM — 1303 S 96TH ST, SEATTLE, WA 98108 &nbsp;·&nbsp; <a href="tel:+12067228998">(206) 722-8998</a> &nbsp;·&nbsp; MON–THU 6:00AM–4:30PM</div>
@@ -663,6 +676,8 @@ function quizSummary(name, email, phone, note){
   L.push('');
   L.push('--- WB-INQUIRY v1 (for our records - please leave this section intact) ---');
   L.push('Source: Which Wooldridge Quiz');
+  const adLine = (window.WBAdSource && WBAdSource.line()) || '';   /* 2026-11-12: utm-tagged landing, see /assets/adsource.js */
+  if (adLine) L.push(adLine);
   L.push('Type: QUIZ RESULT');
   if (LAST){ L.push('Model: ' + FACTS[LAST.win].nm); L.push('RunnerUp: ' + FACTS[LAST.run].nm); }
   if (name) L.push('Name: ' + name);
@@ -741,7 +756,9 @@ function openQuizMailto(){
   const sum = answerSummary();
   if (sum.length) body += '\nMy answers:\n' + sum.join('\n') + '\n';
   body += '\nPlease send me pricing and availability.\n\nName:\nPhone:\nBest time to reach me:\n';
-  body += '\n--- WB-INQUIRY v1 (for our records - please leave this section intact) ---\nSource: Which Wooldridge Quiz\nType: QUIZ RESULT\n';
+  const adLine = (window.WBAdSource && WBAdSource.line()) || '';   /* 2026-11-12: utm-tagged landing, see /assets/adsource.js */
+  body += '\n--- WB-INQUIRY v1 (for our records - please leave this section intact) ---\nSource: Which Wooldridge Quiz\n'
+    + (adLine ? adLine + '\n' : '') + 'Type: QUIZ RESULT\n';
   if (LAST) body += 'Model: ' + FACTS[LAST.win].nm + '\nRunnerUp: ' + FACTS[LAST.run].nm + '\n';
   location.href = 'mailto:data@wooldridgeboats.com?cc=danny%40wooldridgeboats.com&subject=' + encodeURIComponent(mailAscii(subject)) + '&body=' + encodeURIComponent(mailAscii(body));
 }
