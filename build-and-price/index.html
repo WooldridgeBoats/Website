@@ -1556,8 +1556,8 @@ const PRICE_LOCK = true;   /* switched ON by Stephen's ruling, 12 Nov 2026 */
      load, and pricesHidden() answers false once the server has accepted the code (dealerOpen).
      Until then the page stays masked exactly like the public page.
    - No submit, ever: the dealer version takes the Submit button off the page (and Reserve and Request a
-     quote, which also send). The dealer downloads or prints the build sheet and emails it to CC_EMAIL,
-     the address the build sheet always went to before the lock.
+     quote, which also send). The dealer downloads or prints the build sheet and emails it to
+     DEALER_COPY.email (Danny, Stephen's ruling 2026-11-17).
    - With PRICE_LOCK switched off there is nothing to unlock, so no code is asked (DEALER_GATE).
    The dealer's own parts are the DEALER MODE block at the end of this script. */
 const DEALER_MODE = (function(){
@@ -1642,9 +1642,11 @@ const LOCK_COPY = {
   sentQueued:  e => 'Received. Your prices are showing now and we have your build. The emailed copy to ' + e + ' may take a little while to arrive.'
 };
 /* Every word the DEALER version adds (see DEALER MODE above). The address dealers email their build sheet
-   to is CC_EMAIL (data@): the DEALER MODE block at the end of this script puts it between band / bandTail
-   and acts / actsTail as an email link, and passes it to pdfToast as e. */
+   to is DEALER_COPY.email (Danny, Stephen's ruling 2026-11-17; it was CC_EMAIL / data@ before): the DEALER
+   MODE block at the end of this script puts it between band / bandTail and acts / actsTail as an email
+   link, and passes it to pdfToast as e. Customers never see it; CC_EMAIL is untouched. */
 const DEALER_COPY = {
+  email:     'danny@wooldridgeboats.com',
   bandHead:  'Dealer version',
   band:      'This page does not send anything to Wooldridge — there is no Submit button here. When your build is ready, download the build sheet PDF (or print it) and email it to ',
   bandTail:  '. That is how your build reaches us.',
@@ -3636,12 +3638,12 @@ let dealerChecking = false;
 function dealerMailHref(){
   const m = curModel();
   const subj = DEALER_COPY.mailSubject + (m ? ' - ' + m.nm + (state.len ? ' ' + state.len + ' ft' : '') : '');
-  return 'mailto:' + CC_EMAIL + '?subject=' + encodeURIComponent(mailAscii(subj));
+  return 'mailto:' + DEALER_COPY.email + '?subject=' + encodeURIComponent(mailAscii(subj));
 }
 function dealerMailLink(){
   const a = document.createElement('a');
   a.href = dealerMailHref();
-  a.textContent = CC_EMAIL;
+  a.textContent = DEALER_COPY.email;
   a.addEventListener('click', () => { a.href = dealerMailHref(); });   /* the boat chosen by now */
   return a;
 }
@@ -3693,7 +3695,7 @@ function dealerDownload(){
   const c = state.customer;
   const who = [c.first.trim(), c.last.trim()].filter(Boolean).join(' ');
   downloadBuildPDF('Dealer ' + (who || (m ? m.nm + (state.len ? ' ' + state.len + 'ft' : '') : 'Trailer')));
-  toast(DEALER_COPY.pdfToast(CC_EMAIL));
+  toast(DEALER_COPY.pdfToast(DEALER_COPY.email));
 }
 function dealerPrint(){
   if (pricesHidden()){ dealerAsk(); return; }
