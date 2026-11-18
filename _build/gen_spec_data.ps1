@@ -1,3 +1,17 @@
+# =============================================================================
+# RETIRED 2026-11-18 - DO NOT RUN. Stephen's ruling, machine cleanup form 5.
+# Since 2026-10-13 tools/SPEC_DATA.js is written by the canon command
+#   perl _build/gen_from_canon.pl   (from the SPECS tab of SQUIRREL HOLE\CANON)
+# and checked by _build/verify_spec_canon.pl. The shop spec worksheets this
+# script reads are no longer the source of anything on the site (the website as
+# published was the canon's day-one truth, Stephen 2026-10-10).
+# Running it would overwrite canon's spec figures in tools/SPEC_DATA.js with the
+# July worksheet figures, so the guard after param() stops it before it reads
+# or writes anything. Everything below this header is kept for reference only.
+# To change a spec: edit the canon workbook, then run the canon command
+# (SQUIRREL HOLE\CANON\README.md, "The one command").
+# =============================================================================
+
 # gen_spec_data.ps1 - derive tools/SPEC_DATA.js from the shop's spec worksheets.
 #
 # Source of truth: the three SPEC WORKSHEET xlsx files in
@@ -22,6 +36,7 @@
 #   powershell -ExecutionPolicy Bypass -File _build\gen_spec_data.ps1
 param()
 $ErrorActionPreference = 'Stop'
+throw 'gen_spec_data.ps1 is RETIRED (2026-11-18): tools/SPEC_DATA.js comes from the canon command, perl _build/gen_from_canon.pl. Read the header.'
 $repo = Split-Path -Parent $PSScriptRoot
 $src  = 'C:\Users\Stephen\OneDrive - Wooldridge Boats Inc\Documents\WB FILES\2 - SHOP AND TECHNICAL\SPEC WORKSHEETS'
 # Moved 2026-08-02: the shared-library LUKE - DANNY - GRANT - DATA POPULATION folder was
