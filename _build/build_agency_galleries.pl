@@ -76,7 +76,8 @@ my %MODEL = (
   'SKAGIT' => 'Skagit',        'SKAGIT-IB' => 'Skagit Inboard', 'SKAGIT-X' => 'Skagit-X',
   'AK' => 'Alaskan',           'AK LT' => 'Alaskan LT',         'AK XL' => 'Alaskan XL',
   'AK XL-IB' => 'Alaskan XL Inboard', 'AK XLT' => 'Alaskan XLT',
-  'BSR SW' => 'BSR SW',        # USCG-specific model — Tyler: keep it literally "BSR SW"
+  'BSR SW' => 'BSR-SW',        # USCG-specific model — Tyler 2026-11-18: show it as "BSR-SW" (was "BSR SW")
+  'BSR-SW' => 'BSR-SW',        # same boat; Tyler renamed the files to BSR-SW 2026-11-18
   'SCOUT' => 'Scout',          'SCOUT WB' => 'Scout Widebody',  'ROGUE' => 'Rogue',
   'SPORT' => 'Sport',          'SPORT-IB' => 'Sport Inboard',   'SPORTSTER' => 'Sportster',
   'SSD' => 'Super Sport Drifter', 'SSD IB' => 'Super Sport Drifter Inboard',

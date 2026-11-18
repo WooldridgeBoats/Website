@@ -59,7 +59,7 @@ my %MODEL = (
   'SKAGIT-X' => 'Skagit-X', 'SKAGIT IB' => 'Skagit Inboard', 'SKAGIT' => 'Skagit',
   'SPORT OFFSHORE' => 'Sport Offshore', 'SPORT IB' => 'Sport Inboard', 'SPORTSTER' => 'Sportster',
   'SPORT' => 'Sport', 'ROGUE' => 'Rogue', 'CANYON' => 'Canyon', 'DEEPWATER' => 'Deepwater',
-  'BSR SW' => 'BSR SW', 'RIVER RAT' => 'River Rat',
+  'BSR SW' => 'BSR-SW', 'RIVER RAT' => 'River Rat',
 );
 my %CFG = (CC => 'Center Console', WS => 'Windshield', TILLER => 'Tiller', CABIN => 'Cabin',
            PILOTHOUSE => 'Pilothouse', 'AFT WS' => 'Aft Windshield');
