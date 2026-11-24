@@ -3102,6 +3102,21 @@ function wbInquiryBlock(type){
   /* CHAIN-01: the trailer used to vanish here — the parsed block carried no
      trailer line, so it never survived into the Inquiries Hub or the SO */
   if (state.trailer) L.push('Trailer: ' + state.trailer.name + ' — ' + fmt(state.trailer.retail));
+  /* CHAIN-05 (2026-11-24, Stephen's ruling): the block named the trailer and its price but not WHICH
+     equipment the customer ticked, so the Sales Order Creator kept the price and asked the salesman to
+     re-pick the equipment by hand. One line, on every build that has a trailer (all-standard reads
+     "none || none", so "left it standard" is told apart from an older email with no line at all):
+       Trailer equipment: standard removed = <name> ; <name> || optional added = <name> ; <name>
+     Names are the canon item names from the trailer picker's DATA, never the plain() wording the
+     customer sees. No price on this line, ever. It sits right after Trailer ON PURPOSE: the Hub's
+     inqWB() folds an unrecognised line into Options when it directly follows the Options line, and
+     ignores it anywhere else. A ';' or '|' or a non-ASCII character in a future canon name is folded
+     here so the line can never split wrongly (no name holds one today). This block is the only place
+     the equipment is written: the readable sheet, the PDF and the page are unchanged. */
+  if (state.trailer && Array.isArray(state.trailer.eqOff) && Array.isArray(state.trailer.eqOn)){
+    const eqList = function(a){ return a.length ? a.map(function(n){ return mailAscii(n).replace(/\s*[;|]+\s*/g, ' / '); }).join(' ; ') : 'none'; };
+    L.push('Trailer equipment: standard removed = ' + eqList(state.trailer.eqOff) + ' || optional added = ' + eqList(state.trailer.eqOn));
+  }
   /* CHAIN-02: the option list vanished exactly the way the trailer used to - the block carried
      no Options line, so the Hub had to scrape it back out of the YOUR BUILD body text. One line
      (the block is parsed line-by-line), items pipe-separated, sub-note in parens, mirroring
@@ -4166,9 +4181,17 @@ function updateTicket(id){
 function pushTrailer(t){
   const {subtotal, retail, baseKnown, cautions} = totals(t);
   const rounded = Math.ceil(retail/5)*5;
+  /* 2026-11-24: which equipment is ticked, for the WB-INQUIRY block's "Trailer equipment" line (see
+     wbInquiryBlock): the standard items the customer unticked and the optional items they ticked, by the
+     canon item name in DATA. A name that came twice in ONE list would be told apart as name#2, the way
+     the Sales Order Creator keys them; no trailer has one today. */
+  const st = getState(t);
+  const eqNames = list => { const seen = Object.create(null); return list.map(it => { const b = String(it.item); seen[b] = (seen[b] || 0) + 1; return seen[b] > 1 ? b + '#' + seen[b] : b; }); };
   if(window.WB) window.WB.setTrailer({
     id:t.id, name:t.m.name, desc:t.m.desc, boats:t.m.boats,
-    retail:rounded, subtotal, markup, baseKnown, cautions
+    retail:rounded, subtotal, markup, baseKnown, cautions,
+    eqOff:eqNames(t.m.std).filter((_, i) => !st.std[i]),
+    eqOn:eqNames(t.m.opt).filter((_, i) => !!st.opt[i])
   });
 }
 
