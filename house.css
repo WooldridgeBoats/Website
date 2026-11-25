@@ -654,6 +654,9 @@ section{ padding:36px 0; }
   font-family:var(--sans); font-weight:500; font-size:16px; letter-spacing:.02em; color:#fff; background:var(--blue);
   text-decoration:none; padding:13px 28px; border-radius:8px; box-shadow:var(--shadow);
   transition:background .2s, transform .2s, box-shadow .2s; }
+.tagband .tb-more a{ white-space:nowrap; }   /* Tyler 2026-11-25: one clean line, never a tall two-line button on phones */
+@media (max-width:400px){ .tagband .tb-more a{ font-size:15px; letter-spacing:.01em; padding:12px 20px; gap:8px; } }
+@media (max-width:340px){ .tagband .tb-more a{ font-size:14px; letter-spacing:0; padding:12px 16px; } }
 .tagband .tb-more a:hover{ background:var(--blue-dark); color:#fff; transform:translateY(-1px); }
 .tagband .tb-more a:focus-visible{ outline:2px solid var(--blue-dark); outline-offset:3px; }
 .tagband .tb-more a span{ display:inline-block; font-size:18px; line-height:1; transition:transform .2s; }
