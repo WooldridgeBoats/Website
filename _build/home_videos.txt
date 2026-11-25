@@ -10,6 +10,7 @@
 #   perl _build/build_home_videos.pl --sync
 # Rebuild after editing by hand: perl _build/build_home_videos.pl
 
+hg8YNfZD3os | 16′ Alaskan LT: Features, Layout & On-Water Look |  | maxres
 PlYjmMSFUTE | 21′ Scout Widebody: Features, Layout & On-Water Look | 10:48 | maxres
 ZBFK43pgHd0 | Meet the Rogue! An 18′ HDPE Plastic Boat | 8:24 | maxres
 qz7Kgtg2osY | A Father’s Wisdom: A Story of Wooldridge Boats & Mercury Marine® | 8:03 | maxres
