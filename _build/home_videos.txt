@@ -11,9 +11,9 @@
 # Rebuild after editing by hand: perl _build/build_home_videos.pl
 
 hg8YNfZD3os | 16′ Alaskan LT: Features, Layout & On-Water Look |  | maxres
+BsHhMIc3Q_g | 23′ Super Sport Drifter: Features, Layout & On-Water Look | 5:43 | maxres
 PlYjmMSFUTE | 21′ Scout Widebody: Features, Layout & On-Water Look | 10:48 | maxres
-ZBFK43pgHd0 | Meet the Rogue! An 18′ HDPE Plastic Boat | 8:24 | maxres
-qz7Kgtg2osY | A Father’s Wisdom: A Story of Wooldridge Boats & Mercury Marine® | 8:03 | maxres
 2LaW5pHrdSE | How to Remove & Install an Outboard Jet | 27:19 | maxres
-LZEBC-i06WM | 20′ Skagit Electroshock: Features, Layout & On-Water Look | 3:24 | maxres
+ZBFK43pgHd0 | Meet the Rogue! An 18′ HDPE Plastic Boat | 8:24 | maxres
 VnI-Yb19Gaw | How to Adjust Turnbuckles & Trim Blades on a Rogue | 8:49 | maxres
+qz7Kgtg2osY | A Father’s Wisdom: A Story of Wooldridge Boats & Mercury Marine® | 8:03 | maxres
